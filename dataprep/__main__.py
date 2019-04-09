@@ -61,6 +61,7 @@ def run(argv):
         parse_projects.run(full_path_to_dataset)
         print("Stage 2/2. Preprocessing...")
         to_repr.run(os.path.basename(full_path_to_dataset), prep_config, output_path)
+        print(f"The output is ready at {os.path.abspath(output_path)}")
 
 
 if __name__ == '__main__':
