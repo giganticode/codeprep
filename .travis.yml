@@ -5,8 +5,6 @@ python:
   - "3.7"
 install:
   - pip install -r requirements.txt
-  - export PYTHONPATH="$TRAVIS_BUILD_DIR:$PYTHONPATH"
-  - echo "PYTHONPATH is now $PYTHONPATH"
 script:
   - cd $TRAVIS_BUILD_DIR
   - echo "Current directory is $(pwd)"
