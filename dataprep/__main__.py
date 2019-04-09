@@ -34,6 +34,8 @@ from dataprep.api import create_prep_config_from_args
 from dataprep.config import version
 
 
+logger = logging.getLogger(__name__)
+
 def parse_run_options(arguments):
     return arguments
 
@@ -50,11 +52,14 @@ def run(argv):
         prep_text = api.preprocess(run_options['<text>'], prep_config)
         print(prep_text)
     else:
-        print("Stage 1/2: Parsing...")
         full_path_to_dataset = os.path.abspath(run_options['--path'])
+        output_path = run_options['--output-path'] if run_options['--output-path'] else f'{full_path_to_dataset}_preprocessed_{prep_config}'
+        if os.path.exists(output_path):
+            logger.error(f"Output path already exists: {output_path}")
+            exit(23)
+        print("Stage 1/2: Parsing...")
         parse_projects.run(full_path_to_dataset)
         print("Stage 2/2. Preprocessing...")
-        output_path = run_options['--output-path'] if run_options['--output-path'] else f'{full_path_to_dataset}_preprocessed'
         to_repr.run(os.path.basename(full_path_to_dataset), prep_config, output_path)
 
 
