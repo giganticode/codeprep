@@ -6,7 +6,7 @@ python:
 install:
   - pip install -r requirements.txt
 script:
-  - cd $TRAVIS_BUILD_DIR/tests/dataprep
+  - cd $TRAVIS_BUILD_DIR
   - coverage run -m unittest discover -v -s "tests" -p "*.py"
   - coverage report -m
   - coverage xml -i
