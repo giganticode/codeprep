@@ -1,0 +1,11 @@
+language: python
+python:
+  - "3.7"
+install:
+  - git clone http://github.com/giganticode/dataprep
+  - pip install -r requirements.txt
+script:
+  - cd $TRAVIS_BUILD_DIR/tests/dataprep
+  - coverage run -m unittest discover -v -s "tests" -p "*.py"
+  - coverage report -m
+  - coverage xml -i
