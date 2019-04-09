@@ -4,7 +4,6 @@ python:
   - "3.6"
   - "3.7"
 install:
-  - git clone http://github.com/giganticode/dataprep
   - pip install -r requirements.txt
 script:
   - cd $TRAVIS_BUILD_DIR/tests/dataprep
