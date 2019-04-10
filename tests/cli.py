@@ -2,7 +2,7 @@ import unittest
 
 from docopt import DocoptExit
 
-from dataprep.__main__ import parse_command_line
+from dataprep.cli import parse_command_line
 from dataprep.prepconfig import PrepParam, PrepConfig
 
 
