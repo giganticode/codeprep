@@ -39,5 +39,10 @@ setup(name=app_name,
           'tqdm',
           'appdirs'
       ],
+        entry_points={
+          'console_scripts': [
+              'dataprep = dataprep.__main__:main'
+          ]
+      },
       include_package_data=True,
       zip_safe=False)
