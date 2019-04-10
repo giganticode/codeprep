@@ -16,8 +16,7 @@ BPE_DIR = 'bpe'
 current_script_location = os.path.realpath(__file__)
 current_dir = os.path.dirname(current_script_location)
 base_project_dir = os.path.dirname(current_dir)
-base_dir = os.path.join(os.environ['HOME'], ".dataprep")
-data_dir = os.path.join(base_project_dir, 'data')
+data_dir = os.path.join(base_project_dir, 'dataprep', 'data')
 
 app_name='dataprep'
 version='1.0.0-alpha'
