@@ -40,7 +40,7 @@ class CliTest(unittest.TestCase):
         actual = dataprep.nosplit(input_text, no_spaces=True, no_str=True, no_com=True)
 
         expected = ['void', 'test_WordUeberraschungPrinter', '(', ')', '{',
-                    'if', '(', 'eps', '>=', '0.345e+4', ')', '{', '<comment>',
+                    'if', '(', 'eps', '>=', '0.345e+4', ')', '{', com,
                     'printWord', '(', st, ')', ';',
                     '}',
                     '}'
@@ -104,7 +104,7 @@ class CliTest(unittest.TestCase):
         actual = dataprep.basic(input_text, no_spaces=True, no_case=True, no_str=True, no_com=True)
 
         expected = ['void', ws, 'test', '_', cap, 'word', cap, 'ueberraschung', cap, 'printer', we, '(', ')', '{',
-                    'if', '(', 'eps', '>=', '0.345e+4', ')', '{', '<comment>',
+                    'if', '(', 'eps', '>=', '0.345e+4', ')', '{', com,
                     ws, 'print', cap, 'word', we, '(', st, ')', ';',
                     '}',
                     '}'
