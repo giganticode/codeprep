@@ -49,19 +49,9 @@ def break_lines(text):
                   lambda m: f'{m.group(1)}\n', text)
 
 
-def collapse_pads(text):
-    p = placeholders['pad_token']
-    match = re.search(f'({p} )*{p}', text)
-    if match:
-        num = len(match.group(0).split(" "))
-        text = re.sub(f'({p} )*{p}', f'{num}x{p}', text)
-    return text
-
-
 def beautify_text(text: str) -> str:
     text = restore_capitalization(text)
     text = text.replace('<eos>', '\n')
-    text = collapse_pads(text)
     text = beautify_placeholders(text)
 
     text = restore_words_from_subwords(text)

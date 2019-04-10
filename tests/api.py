@@ -9,6 +9,8 @@ ws = placeholders['word_start']
 we = placeholders['word_end']
 ce = placeholders['olc_end']
 ne = placeholders['non_eng']
+st = placeholders['string_literal']
+com = placeholders['comment']
 
 input_text='''void test_WordUeberraschungPrinter() {
     if (eps >= 0.345e+4) { // FIXME
@@ -22,7 +24,7 @@ class CliTest(unittest.TestCase):
         actual = dataprep.nosplit(input_text, no_spaces=True)
 
         expected = ['void', 'test_WordUeberraschungPrinter', '(', ')', '{',
-                    'if', '(', 'eps', '>=', '0.345e+4', ')', '{', '//', 'FIXME', 'm`',
+                    'if', '(', 'eps', '>=', '0.345e+4', ')', '{', '//', 'FIXME', ce,
                     'printWord', '(', '"', '.', '.', '.', 'Überraschung', '"', ')', ';',
                     '}',
                     '}'
@@ -39,7 +41,7 @@ class CliTest(unittest.TestCase):
 
         expected = ['void', 'test_WordUeberraschungPrinter', '(', ')', '{',
                     'if', '(', 'eps', '>=', '0.345e+4', ')', '{', '<comment>',
-                    'printWord', '(', '<str_literal>', ')', ';',
+                    'printWord', '(', st, ')', ';',
                     '}',
                     '}'
         ]
@@ -50,7 +52,7 @@ class CliTest(unittest.TestCase):
         actual = dataprep.nosplit(input_text)
 
         expected = ['void', 'test_WordUeberraschungPrinter', '(', ')', '{', '\n',
-                    '\t', 'if', '(', 'eps', '>=', '0.345e+4', ')', '{', '//', 'FIXME', 'm`', '\n',
+                    '\t', 'if', '(', 'eps', '>=', '0.345e+4', ')', '{', '//', 'FIXME', placeholders['olc_end'], '\n',
                     '\t', '\t', 'printWord', '(', '"', '\t', '.', '.', '.', '\t', 'Überraschung', '"', ')', ';', '\n',
                     '\t', '}', '\n',
                     '}'
@@ -91,7 +93,7 @@ class CliTest(unittest.TestCase):
 
         expected = ['void', ws, 'test', '_', cap, 'word', cap, 'ueberraschung', cap, 'printer', we, '(', ')', '{',
                     'if', '(', 'eps', '>=', '0.345e+4', ')', '{', '//', caps, 'fixme', ce,
-                    ws, 'print', cap, 'word', we, '(', '<str_literal>', ')', ';',
+                    ws, 'print', cap, 'word', we, '(', st, ')', ';',
                     '}',
                     '}'
         ]
@@ -103,7 +105,7 @@ class CliTest(unittest.TestCase):
 
         expected = ['void', ws, 'test', '_', cap, 'word', cap, 'ueberraschung', cap, 'printer', we, '(', ')', '{',
                     'if', '(', 'eps', '>=', '0.345e+4', ')', '{', '<comment>',
-                    ws, 'print', cap, 'word', we, '(', '<str_literal>', ')', ';',
+                    ws, 'print', cap, 'word', we, '(', st, ')', ';',
                     '}',
                     '}'
         ]
@@ -114,7 +116,7 @@ class CliTest(unittest.TestCase):
         actual = dataprep.basic(input_text, no_spaces=True, no_case=True, no_com=True)
 
         expected = ['void', ws, 'test', '_', cap, 'word', cap, 'ueberraschung', cap, 'printer', we, '(', ')', '{',
-                    'if', '(', 'eps', '>=', '0.345e+4', ')', '{', '<comment>',
+                    'if', '(', 'eps', '>=', '0.345e+4', ')', '{', com,
                     ws, 'print', cap, 'word', we, '(', '"', '.', '.', '.', cap,  'überraschung', '"', ')', ';',
                     '}',
                     '}'

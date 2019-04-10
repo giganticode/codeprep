@@ -8,17 +8,7 @@ logger = logging.getLogger(__name__)
 capitals = [placeholders['capital'], placeholders['capitals']]
 
 ignorable_tokens = [
-    placeholders['ect'],
-    placeholders['log_statement'],
-    placeholders['log_statement_end'],
-    placeholders['loggable_block'],
-    placeholders['loggable_block_end'],
-    placeholders['trace'],
-    placeholders['debug'],
-    placeholders['info'],
-    placeholders['warn'],
-    placeholders['error'],
-    placeholders['fatal']
+    placeholders['ect']
 ]
 
 

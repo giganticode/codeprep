@@ -10,9 +10,6 @@ def iter_to_int_list(it):
 class FullwordIteratorTest(unittest.TestCase):
     def test1(self):
         input_str = ['}', '}',
-                     placeholders['log_statement'],
-                     placeholders['info'],
-                     placeholders['log_statement_end'],
                      placeholders['word_start'],
                      placeholders['capital'],
                      'a',
@@ -21,7 +18,7 @@ class FullwordIteratorTest(unittest.TestCase):
                      '}',
                      placeholders['capitals']]
 
-        full_word_indexes = [(0, 1), (1, 2), (5, 10), (10, 11)]
+        full_word_indexes = [(0, 1), (1, 2), (2, 7), (7, 8)]
 
         expected = [(input_str[range[0]: range[1]], range) for range in full_word_indexes]
 

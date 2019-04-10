@@ -1,14 +1,21 @@
 import unittest
 
+from dataprep.model.placeholders import placeholders
 from dataprep.split.beautify import beautify_text
 
-text_boundaries = '''
-<pad> <pad> <pad> public `w `C ar ti fact `C request `C builder w` `w ar ti fact w` ( final `C string `w group `C id w` , final `C string `w ar ti fact `C id w` , final `C string version , final `C string `w exten sion w` , final `C string `w class i fier w` ) { `w set `C ar ti fact w` ( new `w `C default `C ar ti fact w` ( `w group `C id w` , `w ar ti fact `C id w` , `w class i fier w` , `w exten sion w` , version ) ) ; return this ; } } ``
-/* * `C copyright ( c ) `w 200 9 w` - `w 20 11 w` `w `C son at y pe w` , `C inc . * `C all `w right s w` `w re ser ved w` . `C this program and the `w ac comp any ing w` `w mat er i als w` * are `w ma de w` `w avai lable w` under the terms of the `C eclipse `C public `C license `w v 1 w` . 0 * and `C apache `C license `w v 2 w` . 0 which `w ac comp an i es w` this `w distribu tion w` . * `C the `C eclipse `C public `C license is `w avai lable w` at * http : // www . eclipse . org / legal / `w ep l w` - `w v 10 w` . html * `C the `C apache `C license `w v 2 w` . 0 is `w avai lable w` at * http : // www . apache . org / licenses / `Cs license - 2 . 0 . html * `C you may `w e le ct w` to `w re dist ribute w` this code under either of `w the se w` licenses . */ package org . `w son at y pe w` . `w s is u w` . `w m av en w` . `w b rid ge w` . `w sup port w` ; import java . util . `w `C array `C list w` ; import java . util . `C collection ; import org . apache . `w m av en w` . model . `w `C re pos it ory w` ; import org . `w son at y pe w` . `w a e ther w` . `w re pos it ory w` . `w `C remo te `C re pos it ory w` ; import org . `w son at y pe w` . `w a e ther w` . `w re pos it ory w` . `w `C re pos it ory `C po lic y w` ; /* * * `w `Cs to do w`
+ws = placeholders['word_start']
+we = placeholders['word_end']
+cap = placeholders['capital']
+caps = placeholders['capitals']
+ect = placeholders['ect']
+
+text_boundaries = f'''
+public {ws} {cap} ar ti fact {cap} request {cap} builder {we} {ws} ar ti fact {we} ( final {cap} string {ws} group {cap} id {we} , final {cap} string {ws} ar ti fact {cap} id {we} , final {cap} string version , final {cap} string {ws} exten sion {we} , final {cap} string {ws} class i fier {we} ) {{ {ws} set {cap} ar ti fact {we} ( new {ws} {cap} default {cap} ar ti fact {we} ( {ws} group {cap} id {we} , {ws} ar ti fact {cap} id {we} , {ws} class i fier {we} , {ws} exten sion {we} , version ) ) ; return this ; }} }} {ect}
+/* * {cap} copyright ( c ) {ws} 200 9 {we} - {ws} 20 11 {we} {ws} {cap} son at y pe {we} , {cap} inc . * {cap} all {ws} right s {we} {ws} re ser ved {we} . {cap} this program and the {ws} ac comp any ing {we} {ws} mat er i als {we} * are {ws} ma de {we} {ws} avai lable {we} under the terms of the {cap} eclipse {cap} public {cap} license {ws} v 1 {we} . 0 * and {cap} apache {cap} license {ws} v 2 {we} . 0 which {ws} ac comp an i es {we} this {ws} distribu tion {we} . * {cap} the {cap} eclipse {cap} public {cap} license is {ws} avai lable {we} at * http : // www . eclipse . org / legal / {ws} ep l {we} - {ws} v 10 {we} . html * {cap} the {cap} apache {cap} license {ws} v 2 {we} . 0 is {ws} avai lable {we} at * http : // www . apache . org / licenses / {caps} license - 2 . 0 . html * {cap} you may {ws} e le ct {we} to {ws} re dist ribute {we} this code under either of {ws} the se {we} licenses . */ package org . {ws} son at y pe {we} . {ws} s is u {we} . {ws} m av en {we} . {ws} b rid ge {we} . {ws} sup port {we} ; import java . util . {ws} {cap} array {cap} list {we} ; import java . util . {cap} collection ; import org . apache . {ws} m av en {we} . model . {ws} {cap} re pos it ory {we} ; import org . {ws} son at y pe {we} . {ws} a e ther {we} . {ws} re pos it ory {we} . {ws} {cap} remo te {cap} re pos it ory {we} ; import org . {ws} son at y pe {we} . {ws} a e ther {we} . {ws} re pos it ory {we} . {ws} {cap} re pos it ory {cap} po lic y {we} ; /* * * {ws} {caps} to do {we}
 '''
 
 text_boundaries_expected = '''
-3x<pad> public ArtifactRequestBuilder artifact ( final String groupId , final String artifactId , final String version , final String extension , final String classifier ){
+public ArtifactRequestBuilder artifact ( final String groupId , final String artifactId , final String version , final String extension , final String classifier ){
 setArtifact ( new DefaultArtifact ( groupId , artifactId , classifier , extension , version ) );
 return this;
 }
@@ -32,7 +39,7 @@ import org.sonatype.aether.repository.RepositoryPolicy;
 
 class UtilTest(unittest.TestCase):
     def test_beautify_1(self):
-        text_boundaries1 = '`w `C ar ti fact `C req uest `C build er `C cl ass w`'
+        text_boundaries1 = f'{ws} {cap} ar ti fact {cap} req uest {cap} build er {cap} cl ass {we}'
 
         actual = beautify_text(text_boundaries1)
 
@@ -41,7 +48,7 @@ class UtilTest(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_beautify_2(self):
-        text_boundaries1 = '`w `Cs to do w`'
+        text_boundaries1 = f'{ws} {caps} to do {we}'
 
         actual = beautify_text(text_boundaries1)
 
@@ -50,7 +57,7 @@ class UtilTest(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_beautify_3(self):
-        text_boundaries1 = '`w TO DO w`'
+        text_boundaries1 = f'{ws} TO DO {we}'
 
         actual = beautify_text(text_boundaries1)
 
