@@ -18,7 +18,6 @@ setup(name=app_name,
       author_email='hlibbabii@gmail.com',
       license='MIT',
       packages=find_packages(),
-      # scripts=['bin/run'],
       classifiers=[
           'Development Status :: 3 - Alpha',
           'Environment :: Console',
