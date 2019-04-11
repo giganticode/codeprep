@@ -1,5 +1,6 @@
 import multiprocessing
 import os
+from datetime import datetime
 
 import threading
 from typing import Dict, Tuple, List
@@ -154,6 +155,17 @@ def file_mapper(dir, func, extension="java", ignore_prefix="."):
                 ret = func(os.path.join(root, file))
                 if ret is not None:
                     yield ret
+
+
+def get_dir_last_modification(dir):
+    mtime = max(os.path.getmtime(root) for root, _, _ in os.walk(dir))
+    return datetime.fromtimestamp(mtime)
+
+
+def get_timestamp_for_folder(path):
+    last_modif_time = get_dir_last_modification(path)
+    return last_modif_time.strftime("%y-%m-%dT%H-%M-%S")
+
 
 def get_two_levels_subdirs(dir):
     subdirs = next(os.walk(dir))[1]

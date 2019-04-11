@@ -32,6 +32,7 @@ from dataprep import api, parse_projects, to_repr
 from dataprep.api import create_prep_config_from_args
 from dataprep.config import app_name, version
 from dataprep.to_repr import check_dir_ready
+from dataprep.util import get_timestamp_for_folder
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +54,9 @@ def run(argv):
         print(prep_text)
     else:
         full_path_to_dataset = os.path.abspath(run_options['--path'])
-        output_path = run_options['--output-path'] if run_options['--output-path'] else f'{full_path_to_dataset}_preprocessed_{prep_config}'
+        dataset_last_modified = get_timestamp_for_folder(full_path_to_dataset)
+        output_path = run_options['--output-path'] if run_options['--output-path'] \
+            else f'{full_path_to_dataset}_{dataset_last_modified}_preprocessed_{prep_config}'
         if check_dir_ready(output_path):
             logger.error(f"Output path already exists: {output_path}")
             exit(23)

@@ -3,8 +3,8 @@ import logging
 import os
 from typing import Optional, TypeVar, Type
 
-from dataprep.config import PARSED_DIR, DEFAULT_PARSED_DATASETS_DIR
-from dataprep.util import get_two_levels_subdirs
+from dataprep.config import DEFAULT_PARSED_DATASETS_DIR
+from dataprep.util import get_two_levels_subdirs, get_timestamp_for_folder
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +35,6 @@ class FS(object):
 
     #####################################################
 
-
     @property
     def path_to_dataset(self):
         return self._path_to_dataset
@@ -48,12 +47,10 @@ class FS(object):
     def repr(self) -> str:
         return self._repr
 
-    #################################################
-
     @property
     def path_to_parsed_dataset(self) -> str:
-        return os.path.join(DEFAULT_PARSED_DATASETS_DIR, self.dataset)
-
+        return os.path.join(DEFAULT_PARSED_DATASETS_DIR,
+                            f'{self.dataset}_{get_timestamp_for_folder(self.path_to_dataset)}')
 
     ###################################
 
