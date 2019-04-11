@@ -6,7 +6,7 @@ root_package_name = 'dataprep'
 
 
 def readme():
-    with open(os.path.join(root_package_name, 'README.md')) as f:
+    with open('README.md') as f:
         return f.read()
 
 
