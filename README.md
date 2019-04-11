@@ -88,7 +88,7 @@ To tokenize the corpus without splitting any tokens,
 but instead remove string literals and comments, 
 and remove all tabs and newlines:
 
-```bash
+```python
 >>> import dataprep
 >>> dataprep.nosplit('newValue_tmp = "3"  //FIXME', no_str=True, no_com=True, no_spaces=True)
 ['newValue_tmp', '=', '<str-literal>', '<comment>']
@@ -102,7 +102,7 @@ To
 
 run:
 
-```bash
+```python
 >>> import dataprep
 >>> dataprep.bpe('newValue_tmp = "3"  //FIXME', '5k', no_case=True, no_unicode=True)
 ['<w>', 'new', '<Cap>', 'value', '_', 'tmp', '</w>', '=', '"', '3', '"', '//', '<w>', '<CAPS>', 'fix', 'me', '</w>']
