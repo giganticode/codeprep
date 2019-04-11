@@ -14,12 +14,13 @@ PARSED_DIR = 'parsed'
 BPE_DIR = 'bpe'
 
 current_script_location = os.path.realpath(__file__)
-current_dir = os.path.dirname(current_script_location)
-base_project_dir = os.path.dirname(current_dir)
-data_dir = os.path.join(base_project_dir, 'dataprep', 'data')
+root_package_dir = os.path.dirname(current_script_location)
+data_dir = os.path.join(root_package_dir, 'data')
 
 app_name='dataprep'
-version='1.0.0-alpha'
+
+with open(os.path.join(root_package_dir, 'VERSION')) as version_file:
+    version = version_file.read().strip()
 
 USER_CONFIG_DIR = appdirs.user_config_dir(app_name, appauthor=False, version=version)
 USER_CACHE_DIR = appdirs.user_cache_dir(app_name, appauthor=False, version=version)

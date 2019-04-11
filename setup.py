@@ -1,15 +1,22 @@
+import os
+
 from setuptools import setup, find_packages
 
-from dataprep.config import version, app_name
+root_package_name = 'dataprep'
 
 
 def readme():
-    with open('README.md') as f:
+    with open(os.path.join(root_package_name, 'README.md')) as f:
         return f.read()
 
 
-setup(name=app_name,
-      version=version,
+def version():
+    with open(os.path.join(root_package_name, 'VERSION')) as version_file:
+        return version_file.read().strip()
+
+
+setup(name='dataprep',
+      version=version(),
       description='A toolkit for pre-processing large source code corpora',
       long_description=readme(),
       long_description_content_type="text/markdown",
@@ -36,11 +43,12 @@ setup(name=app_name,
           'jsons',
           'regex',
           'tqdm',
-          'appdirs'
+          'appdirs',
+          'PyYAML'
       ],
         entry_points={
           'console_scripts': [
-              'dataprep = dataprep.__main__:main'
+              f'dataprep = {root_package_name}.__main__:main'
           ]
       },
       include_package_data=True,

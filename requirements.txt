@@ -4,3 +4,4 @@ jsons==0.8.3
 regex==2019.3.12
 tqdm==4.31.1
 coverage==4.5.3
+PyYAML==5.1

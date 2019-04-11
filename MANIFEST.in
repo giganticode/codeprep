@@ -1,1 +1,4 @@
 graft dataprep/data
+include dataprep/VERSION
+include dataprep/*.yaml
+include dataprep/*.md
