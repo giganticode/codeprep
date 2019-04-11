@@ -56,6 +56,15 @@ def create_prep_config_from_args(arguments):
 
 
 def nosplit(text: str, no_str: bool=False, no_com: bool=False, no_spaces: bool=False) -> List[str]:
+    """
+    Split `text` into tokens leaving compound identifiers as they are.
+
+    :param text: text to be split.
+    :param no_str: set to True to replace each string literals with a special token, e.g <str_literal>.
+    :param no_com: set to True to replace each comment with a special token, e.g. <comment>.
+    :param no_spaces: set to True to remove tabs and newlines.
+    :return: list of tokens `text` was split into.
+    """
     d = collections.defaultdict(bool)
     args = {
         '--no-str': no_str,
@@ -68,6 +77,20 @@ def nosplit(text: str, no_str: bool=False, no_com: bool=False, no_spaces: bool=F
 
 
 def chars(text: str, no_str: bool=False, no_com: bool=False, no_spaces: bool=False, no_unicode: bool=False, no_case: bool=False) -> List[str]:
+    """
+    Split `text` into characters (With the exception of operators that consist of 2 character: such operators will remain as a single token).
+    So that the information about original word boundaries is not lost, special tokens are inserted to denote original words beginnings and ends,
+    e.g. myClass -> [<w>, m, y, C, l, a, s, s, </w>]
+
+    :param text: text to be split.
+    :param no_str: set to True to replace each string literals with a special token, e.g <str_literal>.
+    :param no_com: set to True to replace each comment with a special token, e.g. <comment>.
+    :param no_spaces: set to True to remove tabs and newlines.
+    :param no_case: set to True to lowercase identifiers and encode information about their case in a separate token,
+    e.g. Identifier -> [<Cap>, identifier]; IDENTIFIER -> [<CAPS>, identifier]
+    :param no_unicode: set to True to replace each word containing non-ascii characters to a special token,  e.g. <non-en>
+    :return: list of tokens `text` was split into.
+    """
     d = collections.defaultdict(bool)
     args = {
         '--no-str': no_str,
@@ -82,6 +105,20 @@ def chars(text: str, no_str: bool=False, no_com: bool=False, no_spaces: bool=Fal
 
 
 def basic(text: str, no_str: bool=False, no_com: bool=False, no_spaces: bool=False, no_unicode: bool=False, no_case: bool=False) -> List[str]:
+    """
+    Split `text` into tokens converting identifiers that follow CamelCase or snake_case into multiple subwords.
+    So that the information about original word boundaries is not lost, special tokens are inserted to denote original words beginnings and ends,
+    e.g. myClass -> [<w>, my, Class, </w>]
+
+    :param text: text to be split.
+    :param no_str: set to True to replace each string literals with a special token, e.g <str_literal>.
+    :param no_com: set to True to replace each comment with a special token, e.g. <comment>.
+    :param no_spaces: set to True to remove tabs and newlines.
+    :param no_case: set to True to lowercase identifiers and encode information about their case in a separate token,
+    e.g. Identifier -> [<Cap>, identifier]; IDENTIFIER -> [<CAPS>, identifier]
+    :param no_unicode: set to True to replace each word containing non-ascii characters to a special token,  e.g. <non-en>
+    :return: list of tokens `text` was split into.
+    """
     d = collections.defaultdict(bool)
     args = {
         '--no-str': no_str,
@@ -96,6 +133,21 @@ def basic(text: str, no_str: bool=False, no_com: bool=False, no_spaces: bool=Fal
 
 
 def basic_with_numbers(text: str, no_str: bool=False, no_com: bool=False, no_spaces: bool=False, no_unicode: bool=False, no_case: bool=False) -> List[str]:
+    """
+    Split `text` into tokens converting identifiers that follow CamelCase or snake_case into multiple subwords,
+    and numbers into sequence of digits. So that the information about original word boundaries is not lost,
+    special tokens are inserted to denote original words beginnings and ends,
+    e.g. myClass = 23 -> [<w>, my, Class, </w>, =, <w> 2 3 </w>]
+
+    :param text: text to be split.
+    :param no_str: set to True to replace each string literals with a special token, e.g <str_literal>.
+    :param no_com: set to True to replace each comment with a special token, e.g. <comment>.
+    :param no_spaces: set to True to remove tabs and newlines.
+    :param no_case: set to True to lowercase identifiers and encode information about their case in a separate token,
+    e.g. Identifier -> [<Cap>, identifier]; IDENTIFIER -> [<CAPS>, identifier]
+    :param no_unicode: set to True to replace each word containing non-ascii characters to a special token,  e.g. <non-en>
+    :return: list of tokens `text` was split into.
+    """
     d = collections.defaultdict(bool)
     args = {
         '--no-str': no_str,
@@ -111,6 +163,22 @@ def basic_with_numbers(text: str, no_str: bool=False, no_com: bool=False, no_spa
 
 
 def bpe(text: str, bpe_config: str, no_str: bool=False, no_com: bool=False, no_spaces: bool=False, no_unicode: bool=False, no_case: bool=False) -> List[str]:
+    """
+    Split `text` into tokens converting identifiers that follow CamelCase or snake_case into multiple subwords.
+    On top of that Byte Pair Encoding (BPE) is applied with number of merges specified in `bpe_config`.
+    So that the information about original word boundaries is not lost, special tokens are inserted to denote original words beginnings and ends,
+    e.g. myClass -> [<w>, my, Class, </w>]
+
+    :param text: text to be split.
+    :param bpe_config: number of bpe merges to use, possible values: 1k, 5k, 10k.
+    :param no_str: set to True to replace each string literals with a special token, e.g <str_literal>.
+    :param no_com: set to True to replace each comment with a special token, e.g. <comment>.
+    :param no_spaces: set to True to remove tabs and newlines.
+    :param no_case: set to True to lowercase identifiers and encode information about their case in a separate token,
+    e.g. Identifier -> [<Cap>, identifier]; IDENTIFIER -> [<CAPS>, identifier]
+    :param no_unicode: set to True to replace each word containing non-ascii characters to a special token,  e.g. <non-en>
+    :return: list of tokens `text` was split into.
+    """
     d = collections.defaultdict(bool)
     args = {
         '--no-str': no_str,
