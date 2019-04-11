@@ -31,6 +31,7 @@ from docopt import docopt
 from dataprep import api, parse_projects, to_repr
 from dataprep.api import create_prep_config_from_args
 from dataprep.config import app_name, version
+from dataprep.to_repr import check_dir_ready
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +54,7 @@ def run(argv):
     else:
         full_path_to_dataset = os.path.abspath(run_options['--path'])
         output_path = run_options['--output-path'] if run_options['--output-path'] else f'{full_path_to_dataset}_preprocessed_{prep_config}'
-        if os.path.exists(output_path):
+        if check_dir_ready(output_path):
             logger.error(f"Output path already exists: {output_path}")
             exit(23)
         print("Stage 1/2: Parsing...")

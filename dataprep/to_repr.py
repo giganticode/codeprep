@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 PARSED_FILE_EXTENSION = "parsed"
 REPR_EXTENSION = "repr"
 NOT_FINISHED_EXTENSION = "part"
-
+READY_FILE = '.ready'
 
 class ReprWriter(metaclass=ABCMeta):
     def __init__(self, dest_file, mode, extension):
@@ -122,6 +122,14 @@ def init_splitting_config(prep_config: PrepConfig, bpe_n_merges: Optional[int]):
         global_n_gramm_splitting_config.set_splitting_type(NgramSplittingType.ONLY_NUMBERS)
 
 
+def mark_dir_as_ready(dir):
+    open(os.path.join(dir, READY_FILE), 'a').close()
+
+
+def check_dir_ready(dir):
+    return os.path.exists(os.path.join(dir, READY_FILE))
+
+
 def run(dataset: str, prep_config: PrepConfig, full_dest_dir: str, bpe_n_merges: Optional[int] = None):
     path_to_dataset = os.path.join(DEFAULT_PARSED_DATASETS_DIR, dataset)
 
@@ -135,10 +143,6 @@ def run(dataset: str, prep_config: PrepConfig, full_dest_dir: str, bpe_n_merges:
     logger.info(f"Writing preprocessed files to {os.path.abspath(full_dest_dir)}")
     if not os.path.exists(full_dest_dir):
         os.makedirs(full_dest_dir)
-
-    with open(os.path.join(full_dest_dir, 'preprocessing_types.json'), "w") as f:
-        json_str = jsons.dumps(prep_config)
-        f.write(json_str)
 
     params = []
     for root, dirs, files in os.walk(path_to_dataset):
@@ -156,6 +160,7 @@ def run(dataset: str, prep_config: PrepConfig, full_dest_dir: str, bpe_n_merges:
         it = pool.imap_unordered(preprocess_and_write, params)
         for _ in tqdm(it, total=files_total):
             pass
+    mark_dir_as_ready(full_dest_dir)
 
 
 if __name__ == '__main__':

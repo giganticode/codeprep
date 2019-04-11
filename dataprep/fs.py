@@ -55,17 +55,6 @@ class FS(object):
         return os.path.join(DEFAULT_PARSED_DATASETS_DIR, self.dataset)
 
 
-    ######################################
-
-    def save_pp_params(self, pp_params):
-        with open(os.path.join(self.path_to_parsed_dataset, PP_PARAMS_FILENAME), 'w') as f:
-            json.dump(pp_params, f)
-
-    def save_preprocessing_types(self, preprocessing_types):
-        with open(os.path.join(self.path_to_parsed_dataset, PREPROCESSING_TYPES_FILENAME), 'w') as f:
-            json.dump(preprocessing_types, f)
-
-
     ###################################
 
     def get_raw_projects(self):

@@ -91,9 +91,6 @@ def run(path_to_dataset):
     logger.info(f"Writing preprocessed files to {fs.path_to_parsed_dataset}")
     preprocessing_types_dict = {k: None for k in PrepParam}
 
-    fs.save_pp_params(pp_params)
-    fs.save_preprocessing_types(preprocessing_types_dict)
-
     params = []
 
     for train_test_valid, project in fs.get_raw_projects():
