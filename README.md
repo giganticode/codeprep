@@ -50,14 +50,14 @@ dataprep --path /path/to/the/dataset --no-str --no-com --no-spaces nosplit
 
 To 
 1. lowercase all the words in the dataset; 
-1. filter out words containin non-ascii characters;
+1. filter out words containing non-ascii characters;
 3. camelCase- and snake_case- split; 
 4. apply bpe with 5k merges on top;
 
 run:
 
 ```bash
-dataprep --path /path/to/the/dataset --no-str --no-com --no-spaces nosplit
+dataprep --path /path/to/the/dataset --no-case --no-unicode bpe 5k
 ```
 
 To convert smaller amount of text, instead of providing a path 
@@ -76,7 +76,37 @@ dataprep --help
 
 ### API
 
-\<TBD>
+To tokenize the corpus and split camelCase and snake_case words run:
+
+```python
+>>> import dataprep
+>>> dataprep.basic('newValue_tmp = "3"  //FIXME')
+['<w>', 'new', 'Value', '_', 'tmp', '</w>', '=', '"', '3', '"', '\t', '//', 'FIXME']
+```
+
+To tokenize the corpus without splitting any tokens, 
+but instead remove string literals and comments, 
+and remove all tabs and newlines:
+
+```bash
+>>> import dataprep
+>>> dataprep.nosplit('newValue_tmp = "3"  //FIXME', no_str=True, no_com=True, no_spaces=True)
+['newValue_tmp', '=', '<str-literal>', '<comment>']
+```
+
+To 
+1. lowercase all the words in the dataset; 
+1. filter out words containin non-ascii characters;
+3. camelCase- and snake_case- split; 
+4. apply bpe with 5k merges on top;
+
+run:
+
+```bash
+>>> import dataprep
+>>> dataprep.bpe('newValue_tmp = "3"  //FIXME', '5k', no_case=True, no_unicode=True)
+['<w>', 'new', '<Cap>', 'value', '_', 'tmp', '</w>', '=', '"', '3', '"', '//', '<w>', '<CAPS>', 'fix', 'me', '</w>']
+```
 
 # Advanced
 
