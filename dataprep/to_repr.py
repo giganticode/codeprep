@@ -105,7 +105,6 @@ def init_splitting_config(prep_config: PrepConfig, bpe_n_merges: Optional[int]):
             bpe_n_merges_dict = {4: '5k', 5: '1k', 6: '10k', 7: '20k', 8: '0'}
             bpe_n_merges = bpe_n_merges_dict[prep_config.get_param_value(PrepParam.SPLIT)]
 
-        logger.info(f'Using bpe_n_merges: {bpe_n_merges}')
         bpe_merges_file = os.path.join(DEFAULT_BPE_DIR,
                                           CASE_DIR if prep_config.get_param_value(PrepParam.CAPS) == 0 else NO_CASE_DIR,
                                           str(bpe_n_merges), 'merges.txt')
