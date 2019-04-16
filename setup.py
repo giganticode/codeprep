@@ -15,7 +15,7 @@ def version():
         return version_file.read().strip()
 
 
-setup(name='dataprep',
+setup(name='giganticode-dataprep',
       version=version(),
       description='A toolkit for pre-processing large source code corpora',
       long_description=readme(),
