@@ -19,13 +19,15 @@ python -m pip install --upgrade pip setuptools wheel
 To install the **dataprep** follow the steps below:
 ```bash
 git clone https://github.com/giganticode/dataprep
-pip install ./dataprep
+cd dataprep
+git checkout release-0.1.x
+pip install .
 ```
 
 At this point you should be able to run:
 ```bash
 dataprep --version
->> dataprep 1.0.0-alpha
+>> dataprep 0.1.0-alpha
 ```
 
 # Usage examples
