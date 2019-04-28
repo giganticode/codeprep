@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 
 import threading
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple, List, Optional
 import itertools
 from heapq import heappush, heappop, heapify
 
@@ -177,22 +177,24 @@ def get_two_levels_subdirs(dir):
 class PriorityCounter(object):
     REMOVED = '<removed-task>'  # placeholder for a removed task
 
-    def __init__(self, d):
-        self.counter = itertools.count()
-        self.pq = [[-value, next(self.counter), key] for key, value in d.items()]  # list of entries arranged in a heap
+    def __init__(self, d: Dict, automatic_count: bool=True):
+        self.counter = itertools.count() if automatic_count else None
+        self.pq = [[(-value, next(self.counter)) if self.counter else (-value[0], value[1]), key] for key, value in d.items()]  # list of entries arranged in a heap
         heapify(self.pq)
-        self.entry_finder = {entry[2]: entry for entry in self.pq}  # mapping of tasks to entries
+        self.entry_finder = {entry[1]: entry for entry in self.pq}  # mapping of tasks to entries
 
-    def add(self, pair, to_add):
+    def add(self, pair, to_add: int, c: Optional[int]=None):
         'Add a new task or update the priority of an existing task'
-        count = next(self.counter)
+        if (self.counter is None) == (c is None):
+            raise ValueError("Either counter should be set, or count argument should be passed!")
+        count = next(self.counter) if self.counter else c
         to_add = -to_add
         if pair in self.entry_finder:
             entry = self.entry_finder[pair]
-            to_add = entry[0] + to_add
+            to_add = entry[0][0] + to_add
             self.remove_task(pair)
         if to_add != 0:
-            entry = [to_add, count, pair]
+            entry = [(to_add, count), pair]
             self.entry_finder[pair] = entry
             heappush(self.pq, entry)
 
@@ -204,8 +206,46 @@ class PriorityCounter(object):
     def pop_pair(self):
         'Remove and return the lowest priority task. Raise KeyError if empty.'
         while self.pq:
-            priority, count, pair = heappop(self.pq)
+            (priority, count), pair = heappop(self.pq)
             if pair is not PriorityCounter.REMOVED:
                 del self.entry_finder[pair]
-                return pair
+                return pair, -priority
         raise KeyError('pop from an empty priority queue')
+
+
+import sys
+from numbers import Number
+from collections import Set, Mapping, deque
+
+
+# From https://stackoverflow.com/a/30316760:
+def getsize(obj):
+    zero_depth_bases = (str, bytes, Number, range, bytearray)
+    iteritems = 'items'
+
+    def _getsize(obj_0):
+        """Recursively iterate to sum size of object & members."""
+        _seen_ids = set()
+
+        def inner(obj):
+            obj_id = id(obj)
+            if obj_id in _seen_ids:
+                return 0
+            _seen_ids.add(obj_id)
+            size = sys.getsizeof(obj)
+            if isinstance(obj, zero_depth_bases):
+                pass  # bypass remaining control flow and return
+            elif isinstance(obj, (tuple, list, Set, deque)):
+                size += sum(inner(i) for i in obj)
+            elif isinstance(obj, Mapping) or hasattr(obj, iteritems):
+                size += sum(inner(k) + inner(v) for k, v in getattr(obj, iteritems)())
+            # Check for custom object instances - may subclass above too
+            if hasattr(obj, '__dict__'):
+                size += inner(vars(obj))
+            if hasattr(obj, '__slots__'):  # can have __slots__ with __dict__
+                size += sum(inner(getattr(obj, s)) for s in obj.__slots__ if hasattr(obj, s))
+            return size
+
+        return inner(obj_0)
+
+    return _getsize(obj)
