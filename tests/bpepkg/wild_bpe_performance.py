@@ -4,8 +4,8 @@ from typing import List
 
 import matplotlib.pyplot as plt
 
-from dataprep.bpe import wild_bpe
-from dataprep.bpe.wild_bpe import BpePerformanceStatsEntry, run
+from dataprep.bpepkg import wild_bpe
+from dataprep.bpepkg.wild_bpe import BpePerformanceStatsEntry, run
 
 
 def gen_performance_test_case(data_size_mb: float, entropy: int):

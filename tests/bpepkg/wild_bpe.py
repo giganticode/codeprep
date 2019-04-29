@@ -1,6 +1,6 @@
 import unittest
 
-from dataprep.bpe.wild_bpe import run_from_text, are_symmetric, can_be_concat, Side, merge_lists_both, \
+from dataprep.bpepkg.wild_bpe import run_from_text, are_symmetric, can_be_concat, Side, merge_lists_both, \
     choose_positions_to_merge
 
 
