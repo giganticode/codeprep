@@ -1,4 +1,5 @@
 import logging
+import os
 import sys
 import time
 from collections import defaultdict
@@ -10,7 +11,7 @@ from dataprep.util import PriorityCounter, getsize
 
 logger = logging.getLogger(__name__)
 
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class BpePerformanceStatsEntry(object):
@@ -45,12 +46,35 @@ class Side(Enum):
             return Side.LEFT
 
 
-def get_char_iterator(path_to_file: str) -> Generator[str, None, None]:
-    with open(path_to_file) as f:
+def get_char_iterator_for_file(path_to_file: str):
+    try:
+        yield from get_char_iterator_for_file_with_encoding(path_to_file, 'utf-8')
+    except UnicodeDecodeError:
+        yield from get_char_iterator_for_file_with_encoding(path_to_file, 'ISO-8859-1')
+
+
+def escape_char(char: str):
+    return '\xA0' if str(char) in [' '] else str(char)
+
+
+def get_char_iterator_for_file_with_encoding(path_to_file: str, encoding: str) -> Generator[str, None, None]:
+    with open(path_to_file, encoding=encoding) as f:
         while True:
             char = f.read(1)
             if char:
-                yield str(char)
+                escaped_char = escape_char(char)
+                yield escaped_char
+            else:
+                return
+
+
+def get_char_iterator_for_dir(path_to_dir: str) -> Generator[str, None, None]:
+    for root, dirs, files in os.walk(path_to_dir):
+        for file in files:
+            if file.endswith('.py'):
+                yield from get_char_iterator_for_file(os.path.join(root, file))
+                for i in range(3):
+                    yield str("\n")
 
 
 def swap_pair(pair: str) -> str:
@@ -340,6 +364,7 @@ def run(generator: Generator[str, None, None], n_merges: int=sys.maxsize,
         checkpoint = time.time()
         try:
             most_freq_pair, occurences = priority_counter.pop_pair()
+            logger.debug(f'Merge {i+1}: {most_freq_pair} {occurences}')
         except KeyError:
             break
 
@@ -388,7 +413,12 @@ def run(generator: Generator[str, None, None], n_merges: int=sys.maxsize,
 
 
 def run_from_file(path_to_file: str, n_merges: int=sys.maxsize) -> Tuple[str, int, Optional[List[BpePerformanceStatsEntry]]]:
-    it = get_char_iterator(path_to_file)
+    it = get_char_iterator_for_file(path_to_file)
+    return run(it, n_merges)
+
+
+def run_from_dir(path_to_dir: str, n_merges: int=sys.maxsize) -> Tuple[str, int, Optional[List[BpePerformanceStatsEntry]]]:
+    it = get_char_iterator_for_dir(path_to_dir)
     return run(it, n_merges)
 
 
