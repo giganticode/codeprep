@@ -1,3 +1,5 @@
+from typing import List
+
 import itertools
 import logging
 import re
@@ -30,8 +32,9 @@ def replace_4whitespaces_with_tabs(token_list):
     return result
 
 
-def to_token_list(tokens):
+def to_token_str(tokens: List) -> str:
     return repr(" ".join(map(lambda t : str(t),tokens)))[1:-1] + f" {placeholders['ect']}\n"
+
 
 def to_human_readable(tokens):
     return " ".join(map(lambda t : str(t),tokens)) + "\n"

@@ -1,15 +1,13 @@
 import multiprocessing
-import os
-from datetime import datetime
 
-import threading
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple, List, Optional
 import itertools
 from heapq import heappush, heappop, heapify
 
 
 def insert_separators(subwords, separator):
     return [s for subword in subwords for s in (subword, separator)][:-1]
+
 
 def create_regex_from_token_list(token_list):
     m = list(map(lambda x:
@@ -50,18 +48,9 @@ def merge_dicts_(dict1, dict2) -> Tuple[Dict, List]:
     return dict1, new_words
 
 
-class Singleton(type):
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super().__call__(*args, **kwargs)
-        return cls._instances[cls]
-
-
 class AtomicInteger(object):
     def __init__(self, v=0):
-        self._lock = threading.Lock()
+        self._lock = multiprocessing.Lock()
         self._queue = multiprocessing.Queue()
         for i in range(v):
             self._queue.put(1)
@@ -143,35 +132,6 @@ def dump_list(lst, file):
                 f.write(f"{' '.join(elm)}\n")
             else:
                 f.write(f"{elm}\n")
-
-
-def file_mapper(dir, func, extension="java", ignore_prefix="."):
-    import os
-    if not os.path.exists(dir):
-        raise ValueError(f"Directory doesnt exist: {dir}")
-    for root, dirs, files in os.walk(dir):
-        for file in files:
-            if (extension is None or file.endswith(f".{extension}")) and not file.startswith(ignore_prefix):
-                ret = func(os.path.join(root, file))
-                if ret is not None:
-                    yield ret
-
-
-def get_dir_last_modification(dir):
-    mtime = max(os.path.getmtime(root) for root, _, _ in os.walk(dir))
-    return datetime.fromtimestamp(mtime)
-
-
-def get_timestamp_for_folder(path):
-    last_modif_time = get_dir_last_modification(path)
-    return last_modif_time.strftime("%y-%m-%dT%H-%M-%S")
-
-
-def get_two_levels_subdirs(dir):
-    subdirs = next(os.walk(dir))[1]
-    for subdir in subdirs:
-        for subsubdir in next(os.walk(os.path.join(dir, subdir)))[1]:
-            yield dir, subdir, subsubdir
 
 
 class PriorityCounter(object):

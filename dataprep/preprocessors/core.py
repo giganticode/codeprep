@@ -1,5 +1,7 @@
 import importlib
 import logging
+from typing import List
+
 import time
 
 from dataprep.model.chars import NewLine
@@ -8,17 +10,13 @@ from dataprep.model.word import ParseableToken
 logger = logging.getLogger(__name__)
 
 
-def from_lines(lines):
+def from_lines(lines: List[str]) -> List:
     return [w for line in lines for w in
             (ParseableToken(line if len(line) > 0 and line[-1] != '\n' else line[:-1]), NewLine())]
 
 
-def from_string(str):
-    return from_lines(str.split('\n'))[:-1]
-
-
-def from_list(lst):
-    return list(map(lambda x: ParseableToken(x), lst))
+def from_string(s: str) -> List:
+    return from_lines(s.split('\n'))[:-1]
 
 
 def names_to_functions(pp_names):

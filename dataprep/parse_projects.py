@@ -1,32 +1,27 @@
-import argparse
 import gzip
 import logging
 import os
 import pickle
+from typing import List, Tuple
+
 from multiprocessing.pool import Pool
-from pathlib import Path
 
 from tqdm import tqdm
 
-from dataprep.fs import FS
-from dataprep.prepconfig import PrepParam
+from dataprep.dataset import Dataset, PARSED_EXTENSION
 from dataprep.preprocessors.core import from_lines, apply_preprocessors
 from dataprep.preprocessors.preprocessor_list import pp_params
-from dataprep.util import file_mapper
 from dataprep.config import REWRITE_PARSED_FILE
 
 logger = logging.getLogger(__name__)
 
-EXTENSION = "parsed"
-FILENAMES_EXTENSION = "filenames"
 
-
-def read_file_with_encoding(file_path, encoding):
+def read_file_with_encoding(file_path: str, encoding: str) -> Tuple[List[str], str]:
     with open(file_path, 'r', encoding=encoding) as f:
         return [line for line in f], file_path
 
 
-def read_file_contents(file_path):
+def read_file_contents(file_path: str) -> Tuple[List[str], str]:
     try:
         return read_file_with_encoding(file_path, 'utf-8')
     except UnicodeDecodeError:
@@ -37,79 +32,39 @@ def read_file_contents(file_path):
             logger.error(f"Unicode decode error in file: {file_path}")
 
 
-def preprocess_and_write(params):
+def preprocess_and_write(params: Tuple[str, str]) -> None:
 
-    src_dir, dest_dir, train_test_valid, project, preprocessing_param_dict = params
-    full_dest_dir = os.path.join(dest_dir, train_test_valid)
-    path_to_preprocessed_file = os.path.join(full_dest_dir, f'{project}.{EXTENSION}')
-    if not os.path.exists(full_dest_dir):
-        os.makedirs(full_dest_dir, exist_ok=True)
-    if not REWRITE_PARSED_FILE and os.path.exists(path_to_preprocessed_file):
-        logger.warning(f"File {path_to_preprocessed_file} already exists! Doing nothing.")
+    src_file_path, dest_file_path = params
+
+    dest_dirname = os.path.dirname(dest_file_path)
+    if not os.path.exists(dest_dirname):
+        os.makedirs(dest_dirname, exist_ok=True)
+
+    if not REWRITE_PARSED_FILE and os.path.exists(dest_file_path):
+        logger.warning(f"File {dest_file_path} already exists! Doing nothing.")
         return
-    dir_with_files_to_preprocess = os.path.join(src_dir, train_test_valid, project)
-    if not os.path.exists(dir_with_files_to_preprocess):
-        logger.error(f"Path {dir_with_files_to_preprocess} does not exist")
-        exit(2)
-    filenames=[]
-    with gzip.GzipFile(f'{path_to_preprocessed_file}.part', 'wb') as f:
-        total_files = sum(f for f in file_mapper(dir_with_files_to_preprocess, lambda path: 1))
-        logger.info(f"Preprocessing java files from {dir_with_files_to_preprocess}. Files to process: {total_files}")
-        pickle.dump(preprocessing_param_dict, f, pickle.HIGHEST_PROTOCOL)
-        for ind, (lines_from_file, file_path) in enumerate(
-                file_mapper(dir_with_files_to_preprocess, read_file_contents)):
-            if (ind+1) % 100 == 0:
-                logger.info(
-                    f"[{os.path.join(train_test_valid, project)}] Parsed {ind+1} out of {total_files} files ({(ind+1)/float(total_files)*100:.2f}%)")
-            parsed = apply_preprocessors(from_lines(lines_from_file), pp_params["preprocessors"])
-            pickle.dump(parsed, f, pickle.HIGHEST_PROTOCOL)
-            filename=os.path.relpath(file_path, start=dir_with_files_to_preprocess)
-            filenames.append(filename)
+
+    with gzip.GzipFile(f'{dest_file_path}.part', 'wb') as f:
+        lines_from_file, path = read_file_contents(src_file_path)
+        parsed = apply_preprocessors(from_lines(lines_from_file), pp_params["preprocessors"])
+        pickle.dump(parsed, f, pickle.HIGHEST_PROTOCOL)
+
+    os.rename(f'{dest_file_path}.part', dest_file_path)
 
 
-    with open(os.path.join(full_dest_dir, f'.{project}.{FILENAMES_EXTENSION}'), "w") as f:
-        for filename in filenames:
-            try:
-                f.write(f"{filename}\n")
-            except UnicodeEncodeError:
-                f.write("<bad encoding>\n")
-                logger.warning("Filename has bad encoding")
-
-    # remove .part to show that all raw files in this project have been preprocessed
-    os.rename(f'{path_to_preprocessed_file}.part', path_to_preprocessed_file)
-
-
-def split_two_last_levels(root):
-    root = root + "/"
-    return os.path.dirname(os.path.dirname(os.path.dirname(root))), Path(root).parts[-2], Path(root).parts[-1]
-
-
-def run(path_to_dataset):
-    fs = FS.for_parse_projects(path_to_dataset)
-
-    logger.info(f"Getting files from {fs.path_to_dataset}")
-    logger.info(f"Writing preprocessed files to {fs.path_to_parsed_dataset}")
-    preprocessing_types_dict = {k: None for k in PrepParam}
+def run(dataset: Dataset) -> None:
+    logger.info(f"Getting files from {dataset.original.path}")
+    logger.info(f"Writing preprocessed files to {dataset.parsed.path}")
 
     params = []
 
-    for train_test_valid, project in fs.get_raw_projects():
-        params.append(
-            (fs.path_to_dataset, fs.path_to_parsed_dataset, train_test_valid, project, preprocessing_types_dict))
+    for input_file_path in dataset.original.file_iterator():
+        output_file_path = dataset.original.get_new_file_name(input_file_path, dataset.parsed)
+        params.append((input_file_path, output_file_path))
 
     files_total = len(params)
     with Pool() as pool:
         it = pool.imap_unordered(preprocess_and_write, params)
         for _ in tqdm(it, total=files_total):
             pass
-
-
-if __name__ == '__main__':
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('dataset', help='dataset name')
-
-    args = parser.parse_known_args([])
-    args = args[0]
-
-    run(args.path_to_dataset)
+    dataset.parsed.set_ready()

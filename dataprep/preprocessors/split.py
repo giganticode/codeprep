@@ -10,21 +10,6 @@ from dataprep.model.word import ParseableToken, Word, Underscore
 logger = logging.getLogger(__name__)
 
 
-class SplittingDict(metaclass=util.Singleton):
-    def __init__(self, splitting_file_location):
-        self.splitting_dict = {}
-        start = time.time()
-        with open(splitting_file_location, 'r') as f:
-            for ln in f:
-                word, splitting = ln.split("|")
-                self.splitting_dict[word] = splitting.split()
-        logger.info(f"Splitting dictionary is build in {time.time()-start} s")
-
-
-def get_splitting_dictionary(splitting_file_location):
-    return SplittingDict(splitting_file_location).splitting_dict
-
-
 def simple_split(token_list):
     return [simple_split_token(identifier) for identifier in token_list]
 

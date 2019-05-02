@@ -44,7 +44,8 @@ setup(name='giganticode-dataprep',
           'regex',
           'tqdm',
           'appdirs',
-          'PyYAML'
+          'PyYAML',
+          'dill'
       ],
         entry_points={
           'console_scripts': [

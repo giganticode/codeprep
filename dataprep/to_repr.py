@@ -1,64 +1,29 @@
-import argparse
 import gzip
 import logging
 import os
 import pickle
-from abc import ABCMeta, abstractmethod
 from multiprocessing.pool import Pool
 from typing import Optional, List
 
-import jsons
 from tqdm import tqdm
 
-from dataprep.preprocessors.general import to_token_list
+from dataprep.dataset import Dataset, NOT_FINISHED_EXTENSION
 from dataprep.prepconfig import PrepParam, get_types_to_be_repr, PrepConfig
+from dataprep.preprocessors.general import to_token_str
 from dataprep.preprocessors.repr import to_repr_list, ReprConfig
 from dataprep.split.bpe_encode import read_merges
 from dataprep.split.ngram import NgramSplittingType, NgramSplitConfig
 from dataprep.util import read_dict_from_2_columns
-from dataprep.config import DEFAULT_PARSED_DATASETS_DIR, DEFAULT_BPE_DIR, NO_CASE_DIR, CASE_DIR, DEFAULT_BPE_CACHE_DIR
+from dataprep.config import DEFAULT_BPE_DIR, NO_CASE_DIR, CASE_DIR, DEFAULT_BPE_CACHE_DIR, REWRITE_PREPROCESSED_FILE
 
 logger = logging.getLogger(__name__)
-
-PARSED_FILE_EXTENSION = "parsed"
-REPR_EXTENSION = "repr"
-NOT_FINISHED_EXTENSION = "part"
-READY_FILE = '.ready'
-
-class ReprWriter(metaclass=ABCMeta):
-    def __init__(self, dest_file, mode, extension):
-        self.dest_file = dest_file
-        self.mode = mode
-        self.extension = extension
-
-    def __enter__(self):
-        self.handle = open(f'{self.get_full_dest_name()}.{NOT_FINISHED_EXTENSION}', self.mode)
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.handle.close()
-
-    def get_full_dest_name(self):
-        return f'{self.dest_file}.{self.extension}'
-
-    @abstractmethod
-    def write(self, token_list):
-        '''Has to be implemented by subclasses'''
-
-
-class FinalReprWriter(ReprWriter):
-    def __init__(self, dest_file):
-        super().__init__(dest_file, 'w', f'{REPR_EXTENSION}')
-
-    def write(self, token_list):
-        self.handle.write(to_token_list(token_list))
 
 
 def get_global_n_gramm_splitting_config():
     return global_n_gramm_splitting_config
 
 
-def to_repr(prep_config: PrepConfig, token_list: List, n_gramm_splitting_config: Optional[NgramSplitConfig] = None):
+def to_repr(prep_config: PrepConfig, token_list: List, n_gramm_splitting_config: Optional[NgramSplitConfig] = None) -> List[str]:
     types_to_be_repr = get_types_to_be_repr(prep_config)
     splitting_config = n_gramm_splitting_config or get_global_n_gramm_splitting_config()
     dict_based_non_eng = (prep_config.get_param_value(PrepParam.EN_ONLY) != 3)
@@ -68,29 +33,22 @@ def to_repr(prep_config: PrepConfig, token_list: List, n_gramm_splitting_config:
 
 
 def preprocess_and_write(params):
-    src_file, dest_file, prep_config = params
-    if not os.path.exists(src_file):
-        logger.error(f"File {src_file} does not exist")
-        exit(2)
+    src_file_path, dest_file_path, prep_config = params
 
-    logger.debug(f"Preprocessing parsed file {src_file}")
-    with gzip.GzipFile(src_file, 'rb') as i:
-        preprocessing_param_dict = pickle.load(i)
-        writer = FinalReprWriter(dest_file)
+    dest_dirname = os.path.dirname(dest_file_path)
+    if not os.path.exists(dest_dirname):
+        os.makedirs(dest_dirname, exist_ok=True)
 
-        if os.path.exists(writer.get_full_dest_name()):
-            logger.warning(f"File {writer.get_full_dest_name()} already exists! Doing nothing.")
-            return
-        with writer as w:
-            while True:
-                try:
-                    token_list = pickle.load(i)
-                    repr = to_repr(prep_config, token_list, global_n_gramm_splitting_config)
-                    w.write(repr)
-                except EOFError:
-                    break
-    # remove .part to show that all raw files in this chunk have been preprocessed
-    os.rename(f'{writer.get_full_dest_name()}.{NOT_FINISHED_EXTENSION}', f'{writer.get_full_dest_name()}')
+    if not REWRITE_PREPROCESSED_FILE and os.path.exists(dest_file_path):
+        logger.warning(f"File {dest_file_path} already exists! Doing nothing.")
+        return
+
+    with gzip.GzipFile(src_file_path, 'rb') as i, open(f'{dest_file_path}.{NOT_FINISHED_EXTENSION}', 'w') as o:
+        token_list = pickle.load(i)
+        repr = to_repr(prep_config, token_list, global_n_gramm_splitting_config)
+        o.write(to_token_str(repr))
+
+    os.rename(f'{dest_file_path}.{NOT_FINISHED_EXTENSION}', dest_file_path)
 
 
 def init_splitting_config(prep_config: PrepConfig, bpe_n_merges: Optional[int]):
@@ -121,55 +79,25 @@ def init_splitting_config(prep_config: PrepConfig, bpe_n_merges: Optional[int]):
         global_n_gramm_splitting_config.set_splitting_type(NgramSplittingType.ONLY_NUMBERS)
 
 
-def mark_dir_as_ready(dir):
-    open(os.path.join(dir, READY_FILE), 'a').close()
+def run(dataset: Dataset, bpe_n_merges: Optional[int] = None):
+    path_to_parsed_dataset = dataset.parsed.path
 
-
-def check_dir_ready(dir):
-    return os.path.exists(os.path.join(dir, READY_FILE))
-
-
-def run(dataset: str, prep_config: PrepConfig, full_dest_dir: str, bpe_n_merges: Optional[int] = None):
-    path_to_dataset = os.path.join(DEFAULT_PARSED_DATASETS_DIR, dataset)
-
-    if not os.path.exists(path_to_dataset):
-        logger.error(f"Dir does not exist: {path_to_dataset}")
+    if not os.path.exists(path_to_parsed_dataset):
+        logger.error(f"Dir does not exist: {path_to_parsed_dataset}")
         exit(3)
-    logger.info(f"Reading parsed files from: {os.path.abspath(path_to_dataset)}")
+    logger.info(f"Reading parsed files from: {path_to_parsed_dataset}")
 
-    init_splitting_config(prep_config, bpe_n_merges)
+    init_splitting_config(dataset.prep_config, bpe_n_merges)
 
-    logger.info(f"Writing preprocessed files to {os.path.abspath(full_dest_dir)}")
-    if not os.path.exists(full_dest_dir):
-        os.makedirs(full_dest_dir)
+    logger.info(f"Writing preprocessed files to {dataset.preprocessed.path}")
 
     params = []
-    for root, dirs, files in os.walk(path_to_dataset):
-        for file in files:
-            if file.endswith(f".{PARSED_FILE_EXTENSION}"):
-
-                full_dest_dir_with_sub_dir = os.path.join(full_dest_dir, os.path.relpath(root, path_to_dataset))
-                if not os.path.exists(full_dest_dir_with_sub_dir):
-                    os.makedirs(full_dest_dir_with_sub_dir)
-                params.append((os.path.join(root, file),
-                               os.path.join(full_dest_dir_with_sub_dir, file),
-                               prep_config))
+    for input_file_path in dataset.parsed.file_iterator():
+        output_file_path = dataset.parsed.get_new_file_name(input_file_path, dataset.preprocessed)
+        params.append((input_file_path, output_file_path, dataset.prep_config))
     files_total = len(params)
     with Pool() as pool:
         it = pool.imap_unordered(preprocess_and_write, params)
         for _ in tqdm(it, total=files_total):
             pass
-    mark_dir_as_ready(full_dest_dir)
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('dataset', action='store', help=f'path to the parsed dataset')
-    parser.add_argument('repr', action='store', help='preprocessing params line, \n Example: 101011')
-    parser.add_argument('full-dest-dir', action='store', help=f'TODO')
-    parser.add_argument('--bpe-n-merges', action='store', type=int, help='TODO')
-
-    args = parser.parse_known_args()
-    args = args[0]
-
-    run(args.dataset, PrepConfig.from_encoded_string(args.repr), args.full_dest_dir, args.bpe_n_merges)
+    dataset.preprocessed.set_ready()
