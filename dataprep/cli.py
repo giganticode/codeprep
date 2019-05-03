@@ -127,10 +127,6 @@ def handle_splitting(args):
         stages.run_all(dataset)
 
 
-def parse_and_run(args=sys.argv):
+def parse_and_run(args):
     logging.root.setLevel(logging.ERROR)
     dsc.main(app_name, f'{app_name} {version}', argv=args, exit_at_end=False)
-
-
-if __name__ == '__main__':
-    parse_and_run(['bpe', '1k', 'home/hgf'])
