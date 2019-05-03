@@ -69,6 +69,11 @@ class SubDataset(object):
         os.rename(self.path, os.path.join(DEFAULT_PREP_DATASETS_DIR, f'{os.path.basename(self.path)}.{ARCHIVED_EXT}.{timestamp}'))
         os.rename(modif_file, os.path.join(DEFAULT_PREP_DATASETS_DIR, f'{os.path.basename(modif_file)}.{ARCHIVED_EXT}.{timestamp}'))
 
+    def __eq__(self, o: object) -> bool:
+        if isinstance(o, SubDataset):
+            return self._path == o._path and self._extension == o._extension
+        return False
+
 
 class Dataset(object):
     """
@@ -88,7 +93,20 @@ class Dataset(object):
         self._preprocessed = SubDataset(self._get_path_to_prep_dataset(overridden_path_to_prep_dataset), PREPROCESSED_EXTENSION)
         self._bpe = SubDataset(os.path.join(USER_BPE_DIR, self.name))
 
+    def __eq__(self, o: object) -> bool:
+        if isinstance(o, Dataset):
+            return self._path == o._path and \
+                   self._prep_config == o._prep_config and \
+                   self._bpe_config == o._bpe_config and \
+                   self._dataset_last_modified == o._dataset_last_modified and \
+                   self._original == o._original and \
+                   self._parsed == o._parsed and \
+                   self._preprocessed == o._preprocessed and \
+                   self._bpe == o._bpe
+        return False
+
     #####################################################
+
 
     @classmethod
     def create(cls: Type['Dataset'], path_to_dataset: str, prep_config: PrepConfig, extension: str,

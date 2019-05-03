@@ -4,7 +4,7 @@ from dataprep import cli
 
 
 def main():
-    cli.run(sys.argv[1:])
+    cli.parse_and_run(sys.argv[1:])
 
 
 if __name__ == '__main__':

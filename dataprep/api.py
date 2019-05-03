@@ -14,15 +14,15 @@ def preprocess(text: str, config: PrepConfig):
 
 
 def create_split_value(arguments):
-    if arguments['nosplit']:
+    if 'nosplit' in arguments and arguments['nosplit']:
         return 0
-    elif arguments['chars']:
+    elif 'chars' in arguments and arguments['chars']:
         return 8
-    elif arguments['basic']:
+    elif 'basic' in arguments and arguments['basic']:
         return 1
-    elif arguments['basic+numbers']:
+    elif 'basic+numbers' in arguments and arguments['basic+numbers']:
         return 2
-    elif arguments['bpe']:
+    elif 'bpe' in arguments and arguments['bpe']:
         if arguments['1k']:
             return 5
         elif arguments['5k']:
@@ -45,13 +45,14 @@ def create_com_str_value(arguments):
     else: # com and str present
         return 0
 
+
 def create_prep_config_from_args(arguments):
     return PrepConfig({
-        PrepParam.EN_ONLY: 3 if arguments['--no-unicode'] else 0,
+        PrepParam.EN_ONLY: 3 if '--no-unicode' in arguments and arguments['--no-unicode'] else 0,
         PrepParam.COM_STR: create_com_str_value(arguments),
         PrepParam.SPLIT: create_split_value(arguments),
         PrepParam.TABS_NEWLINES: 1 if arguments['--no-spaces'] else 0,
-        PrepParam.CAPS: 1 if arguments['--no-case'] else 0
+        PrepParam.CAPS: 1 if '--no-case' in arguments and arguments['--no-case'] else 0
     })
 
 
