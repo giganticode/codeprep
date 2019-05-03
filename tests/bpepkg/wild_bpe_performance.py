@@ -2,8 +2,6 @@ import random
 
 from typing import List
 
-import matplotlib.pyplot as plt
-
 from dataprep.bpepkg import wild_bpe
 from dataprep.bpepkg.wild_bpe import BpePerformanceStatsEntry, run
 
@@ -29,6 +27,7 @@ def plotting_function(data_size_mb: float, entropy: int, version: str,
                         zip(location_index_obj_size, neighbour_index_obj_size, priority_counter_obj_size)]
     merge_time = list(map(lambda p: p.time_for_last_merge, performance_stats))
 
+    import matplotlib.pyplot as plt
     fig, splots = plt.subplots(nrows=3)
     splots[0].plot(merges_done, n_pq_entries, label='priority counter')
     splots[0].plot(merges_done, n_index_entries, label='indices')
