@@ -7,3 +7,4 @@ coverage==4.5.3
 PyYAML==5.1
 dill==0.2.9
 matplotlib==3.0.3
+docopt-subcommands==3.0.0

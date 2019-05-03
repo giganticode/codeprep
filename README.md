@@ -39,7 +39,7 @@ The tool can be run from command line, as well as from code as a python library.
 To tokenize the corpus and split camelCase and snake_case words run:
 
 ```bash
-dataprep --path /path/to/the/dataset basic
+dataprep basic --path /path/to/the/dataset
 ```
 
 To tokenize the corpus without splitting any tokens, 
@@ -47,7 +47,7 @@ but instead remove string literals and comments,
 and remove all tabs and newlines:
 
 ```bash
-dataprep --path /path/to/the/dataset --no-str --no-com --no-spaces nosplit
+dataprep nosplit --path /path/to/the/dataset --no-str --no-com --no-spaces
 ```
 
 To 
@@ -59,14 +59,14 @@ To
 run:
 
 ```bash
-dataprep --path /path/to/the/dataset --no-case --no-unicode bpe 5k
+dataprep bpe 5k --path /path/to/the/dataset --no-case --no-unicode
 ```
 
 To convert smaller amount of text, instead of providing a path 
 (which is also can be done from the code -- see [API](#API) section) run:
 
 ```bash
-dataprep "someComplexIdentifier" basic
+dataprep basic "someComplexIdentifier"
 >> [<word_start>, 'some', 'Complex', 'Identifier', <word_end>]
 ```
  
