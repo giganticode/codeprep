@@ -45,7 +45,8 @@ setup(name='giganticode-dataprep',
           'tqdm',
           'appdirs',
           'PyYAML',
-          'dill'
+          'dill',
+          'docopt-subcommands'
       ],
         entry_points={
           'console_scripts': [
