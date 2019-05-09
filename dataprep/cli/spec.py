@@ -1,15 +1,9 @@
 import logging
-import os
-import sys
-
-from dataprep import api
-from dataprep.api import create_prep_config_from_args
-from dataprep.config import app_name, version
-from dataprep.dataset import Dataset
 
 import docopt_subcommands as dsc
 
-from dataprep import stages
+from dataprep.cli.impl import handle_splitting
+from dataprep.config import app_name, version
 
 logger = logging.getLogger(__name__)
 
@@ -95,12 +89,13 @@ def basic_plus_numbers_handler(args):
 
 @dsc.command()
 def bpe_handler(args):
-    """usage: {program} bpe (1k | 5k | 10k) (-p <path> [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case]
+    """usage: {program} bpe (1k | 5k | 10k | <bpe-codes-id>) (-p <path> [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case]
 
     Preprocess the dataset by splitting compound identifiers according to CamelCase and snake_case conventions,
     and apply byte-pair encoding (BPE) on top.
 
     Options:
+      <bpe-codes-id>                               Id which defines bpe codes to use (1k, 5k, 10k are predefined ids)
       -p, --path <path>                            Path to the dataset to be preprocessed.
       -o <path-out>, --output-path <path-out>      Directory to which the pre-preprocessed corpus is to be written. If not specified, equals to '<path>_preprocessed'.
       <text>                                       Text to be preprocessed.
@@ -112,19 +107,6 @@ def bpe_handler(args):
       --no-case, -l                                 Lowercase words and encode information about case in <Cap> <CAP> tokens.
     """
     handle_splitting(args)
-
-
-def handle_splitting(args):
-    prep_config =  create_prep_config_from_args(args)
-    if args['<text>']:
-        prep_text = api.preprocess(args['<text>'], prep_config)
-        print(prep_text)
-    else:
-        path = os.path.abspath(args['--path'])
-        output_path = args['--output-path'] if args['--output-path'] else '' #TODO this is bad. Fix it
-        extension = 'java' # This will be configurable in version 1.0.x
-        dataset = Dataset.create(path, prep_config, extension, overriden_path_to_prep_dataset=output_path)
-        stages.run_all(dataset)
 
 
 def parse_and_run(args):

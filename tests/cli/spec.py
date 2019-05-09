@@ -4,11 +4,11 @@ from unittest.mock import Mock
 
 from docopt import DocoptExit
 
-from dataprep.cli import parse_and_run
+from dataprep.cli.spec import parse_and_run
 from dataprep.prepconfig import PrepParam, PrepConfig
 
 
-@mock.patch('dataprep.cli.api')
+@mock.patch('dataprep.cli.impl.api')
 class CliTest(unittest.TestCase):
 
     def test_parse_and_run_00010(self, api_mock):
@@ -201,8 +201,8 @@ class CliTest(unittest.TestCase):
         })
         api_mock.preprocess.assert_called_with("str", prep_config)
 
-    @mock.patch('dataprep.cli.Dataset')
-    @mock.patch('dataprep.cli.stages')
+    @mock.patch('dataprep.cli.impl.Dataset')
+    @mock.patch('dataprep.cli.impl.stages')
     def test_parse_and_run_path(self, stages_mock, dataset_mock, api_mock):
         dataset_mock.create = Mock(return_value=dataset_mock)
         argv = ['nosplit', '--path', '/path/to/dataset', '--no-spaces']
@@ -215,10 +215,10 @@ class CliTest(unittest.TestCase):
             PrepParam.CAPS: 0
         })
         dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, 'java', overriden_path_to_prep_dataset='')
-        stages_mock.run_all.assert_called_with(dataset_mock)
+        stages_mock.run_until_preprocessing.assert_called_with(dataset_mock)
 
-    @mock.patch('dataprep.cli.Dataset')
-    @mock.patch('dataprep.cli.stages')
+    @mock.patch('dataprep.cli.impl.Dataset')
+    @mock.patch('dataprep.cli.impl.stages')
     def test_parse_and_run_path_short(self, stages_mock, dataset_mock, api_mock):
         dataset_mock.create = Mock(return_value=dataset_mock)
         argv = ['nosplit', '-p', '/path/to/dataset', '--no-spaces']
@@ -231,10 +231,10 @@ class CliTest(unittest.TestCase):
             PrepParam.CAPS: 0
         })
         dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, 'java', overriden_path_to_prep_dataset='')
-        stages_mock.run_all.assert_called_with(dataset_mock)
+        stages_mock.run_until_preprocessing.assert_called_with(dataset_mock)
 
-    @mock.patch('dataprep.cli.Dataset')
-    @mock.patch('dataprep.cli.stages')
+    @mock.patch('dataprep.cli.impl.Dataset')
+    @mock.patch('dataprep.cli.impl.stages')
     def test_parse_and_run_output(self, stages_mock, dataset_mock, api_mock):
         dataset_mock.create = Mock(return_value=dataset_mock)
         argv = ['nosplit', '--path', '/path/to/dataset', '--output-path', '/path/to/output', '--no-spaces']
@@ -247,10 +247,10 @@ class CliTest(unittest.TestCase):
             PrepParam.CAPS: 0
         })
         dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, 'java', overriden_path_to_prep_dataset='/path/to/output')
-        stages_mock.run_all.assert_called_with(dataset_mock)
+        stages_mock.run_until_preprocessing.assert_called_with(dataset_mock)
 
-    @mock.patch('dataprep.cli.Dataset')
-    @mock.patch('dataprep.cli.stages')
+    @mock.patch('dataprep.cli.impl.Dataset')
+    @mock.patch('dataprep.cli.impl.stages')
     def test_parse_and_run_output_short(self, stages_mock, dataset_mock, api_mock):
         dataset_mock.create = Mock(return_value=dataset_mock)
         argv = ['nosplit', '--path', '/path/to/dataset', '-o', '/path/to/output', '--no-spaces']
@@ -263,7 +263,7 @@ class CliTest(unittest.TestCase):
             PrepParam.CAPS: 0
         })
         dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, 'java', overriden_path_to_prep_dataset='/path/to/output')
-        stages_mock.run_all.assert_called_with(dataset_mock)
+        stages_mock.run_until_preprocessing.assert_called_with(dataset_mock)
 
     def test_parse_and_run_text_with_output(self, api_mock):
         argv = ['nosplit', 'str', '-o', '/path/to/output', '--no-spaces']
