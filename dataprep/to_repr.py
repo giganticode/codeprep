@@ -14,7 +14,8 @@ from dataprep.preprocessors.repr import to_repr_list, ReprConfig
 from dataprep.split.bpe_encode import read_merges
 from dataprep.split.ngram import NgramSplittingType, NgramSplitConfig
 from dataprep.util import read_dict_from_2_columns
-from dataprep.config import DEFAULT_BPE_DIR, NO_CASE_DIR, CASE_DIR, DEFAULT_BPE_CACHE_DIR, REWRITE_PREPROCESSED_FILE
+from dataprep.config import DEFAULT_BPE_DIR, NO_CASE_DIR, CASE_DIR, DEFAULT_BPE_CACHE_DIR, REWRITE_PREPROCESSED_FILE, \
+    CHUNKSIZE
 
 logger = logging.getLogger(__name__)
 
@@ -79,6 +80,12 @@ def init_splitting_config(prep_config: PrepConfig, bpe_n_merges: Optional[int]):
         global_n_gramm_splitting_config.set_splitting_type(NgramSplittingType.ONLY_NUMBERS)
 
 
+def params_generator(dataset: Dataset):
+    for input_file_path in dataset.parsed.file_iterator_from_file():
+        output_file_path = dataset.parsed.get_new_file_name(input_file_path, dataset.preprocessed)
+        yield (input_file_path, output_file_path, dataset.prep_config)
+
+
 def run(dataset: Dataset, bpe_n_merges: Optional[int] = None):
     path_to_parsed_dataset = dataset.parsed.path
 
@@ -91,13 +98,9 @@ def run(dataset: Dataset, bpe_n_merges: Optional[int] = None):
 
     logger.info(f"Writing preprocessed files to {dataset.preprocessed.path}")
 
-    params = []
-    for input_file_path in dataset.parsed.file_iterator():
-        output_file_path = dataset.parsed.get_new_file_name(input_file_path, dataset.preprocessed)
-        params.append((input_file_path, output_file_path, dataset.prep_config))
-    files_total = len(params)
+    files_total = len([f for f in dataset.get_all_files()])
     with Pool() as pool:
-        it = pool.imap_unordered(preprocess_and_write, params)
+        it = pool.imap_unordered(preprocess_and_write, params_generator(dataset), chunksize=CHUNKSIZE)
         for _ in tqdm(it, total=files_total):
             pass
     dataset.preprocessed.set_ready()

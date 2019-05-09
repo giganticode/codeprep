@@ -32,7 +32,7 @@ def create_split_value(arguments):
         else:
             raise AssertionError(f"Invalid bpe value: {arguments}")
     else:
-        raise AssertionError(f"Invlid split option: {arguments}")
+        raise AssertionError(f"Invalid split option: {arguments}")
 
 
 def create_com_str_value(arguments):

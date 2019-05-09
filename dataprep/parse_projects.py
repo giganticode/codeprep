@@ -8,10 +8,10 @@ from multiprocessing.pool import Pool
 
 from tqdm import tqdm
 
-from dataprep.dataset import Dataset, PARSED_EXTENSION
+from dataprep.dataset import Dataset
 from dataprep.preprocessors.core import from_lines, apply_preprocessors
 from dataprep.preprocessors.preprocessor_list import pp_params
-from dataprep.config import REWRITE_PARSED_FILE
+from dataprep.config import REWRITE_PARSED_FILE, CHUNKSIZE
 
 logger = logging.getLogger(__name__)
 
@@ -52,19 +52,19 @@ def preprocess_and_write(params: Tuple[str, str]) -> None:
     os.rename(f'{dest_file_path}.part', dest_file_path)
 
 
+def params_generator(dataset: Dataset):
+    for input_file_path in dataset.original.file_iterator_from_file():
+        output_file_path = dataset.original.get_new_file_name(input_file_path, dataset.parsed)
+        yield (input_file_path, output_file_path)
+
+
 def run(dataset: Dataset) -> None:
     logger.info(f"Getting files from {dataset.original.path}")
     logger.info(f"Writing preprocessed files to {dataset.parsed.path}")
 
-    params = []
-
-    for input_file_path in dataset.original.file_iterator():
-        output_file_path = dataset.original.get_new_file_name(input_file_path, dataset.parsed)
-        params.append((input_file_path, output_file_path))
-
-    files_total = len(params)
+    files_total = len([f for f in dataset.get_all_files()])
     with Pool() as pool:
-        it = pool.imap_unordered(preprocess_and_write, params)
+        it = pool.imap_unordered(preprocess_and_write, params_generator(dataset), chunksize=CHUNKSIZE)
         for _ in tqdm(it, total=files_total):
             pass
     dataset.parsed.set_ready()

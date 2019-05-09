@@ -1,10 +1,10 @@
 import sys
 
-from dataprep import cli
+from dataprep.cli.spec import parse_and_run
 
 
 def main():
-    cli.parse_and_run(sys.argv[1:])
+    parse_and_run(sys.argv[1:])
 
 
 if __name__ == '__main__':
