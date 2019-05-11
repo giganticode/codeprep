@@ -1,3 +1,4 @@
+import ast
 import logging
 import os
 from datetime import datetime
@@ -18,18 +19,18 @@ DIR_LIST_FILENAME = "dirlist"
 
 PARSED_EXTENSION = ".parsed"
 PREPROCESSED_EXTENSION = ".prep"
-NOT_FINISHED_EXTENSION = "part"
+NOT_FINISHED_EXTENSION = ".part"
 ARCHIVED_EXT = "archived"
 
 
 class SubDataset(object):
-    def __init__(self, dataset: 'Dataset', path, suffix: str = ''):
+    def __init__(self, dataset: 'Dataset', path: str, suffix: str = ''):
         self._dataset = dataset
         self._path = path
         self._suffix = suffix
 
     @property
-    def path(self):
+    def path(self) -> str:
         return self._path
 
     def set_ready(self) -> None:
@@ -38,15 +39,19 @@ class SubDataset(object):
     def is_outdated(self) -> None:
         return is_path_outdated(self.path)
 
-    def file_iterator_from_file(self):
+    def file_iterator_from_file(self) -> bytes:
+        encoded_path = self.path.encode()
+        encoded_suffix = self._suffix.encode()
         for file in self._dataset.get_all_files():
-            yield os.path.join(self.path, f'{file}{self._suffix}')
+            yield os.path.join(encoded_path, file + encoded_suffix)
 
-    def get_new_file_name(self, file_path: str, new_subdataset: 'SubDataset') -> str:
-        rel_path = os.path.relpath(file_path, self.path)
-        if rel_path == '.': # this check is needed and the result is true for cases when only one file is being preprocessed
+    def get_new_file_name(self, file_path: bytes, new_subdataset: 'SubDataset') -> bytes:
+        encoded_path = self.path.encode()
+        rel_path = os.path.relpath(file_path, encoded_path)
+        if rel_path.decode() == '.': # this check is needed and the result is true for cases when only one file is being preprocessed
             rel_path = os.path.basename(file_path)
-        return os.path.join(new_subdataset.path, (rel_path[:-len(self._suffix)] if len(self._suffix) else rel_path) + new_subdataset._suffix)
+        return os.path.join(new_subdataset.path.encode(),
+                            (rel_path[:-len(self._suffix.encode())] if len(self._suffix.encode()) else rel_path) + new_subdataset._suffix.encode())
 
     def ready(self) -> bool:
         return is_path_ready(self.path)
@@ -188,14 +193,14 @@ class Dataset(object):
 
         with open(self.path_to_file_list) as f:
             for line in f:
-                yield line.rstrip('\n')
+                yield ast.literal_eval(line)
 
     def get_all_dirs(self):
         self.list_and_save_dir_contents_if_necessary()
 
         with open(self.path_to_dir_list) as f:
             for line in f:
-                yield line.rstrip('\n')
+                yield ast.literal_eval(line)
 
     ###################################
 
@@ -241,18 +246,24 @@ def get_dir_last_modification(path: str, limit: int = LIMIT_FILES_ON_LAST_MODIFI
 
 def save_all_files(path: str, save_to_files: str, save_to_dirs: str, extension: str) -> None:
     with open(save_to_dirs, 'w') as d, open(save_to_files, 'w') as f:
+        path_bin = path.encode()
+        extension_bin = extension.encode()
+        # we want to list and store all the files a sequences of bytes to avoid problems with encodings
         counter = 0
-        if os.path.isfile(path):
-            f.write(f'{path}\n')
+        if os.path.isfile(path_bin):
+            f.write(f'{path_bin}\n')
         else:
-            for root, dirs, files in os.walk(path):
+            for root, dirs, files in os.walk(path_bin):
+                # we pass bytes to os.walk -> the output are bytes as well
                 for dir in dirs:
-                    d.write(f'{os.path.join(os.path.relpath(root, path), dir)}\n')
+                    bin_name = os.path.join(os.path.relpath(root, path_bin), dir)
+                    d.write(f'{bin_name}\n')
                 for file in files:
-                    if not extension or file.endswith(f".{extension}"):
+                    bin_name = os.path.join(os.path.relpath(root, path_bin), file)
+                    if not extension or bin_name.endswith(extension_bin):
                         counter += 1
                         print(f'Files/dirs scanned: {counter}', end='\r')
-                        f.write(f'{os.path.join(os.path.relpath(root, path), file)}\n')
+                        f.write(f'{bin_name}\n')
     print()
 
 
