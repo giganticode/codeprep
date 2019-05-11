@@ -44,12 +44,13 @@ def preprocess_and_write(params):
         logger.warning(f"File {dest_file_path} already exists! Doing nothing.")
         return
 
-    with gzip.GzipFile(src_file_path, 'rb') as i, open(f'{dest_file_path}.{NOT_FINISHED_EXTENSION}', 'w') as o:
+    not_finished_dest_file_path = dest_file_path + NOT_FINISHED_EXTENSION.encode()
+    with gzip.GzipFile(src_file_path, 'rb') as i, open(not_finished_dest_file_path, 'w') as o:
         token_list = pickle.load(i)
         repr = to_repr(prep_config, token_list, global_n_gramm_splitting_config)
         o.write(to_token_str(repr))
 
-    os.rename(f'{dest_file_path}.{NOT_FINISHED_EXTENSION}', dest_file_path)
+    os.rename(not_finished_dest_file_path, dest_file_path)
 
 
 def init_splitting_config(prep_config: PrepConfig, bpe_n_merges: Optional[int]):

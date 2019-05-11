@@ -8,7 +8,7 @@ from multiprocessing.pool import Pool
 
 from tqdm import tqdm
 
-from dataprep.dataset import Dataset
+from dataprep.dataset import Dataset, NOT_FINISHED_EXTENSION
 from dataprep.preprocessors.core import from_lines, apply_preprocessors
 from dataprep.preprocessors.preprocessor_list import pp_params
 from dataprep.config import REWRITE_PARSED_FILE, CHUNKSIZE
@@ -16,12 +16,12 @@ from dataprep.config import REWRITE_PARSED_FILE, CHUNKSIZE
 logger = logging.getLogger(__name__)
 
 
-def read_file_with_encoding(file_path: str, encoding: str) -> Tuple[List[str], str]:
+def read_file_with_encoding(file_path: bytes, encoding: str) -> Tuple[List[str], bytes]:
     with open(file_path, 'r', encoding=encoding) as f:
         return [line for line in f], file_path
 
 
-def read_file_contents(file_path: str) -> Tuple[List[str], str]:
+def read_file_contents(file_path: bytes) -> Tuple[List[str], bytes]:
     try:
         return read_file_with_encoding(file_path, 'utf-8')
     except UnicodeDecodeError:
@@ -32,7 +32,7 @@ def read_file_contents(file_path: str) -> Tuple[List[str], str]:
             logger.error(f"Unicode decode error in file: {file_path}")
 
 
-def preprocess_and_write(params: Tuple[str, str]) -> None:
+def preprocess_and_write(params: Tuple[bytes, bytes]) -> None:
 
     src_file_path, dest_file_path = params
 
@@ -44,12 +44,13 @@ def preprocess_and_write(params: Tuple[str, str]) -> None:
         logger.warning(f"File {dest_file_path} already exists! Doing nothing.")
         return
 
-    with gzip.GzipFile(f'{dest_file_path}.part', 'wb') as f:
+    not_finished_dest_file_path = dest_file_path + NOT_FINISHED_EXTENSION.encode()
+    with gzip.GzipFile(not_finished_dest_file_path, 'wb') as f:
         lines_from_file, path = read_file_contents(src_file_path)
         parsed = apply_preprocessors(from_lines(lines_from_file), pp_params["preprocessors"])
         pickle.dump(parsed, f, pickle.HIGHEST_PROTOCOL)
 
-    os.rename(f'{dest_file_path}.part', dest_file_path)
+    os.rename(not_finished_dest_file_path, dest_file_path)
 
 
 def params_generator(dataset: Dataset):
