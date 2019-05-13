@@ -2,7 +2,7 @@ import gzip
 import logging
 import os
 import pickle
-from typing import List, Tuple
+from typing import List, Tuple, Iterator
 
 from multiprocessing.pool import Pool
 
@@ -33,7 +33,6 @@ def read_file_contents(file_path: bytes) -> Tuple[List[str], bytes]:
 
 
 def preprocess_and_write(params: Tuple[bytes, bytes]) -> None:
-
     src_file_path, dest_file_path = params
 
     dest_dirname = os.path.dirname(dest_file_path)
@@ -46,11 +45,26 @@ def preprocess_and_write(params: Tuple[bytes, bytes]) -> None:
 
     not_finished_dest_file_path = dest_file_path + NOT_FINISHED_EXTENSION.encode()
     with gzip.GzipFile(not_finished_dest_file_path, 'wb') as f:
-        lines_from_file, path = read_file_contents(src_file_path)
+        try:
+            lines_from_file, path = read_file_contents(src_file_path)
+        except FileNotFoundError:
+            logger.error(f"File was found when scanning the directory, but cannot be read: {src_file_path}. "
+                         f"Invalid symlink? Ignoring ...")
+            return
         parsed = apply_preprocessors(from_lines(lines_from_file), pp_params["preprocessors"])
         pickle.dump(parsed, f, pickle.HIGHEST_PROTOCOL)
 
     os.rename(not_finished_dest_file_path, dest_file_path)
+
+
+def exception_handler(it: Iterator):
+    while True:
+        try:
+            yield next(it)
+        except StopIteration:
+            return
+        except Exception as err:
+            logger.error(f"{err}. Ignoring...")
 
 
 def params_generator(dataset: Dataset):
@@ -66,6 +80,6 @@ def run(dataset: Dataset) -> None:
     files_total = len([f for f in dataset.get_all_files()])
     with Pool() as pool:
         it = pool.imap_unordered(preprocess_and_write, params_generator(dataset), chunksize=CHUNKSIZE)
-        for _ in tqdm(it, total=files_total):
+        for _ in tqdm(exception_handler(it), total=files_total):
             pass
     dataset.parsed.set_ready()
