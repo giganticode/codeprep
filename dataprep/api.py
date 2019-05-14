@@ -30,7 +30,7 @@ def create_split_value(arguments):
         elif arguments['10k']:
             return 6
         else:
-            raise AssertionError(f"Invalid bpe value: {arguments}")
+            raise AssertionError(f"Invalid bpe value: {arguments['<bpe-codes-id>']}. Custom values not yet supported.")
     else:
         raise AssertionError(f"Invalid split option: {arguments}")
 

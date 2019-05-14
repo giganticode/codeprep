@@ -1,9 +1,11 @@
 import ast
 import logging
 import os
+import re
+
 from datetime import datetime
 
-from typing import Type, Optional
+from typing import Type, Optional, List
 
 from dataprep.config import DEFAULT_PARSED_DATASETS_DIR, DEFAULT_PREP_DATASETS_DIR, USER_BPE_DIR, DEFAULT_FILE_LIST_DIR, \
     LIMIT_FILES_ON_LAST_MODIFICATION_CHECK
@@ -14,6 +16,7 @@ logger = logging.getLogger(__name__)
 PP_PARAMS_FILENAME = 'params.json'
 PREPROCESSING_TYPES_FILENAME = 'preprocessing_types.json'
 BPE_VOCAB_FILE_NAME = "vocab"
+BPE_CODES_ID_FILENAME = '.name'
 FILE_LIST_FILENAME = "filelist"
 DIR_LIST_FILENAME = "dirlist"
 
@@ -57,12 +60,7 @@ class SubDataset(object):
         return is_path_ready(self.path)
 
     def archive(self) -> None:
-        modif_file = _get_last_modif_file_path_for_dir(self.path)
-        timestamp = get_timestamp(self.path)
-        if not os.path.exists(DEFAULT_PREP_DATASETS_DIR):
-            os.makedirs(DEFAULT_PREP_DATASETS_DIR)
-        os.rename(self.path, os.path.join(DEFAULT_PREP_DATASETS_DIR, f'{os.path.basename(self.path)}.{ARCHIVED_EXT}.{timestamp}'))
-        os.rename(modif_file, os.path.join(DEFAULT_PREP_DATASETS_DIR, f'{os.path.basename(modif_file)}.{ARCHIVED_EXT}.{timestamp}'))
+        archive_path(self.path)
 
     def __eq__(self, o: object) -> bool:
         if isinstance(o, SubDataset):
@@ -124,6 +122,9 @@ class Dataset(object):
         if not os.path.exists(DEFAULT_FILE_LIST_DIR):
             os.makedirs(DEFAULT_FILE_LIST_DIR)
 
+        if not os.path.exists(dataset.bpe_path):
+            os.makedirs(dataset.bpe_path)
+
         return dataset
 
     #####################################################
@@ -174,11 +175,19 @@ class Dataset(object):
 
     @property
     def bpe_path(self) -> str:
-        return os.path.join(USER_BPE_DIR, self.name)
+        return os.path.join(USER_BPE_DIR, self.get_dataset_dir_name)
 
     @property
     def path_to_bpe_vocab_file(self) -> str:
         return os.path.join(self.bpe_path, BPE_VOCAB_FILE_NAME)
+
+    @property
+    def bpe_codes_id(self) -> Optional[str]:
+        return get_codes_id_by_bpe_path(self.bpe_path)
+
+    def assign_bpe_codes_id(self, predefined_bpe_codes_id: str) -> None:
+        id = create_bpe_codes_id(self.path, predefined_bpe_codes_id)
+        write_bpe_codes_id(self.bpe_path, id)
 
     @property
     def path_to_file_list(self) -> str:
@@ -293,3 +302,52 @@ def is_path_ready(path: str) -> bool:
         return False
     modif_file = _get_last_modif_file_path_for_dir(path)
     return os.path.exists(modif_file)
+
+
+def archive_path(path: str) -> None:
+    modif_file = _get_last_modif_file_path_for_dir(path)
+    timestamp = get_timestamp(path)
+    if not os.path.exists(DEFAULT_PREP_DATASETS_DIR):
+        os.makedirs(DEFAULT_PREP_DATASETS_DIR)
+    os.rename(path, os.path.join(DEFAULT_PREP_DATASETS_DIR, f'{os.path.basename(path)}.{ARCHIVED_EXT}.{timestamp}'))
+    os.rename(modif_file, os.path.join(DEFAULT_PREP_DATASETS_DIR, f'{os.path.basename(modif_file)}.{ARCHIVED_EXT}.{timestamp}'))
+
+
+def get_all_custom_bpe_codes() -> List[str]:
+    bpe_dirs = next(os.walk(USER_BPE_DIR))[1]
+    return list(filter(None, map(lambda d: get_codes_id_by_bpe_path(d), bpe_dirs)))
+
+
+def get_codes_id_by_bpe_path(bpe_path):
+    path_to_codes_id_filename = os.path.join(bpe_path, BPE_CODES_ID_FILENAME)
+    if not os.path.exists(path_to_codes_id_filename):
+        return None
+    else:
+        with open(path_to_codes_id_filename, 'r') as f:
+            return f.read().strip()
+
+
+def create_bpe_codes_id(path, predefined_bpe_codes_id: Optional[str]=None) -> str:
+    if predefined_bpe_codes_id:
+        bpe_codes_id = predefined_bpe_codes_id
+    else:
+        id_base = os.path.basename(path)
+        existing_ids = get_all_custom_bpe_codes()
+        if id_base not in existing_ids:
+            bpe_codes_id = id_base
+        else:
+            def extract_number(full_id: str, id_base: str) -> int:
+                m = re.match(f"{id_base}_([0-9]*)", full_id)
+                return int(m[1]) if m else 0
+
+            numbers = list(map(lambda d: extract_number(d, id_base), existing_ids))
+            new_number = max(numbers) + 1
+            bpe_codes_id = f'{id_base}_{new_number}'
+
+    return bpe_codes_id
+
+
+def write_bpe_codes_id(bpe_path, bpe_codes_id):
+    path_to_codes_id_filename = os.path.join(bpe_path, BPE_CODES_ID_FILENAME)
+    with open(path_to_codes_id_filename, 'w') as f:
+        return f.write(bpe_codes_id)
