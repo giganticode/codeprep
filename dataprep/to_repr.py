@@ -53,29 +53,37 @@ def preprocess_and_write(params: Tuple[bytes, bytes, PrepConfig]):
     os.rename(not_finished_dest_file_path, dest_file_path)
 
 
-def init_splitting_config(prep_config: PrepConfig, bpe_n_merges: Optional[int]):
+def init_splitting_config(prep_config: PrepConfig, bpe_n_merges: Optional[int]=None,
+                          merges_file: Optional[str]=None,
+                          merges_cache_file: Optional[str]=None):
     global global_n_gramm_splitting_config
     global_n_gramm_splitting_config = NgramSplitConfig()
     if prep_config.get_param_value(PrepParam.SPLIT) in [4, 5, 6, 7, 8, 9]:
+        if merges_file:
+            logger.info(f'Using bpe merges file: {merges_file}')
+            if merges_cache_file and not bpe_n_merges: # we dont use cache file unless we use all merges
+                global_n_gramm_splitting_config.merges_cache = read_dict_from_2_columns(merges_cache_file, val_type=list)
+            else:
+                global_n_gramm_splitting_config.merges_cache = {}
+            global_n_gramm_splitting_config.merges = read_merges(merges_file, bpe_n_merges)
 
-        if prep_config.get_param_value(PrepParam.SPLIT) == 9:
-            if not bpe_n_merges:
-                raise ValueError("--bpe-n-merges must be specified for repr **9**")
+            if bpe_n_merges:
+                logger.info(f'Using first {bpe_n_merges} merges.')
         else:
             bpe_n_merges_dict = {4: '5k', 5: '1k', 6: '10k', 7: '20k', 8: '0'}
             bpe_n_merges = bpe_n_merges_dict[prep_config.get_param_value(PrepParam.SPLIT)]
 
-        bpe_merges_file = os.path.join(DEFAULT_BPE_DIR,
-                                          CASE_DIR if prep_config.get_param_value(PrepParam.CAPS) == 0 else NO_CASE_DIR,
-                                          str(bpe_n_merges), 'merges.txt')
-        bpe_merges_cache_file = os.path.join(DEFAULT_BPE_CACHE_DIR,
-                                          CASE_DIR if prep_config.get_param_value(PrepParam.CAPS) == 0 else NO_CASE_DIR,
-                                          str(bpe_n_merges), 'merges_cache.txt')
-        if os.path.exists(bpe_merges_cache_file):
-            global_n_gramm_splitting_config.merges_cache = read_dict_from_2_columns(bpe_merges_cache_file, val_type=list)
-        else:
-            global_n_gramm_splitting_config.merges_cache = {}
-        global_n_gramm_splitting_config.merges = read_merges(bpe_merges_file)
+            bpe_merges_file = os.path.join(DEFAULT_BPE_DIR,
+                                              CASE_DIR if prep_config.get_param_value(PrepParam.CAPS) == 0 else NO_CASE_DIR,
+                                              str(bpe_n_merges), 'merges.txt')
+            bpe_merges_cache_file = os.path.join(DEFAULT_BPE_CACHE_DIR,
+                                              CASE_DIR if prep_config.get_param_value(PrepParam.CAPS) == 0 else NO_CASE_DIR,
+                                              str(bpe_n_merges), 'merges_cache.txt')
+            if os.path.exists(bpe_merges_cache_file):
+                global_n_gramm_splitting_config.merges_cache = read_dict_from_2_columns(bpe_merges_cache_file, val_type=list)
+            else:
+                global_n_gramm_splitting_config.merges_cache = {}
+            global_n_gramm_splitting_config.merges = read_merges(bpe_merges_file)
         global_n_gramm_splitting_config.set_splitting_type(NgramSplittingType.BPE)
     elif prep_config.get_param_value(PrepParam.SPLIT) == 2:
         global_n_gramm_splitting_config.set_splitting_type(NgramSplittingType.ONLY_NUMBERS)
@@ -97,7 +105,9 @@ def exception_handler(it: Iterator):
             logger.error(f"{err}. Ignoring...")
 
 
-def run(dataset: Dataset, bpe_n_merges: Optional[int] = None):
+def run(dataset: Dataset, bpe_n_merges: Optional[int] = None,
+        path_to_merges_file: Optional[str]=None,
+        path_to_merges_cache_file: Optional[str]=None):
     path_to_parsed_dataset = dataset.parsed.path
 
     if not os.path.exists(path_to_parsed_dataset):
@@ -105,7 +115,7 @@ def run(dataset: Dataset, bpe_n_merges: Optional[int] = None):
         exit(3)
     logger.info(f"Reading parsed files from: {path_to_parsed_dataset}")
 
-    init_splitting_config(dataset.prep_config, bpe_n_merges)
+    init_splitting_config(dataset.prep_config, bpe_n_merges, path_to_merges_file, path_to_merges_cache_file)
 
     logger.info(f"Writing preprocessed files to {dataset.preprocessed.path}")
 
