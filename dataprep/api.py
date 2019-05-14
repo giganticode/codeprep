@@ -9,7 +9,7 @@ from dataprep.to_repr import init_splitting_config, to_repr
 
 def preprocess(text: str, config: PrepConfig):
     parsed = apply_preprocessors(from_string(text), pp_params["preprocessors"])
-    init_splitting_config(config, None)
+    init_splitting_config(config)
     return to_repr(config, parsed)
 
 
