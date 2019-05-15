@@ -1,12 +1,12 @@
 import ast
 import logging
 import os
-import re
 
 from datetime import datetime
 
-from typing import Type, Optional, List
+from typing import Type, Optional
 
+from dataprep.bperegistry import get_codes_id_by_bpe_path, create_new_id_from, write_bpe_codes_id, CustomBpeConfig
 from dataprep.config import DEFAULT_PARSED_DATASETS_DIR, DEFAULT_PREP_DATASETS_DIR, USER_BPE_DIR, DEFAULT_FILE_LIST_DIR, \
     LIMIT_FILES_ON_LAST_MODIFICATION_CHECK
 from dataprep.prepconfig import PrepConfig
@@ -16,7 +16,6 @@ logger = logging.getLogger(__name__)
 PP_PARAMS_FILENAME = 'params.json'
 PREPROCESSING_TYPES_FILENAME = 'preprocessing_types.json'
 BPE_VOCAB_FILE_NAME = "vocab"
-BPE_CODES_ID_FILENAME = '.name'
 FILE_LIST_FILENAME = "filelist"
 DIR_LIST_FILENAME = "dirlist"
 
@@ -77,11 +76,13 @@ class Dataset(object):
     representation of data when the data preprocessing operation consists of multiple steps.
     """
     def __init__(self, path: str, prep_config: PrepConfig, extension: Optional[str],
+                 custom_bpe_config: Optional[CustomBpeConfig],
                  bpe_config: Optional[BpeConfig],
                  overridden_path_to_prep_dataset):
         self._path = path
         self._prep_config = prep_config
         self._extension = extension
+        self._custom_bpe_config = custom_bpe_config
         self._bpe_config = bpe_config
         self._dataset_last_modified = get_timestamp(path)
 
@@ -94,6 +95,7 @@ class Dataset(object):
             return self._path == o._path and \
                    self._prep_config == o._prep_config and \
                    self._extension == o._extension and \
+                   self._custom_bpe_config == o._custom_bpe_config and \
                    self._bpe_config == o._bpe_config and \
                    self._dataset_last_modified == o._dataset_last_modified and \
                    self._original == o._original and \
@@ -106,12 +108,13 @@ class Dataset(object):
 
     @classmethod
     def create(cls: Type['Dataset'], path_to_dataset: str, prep_config: PrepConfig, extension: Optional[str],
+               custom_bpe_config: Optional[CustomBpeConfig],
                bpe_config: Optional[BpeConfig] = None,
                overriden_path_to_prep_dataset: Optional[str] = None) -> 'Dataset':
         if not os.path.exists(path_to_dataset):
             raise ValueError(f"Path {path_to_dataset} does not exist")
 
-        dataset = cls(path_to_dataset, prep_config, extension, bpe_config, overriden_path_to_prep_dataset)
+        dataset = cls(path_to_dataset, prep_config, extension, custom_bpe_config, bpe_config, overriden_path_to_prep_dataset)
 
         if not os.path.exists(dataset.parsed.path):
             os.makedirs(dataset.parsed.path)
@@ -165,9 +168,14 @@ class Dataset(object):
             return overriden_path_to_prep_dataset
 
         if overriden_path_to_prep_dataset == '':
-            return f'{self.path}_{self.dataset_last_modified}_preprocessed_{self.prep_config}'
+            p = f'{self.path}_{self.dataset_last_modified}_preprocessed'
+        else:
+            p = os.path.join(DEFAULT_PREP_DATASETS_DIR, self.get_dataset_dir_name)
 
-        return os.path.join(DEFAULT_PREP_DATASETS_DIR, self.get_dataset_dir_name)
+        p += f'_{self.prep_config}'
+        if self._custom_bpe_config:
+            p += f'_{self._custom_bpe_config.id}'
+        return p
 
     @property
     def original(self) -> SubDataset:
@@ -186,7 +194,7 @@ class Dataset(object):
         return get_codes_id_by_bpe_path(self.bpe_path)
 
     def assign_bpe_codes_id(self, predefined_bpe_codes_id: str) -> None:
-        id = create_bpe_codes_id(self.path, predefined_bpe_codes_id)
+        id = create_new_id_from(self.path, predefined_bpe_codes_id)
         write_bpe_codes_id(self.bpe_path, id)
 
     @property
@@ -311,43 +319,3 @@ def archive_path(path: str) -> None:
         os.makedirs(DEFAULT_PREP_DATASETS_DIR)
     os.rename(path, os.path.join(DEFAULT_PREP_DATASETS_DIR, f'{os.path.basename(path)}.{ARCHIVED_EXT}.{timestamp}'))
     os.rename(modif_file, os.path.join(DEFAULT_PREP_DATASETS_DIR, f'{os.path.basename(modif_file)}.{ARCHIVED_EXT}.{timestamp}'))
-
-
-def get_all_custom_bpe_codes() -> List[str]:
-    bpe_dirs = next(os.walk(USER_BPE_DIR))[1]
-    return list(filter(None, map(lambda d: get_codes_id_by_bpe_path(d), bpe_dirs)))
-
-
-def get_codes_id_by_bpe_path(bpe_path):
-    path_to_codes_id_filename = os.path.join(bpe_path, BPE_CODES_ID_FILENAME)
-    if not os.path.exists(path_to_codes_id_filename):
-        return None
-    else:
-        with open(path_to_codes_id_filename, 'r') as f:
-            return f.read().strip()
-
-
-def create_bpe_codes_id(path, predefined_bpe_codes_id: Optional[str]=None) -> str:
-    if predefined_bpe_codes_id:
-        bpe_codes_id = predefined_bpe_codes_id
-    else:
-        id_base = os.path.basename(path)
-        existing_ids = get_all_custom_bpe_codes()
-        if id_base not in existing_ids:
-            bpe_codes_id = id_base
-        else:
-            def extract_number(full_id: str, id_base: str) -> int:
-                m = re.match(f"{id_base}_([0-9]*)", full_id)
-                return int(m[1]) if m else 0
-
-            numbers = list(map(lambda d: extract_number(d, id_base), existing_ids))
-            new_number = max(numbers) + 1
-            bpe_codes_id = f'{id_base}_{new_number}'
-
-    return bpe_codes_id
-
-
-def write_bpe_codes_id(bpe_path, bpe_codes_id):
-    path_to_codes_id_filename = os.path.join(bpe_path, BPE_CODES_ID_FILENAME)
-    with open(path_to_codes_id_filename, 'w') as f:
-        return f.write(bpe_codes_id)

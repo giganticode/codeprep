@@ -5,9 +5,9 @@ import re, collections
 from tqdm import tqdm
 from typing import Optional, Dict, List, Tuple
 
-import time
 
 from dataprep import util
+from dataprep.bperegistry import get_max_merges, MERGES_CACHE_FILE_NAME, MERGES_FILE_NAME
 from dataprep.cli import stages
 from dataprep.dataset import Dataset
 from dataprep.model.placeholders import placeholders
@@ -19,8 +19,6 @@ logger = logging.getLogger(__name__)
 
 OTHER_VOCAB_FILE_NAME = "other_vocab"
 BPE_REASSEMBLED_VOCAB_FILE_NAME = "bpe_vocab_reassembled.txt"
-MERGES_FILE_NAME = "merges.txt"
-MERGES_CACHE_FILE_NAME = "merges_cache.txt"
 RESULTING_VOCAB_FILE_NAME = "vocab_res.txt"
 
 # ======== BPE algo itself
@@ -99,35 +97,6 @@ def separate_non_splittable_vocab(all_vocab: Dict[str, int], from_reassambled: b
             non_splitable_vocab[k] = v
     return vocab, non_splitable_vocab
 
-# ========== Saving bpe in the file system
-
-
-def get_dir_with_most_merges(dataset_bpe_dir: str, limit: int) -> Optional[str]:
-    if not os.path.exists(dataset_bpe_dir):
-        logger.warning(f'Directory {dataset_bpe_dir} does not exist!')
-        return None
-    subdirs = next(os.walk(dataset_bpe_dir))[1]
-    max_number = 0
-    for subdir in subdirs:
-        try:
-            num = int(subdir)
-            if max_number < num <= limit:
-                max_number = num
-        except ValueError:
-            pass
-    if max_number != 0:
-        return os.path.join(dataset_bpe_dir, str(max_number))
-    else:
-        logger.warning(f'No bpe dirs found inside {dataset_bpe_dir}')
-        return None
-
-
-def archive_existing_common_bpe_folder(dataset_bpe_dir: str) -> None:
-    if os.path.exists(dataset_bpe_dir):
-        logger.info(f'Archiving existing bpe dir. '
-                    f'{dataset_bpe_dir} -> {dataset_bpe_dir}.{str(int(time.time()))}')
-        os.rename(dataset_bpe_dir, f'{dataset_bpe_dir}.{str(int(time.time()))}')
-
 # ======== Create auxiliary data structures.
 
 
@@ -172,12 +141,13 @@ def get_base_vocab(dataset: Dataset, bpe_config: BpeConfig) -> Tuple[Dict[str, i
 
 def run(dataset: Dataset, n_merges: int, bpe_config: BpeConfig, extension: Optional[str]=None) -> None:
 
-    dir_with_most_merges = get_dir_with_most_merges(dataset.bpe_path, n_merges)
-    if not dir_with_most_merges:
+    max_merges = get_max_merges(dataset.bpe_path, n_merges)
+    if not max_merges:
         starting_from_scratch = True
     else:
+        dir_with_most_merges = os.path.join(dataset.bpe_path, str(max_merges))
         starting_from_scratch = False
-        logger.info("Using existing merges...")
+        logger.info("Using existing mexrges...")
 
     if starting_from_scratch:
         logger.info("Starting the encoding from scratch...")

@@ -1,6 +1,9 @@
 """This module runs different stages of preprocessing flow and makes sure not to rerun a stage if its results are already available.
 """
+from typing import Optional
+
 from dataprep import parse_projects, to_repr, vocab
+from dataprep.bperegistry import CustomBpeConfig
 from dataprep.dataset import Dataset, is_path_ready, is_path_outdated, archive_path
 
 
@@ -15,14 +18,14 @@ def run_parsing(dataset: Dataset) -> None:
         print("Parsed dataset is up-to-date.")
 
 
-def run_until_preprocessing(dataset: Dataset) -> None:
+def run_until_preprocessing(dataset: Dataset, custom_bpe_config: Optional[CustomBpeConfig]=None) -> None:
     run_parsing(dataset)
     print("--- Preprocessing...")
     if not dataset.preprocessed.ready():
-        to_repr.run(dataset)
+        to_repr.run(dataset, custom_bpe_config)
     elif dataset.preprocessed.is_outdated():
         dataset.preprocessed.archive()
-        to_repr.run(dataset)
+        to_repr.run(dataset, custom_bpe_config)
     else:
         print(f"Dataset is already preprocessed and up-to-date.")
 

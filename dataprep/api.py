@@ -1,15 +1,20 @@
 import collections
-from typing import List
 
+from typing import List, Dict, Optional
+
+from dataprep.bperegistry import create_custom_bpe_config, is_predefined_id
 from dataprep.prepconfig import PrepConfig, PrepParam
 from dataprep.preprocessors.core import from_string, apply_preprocessors
 from dataprep.preprocessors.preprocessor_list import pp_params
 from dataprep.to_repr import init_splitting_config, to_repr
 
 
-def preprocess(text: str, config: PrepConfig):
+def preprocess(text: str, config: PrepConfig, bpe_codes_id: Optional[str] = None) -> List[str]:
     parsed = apply_preprocessors(from_string(text), pp_params["preprocessors"])
-    init_splitting_config(config)
+    custom_bpe_config = None
+    if bpe_codes_id and not is_predefined_id(bpe_codes_id):
+        custom_bpe_config = create_custom_bpe_config(bpe_codes_id)
+    init_splitting_config(config, custom_bpe_config)
     return to_repr(config, parsed)
 
 
@@ -30,7 +35,7 @@ def create_split_value(arguments):
         elif arguments['10k']:
             return 6
         else:
-            raise AssertionError(f"Invalid bpe value: {arguments['<bpe-codes-id>']}. Custom values not yet supported.")
+            return 9
     else:
         raise AssertionError(f"Invalid split option: {arguments}")
 
@@ -46,7 +51,7 @@ def create_com_str_value(arguments):
         return 0
 
 
-def create_prep_config_from_args(arguments):
+def create_prep_config_from_args(arguments: Dict) -> PrepConfig:
     return PrepConfig({
         PrepParam.EN_ONLY: 3 if '--no-unicode' in arguments and arguments['--no-unicode'] else 0,
         PrepParam.COM_STR: create_com_str_value(arguments),
@@ -163,7 +168,7 @@ def basic_with_numbers(text: str, no_str: bool=False, no_com: bool=False, no_spa
     return preprocess(text, create_prep_config_from_args(d))
 
 
-def bpe(text: str, bpe_config: str, no_str: bool=False, no_com: bool=False, no_spaces: bool=False, no_unicode: bool=False, no_case: bool=False) -> List[str]:
+def bpe(text: str, bpe_codes_id: str, no_str: bool=False, no_com: bool=False, no_spaces: bool=False, no_unicode: bool=False, no_case: bool=False) -> List[str]:
     """
     Split `text` into tokens converting identifiers that follow CamelCase or snake_case into multiple subwords.
     On top of that Byte Pair Encoding (BPE) is applied with number of merges specified in `bpe_config`.
@@ -171,7 +176,8 @@ def bpe(text: str, bpe_config: str, no_str: bool=False, no_com: bool=False, no_s
     e.g. myClass -> [<w>, my, Class, </w>]
 
     :param text: text to be split.
-    :param bpe_config: number of bpe merges to use, possible values: 1k, 5k, 10k.
+    :param bpe_codes_id: defines bpe codes to be used when applying bpe,
+    predefined codes : 1k, 5k, 10k. Custom bpe codes can be learned by running `dataprep learn-bpe` command.
     :param no_str: set to True to replace each string literals with a special token, e.g <str_literal>.
     :param no_com: set to True to replace each comment with a special token, e.g. <comment>.
     :param no_spaces: set to True to remove tabs and newlines.
@@ -188,9 +194,9 @@ def bpe(text: str, bpe_config: str, no_str: bool=False, no_com: bool=False, no_s
         '--no-unicode': no_unicode,
         '--no-case': no_case,
         'bpe': True,
-        bpe_config: True
+        bpe_codes_id: True
     }
     d.update(args)
-    return preprocess(text, create_prep_config_from_args(d))
+    return preprocess(text, create_prep_config_from_args(d), bpe_codes_id)
 
 

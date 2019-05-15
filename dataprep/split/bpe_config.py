@@ -45,10 +45,19 @@ class BpeConfig(object):
         return PrepConfig({
             PrepParam.EN_ONLY: 3 if self.get_param_value(BpeParam.UNICODE) == 'no' else 0,
             PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 1 if self.get_param_value(BpeParam.BASE) == 'java' else 0,
+            PrepParam.SPLIT: 1,
             PrepParam.TABS_NEWLINES: 0,
             PrepParam.CAPS: 1 if self.get_param_value(BpeParam.CASE) == 'no' else 0
         })
 
     def __eq__(self, other):
         return self.params == other.params
+
+    def __str__(self) -> str:
+        res = ""
+        for k in BpeParam:
+            res += str(self.params[k])
+        return res
+
+    def __repr__(self):
+        return str(self.params)

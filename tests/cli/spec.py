@@ -6,6 +6,7 @@ from docopt import DocoptExit
 
 from dataprep.cli.spec import parse_and_run
 from dataprep.prepconfig import PrepParam, PrepConfig
+from dataprep.split.bpe_config import BpeConfig, BpeParam
 
 
 @mock.patch('dataprep.cli.impl.api')
@@ -21,7 +22,7 @@ class CliTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: 1,
             PrepParam.CAPS: 0
         })
-        api_mock.preprocess.assert_called_with("str", prep_config)
+        api_mock.preprocess.assert_called_with("str", prep_config, None)
 
     def test_parse_and_run_from_args_3x0xx(self, api_mock):
         argv = ['nosplit', 'str', '--no-spaces', '--no-unicode']
@@ -38,7 +39,7 @@ class CliTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: 1,
             PrepParam.CAPS: 0
         })
-        api_mock.preprocess.assert_called_with("str", prep_config)
+        api_mock.preprocess.assert_called_with("str", prep_config, None)
 
     def test_parse_and_run_xx00x(self, api_mock):
         argv = ['nosplit', 'str']
@@ -50,7 +51,7 @@ class CliTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: 0,
             PrepParam.CAPS: 0
         })
-        api_mock.preprocess.assert_called_with("str", prep_config)
+        api_mock.preprocess.assert_called_with("str", prep_config, None)
 
     def test_parse_and_run_xx0x1(self, api_mock):
         argv = ['nosplit', 'str', '--no-spaces', '--no-case']
@@ -67,7 +68,7 @@ class CliTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: 1,
             PrepParam.CAPS: 1
         })
-        api_mock.preprocess.assert_called_with("str", prep_config)
+        api_mock.preprocess.assert_called_with("str", prep_config, None)
 
     def test_parse_and_run_3x1xx(self, api_mock):
         argv = ['basic', 'str', '--no-spaces', '--no-case', '--no-unicode']
@@ -79,7 +80,7 @@ class CliTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: 1,
             PrepParam.CAPS: 1
         })
-        api_mock.preprocess.assert_called_with("str", prep_config)
+        api_mock.preprocess.assert_called_with("str", prep_config, None)
 
     def test_parse_and_run_x11xx(self, api_mock):
         argv = ['basic', 'str', '--no-spaces', '--no-case', '--no-str']
@@ -91,7 +92,7 @@ class CliTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: 1,
             PrepParam.CAPS: 1
         })
-        api_mock.preprocess.assert_called_with("str", prep_config)
+        api_mock.preprocess.assert_called_with("str", prep_config, None)
 
     def test_parse_and_run_x21xx(self, api_mock):
         argv = ['basic', 'str', '--no-spaces', '--no-case', '--no-str', '--no-com']
@@ -103,7 +104,7 @@ class CliTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: 1,
             PrepParam.CAPS: 1
         })
-        api_mock.preprocess.assert_called_with("str", prep_config)
+        api_mock.preprocess.assert_called_with("str", prep_config, None)
 
     def test_parse_and_run_x31xx(self, api_mock):
         argv = ['basic', 'str', '--no-spaces', '--no-case', '--no-com']
@@ -115,7 +116,7 @@ class CliTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: 1,
             PrepParam.CAPS: 1
         })
-        api_mock.preprocess.assert_called_with("str", prep_config)
+        api_mock.preprocess.assert_called_with("str", prep_config, None)
 
     def test_parse_and_run_012xx(self, api_mock):
         argv = ['basic+numbers', 'str', '--no-spaces', '--no-case']
@@ -127,7 +128,7 @@ class CliTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: 1,
             PrepParam.CAPS: 1
         })
-        api_mock.preprocess.assert_called_with("str", prep_config)
+        api_mock.preprocess.assert_called_with("str", prep_config, None)
 
     def test_parse_and_run_014xx(self, api_mock):
         argv = ['bpe', '5k', 'str', '--no-spaces', '--no-case']
@@ -139,7 +140,7 @@ class CliTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: 1,
             PrepParam.CAPS: 1
         })
-        api_mock.preprocess.assert_called_with("str", prep_config)
+        api_mock.preprocess.assert_called_with("str", prep_config, None)
 
     def test_parse_and_run_015xx(self, api_mock):
         argv = ['bpe', '1k', 'str', '--no-spaces', '--no-case']
@@ -151,7 +152,7 @@ class CliTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: 1,
             PrepParam.CAPS: 1
         })
-        api_mock.preprocess.assert_called_with("str", prep_config)
+        api_mock.preprocess.assert_called_with("str", prep_config, None)
 
     def test_parse_and_run_xx6xx(self, api_mock):
         argv = ['bpe', '10k', 'str', '--no-spaces', '--no-case']
@@ -163,7 +164,7 @@ class CliTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: 1,
             PrepParam.CAPS: 1
         })
-        api_mock.preprocess.assert_called_with("str", prep_config)
+        api_mock.preprocess.assert_called_with("str", prep_config, None)
 
     def test_parse_and_run_xx8xx(self, api_mock):
         argv = ['chars', 'str', '--no-spaces', '--no-case']
@@ -175,7 +176,7 @@ class CliTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: 1,
             PrepParam.CAPS: 1
         })
-        api_mock.preprocess.assert_called_with("str", prep_config)
+        api_mock.preprocess.assert_called_with("str", prep_config, None)
 
     def test_parse_and_run_xx10x(self, api_mock):
         argv = ['basic', 'str', '--no-case']
@@ -187,7 +188,7 @@ class CliTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: 0,
             PrepParam.CAPS: 1
         })
-        api_mock.preprocess.assert_called_with("str", prep_config)
+        api_mock.preprocess.assert_called_with("str", prep_config, None)
 
     def test_parse_and_run_xx1x1(self, api_mock):
         argv = ['basic', 'str', '--no-spaces']
@@ -199,7 +200,7 @@ class CliTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: 1,
             PrepParam.CAPS: 0
         })
-        api_mock.preprocess.assert_called_with("str", prep_config)
+        api_mock.preprocess.assert_called_with("str", prep_config, None)
 
     @mock.patch('dataprep.cli.impl.Dataset')
     @mock.patch('dataprep.cli.impl.stages')
@@ -214,8 +215,8 @@ class CliTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: 1,
             PrepParam.CAPS: 0
         })
-        dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, 'java', overriden_path_to_prep_dataset='')
-        stages_mock.run_until_preprocessing.assert_called_with(dataset_mock)
+        dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, 'java', None, overriden_path_to_prep_dataset='')
+        stages_mock.run_until_preprocessing.assert_called_with(dataset_mock, None)
 
     @mock.patch('dataprep.cli.impl.Dataset')
     @mock.patch('dataprep.cli.impl.stages')
@@ -230,8 +231,8 @@ class CliTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: 1,
             PrepParam.CAPS: 0
         })
-        dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, 'java', overriden_path_to_prep_dataset='')
-        stages_mock.run_until_preprocessing.assert_called_with(dataset_mock)
+        dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, 'java', None, overriden_path_to_prep_dataset='')
+        stages_mock.run_until_preprocessing.assert_called_with(dataset_mock, None)
 
     @mock.patch('dataprep.cli.impl.Dataset')
     @mock.patch('dataprep.cli.impl.stages')
@@ -246,8 +247,8 @@ class CliTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: 1,
             PrepParam.CAPS: 0
         })
-        dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, 'java', overriden_path_to_prep_dataset='/path/to/output')
-        stages_mock.run_until_preprocessing.assert_called_with(dataset_mock)
+        dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, 'java', None, overriden_path_to_prep_dataset='/path/to/output')
+        stages_mock.run_until_preprocessing.assert_called_with(dataset_mock, None)
 
     @mock.patch('dataprep.cli.impl.Dataset')
     @mock.patch('dataprep.cli.impl.stages')
@@ -262,14 +263,13 @@ class CliTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: 1,
             PrepParam.CAPS: 0
         })
-        dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, 'java', overriden_path_to_prep_dataset='/path/to/output')
-        stages_mock.run_until_preprocessing.assert_called_with(dataset_mock)
+        dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, 'java', None, overriden_path_to_prep_dataset='/path/to/output')
+        stages_mock.run_until_preprocessing.assert_called_with(dataset_mock, None)
 
     def test_parse_and_run_text_with_output(self, api_mock):
         argv = ['nosplit', 'str', '-o', '/path/to/output', '--no-spaces']
         with self.assertRaises(DocoptExit) as context:
             parse_and_run(argv)
-
 
     def test_parse_and_run_all_short_config_options(self, api_mock):
         argv = ['basic', 'str', '-0lSCU']
@@ -281,7 +281,91 @@ class CliTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: 1,
             PrepParam.CAPS: 1
         })
-        api_mock.preprocess.assert_called_with("str", prep_config)
+        api_mock.preprocess.assert_called_with("str", prep_config, None)
+
+    @mock.patch('dataprep.cli.impl.Dataset')
+    @mock.patch('dataprep.cli.impl.bpe_learn')
+    def test_parse_and_run_learnbpe_yes_false_java_yes(self, bpe_learn_mock, dataset_mock, api_mock):
+
+        # given
+        dataset_mock.create = Mock(return_value=dataset_mock)
+        argv = ['learn-bpe', 'java', '1000', '-p', '/path/to/dataset']
+
+        # when
+        parse_and_run(argv)
+
+        # then
+        prep_config = PrepConfig({
+            PrepParam.EN_ONLY: 0,
+            PrepParam.COM_STR: 0,
+            PrepParam.SPLIT: 1,
+            PrepParam.TABS_NEWLINES: 0,
+            PrepParam.CAPS: 0
+        })
+        bpe_config = BpeConfig({
+            BpeParam.CASE: 'yes',
+            BpeParam.WORD_END: False,
+            BpeParam.BASE: 'java',
+            BpeParam.UNICODE: 'yes',
+        })
+        dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, 'java', None, bpe_config)
+        bpe_learn_mock.run.assert_called_with(dataset_mock, 1000, bpe_config=bpe_config, extension='java')
+
+    @mock.patch('dataprep.cli.impl.Dataset')
+    @mock.patch('dataprep.cli.impl.bpe_learn')
+    def test_parse_and_run_learnbpe_no_true_code_no(self, bpe_learn_mock, dataset_mock, api_mock):
+
+        # given
+        dataset_mock.create = Mock(return_value=dataset_mock)
+        argv = ['learn-bpe', 'code', '1000', '-p', '/path/to/dataset', '--no-case', '--no-unicode', '--word-end']
+
+        # when
+        parse_and_run(argv)
+
+        # then
+        prep_config = PrepConfig({
+            PrepParam.EN_ONLY: 3,
+            PrepParam.COM_STR: 0,
+            PrepParam.SPLIT: 1,
+            PrepParam.TABS_NEWLINES: 0,
+            PrepParam.CAPS: 1
+        })
+        bpe_config = BpeConfig({
+            BpeParam.CASE: 'no',
+            BpeParam.WORD_END: True,
+            BpeParam.BASE: 'code',
+            BpeParam.UNICODE: 'no',
+        })
+        dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, None, None, bpe_config)
+        bpe_learn_mock.run.assert_called_with(dataset_mock, 1000, bpe_config=bpe_config, extension=None)
+
+    @mock.patch('dataprep.cli.impl.Dataset')
+    @mock.patch('dataprep.cli.impl.bpe_learn')
+    def test_parse_and_run_learnbpe_prefix_true_code_bytes(self, bpe_learn_mock, dataset_mock, api_mock):
+
+        # given
+        dataset_mock.create = Mock(return_value=dataset_mock)
+        argv = ['learn-bpe', 'code', '1000', '-p', '/path/to/dataset', '--case-prefix', '--bytes', '--word-end']
+
+        # when
+        parse_and_run(argv)
+
+        # then
+        prep_config = PrepConfig({
+            PrepParam.EN_ONLY: 0,
+            PrepParam.COM_STR: 0,
+            PrepParam.SPLIT: 1,
+            PrepParam.TABS_NEWLINES: 0,
+            PrepParam.CAPS: 0
+        })
+        bpe_config = BpeConfig({
+            BpeParam.CASE: 'prefix',
+            BpeParam.WORD_END: True,
+            BpeParam.BASE: 'code',
+            BpeParam.UNICODE: 'bytes',
+        })
+        dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, None, None, bpe_config)
+        bpe_learn_mock.run.assert_called_with(dataset_mock, 1000, bpe_config=bpe_config, extension=None)
 
 
 if __name__ == '__main__':
