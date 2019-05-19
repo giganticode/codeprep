@@ -3,13 +3,13 @@ import collections
 from typing import List, Dict, Optional
 
 from dataprep.bperegistry import create_custom_bpe_config, is_predefined_id
+from dataprep.parse.core import convert_text
 from dataprep.prepconfig import PrepConfig, PrepParam
-from dataprep.preprocessors.core import parse_from_string
 from dataprep.to_repr import init_splitting_config, to_repr
 
 
-def preprocess(text: str, config: PrepConfig, bpe_codes_id: Optional[str] = None) -> List[str]:
-    parsed = parse_from_string(text)
+def preprocess(text: str, config: PrepConfig, bpe_codes_id: Optional[str] = None, extension: Optional[str] = None) -> List[str]:
+    parsed = convert_text(text, extension)
     custom_bpe_config = None
     if bpe_codes_id and not is_predefined_id(bpe_codes_id):
         custom_bpe_config = create_custom_bpe_config(bpe_codes_id)
@@ -60,7 +60,7 @@ def create_prep_config_from_args(arguments: Dict) -> PrepConfig:
     })
 
 
-def nosplit(text: str, no_str: bool=False, no_com: bool=False, no_spaces: bool=False) -> List[str]:
+def nosplit(text: str, extension: Optional[str] = None, no_str: bool=False, no_com: bool=False, no_spaces: bool=False) -> List[str]:
     """
     Split `text` into tokens leaving compound identifiers as they are.
 
@@ -78,10 +78,10 @@ def nosplit(text: str, no_str: bool=False, no_com: bool=False, no_spaces: bool=F
         'nosplit': True
     }
     d.update(args)
-    return preprocess(text, create_prep_config_from_args(d))
+    return preprocess(text, create_prep_config_from_args(d), extension=extension)
 
 
-def chars(text: str, no_str: bool=False, no_com: bool=False, no_spaces: bool=False, no_unicode: bool=False, no_case: bool=False) -> List[str]:
+def chars(text: str, extension: Optional[str] = None, no_str: bool=False, no_com: bool=False, no_spaces: bool=False, no_unicode: bool=False, no_case: bool=False) -> List[str]:
     """
     Split `text` into characters (With the exception of operators that consist of 2 character: such operators will remain as a single token).
     So that the information about original word boundaries is not lost, special tokens are inserted to denote original words beginnings and ends,
@@ -106,10 +106,10 @@ def chars(text: str, no_str: bool=False, no_com: bool=False, no_spaces: bool=Fal
         'chars': True
     }
     d.update(args)
-    return preprocess(text, create_prep_config_from_args(d))
+    return preprocess(text, create_prep_config_from_args(d), extension=extension)
 
 
-def basic(text: str, no_str: bool=False, no_com: bool=False, no_spaces: bool=False, no_unicode: bool=False, no_case: bool=False) -> List[str]:
+def basic(text: str, extension: Optional[str] = None, no_str: bool=False, no_com: bool=False, no_spaces: bool=False, no_unicode: bool=False, no_case: bool=False) -> List[str]:
     """
     Split `text` into tokens converting identifiers that follow CamelCase or snake_case into multiple subwords.
     So that the information about original word boundaries is not lost, special tokens are inserted to denote original words beginnings and ends,
@@ -134,10 +134,10 @@ def basic(text: str, no_str: bool=False, no_com: bool=False, no_spaces: bool=Fal
         'basic': True
     }
     d.update(args)
-    return preprocess(text, create_prep_config_from_args(d))
+    return preprocess(text, create_prep_config_from_args(d), extension=extension)
 
 
-def basic_with_numbers(text: str, no_str: bool=False, no_com: bool=False, no_spaces: bool=False, no_unicode: bool=False, no_case: bool=False) -> List[str]:
+def basic_with_numbers(text: str, extension: Optional[str] = None, no_str: bool=False, no_com: bool=False, no_spaces: bool=False, no_unicode: bool=False, no_case: bool=False) -> List[str]:
     """
     Split `text` into tokens converting identifiers that follow CamelCase or snake_case into multiple subwords,
     and numbers into sequence of digits. So that the information about original word boundaries is not lost,
@@ -164,10 +164,10 @@ def basic_with_numbers(text: str, no_str: bool=False, no_com: bool=False, no_spa
 
     }
     d.update(args)
-    return preprocess(text, create_prep_config_from_args(d))
+    return preprocess(text, create_prep_config_from_args(d), extension=extension)
 
 
-def bpe(text: str, bpe_codes_id: str, no_str: bool=False, no_com: bool=False, no_spaces: bool=False, no_unicode: bool=False, no_case: bool=False) -> List[str]:
+def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_str: bool=False, no_com: bool=False, no_spaces: bool=False, no_unicode: bool=False, no_case: bool=False) -> List[str]:
     """
     Split `text` into tokens converting identifiers that follow CamelCase or snake_case into multiple subwords.
     On top of that Byte Pair Encoding (BPE) is applied with number of merges specified in `bpe_config`.
@@ -196,6 +196,6 @@ def bpe(text: str, bpe_codes_id: str, no_str: bool=False, no_com: bool=False, no
         bpe_codes_id: True
     }
     d.update(args)
-    return preprocess(text, create_prep_config_from_args(d), bpe_codes_id)
+    return preprocess(text, create_prep_config_from_args(d), bpe_codes_id, extension=extension)
 
 

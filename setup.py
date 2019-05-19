@@ -46,7 +46,8 @@ setup(name='giganticode-dataprep',
           'appdirs',
           'PyYAML',
           'dill',
-          'docopt-subcommands'
+          'docopt-subcommands',
+          'Pygments'
       ],
         entry_points={
           'console_scripts': [

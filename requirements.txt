@@ -8,3 +8,4 @@ PyYAML==5.1
 dill==0.2.9
 matplotlib==3.0.3
 docopt-subcommands==3.0.0
+Pygments==2.3.1
