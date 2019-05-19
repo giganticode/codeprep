@@ -215,7 +215,7 @@ class CliTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: 1,
             PrepParam.CAPS: 0
         })
-        dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, 'java', None, overriden_path_to_prep_dataset='')
+        dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, None, None, overriden_path_to_prep_dataset='')
         stages_mock.run_until_preprocessing.assert_called_with(dataset_mock, None)
 
     @mock.patch('dataprep.cli.impl.Dataset')
@@ -231,7 +231,7 @@ class CliTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: 1,
             PrepParam.CAPS: 0
         })
-        dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, 'java', None, overriden_path_to_prep_dataset='')
+        dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, None, None, overriden_path_to_prep_dataset='')
         stages_mock.run_until_preprocessing.assert_called_with(dataset_mock, None)
 
     @mock.patch('dataprep.cli.impl.Dataset')
@@ -247,7 +247,7 @@ class CliTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: 1,
             PrepParam.CAPS: 0
         })
-        dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, 'java', None, overriden_path_to_prep_dataset='/path/to/output')
+        dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, None, None, overriden_path_to_prep_dataset='/path/to/output')
         stages_mock.run_until_preprocessing.assert_called_with(dataset_mock, None)
 
     @mock.patch('dataprep.cli.impl.Dataset')
@@ -263,7 +263,7 @@ class CliTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: 1,
             PrepParam.CAPS: 0
         })
-        dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, 'java', None, overriden_path_to_prep_dataset='/path/to/output')
+        dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, None, None, overriden_path_to_prep_dataset='/path/to/output')
         stages_mock.run_until_preprocessing.assert_called_with(dataset_mock, None)
 
     def test_parse_and_run_text_with_output(self, api_mock):
@@ -289,7 +289,7 @@ class CliTest(unittest.TestCase):
 
         # given
         dataset_mock.create = Mock(return_value=dataset_mock)
-        argv = ['learn-bpe', 'java', '1000', '-p', '/path/to/dataset']
+        argv = ['learn-bpe', '1000', '-p', '/path/to/dataset', '--legacy']
 
         # when
         parse_and_run(argv)
@@ -317,7 +317,7 @@ class CliTest(unittest.TestCase):
 
         # given
         dataset_mock.create = Mock(return_value=dataset_mock)
-        argv = ['learn-bpe', 'code', '1000', '-p', '/path/to/dataset', '--no-case', '--no-unicode', '--word-end']
+        argv = ['learn-bpe', '1000', '-p', '/path/to/dataset', '--no-case', '--no-unicode', '--word-end']
 
         # when
         parse_and_run(argv)
@@ -345,7 +345,7 @@ class CliTest(unittest.TestCase):
 
         # given
         dataset_mock.create = Mock(return_value=dataset_mock)
-        argv = ['learn-bpe', 'code', '1000', '-p', '/path/to/dataset', '--case-prefix', '--bytes', '--word-end']
+        argv = ['learn-bpe', '1000', '-p', '/path/to/dataset', '--case-prefix', '--bytes', '--word-end']
 
         # when
         parse_and_run(argv)

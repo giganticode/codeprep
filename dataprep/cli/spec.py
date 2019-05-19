@@ -111,13 +111,11 @@ def bpe_handler(args):
 
 @dsc.command()
 def bpelearn_handler(args):
-    """usage: {program} learn-bpe (code | java) <n-merges> -p <path> [-o <path-out>] [--id <bpe-codes-id>] [--no-case | --case-prefix] [--no-unicode | --bytes] [--word-end]
+    """usage: {program} learn-bpe <n-merges> -p <path> [-o <path-out>] [--id <bpe-codes-id>] [--no-case | --case-prefix] [--no-unicode | --bytes] [--word-end] [--legacy]
 
     #TODO
 
     Options:
-      code                                         Run bpe on all source code files.
-      java                                         Run bpe only on java files.
       <n-merges>                                   The number of BPE merges to compute
       -p, --path <path>                            Path to the dataset to be used to learn bpe codes.
       -o <path-out>, --output-path <path-out>      Path to the file to which computed bpe codes are to be written. If not specified, equals to '<path>_bpe_codes.txt'.
@@ -127,6 +125,7 @@ def bpelearn_handler(args):
       --no-unicode, -U                             Ignore words containing non-ascii characters.
       --bytes, -b                                  Treat non-ascii characters as 2 bytes and do real byte-pair encoding.
       --word-end, -e                               Add a special character to the end of each word.
+      --legacy                                     Parse using legacy parser (only files with extension “.java” will be processed)
     """
     handle_learnbpe(args)
 

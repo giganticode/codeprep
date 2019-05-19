@@ -264,11 +264,11 @@ def get_dir_last_modification(path: str, limit: int = LIMIT_FILES_ON_LAST_MODIFI
 def save_all_files(path: str, save_to_files: str, save_to_dirs: str, extension: str) -> None:
     with open(save_to_dirs, 'w') as d, open(save_to_files, 'w') as f:
         path_bin = path.encode()
-        extension_bin = extension.encode()
-        # we want to list and store all the files a sequences of bytes to avoid problems with encodings
+        extension_bin = extension.encode() if extension else None
+        # we want to list and store all the files a sequences of bytes to avoid problems with different encodings for filenames
         counter = 0
         if os.path.isfile(path_bin):
-            f.write(f'{path_bin}\n')
+            f.write(f'{os.path.basename(path_bin)}\n')
         else:
             for root, dirs, files in os.walk(path_bin):
                 # we pass bytes to os.walk -> the output are bytes as well

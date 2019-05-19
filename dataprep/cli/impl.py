@@ -15,7 +15,7 @@ def handle_learnbpe(args):
     path = os.path.abspath(args['--path'])
     bpe_config = create_bpe_config_from_args(args)
     n_merges = int(args['<n-merges>'])
-    extension = 'java' if args['java'] else None
+    extension = 'java' if args['--legacy'] else None
     bpe_codes_id = args['--id']
     dataset = Dataset.create(path, bpe_config.to_prep_config(), extension, None, bpe_config)
 
@@ -38,7 +38,7 @@ def handle_splitting(args):
         else:
             path = os.path.abspath(args['--path'])
             output_path = args['--output-path'] if args['--output-path'] else '' #TODO this is bad. Fix it
-            extension = 'java'
+            extension = None
             custom_bpe_config = create_custom_bpe_config(bpe_codes_id) if bpe_codes_id else None
             dataset = Dataset.create(path, prep_config, extension, custom_bpe_config, overriden_path_to_prep_dataset=output_path)
             stages.run_until_preprocessing(dataset, custom_bpe_config)
@@ -46,15 +46,6 @@ def handle_splitting(args):
     except InvalidBpeCodesIdError as err:
         print(err)
         return
-
-
-def get_bpe_param_base_value(run_options):
-    if run_options["code"]:
-        return "code"
-    elif run_options["java"]:
-        return "java"
-    else:
-        raise AssertionError()
 
 
 def create_bpe_config_from_args(run_options: Dict[str, str]) -> BpeConfig:
@@ -73,6 +64,6 @@ def create_bpe_config_from_args(run_options: Dict[str, str]) -> BpeConfig:
     return BpeConfig({
         BpeParam.CASE: case,
         BpeParam.WORD_END: run_options["--word-end"],
-        BpeParam.BASE: get_bpe_param_base_value(run_options),
+        BpeParam.BASE: 'java' if run_options['--legacy'] else 'code',
         BpeParam.UNICODE: unicode
     })
