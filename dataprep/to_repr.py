@@ -9,6 +9,7 @@ from tqdm import tqdm
 
 from dataprep.bperegistry import CustomBpeConfig
 from dataprep.dataset import Dataset, NOT_FINISHED_EXTENSION
+from dataprep.model.core import ParsedToken
 from dataprep.prepconfig import PrepParam, get_types_to_be_repr, PrepConfig
 from dataprep.preprocessors.general import to_token_str
 from dataprep.preprocessors.repr import to_repr_list, ReprConfig
@@ -25,7 +26,7 @@ def get_global_n_gramm_splitting_config():
     return global_n_gramm_splitting_config
 
 
-def to_repr(prep_config: PrepConfig, token_list: List, n_gramm_splitting_config: Optional[NgramSplitConfig] = None) -> List[str]:
+def to_repr(prep_config: PrepConfig, token_list: List[ParsedToken], n_gramm_splitting_config: Optional[NgramSplitConfig] = None) -> List[str]:
     types_to_be_repr = get_types_to_be_repr(prep_config)
     splitting_config = n_gramm_splitting_config or get_global_n_gramm_splitting_config()
     dict_based_non_eng = (prep_config.get_param_value(PrepParam.EN_ONLY) != 3)

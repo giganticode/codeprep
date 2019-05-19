@@ -1,11 +1,12 @@
 from typing import List
 
+from dataprep.model.core import ParsedToken
 from dataprep.model.placeholders import placeholders
 from dataprep.model.word import Word
 from dataprep.preprocessors.repr import torepr, ReprConfig
 
 
-class NonEng(object):
+class NonEng(ParsedToken):
     def __init__(self, processable_token):
         if not isinstance(processable_token, Word):
             raise ValueError(f"NonEngFullWord excepts FullWord but {type(processable_token)} is passed")
@@ -44,5 +45,5 @@ class NonEng(object):
         return self.__class__ == other.__class__ and self.processable_token == other.processable_token
 
 
-class NonEngContent(object):
+class NonEngContent(ParsedToken):
     pass

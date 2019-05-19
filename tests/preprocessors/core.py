@@ -2,8 +2,9 @@ import unittest
 
 from dataprep.model.word import Word, Underscore
 from dataprep.preprocessors.preprocessor_list import pp_params
-from dataprep.preprocessors.core import apply_preprocessors, from_lines
-from dataprep.model.chars import NewLine, Tab, Backslash, Quote
+from dataprep.preprocessors.core import _apply_preprocessors, _from_lines
+from dataprep.model.chars import NewLine, Tab, Backslash, Quote, OneLineCommentStart, MultilineCommentStart, \
+    MultilineCommentEnd
 from dataprep.model.containers import OneLineComment, SplitContainer, StringLiteral, MultilineComment
 from dataprep.model.numeric import HexStart, Number, DecimalPoint, L, F, E, D
 
@@ -18,7 +19,7 @@ text3 = '''" RegisterImage "'''
 
 class ApplyPreprocessorsTest(unittest.TestCase):
     def __test_apply_preprocessors(self, input, expected):
-        res = apply_preprocessors(from_lines([l for l in input.split("\n")]), pp_params["preprocessors"])
+        res = _apply_preprocessors(_from_lines([l for l in input.split("\n")]), pp_params["preprocessors"])
         self.assertEqual(expected, res)
 
     def test_1(self):
@@ -119,11 +120,11 @@ BigAWESOMEString[] a2y = "abc".doSplit("\\"");
                            ']',
                            SplitContainer([Word.from_('a'), Word.from_('2'), Word.from_('y')]),
                            '=',
-                           StringLiteral([SplitContainer.from_single_token('abc')]),
+                           StringLiteral([Quote(), SplitContainer.from_single_token('abc'), Quote()]),
                            '.',
                            SplitContainer([Word.from_('do'), Word.from_('Split')]),
                            '(',
-                           StringLiteral([Backslash(), Quote()]),
+                           StringLiteral([Quote(), Backslash(), Quote(), Quote()]),
                            ')',
                            ';',
                            NewLine(), NewLine()]
@@ -134,7 +135,8 @@ BigAWESOMEString[] a2y = "abc".doSplit("\\"");
         text = '''
 // this code won't compile but the preprocessing still has to be done corrrectly
 '''
-        expected_result = [NewLine(), OneLineComment([SplitContainer.from_single_token('this'),
+        expected_result = [NewLine(), OneLineComment([OneLineCommentStart(),
+                                                      SplitContainer.from_single_token('this'),
                                                       SplitContainer.from_single_token('code'),
                                                       SplitContainer.from_single_token('won'), "'",
                                                       SplitContainer.from_single_token('t'),
@@ -302,14 +304,14 @@ _operations
 '''
 
         expected_result = [NewLine(),
-                           MultilineComment([SplitContainer.from_single_token('multi'), '-',
+                           MultilineComment([MultilineCommentStart(), SplitContainer.from_single_token('multi'), '-',
                                              SplitContainer.from_single_token('line'),
                                              SplitContainer([
                                                  Word.from_('My'),
                                                  Word.from_('Comment'),
                                                  Underscore()
                                              ]),
-                                             NewLine()]),
+                                             NewLine(), MultilineCommentEnd()]),
                            '/',
                            NewLine(),
                            SplitContainer([Underscore(), Word.from_('operations')]),

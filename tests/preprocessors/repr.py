@@ -1,6 +1,6 @@
 import unittest
 
-from dataprep.model.chars import NewLine, Tab
+from dataprep.model.chars import NewLine, Tab, Quote, MultilineCommentStart, MultilineCommentEnd, OneLineCommentStart
 # TODO write explanations with normal strings
 from dataprep.model.containers import SplitContainer, OneLineComment, MultilineComment, StringLiteral
 from dataprep.model.noneng import NonEng
@@ -18,22 +18,27 @@ tokens = [
     "*",
     SplitContainer([NonEng(Word.from_("übersetzen"))]),
     StringLiteral([
+        Quote(),
         SplitContainer([
             Word.from_("A"),
             NonEng(Word.from_("Wirklich"))
-        ])
+        ]),
+        Quote()
     ]),
     NewLine(),
     MultilineComment([
+        MultilineCommentStart(),
         SplitContainer([NonEng(Word.from_('ц'))]),
         SplitContainer([
             NonEng(Word.from_("blanco")),
             Underscore(),
             Word.from_("english")
-        ])
+        ]),
+        MultilineCommentEnd()
     ]),
     NewLine(), Tab(),
     OneLineComment([
+        OneLineCommentStart(),
         SplitContainer([
             NonEng(Word.from_("DIESELBE")),
             Word.from_("8")
@@ -158,6 +163,7 @@ class TeprTest(unittest.TestCase):
             "*",
             SplitContainer([NonEng(Word.from_("dinero"))]),
             StringLiteral([
+                Quote(),
                 NonEng(Word.from_("ich")),
                 NonEng(Word.from_("weiss")),
                 NonEng(Word.from_("nicht")),
@@ -170,18 +176,22 @@ class TeprTest(unittest.TestCase):
                 NonEng(Word.from_("so")),
                 NonEng(Word.from_("traurig")),
                 NonEng(Word.from_("bin")),
+                Quote(),
             ]),
             NewLine(),
             MultilineComment([
+                MultilineCommentStart(),
                 SplitContainer([NonEng(Word.from_('ц'))]),
                 SplitContainer([
                     NonEng(Word.from_("blanco")),
                     Underscore(),
                     Word.from_("english")
-                ])
+                ]),
+                MultilineCommentEnd()
             ]),
             NewLine(), Tab(),
             OneLineComment([
+                OneLineCommentStart(),
                 SplitContainer([
                     NonEng(Word.from_("DIESELBE")),
                     Word.from_("8")
@@ -226,6 +236,7 @@ class TeprTest(unittest.TestCase):
             "*",
             SplitContainer([NonEng(Word.from_("dinero"))]),
             StringLiteral([
+                Quote(),
                 NonEng(Word.from_("ich")),
                 NonEng(Word.from_("weiss")),
                 NonEng(Word.from_("nicht")),
@@ -238,18 +249,22 @@ class TeprTest(unittest.TestCase):
                 NonEng(Word.from_("so")),
                 NonEng(Word.from_("traurig")),
                 NonEng(Word.from_("bin")),
+                Quote(),
             ]),
             NewLine(),
             MultilineComment([
+                MultilineCommentStart(),
                 SplitContainer([NonEng(Word.from_('ц'))]),
                 SplitContainer([
                     NonEng(Word.from_("blanco")),
                     Underscore(),
                     Word.from_("english")
-                ])
+                ]),
+                MultilineCommentEnd()
             ]),
             NewLine(), Tab(),
             OneLineComment([
+                OneLineCommentStart(),
                 SplitContainer([
                     NonEng(Word.from_("DIESELBE")),
                     Word.from_("8")

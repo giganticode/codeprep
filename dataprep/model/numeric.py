@@ -1,11 +1,12 @@
 from typing import List
 
+from dataprep.model.core import ParsedToken
 from dataprep.model.placeholders import placeholders
 from dataprep.preprocessors.repr import ReprConfig
 from dataprep.split.ngram import NgramSplittingType, do_ngram_splitting
 
 
-class Number(object):
+class Number(ParsedToken):
     def __init__(self, parts_of_number):
         if not isinstance(parts_of_number, list):
             raise ValueError(f"Parts of number must be list but is {type(parts_of_number)}")
@@ -32,7 +33,7 @@ class Number(object):
         else:
             subwords = [self.non_preprocessed_repr(repr_config)]
 
-        if len(subwords) > 1:
+        if len(subwords ) > 1:
             return [placeholders['word_start']] + subwords + [placeholders['word_end']]
         else:
             return subwords
@@ -41,7 +42,7 @@ class Number(object):
         return self.__class__ == other.__class__ and self.parts_of_number == other.parts_of_number
 
 
-class SpecialNumberChar(object):
+class SpecialNumberChar(ParsedToken):
     def __repr__(self):
         return f'{self.__class__.__name__}'
 

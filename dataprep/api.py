@@ -4,13 +4,12 @@ from typing import List, Dict, Optional
 
 from dataprep.bperegistry import create_custom_bpe_config, is_predefined_id
 from dataprep.prepconfig import PrepConfig, PrepParam
-from dataprep.preprocessors.core import from_string, apply_preprocessors
-from dataprep.preprocessors.preprocessor_list import pp_params
+from dataprep.preprocessors.core import parse_from_string
 from dataprep.to_repr import init_splitting_config, to_repr
 
 
 def preprocess(text: str, config: PrepConfig, bpe_codes_id: Optional[str] = None) -> List[str]:
-    parsed = apply_preprocessors(from_string(text), pp_params["preprocessors"])
+    parsed = parse_from_string(text)
     custom_bpe_config = None
     if bpe_codes_id and not is_predefined_id(bpe_codes_id):
         custom_bpe_config = create_custom_bpe_config(bpe_codes_id)

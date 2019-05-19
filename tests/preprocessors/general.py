@@ -1,9 +1,9 @@
 import unittest
 
+from dataprep.model.core import ParseableToken
 from dataprep.preprocessors.general import spl_verbose
 from dataprep.model.chars import MultilineCommentStart, MultilineCommentEnd, OneLineCommentStart, \
     Quote, Backslash, Tab
-from dataprep.model.word import ParseableToken
 
 
 class GeneralTest(unittest.TestCase):

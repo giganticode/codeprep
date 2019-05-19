@@ -1,9 +1,10 @@
 from typing import List
 
+from dataprep.model.core import ParsedToken
 from dataprep.preprocessors.repr import ReprConfig
 
 
-class SpecialChar(object):
+class SpecialChar(ParsedToken):
     def __eq__(self, other):
         return other.__class__ == self.__class__
 

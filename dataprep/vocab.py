@@ -201,7 +201,7 @@ def get_vocab(path_to_file: str) -> Counter:
     vocab = Counter()
     lines, _ = read_file_contents(path_to_file)
     for line in lines:
-        vocab.update(line.rstrip('\n').split(' '))
+        vocab.update(line.split(' '))
     return vocab
 
 

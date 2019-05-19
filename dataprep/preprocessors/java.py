@@ -5,9 +5,9 @@ from dataprep.model.chars import MultilineCommentStart, MultilineCommentEnd, One
     NewLine, Backslash, Quote
 from dataprep.model.containers import MultilineComment, OneLineComment, StringLiteral, \
     ProcessableTokenContainer
+from dataprep.model.core import ParseableToken
 from dataprep.model.numeric import Number, D, F, L, DecimalPoint, HexStart, E
 from dataprep.model.placeholders import placeholders
-from dataprep.model.word import ParseableToken
 
 logger = logging.getLogger(__name__)
 
@@ -155,8 +155,8 @@ def replace_segments(token_list, segments_to_remove):
     curr_ind = 0
     for begin, end, clazz in segments_to_remove:
         new_token_list.extend(token_list[curr_ind:begin])
-        new_token_list.append(clazz(token_list[begin+1:end]))
         curr_ind = end if clazz == OneLineComment else end + 1
+        new_token_list.append(clazz(token_list[begin:curr_ind]))
     if curr_ind < len(token_list):
         new_token_list.extend(token_list[curr_ind:])
     return new_token_list

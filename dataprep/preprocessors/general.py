@@ -5,7 +5,7 @@ import logging
 import re
 
 from dataprep.model.containers import ProcessableTokenContainer
-from dataprep.model.word import ParseableToken
+from dataprep.model.core import ParseableToken
 
 from dataprep.preprocessors import java
 from dataprep.model.chars import MultilineCommentEnd, MultilineCommentStart, \

@@ -47,19 +47,19 @@ class JavaTest(unittest.TestCase):
 
         actual = process_comments_and_str_literals(tokens)
 
-        expected = [StringLiteral([OneLineCommentStart(), SplitContainer([
+        expected = [StringLiteral([Quote(), OneLineCommentStart(), SplitContainer([
             Word.from_("test"),
             Underscore(),
             Word.from_("my"),
             Word.from_("Class")],
-        )]),
+        ), Quote()]),
                     NewLine(),
-                    OneLineComment([MultilineCommentEnd()]),
+                    OneLineComment([OneLineCommentStart(), MultilineCommentEnd()]),
                     NewLine(),
-                    StringLiteral([MultilineCommentStart(),
-                                   SplitContainer.from_single_token("!")]),
+                    StringLiteral([Quote(), MultilineCommentStart(),
+                                   SplitContainer.from_single_token("!"), Quote()]),
                     NewLine(),
-                    MultilineComment([NewLine()]),
+                    MultilineComment([MultilineCommentStart(), NewLine(), MultilineCommentEnd()]),
                     NewLine()
                     ]
 

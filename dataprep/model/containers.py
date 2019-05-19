@@ -1,12 +1,14 @@
 from typing import List
 
+from dataprep.model.chars import Quote, MultilineCommentStart, MultilineCommentEnd, OneLineCommentStart
+from dataprep.model.core import ParsedToken
 from dataprep.model.noneng import NonEng, NonEngContent
 from dataprep.model.placeholders import placeholders
 from dataprep.model.word import Word
 from dataprep.preprocessors.repr import torepr, ReprConfig
 
 
-class ProcessableTokenContainer(object):
+class ProcessableTokenContainer(ParsedToken):
     def __init__(self, subtokens):
         if isinstance(subtokens, list):
             self.subtokens = subtokens
@@ -86,13 +88,15 @@ class TextContainer(ProcessableTokenContainer):
 
 class OneLineComment(TextContainer):
     def __init__(self, tokens):
+        if tokens[0] != OneLineCommentStart():
+            raise ValueError("The first token must be one-line-comment start token!")
         super().__init__(tokens)
 
     def non_preprocessed_repr(self, repr_config):
         if NonEngContent in repr_config.types_to_be_repr and self.has_non_eng_content():
             return ["//", placeholders['non_eng_content'], placeholders['olc_end']]
         else:
-            return ["//"] + torepr(self.subtokens, repr_config) + [placeholders['olc_end']]
+            return torepr(self.subtokens, repr_config) + [placeholders['olc_end']]
 
     def preprocessed_repr(self, repr_config) -> List[str]:
         return [placeholders['comment']]
@@ -100,13 +104,15 @@ class OneLineComment(TextContainer):
 
 class MultilineComment(TextContainer):
     def __init__(self, tokens):
+        if tokens[0] != MultilineCommentStart() or tokens[-1] != MultilineCommentEnd():
+            raise ValueError("The first and the last tokens must be multiline-comment start and end tokens!")
         super().__init__(tokens)
 
     def non_preprocessed_repr(self, repr_config):
         if NonEngContent in repr_config.types_to_be_repr and self.has_non_eng_content():
-            return ["//", placeholders['non_eng_content']]
+            return ["/*", placeholders['non_eng_content'], "*/"]
         else:
-            return ["/*"] + torepr(self.subtokens, repr_config) + ["*/"]
+            return torepr(self.subtokens, repr_config)
 
     def preprocessed_repr(self, repr_config) -> List[str]:
         return [placeholders['comment']]
@@ -114,13 +120,15 @@ class MultilineComment(TextContainer):
 
 class StringLiteral(TextContainer):
     def __init__(self, tokens):
+        if tokens[0] != Quote() or tokens[-1] != Quote():
+            raise ValueError("The first and the last tokens must be quotes!")
         super().__init__(tokens)
 
     def non_preprocessed_repr(self, repr_config):
         if NonEngContent in repr_config.types_to_be_repr and self.has_non_eng_content():
             return ["\"", placeholders['non_eng_content'], "\""]
         else:
-            return ["\""] + torepr(self.subtokens, repr_config) + ["\""]
+            return torepr(self.subtokens, repr_config)
 
     def preprocessed_repr(self, repr_config) -> List[str]:
         return [placeholders['string_literal']]

@@ -2,6 +2,7 @@ import gzip
 import logging
 import os
 import pickle
+
 from typing import List, Tuple, Iterator
 
 from multiprocessing.pool import Pool
@@ -9,16 +10,16 @@ from multiprocessing.pool import Pool
 from tqdm import tqdm
 
 from dataprep.dataset import Dataset, NOT_FINISHED_EXTENSION
-from dataprep.preprocessors.core import from_lines, apply_preprocessors
-from dataprep.preprocessors.preprocessor_list import pp_params
+from dataprep.preprocessors.core import parse_from_lines
 from dataprep.config import REWRITE_PARSED_FILE, CHUNKSIZE
 
 logger = logging.getLogger(__name__)
 
 
+#TODO move two methods below to a new fileutils module
 def read_file_with_encoding(file_path: bytes, encoding: str) -> Tuple[List[str], bytes]:
     with open(file_path, 'r', encoding=encoding) as f:
-        return [line for line in f], file_path
+        return [line.rstrip('\n') for line in f], file_path
 
 
 def read_file_contents(file_path: bytes) -> Tuple[List[str], bytes]:
@@ -51,7 +52,7 @@ def preprocess_and_write(params: Tuple[bytes, bytes]) -> None:
             logger.error(f"File was found when scanning the directory, but cannot be read: {src_file_path}. "
                          f"Invalid symlink? Ignoring ...")
             return
-        parsed = apply_preprocessors(from_lines(lines_from_file), pp_params["preprocessors"])
+        parsed = parse_from_lines(lines_from_file)
         pickle.dump(parsed, f, pickle.HIGHEST_PROTOCOL)
 
     os.rename(not_finished_dest_file_path, dest_file_path)

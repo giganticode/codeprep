@@ -1,7 +1,6 @@
 import unittest
 
-from dataprep.model.noneng import NonEng
-from dataprep.preprocessors.core import from_string, apply_preprocessors
+from dataprep.preprocessors.core import from_string, _apply_preprocessors
 from dataprep.preprocessors.preprocessor_list import pp_params
 from dataprep.model.containers import SplitContainer, StringLiteral
 from dataprep.model.numeric import Number, DecimalPoint, E
@@ -82,7 +81,7 @@ ngram_split_config = NgramSplitConfig(NgramSplittingType.BPE, merges_cache=bpe_m
 class SubwordSeparation(unittest.TestCase):
     def test(self):
         for input, output_tuple in test_cases.items():
-            parsed = apply_preprocessors(from_string(input), pp_params["preprocessors"])
+            parsed = _apply_preprocessors(from_string(input), pp_params["preprocessors"])
 
             self.assertEqual(output_tuple[0], parsed)
 
