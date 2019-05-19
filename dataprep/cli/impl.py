@@ -1,6 +1,6 @@
 import os
 
-from typing import Dict
+from typing import Dict, List
 
 from dataprep import api
 from dataprep.api import create_prep_config_from_args
@@ -15,9 +15,17 @@ def handle_learnbpe(args):
     path = os.path.abspath(args['--path'])
     bpe_config = create_bpe_config_from_args(args)
     n_merges = int(args['<n-merges>'])
-    extension = 'java' if args['--legacy'] else None
+    parsed_extensions = parse_extension_pattern(args['--ext']) if args['--ext'] else None
+    if args['--legacy']:
+        if parsed_extensions and parsed_extensions != ['java']:
+            print("Only --ext 'java' is supported when --legacy is specified")
+            return
+        else:
+            extensions = ['java']
+    else:
+        extensions = parsed_extensions
     bpe_codes_id = args['--id']
-    dataset = Dataset.create(path, bpe_config.to_prep_config(), extension, None, bpe_config)
+    dataset = Dataset.create(path, bpe_config.to_prep_config(), extensions, None, bpe_config)
 
     if not dataset.bpe_codes_id:
         dataset.assign_bpe_codes_id(predefined_bpe_codes_id=bpe_codes_id)
@@ -25,7 +33,11 @@ def handle_learnbpe(args):
         print(f"Ignoring passed bpe codes id: {bpe_codes_id}. "
               f"This dataset has already been assigned id: {dataset.bpe_codes_id}")
 
-    bpe_learn.run(dataset, n_merges, bpe_config=bpe_config, extension=extension)
+    bpe_learn.run(dataset, n_merges, bpe_config=bpe_config)
+
+
+def parse_extension_pattern(extension_pattern: str) -> List[str]:
+    return extension_pattern.split("|")
 
 
 def handle_splitting(args):
@@ -38,9 +50,9 @@ def handle_splitting(args):
         else:
             path = os.path.abspath(args['--path'])
             output_path = args['--output-path'] if args['--output-path'] else '' #TODO this is bad. Fix it
-            extension = None
+            extensions = parse_extension_pattern(args['--ext']) if args['--ext'] else None
             custom_bpe_config = create_custom_bpe_config(bpe_codes_id) if bpe_codes_id else None
-            dataset = Dataset.create(path, prep_config, extension, custom_bpe_config, overriden_path_to_prep_dataset=output_path)
+            dataset = Dataset.create(path, prep_config, extensions, custom_bpe_config, overriden_path_to_prep_dataset=output_path)
             stages.run_until_preprocessing(dataset, custom_bpe_config)
             print(f"Preprocessed dataset is ready at {dataset.preprocessed.path}")
     except InvalidBpeCodesIdError as err:

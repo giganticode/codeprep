@@ -10,12 +10,14 @@ logger = logging.getLogger(__name__)
 
 @dsc.command()
 def nosplit_handler(args):
-    """usage: {program} nosplit (-p <path> [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces]
+    """usage: {program} nosplit (-p <path> [-e <ext>] [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces]
 
     Preprocess the dataset without splitting compound identifier.
 
     Options:
       -p, --path <path>                            Path to the dataset to be preprocessed.
+      -e --ext <ext>                               Limits the set of input files to the files with the specified extension(s).
+                                                   The format is the following: "ext1|ext2|...|extN" If not specififed, all the files are read.
       -o <path-out>, --output-path <path-out>      Directory to which the pre-preprocessed corpus is to be written. If not specified, equals to '<path>_preprocessed'.
       <text>                                       Text to be preprocessed.
 
@@ -28,12 +30,14 @@ def nosplit_handler(args):
 
 @dsc.command()
 def chars_handler(args):
-    """usage: {program} chars (-p <path> [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case]
+    """usage: {program} chars (-p <path> [-e <ext>] [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case]
 
     Preprocess the dataset by splitting identifiers into characters.
 
     Options:
       -p, --path <path>                            Path to the dataset to be preprocessed.
+      -e --ext <ext>                               Limits the set of input files to the files with the specified extension(s).
+                                                   The format is the following: "ext1|ext2|...|extN" If not specififed, all the files are read.
       -o <path-out>, --output-path <path-out>      Directory to which the pre-preprocessed corpus is to be written. If not specified, equals to '<path>_preprocessed'.
       <text>                                       Text to be preprocessed.
 
@@ -48,12 +52,14 @@ def chars_handler(args):
 
 @dsc.command()
 def basic_handler(args):
-    """usage: {program} basic (-p <path> [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case]
+    """usage: {program} basic (-p <path> [-e <ext>] [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case]
 
     Preprocess the dataset by splitting compound identifiers according to CamelCase and snake_case conventions.
 
     Options:
       -p, --path <path>                            Path to the dataset to be preprocessed.
+      -e --ext <ext>                               Limits the set of input files to the files with the specified extension(s).
+                                                   The format is the following: "ext1|ext2|...|extN" If not specififed, all the files are read.
       -o <path-out>, --output-path <path-out>      Directory to which the pre-preprocessed corpus is to be written. If not specified, equals to '<path>_preprocessed'.
       <text>                                       Text to be preprocessed.
 
@@ -68,13 +74,15 @@ def basic_handler(args):
 
 @dsc.command()
 def basic_plus_numbers_handler(args):
-    """usage: {program} basic+numbers (-p <path> [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case]
+    """usage: {program} basic+numbers (-p <path> [-e <ext>] [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case]
 
     Preprocess the dataset by splitting compound identifiers according to CamelCase and snake_case conventions,
     and splitting numbers into digits.
 
     Options:
       -p, --path <path>                            Path to the dataset to be preprocessed.
+      -e --ext <ext>                               Limits the set of input files to the files with the specified extension(s).
+                                                   The format is the following: "ext1|ext2|...|extN" If not specififed, all the files are read.
       -o <path-out>, --output-path <path-out>      Directory to which the pre-preprocessed corpus is to be written. If not specified, equals to '<path>_preprocessed'.
       <text>                                       Text to be preprocessed.
 
@@ -89,7 +97,7 @@ def basic_plus_numbers_handler(args):
 
 @dsc.command()
 def bpe_handler(args):
-    """usage: {program} bpe (1k | 5k | 10k | <bpe-codes-id>) (-p <path> [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case]
+    """usage: {program} bpe (1k | 5k | 10k | <bpe-codes-id>) (-p <path> [-e <ext>] [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case]
 
     Preprocess the dataset by splitting compound identifiers according to CamelCase and snake_case conventions,
     and apply byte-pair encoding (BPE) on top.
@@ -97,6 +105,8 @@ def bpe_handler(args):
     Options:
       <bpe-codes-id>                               Id which defines bpe codes to use (1k, 5k, 10k are predefined ids)
       -p, --path <path>                            Path to the dataset to be preprocessed.
+      -e --ext <ext>                               Limits the set of input files to the files with the specified extension(s).
+                                                   The format is the following: "ext1|ext2|...|extN" If not specififed, all the files are read.
       -o <path-out>, --output-path <path-out>      Directory to which the pre-preprocessed corpus is to be written. If not specified, equals to '<path>_preprocessed'.
       <text>                                       Text to be preprocessed.
 
@@ -111,20 +121,22 @@ def bpe_handler(args):
 
 @dsc.command()
 def bpelearn_handler(args):
-    """usage: {program} learn-bpe <n-merges> -p <path> [-o <path-out>] [--id <bpe-codes-id>] [--no-case | --case-prefix] [--no-unicode | --bytes] [--word-end] [--legacy]
+    """usage: {program} learn-bpe <n-merges> -p <path> [-e <ext>] [-o <path-out>] [--id <bpe-codes-id>] [--no-case | --case-prefix] [--no-unicode | --bytes] [--word-end] [--legacy]
 
     #TODO
 
     Options:
       <n-merges>                                   The number of BPE merges to compute
       -p, --path <path>                            Path to the dataset to be used to learn bpe codes.
+      -e --ext <ext>                               Limits the set of input files to the files with the specified extension(s).
+                                                   The format is the following: "ext1|ext2|...|extN" If not specififed, all the files are read.
       -o <path-out>, --output-path <path-out>      Path to the file to which computed bpe codes are to be written. If not specified, equals to '<path>_bpe_codes.txt'.
       --id <bpe-codes-id>                          Give an id to bpe-codes. If not specified, will be assigned automatically based on the name of the directory bpe codes were learned from
       --no-case, -l                                Lowercase all the words before running bpe.
       --case-prefix, -c                            Let bpe algorithm decide whether case should a part of the word or not.
       --no-unicode, -U                             Ignore words containing non-ascii characters.
       --bytes, -b                                  Treat non-ascii characters as 2 bytes and do real byte-pair encoding.
-      --word-end, -e                               Add a special character to the end of each word.
+      --word-end, -z                               Add a special character to the end of each word.
       --legacy                                     Parse using legacy parser (only files with extension “.java” will be processed)
     """
     handle_learnbpe(args)

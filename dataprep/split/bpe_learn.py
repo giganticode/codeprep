@@ -138,7 +138,7 @@ def get_base_vocab(dataset: Dataset, bpe_config: BpeConfig) -> Tuple[Dict[str, i
     return separate_vocabs(all_vocab, tokens_to_exclude_from_bpe)
 
 
-def run(dataset: Dataset, n_merges: int, bpe_config: BpeConfig, extension: Optional[str]=None) -> None:
+def run(dataset: Dataset, n_merges: int, bpe_config: BpeConfig) -> None:
 
     max_merges = get_max_merges(dataset.bpe_path, n_merges)
     if not max_merges:

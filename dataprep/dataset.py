@@ -4,7 +4,7 @@ import os
 
 from datetime import datetime
 
-from typing import Type, Optional
+from typing import Type, Optional, List
 
 from dataprep.bperegistry import get_codes_id_by_bpe_path, create_new_id_from, write_bpe_codes_id, CustomBpeConfig
 from dataprep.config import DEFAULT_PARSED_DATASETS_DIR, DEFAULT_PREP_DATASETS_DIR, USER_BPE_DIR, DEFAULT_FILE_LIST_DIR, \
@@ -75,13 +75,13 @@ class Dataset(object):
     Abstaction that incapsulates the location of the dataset in the file system and assures integrity of intermediate
     representation of data when the data preprocessing operation consists of multiple steps.
     """
-    def __init__(self, path: str, prep_config: PrepConfig, extension: Optional[str],
+    def __init__(self, path: str, prep_config: PrepConfig, extensions: Optional[str],
                  custom_bpe_config: Optional[CustomBpeConfig],
                  bpe_config: Optional[BpeConfig],
                  overridden_path_to_prep_dataset):
         self._path = path
         self._prep_config = prep_config
-        self._extension = extension
+        self._extensions = extensions
         self._custom_bpe_config = custom_bpe_config
         self._bpe_config = bpe_config
         self._dataset_last_modified = get_timestamp(path)
@@ -94,7 +94,7 @@ class Dataset(object):
         if isinstance(o, Dataset):
             return self._path == o._path and \
                    self._prep_config == o._prep_config and \
-                   self._extension == o._extension and \
+                   self._extensions == o._extensions and \
                    self._custom_bpe_config == o._custom_bpe_config and \
                    self._bpe_config == o._bpe_config and \
                    self._dataset_last_modified == o._dataset_last_modified and \
@@ -107,14 +107,14 @@ class Dataset(object):
 
 
     @classmethod
-    def create(cls: Type['Dataset'], path_to_dataset: str, prep_config: PrepConfig, extension: Optional[str],
+    def create(cls: Type['Dataset'], path_to_dataset: str, prep_config: PrepConfig, extensions: Optional[str],
                custom_bpe_config: Optional[CustomBpeConfig],
                bpe_config: Optional[BpeConfig] = None,
                overriden_path_to_prep_dataset: Optional[str] = None) -> 'Dataset':
         if not os.path.exists(path_to_dataset):
             raise ValueError(f"Path {path_to_dataset} does not exist")
 
-        dataset = cls(path_to_dataset, prep_config, extension, custom_bpe_config, bpe_config, overriden_path_to_prep_dataset)
+        dataset = cls(path_to_dataset, prep_config, extensions, custom_bpe_config, bpe_config, overriden_path_to_prep_dataset)
 
         if not os.path.exists(dataset.parsed.path):
             os.makedirs(dataset.parsed.path)
@@ -229,7 +229,7 @@ class Dataset(object):
 
     def list_and_save_dir_contents_if_necessary(self):
         if not is_path_ready(DEFAULT_FILE_LIST_DIR) or is_path_outdated(DEFAULT_FILE_LIST_DIR):
-            save_all_files(self.original.path, self.path_to_file_list, self.path_to_dir_list, self._extension)
+            save_all_files(self.original.path, self.path_to_file_list, self.path_to_dir_list, self._extensions)
             set_path_ready(DEFAULT_FILE_LIST_DIR)
 
 
@@ -261,10 +261,17 @@ def get_dir_last_modification(path: str, limit: int = LIMIT_FILES_ON_LAST_MODIFI
     return datetime.fromtimestamp(mtime)
 
 
-def save_all_files(path: str, save_to_files: str, save_to_dirs: str, extension: str) -> None:
+def has_one_of_extensions(name: bytes, extensions: List[bytes]) -> bool:
+    for ext in extensions:
+        if name.endswith(ext):
+            return True
+    return False
+
+
+def save_all_files(path: str, save_to_files: str, save_to_dirs: str, extensions: Optional[List[str]]) -> None:
     with open(save_to_dirs, 'w') as d, open(save_to_files, 'w') as f:
         path_bin = path.encode()
-        extension_bin = extension.encode() if extension else None
+        extensions_bin = list(map(lambda e: e.encode(), extensions)) if extensions else None
         # we want to list and store all the files a sequences of bytes to avoid problems with different encodings for filenames
         counter = 0
         if os.path.isfile(path_bin):
@@ -277,7 +284,7 @@ def save_all_files(path: str, save_to_files: str, save_to_dirs: str, extension: 
                     d.write(f'{bin_name}\n')
                 for file in files:
                     bin_name = os.path.join(os.path.relpath(root, path_bin), file)
-                    if not extension or bin_name.endswith(extension_bin):
+                    if not extensions or has_one_of_extensions(bin_name, extensions_bin):
                         counter += 1
                         print(f'Files/dirs scanned: {counter}', end='\r')
                         f.write(f'{bin_name}\n')

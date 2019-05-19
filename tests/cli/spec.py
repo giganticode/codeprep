@@ -308,8 +308,8 @@ class CliTest(unittest.TestCase):
             BpeParam.BASE: 'java',
             BpeParam.UNICODE: 'yes',
         })
-        dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, 'java', None, bpe_config)
-        bpe_learn_mock.run.assert_called_with(dataset_mock, 1000, bpe_config=bpe_config, extension='java')
+        dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, ['java'], None, bpe_config)
+        bpe_learn_mock.run.assert_called_with(dataset_mock, 1000, bpe_config=bpe_config)
 
     @mock.patch('dataprep.cli.impl.Dataset')
     @mock.patch('dataprep.cli.impl.bpe_learn')
@@ -337,7 +337,7 @@ class CliTest(unittest.TestCase):
             BpeParam.UNICODE: 'no',
         })
         dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, None, None, bpe_config)
-        bpe_learn_mock.run.assert_called_with(dataset_mock, 1000, bpe_config=bpe_config, extension=None)
+        bpe_learn_mock.run.assert_called_with(dataset_mock, 1000, bpe_config=bpe_config)
 
     @mock.patch('dataprep.cli.impl.Dataset')
     @mock.patch('dataprep.cli.impl.bpe_learn')
@@ -365,7 +365,7 @@ class CliTest(unittest.TestCase):
             BpeParam.UNICODE: 'bytes',
         })
         dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, None, None, bpe_config)
-        bpe_learn_mock.run.assert_called_with(dataset_mock, 1000, bpe_config=bpe_config, extension=None)
+        bpe_learn_mock.run.assert_called_with(dataset_mock, 1000, bpe_config=bpe_config)
 
 
 if __name__ == '__main__':
