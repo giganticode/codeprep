@@ -133,10 +133,9 @@ def separate_vocabs(all_vocab: Dict[str, int], tokens_to_exclude: Dict[str, int]
 def get_base_vocab(dataset: Dataset, bpe_config: BpeConfig) -> Tuple[Dict[str, int], Dict[str, int]]:
     stages.run_until_vocab(dataset)
     all_vocab = util.read_dict_from_2_columns(dataset.path_to_bpe_vocab_file)
-    if bpe_config.get_param_value(BpeParam.BASE) == 'java':
-        return separate_vocabs(all_vocab, special_tokens + list(placeholders.keys()))
-    else:
-        return all_vocab, {}
+    tokens_to_exclude_from_bpe =  special_tokens + list(placeholders.keys()) if bpe_config.get_param_value(BpeParam.BASE) == 'java' \
+        else list(placeholders.keys())
+    return separate_vocabs(all_vocab, tokens_to_exclude_from_bpe)
 
 
 def run(dataset: Dataset, n_merges: int, bpe_config: BpeConfig, extension: Optional[str]=None) -> None:
