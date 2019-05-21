@@ -3,7 +3,7 @@ import logging
 import os
 from datetime import datetime
 
-from typing import Type, Optional
+from typing import Type, Optional, Generator
 
 from dataprep.config import DEFAULT_PARSED_DATASETS_DIR, DEFAULT_PREP_DATASETS_DIR, USER_BPE_DIR, DEFAULT_FILE_LIST_DIR, \
     LIMIT_FILES_ON_LAST_MODIFICATION_CHECK
@@ -39,7 +39,7 @@ class SubDataset(object):
     def is_outdated(self) -> None:
         return is_path_outdated(self.path)
 
-    def file_iterator_from_file(self) -> bytes:
+    def file_iterator(self) -> bytes:
         encoded_path = self.path.encode()
         encoded_suffix = self._suffix.encode()
         for file in self._dataset.get_all_files():
@@ -187,27 +187,17 @@ class Dataset(object):
     def path_to_file_list_folder(self) -> str:
         return os.path.join(DEFAULT_FILE_LIST_DIR, f'{self.get_dataset_dir_name}')
 
-    @property
-    def path_to_file_list(self) -> str:
-        return os.path.join(self.path_to_file_list_folder, f'{self.get_dataset_dir_name}.{FILE_LIST_FILENAME}')
-
-    @property
-    def path_to_dir_list(self) -> str:
-        return os.path.join(self.path_to_file_list_folder, f'{self.get_dataset_dir_name}.{DIR_LIST_FILENAME}')
-
-    def get_all_files(self):
-        self.list_and_save_dir_contents_if_necessary()
-
-        with open(self.path_to_file_list) as f:
-            for line in f:
-                yield ast.literal_eval(line)
-
-    def get_all_dirs(self):
-        self.list_and_save_dir_contents_if_necessary()
-
-        with open(self.path_to_dir_list) as f:
-            for line in f:
-                yield ast.literal_eval(line)
+    def get_all_files(self, return_dirs_instead_of_regular_files: bool=False) -> Generator[bytes, None, None]:
+        if self.files_need_to_be_saved():
+            for filepath in walk_and_save(self.original.path,
+                                   self.path_to_file_list_folder,
+                                   not return_dirs_instead_of_regular_files, self._extension):
+                yield filepath
+        else:
+            file_to_save_to = DIR_LIST_FILENAME if return_dirs_instead_of_regular_files else FILE_LIST_FILENAME
+            with open(os.path.join(self.path_to_file_list_folder, file_to_save_to)) as f:
+                for line in f:
+                    yield ast.literal_eval(line)
 
     ###################################
 
@@ -217,12 +207,8 @@ class Dataset(object):
     def __str__(self) -> str:
         return self.to_summary()
 
-    def list_and_save_dir_contents_if_necessary(self):
-        if not is_path_ready(self.path_to_file_list_folder) or is_path_outdated(self.path_to_file_list_folder):
-            if not os.path.exists(self.path_to_file_list_folder):
-                os.makedirs(self.path_to_file_list_folder)
-            save_all_files(self.original.path, self.path_to_file_list, self.path_to_dir_list, self._extension)
-            set_path_ready(self.path_to_file_list_folder)
+    def files_need_to_be_saved(self) -> bool:
+        return not is_path_ready(self.path_to_file_list_folder) or is_path_outdated(self.path_to_file_list_folder)
 
 
 def _get_last_modif_file_path_for_dir(path: str) -> str:
@@ -253,27 +239,33 @@ def get_dir_last_modification(path: str, limit: int = LIMIT_FILES_ON_LAST_MODIFI
     return datetime.fromtimestamp(mtime)
 
 
-def save_all_files(path: str, save_to_files: str, save_to_dirs: str, extension: str) -> None:
-    with open(save_to_dirs, 'w') as d, open(save_to_files, 'w') as f:
+def walk_and_save(path: str, file_lists_path: str, files: bool, extension: str) -> Generator[bytes, None, None]:
+    if not os.path.exists(file_lists_path):
+        os.makedirs(file_lists_path)
+    with open(os.path.join(file_lists_path, DIR_LIST_FILENAME), 'w') as d, open(os.path.join(file_lists_path, FILE_LIST_FILENAME), 'w') as f:
         path_bin = path.encode()
         extension_bin = extension.encode()
-        # we want to list and store all the files a sequences of bytes to avoid problems with encodings
-        counter = 0
+        # we want to list and store all the files a sequences of bytes to avoid problems with different encodings for filenames
         if os.path.isfile(path_bin):
-            f.write(f'{path_bin}\n')
+            res = os.path.basename(path_bin)
+            f.write(f'{res}\n')
+            if files:
+                yield res
         else:
             for root, dirs, files in os.walk(path_bin):
                 # we pass bytes to os.walk -> the output are bytes as well
                 for dir in dirs:
                     bin_name = os.path.join(os.path.relpath(root, path_bin), dir)
                     d.write(f'{bin_name}\n')
+                    if not files:
+                        yield bin_name
                 for file in files:
                     bin_name = os.path.join(os.path.relpath(root, path_bin), file)
                     if not extension or bin_name.endswith(extension_bin):
-                        counter += 1
-                        print(f'Files/dirs scanned: {counter}', end='\r')
                         f.write(f'{bin_name}\n')
-    print()
+                        if files:
+                            yield bin_name
+    set_path_ready(file_lists_path)
 
 
 def get_timestamp(path: str) -> str:

@@ -2,6 +2,8 @@ import gzip
 import logging
 import os
 import pickle
+from time import sleep
+
 from multiprocessing.pool import Pool
 from typing import Optional, List, Tuple, Iterator
 
@@ -15,7 +17,7 @@ from dataprep.split.bpe_encode import read_merges
 from dataprep.split.ngram import NgramSplittingType, NgramSplitConfig
 from dataprep.util import read_dict_from_2_columns
 from dataprep.config import DEFAULT_BPE_DIR, NO_CASE_DIR, CASE_DIR, DEFAULT_BPE_CACHE_DIR, REWRITE_PREPROCESSED_FILE, \
-    CHUNKSIZE
+    CHUNKSIZE, LIMIT_FILES_SCANNING
 
 logger = logging.getLogger(__name__)
 
@@ -90,7 +92,7 @@ def init_splitting_config(prep_config: PrepConfig, bpe_n_merges: Optional[int]=N
 
 
 def params_generator(dataset: Dataset):
-    for input_file_path in dataset.parsed.file_iterator_from_file():
+    for input_file_path in dataset.parsed.file_iterator():
         output_file_path = dataset.parsed.get_new_file_name(input_file_path, dataset.preprocessed)
         yield (input_file_path, output_file_path, dataset.prep_config)
 
@@ -107,7 +109,7 @@ def exception_handler(it: Iterator):
 
 def run(dataset: Dataset, bpe_n_merges: Optional[int] = None,
         path_to_merges_file: Optional[str]=None,
-        path_to_merges_cache_file: Optional[str]=None):
+        path_to_merges_cache_file: Optional[str]=None) -> None:
     path_to_parsed_dataset = dataset.parsed.path
 
     if not os.path.exists(path_to_parsed_dataset):
@@ -119,7 +121,18 @@ def run(dataset: Dataset, bpe_n_merges: Optional[int] = None,
 
     logger.info(f"Writing preprocessed files to {dataset.preprocessed.path}")
 
-    files_total = len([f for f in dataset.get_all_files()])
+    if dataset.files_need_to_be_saved():
+        files_total = 0
+        for _ in dataset.get_all_files():
+            files_total += 1
+            print(f"Files scanned: {files_total}", end='\r')
+            if files_total > LIMIT_FILES_SCANNING:
+                sleep(0.1)
+                files_total = None
+                print(f"Total files to be preprocessed: {LIMIT_FILES_SCANNING}+")
+                break
+    else:
+        files_total = len([f for f in dataset.get_all_files()])
     with Pool() as pool:
         it = pool.imap_unordered(preprocess_and_write, params_generator(dataset), chunksize=CHUNKSIZE)
         for _ in tqdm(exception_handler(it), total=files_total):

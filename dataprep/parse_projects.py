@@ -2,6 +2,7 @@ import gzip
 import logging
 import os
 import pickle
+from time import sleep
 from typing import List, Tuple, Iterator
 
 from multiprocessing.pool import Pool
@@ -11,7 +12,7 @@ from tqdm import tqdm
 from dataprep.dataset import Dataset, NOT_FINISHED_EXTENSION
 from dataprep.preprocessors.core import from_lines, apply_preprocessors
 from dataprep.preprocessors.preprocessor_list import pp_params
-from dataprep.config import REWRITE_PARSED_FILE, CHUNKSIZE
+from dataprep.config import REWRITE_PARSED_FILE, CHUNKSIZE, LIMIT_FILES_SCANNING
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +69,7 @@ def exception_handler(it: Iterator):
 
 
 def params_generator(dataset: Dataset):
-    for input_file_path in dataset.original.file_iterator_from_file():
+    for input_file_path in dataset.original.file_iterator():
         output_file_path = dataset.original.get_new_file_name(input_file_path, dataset.parsed)
         yield (input_file_path, output_file_path)
 
@@ -77,7 +78,18 @@ def run(dataset: Dataset) -> None:
     logger.info(f"Getting files from {dataset.original.path}")
     logger.info(f"Writing preprocessed files to {dataset.parsed.path}")
 
-    files_total = len([f for f in dataset.get_all_files()])
+    if dataset.files_need_to_be_saved():
+        files_total = 0
+        for _ in dataset.get_all_files():
+            files_total += 1
+            print(f"Files scanned: {files_total}", end='\r')
+            if files_total > LIMIT_FILES_SCANNING:
+                sleep(0.1)
+                files_total = None
+                print(f"Total files to be preprocessed: {LIMIT_FILES_SCANNING}+")
+                break
+    else:
+        files_total = len([f for f in dataset.get_all_files()])
     with Pool() as pool:
         it = pool.imap_unordered(preprocess_and_write, params_generator(dataset), chunksize=CHUNKSIZE)
         for _ in tqdm(exception_handler(it), total=files_total):
