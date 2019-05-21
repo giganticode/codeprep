@@ -305,7 +305,7 @@ def create_partial_vocabs(sub_dataset, path_to_dump) -> List[PartialVocab]:
     os.makedirs(path_to_dump)
     logger.info(f"Reading files from: {sub_dataset.path}")
 
-    all_files = [file for file in sub_dataset.file_iterator_from_file()]
+    all_files = [file for file in sub_dataset.file_iterator()]
     if not all_files:
         logger.warning("No preprocessed files found.")
         exit(4)
