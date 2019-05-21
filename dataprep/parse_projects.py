@@ -2,7 +2,7 @@ import gzip
 import logging
 import os
 import pickle
-from time import sleep
+
 from typing import List, Tuple, Iterator
 
 from multiprocessing.pool import Pool
@@ -84,7 +84,6 @@ def run(dataset: Dataset) -> None:
             files_total += 1
             print(f"Files scanned: {files_total}", end='\r')
             if files_total > LIMIT_FILES_SCANNING:
-                sleep(0.1)
                 files_total = None
                 print(f"Total files to be preprocessed: {LIMIT_FILES_SCANNING}+")
                 break
