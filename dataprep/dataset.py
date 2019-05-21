@@ -191,7 +191,7 @@ class Dataset(object):
         if self.files_need_to_be_saved():
             for filepath in walk_and_save(self.original.path,
                                    self.path_to_file_list_folder,
-                                   not return_dirs_instead_of_regular_files, self._extension):
+                                   return_dirs_instead_of_regular_files, self._extension):
                 yield filepath
         else:
             file_to_save_to = DIR_LIST_FILENAME if return_dirs_instead_of_regular_files else FILE_LIST_FILENAME
@@ -239,7 +239,7 @@ def get_dir_last_modification(path: str, limit: int = LIMIT_FILES_ON_LAST_MODIFI
     return datetime.fromtimestamp(mtime)
 
 
-def walk_and_save(path: str, file_lists_path: str, files: bool, extension: str) -> Generator[bytes, None, None]:
+def walk_and_save(path: str, file_lists_path: str, return_dirs_instead_of_regular_files: bool, extension: str) -> Generator[bytes, None, None]:
     if not os.path.exists(file_lists_path):
         os.makedirs(file_lists_path)
     with open(os.path.join(file_lists_path, DIR_LIST_FILENAME), 'w') as d, open(os.path.join(file_lists_path, FILE_LIST_FILENAME), 'w') as f:
@@ -249,7 +249,7 @@ def walk_and_save(path: str, file_lists_path: str, files: bool, extension: str) 
         if os.path.isfile(path_bin):
             res = os.path.basename(path_bin)
             f.write(f'{res}\n')
-            if files:
+            if not return_dirs_instead_of_regular_files:
                 yield res
         else:
             for root, dirs, files in os.walk(path_bin):
@@ -257,13 +257,13 @@ def walk_and_save(path: str, file_lists_path: str, files: bool, extension: str) 
                 for dir in dirs:
                     bin_name = os.path.join(os.path.relpath(root, path_bin), dir)
                     d.write(f'{bin_name}\n')
-                    if not files:
+                    if return_dirs_instead_of_regular_files:
                         yield bin_name
                 for file in files:
                     bin_name = os.path.join(os.path.relpath(root, path_bin), file)
                     if not extension or bin_name.endswith(extension_bin):
                         f.write(f'{bin_name}\n')
-                        if files:
+                        if not return_dirs_instead_of_regular_files:
                             yield bin_name
     set_path_ready(file_lists_path)
 
