@@ -45,7 +45,10 @@ class SubDataset(object):
         encoded_path = self.path.encode()
         encoded_suffix = self._suffix.encode()
         for file in self._dataset.get_all_files():
-            yield os.path.join(encoded_path, file + encoded_suffix)
+            if os.path.isfile(encoded_path):
+                yield encoded_path + encoded_suffix
+            else:
+                yield os.path.join(encoded_path, file + encoded_suffix)
 
     def get_new_file_name(self, file_path: bytes, new_subdataset: 'SubDataset') -> bytes:
         encoded_path = self.path.encode()
@@ -198,12 +201,16 @@ class Dataset(object):
         write_bpe_codes_id(self.bpe_path, id)
 
     @property
+    def path_to_file_list_folder(self) -> str:
+        return os.path.join(DEFAULT_FILE_LIST_DIR, f'{self.get_dataset_dir_name}')
+
+    @property
     def path_to_file_list(self) -> str:
-        return os.path.join(DEFAULT_FILE_LIST_DIR, f'{self.get_dataset_dir_name}.{FILE_LIST_FILENAME}')
+        return os.path.join(self.path_to_file_list_folder, f'{self.get_dataset_dir_name}.{FILE_LIST_FILENAME}')
 
     @property
     def path_to_dir_list(self) -> str:
-        return os.path.join(DEFAULT_FILE_LIST_DIR, f'{self.get_dataset_dir_name}.{DIR_LIST_FILENAME}')
+        return os.path.join(self.path_to_file_list_folder, f'{self.get_dataset_dir_name}.{DIR_LIST_FILENAME}')
 
     def get_all_files(self):
         self.list_and_save_dir_contents_if_necessary()
@@ -228,9 +235,11 @@ class Dataset(object):
         return self.to_summary()
 
     def list_and_save_dir_contents_if_necessary(self):
-        if not is_path_ready(DEFAULT_FILE_LIST_DIR) or is_path_outdated(DEFAULT_FILE_LIST_DIR):
+        if not is_path_ready(self.path_to_file_list_folder) or is_path_outdated(self.path_to_file_list_folder):
+            if not os.path.exists(self.path_to_file_list_folder):
+                os.makedirs(self.path_to_file_list_folder)
             save_all_files(self.original.path, self.path_to_file_list, self.path_to_dir_list, self._extensions)
-            set_path_ready(DEFAULT_FILE_LIST_DIR)
+            set_path_ready(self.path_to_file_list_folder)
 
 
 def _get_last_modif_file_path_for_dir(path: str) -> str:
