@@ -125,9 +125,12 @@ def get_max_merges(dataset_bpe_dir: str, limit: Optional[int]=sys.maxsize) -> Op
     subdirs = get_all_bpe_merges_dirs(dataset_bpe_dir)
     max_number = 0
     for subdir in subdirs:
-        num = int(subdir)
-        if max_number < num <= limit:
-            max_number = num
+        try:
+            num = int(subdir)
+            if max_number < num <= limit:
+                max_number = num
+        except ValueError:
+            pass # for the case of part_vocab folder for example
     if max_number != 0:
         return max_number
     else:
