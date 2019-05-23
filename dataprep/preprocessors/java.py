@@ -247,7 +247,7 @@ def process_number_literal(possible_number):
                 parts_of_number.append(ch)
         return Number(parts_of_number)
     else:
-        return Number([ch for ch in possible_number])
+        return ParseableToken(possible_number)
 
 
 def process_numeric_literals(token_list):
