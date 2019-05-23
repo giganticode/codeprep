@@ -3,8 +3,7 @@ import logging
 import os
 import re, collections
 from tqdm import tqdm
-from typing import Optional, Dict, List, Tuple
-
+from typing import Dict, List, Tuple, Set
 
 from dataprep import util
 from dataprep.bperegistry import get_max_merges, MERGES_CACHE_FILE_NAME, MERGES_FILE_NAME
@@ -119,7 +118,7 @@ def create_resulting_vocab(split_base_vocab: Dict[str, int]) -> Dict[str, int]:
 # ============
 
 
-def separate_vocabs(all_vocab: Dict[str, int], tokens_to_exclude: Dict[str, int]) -> Tuple[Dict[str, int], Dict[str, int]]:
+def separate_vocabs(all_vocab: Dict[str, int], tokens_to_exclude: Set[str]) -> Tuple[Dict[str, int], Dict[str, int]]:
     main_vocab = {}
     other_vocab = {}
     for k, v in all_vocab.items():
@@ -130,12 +129,10 @@ def separate_vocabs(all_vocab: Dict[str, int], tokens_to_exclude: Dict[str, int]
     return main_vocab, other_vocab
 
 
-def get_base_vocab(dataset: Dataset, bpe_config: BpeConfig) -> Tuple[Dict[str, int], Dict[str, int]]:
+def get_base_vocab(dataset: Dataset, non_bpe_vocab: Set[str]) -> Tuple[Dict[str, int], Dict[str, int]]:
     stages.run_until_vocab(dataset)
     all_vocab = util.read_dict_from_2_columns(dataset.path_to_bpe_vocab_file)
-    tokens_to_exclude_from_bpe =  special_tokens + list(placeholders.keys()) if bpe_config.get_param_value(BpeParam.BASE) == 'java' \
-        else list(placeholders.keys())
-    return separate_vocabs(all_vocab, tokens_to_exclude_from_bpe)
+    return separate_vocabs(all_vocab, non_bpe_vocab)
 
 
 def run(dataset: Dataset, n_merges: int, bpe_config: BpeConfig) -> None:
@@ -151,16 +148,22 @@ def run(dataset: Dataset, n_merges: int, bpe_config: BpeConfig) -> None:
     if starting_from_scratch:
         logger.info("Starting the encoding from scratch...")
 
+    # TODO this should be a separate method
+    non_bpe_vocab = set()
+    with open(dataset.path_to_nonbpe_vocab_file, 'r') as f:
+        for line in f:
+            non_bpe_vocab.add(line.rstrip('\n'))
+
     if starting_from_scratch:
         if not os.path.exists(dataset.path_to_bpe_vocab_file):
-            base_bpe_vocab, other_vocab = get_base_vocab(dataset, bpe_config) #TODO extract this into stages
+            base_bpe_vocab, other_vocab = get_base_vocab(dataset, non_bpe_vocab) #TODO extract this into stages
             split_base_vocab = {" ".join(k): v for k, v in base_bpe_vocab.items()}
             # TODO dump to vocab and other vocab files
         already_done_merges = []
     else:
         path_to_bpe_vocab_file = os.path.join(dir_with_most_merges, BPE_REASSEMBLED_VOCAB_FILE_NAME)
         split_base_vocab = read_dict_from_2_columns(path_to_bpe_vocab_file)
-        split_base_vocab, other_vocab = separate_vocabs(split_base_vocab, special_tokens + list(placeholders.keys()))
+        split_base_vocab, other_vocab = separate_vocabs(split_base_vocab, non_bpe_vocab)
         already_done_merges = read_list(os.path.join(dir_with_most_merges, MERGES_FILE_NAME))
 
     print("--- Learning bpe codes...")
