@@ -85,7 +85,7 @@ class SubwordSeparation(unittest.TestCase):
 
             self.assertEqual(output_tuple[0], parsed)
 
-            repred = to_repr(PrepConfig.from_encoded_string('30411'), parsed, ngram_split_config)
+            repred, metadata = to_repr(PrepConfig.from_encoded_string('30411'), parsed, ngram_split_config)
 
             self.assertEqual(output_tuple[1], repred)
 

@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import Type, Optional, List, Generator
 
 from dataprep.bperegistry import get_codes_id_by_bpe_path, create_new_id_from, write_bpe_codes_id, CustomBpeConfig, \
-    VOCAB_FILENAME
+    VOCAB_FILENAME, NONBPE_VOCAB_FILENAME
 from dataprep.config import DEFAULT_PARSED_DATASETS_DIR, DEFAULT_PREP_DATASETS_DIR, USER_BPE_DIR, DEFAULT_FILE_LIST_DIR, \
     LIMIT_FILES_ON_LAST_MODIFICATION_CHECK
 from dataprep.prepconfig import PrepConfig
@@ -42,7 +42,7 @@ class SubDataset(object):
     def is_outdated(self) -> None:
         return is_path_outdated(self.path)
 
-    def file_iterator(self) -> bytes:
+    def file_iterator(self) -> Generator[bytes, None, None]:
         encoded_path = self.path.encode()
         encoded_suffix = self._suffix.encode()
         for file in self._dataset.get_all_files():
@@ -192,6 +192,10 @@ class Dataset(object):
     @property
     def path_to_bpe_vocab_file(self) -> str:
         return os.path.join(self.bpe_path, VOCAB_FILENAME)
+
+    @property
+    def path_to_nonbpe_vocab_file(self) -> str:
+        return os.path.join(self.bpe_path, NONBPE_VOCAB_FILENAME)
 
     @property
     def bpe_codes_id(self) -> Optional[str]:

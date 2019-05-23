@@ -18,6 +18,7 @@ MERGES_FILE_NAME = "merges.txt"
 MERGES_CACHE_FILE_NAME = "merges_cache.txt"
 BPE_CODES_ID_FILENAME = '.name'
 VOCAB_FILENAME = 'vocab'
+NONBPE_VOCAB_FILENAME = 'nonbpe_vocab'
 
 PREDEFINED_BPE_CODES = ['1k', '5k', '10k']
 

@@ -2,15 +2,19 @@ import gzip
 import logging
 import os
 import pickle
+import shutil
 
 from multiprocessing.pool import Pool
 from typing import Optional, List, Tuple, Iterator
 
 from tqdm import tqdm
+import time
 
 from dataprep.bperegistry import CustomBpeConfig
 from dataprep.dataset import Dataset, NOT_FINISHED_EXTENSION
 from dataprep.model.core import ParsedToken
+from dataprep.model.metadata import PreprocessingMetadata
+from dataprep.model.placeholders import placeholders
 from dataprep.prepconfig import PrepParam, get_types_to_be_repr, PrepConfig
 from dataprep.preprocessors.general import to_token_str
 from dataprep.preprocessors.repr import to_repr_list, ReprConfig
@@ -27,17 +31,18 @@ def get_global_n_gramm_splitting_config():
     return global_n_gramm_splitting_config
 
 
-def to_repr(prep_config: PrepConfig, token_list: List[ParsedToken], n_gramm_splitting_config: Optional[NgramSplitConfig] = None) -> List[str]:
+def to_repr(prep_config: PrepConfig, token_list: List[ParsedToken],
+            n_gramm_splitting_config: Optional[NgramSplitConfig] = None) -> Tuple[List[str], PreprocessingMetadata]:
     types_to_be_repr = get_types_to_be_repr(prep_config)
     splitting_config = n_gramm_splitting_config or get_global_n_gramm_splitting_config()
     dict_based_non_eng = (prep_config.get_param_value(PrepParam.EN_ONLY) != 3)
     lowercase = (prep_config.get_param_value(PrepParam.CAPS) == 1)
-    repr_list = to_repr_list(token_list, ReprConfig(types_to_be_repr, splitting_config, dict_based_non_eng, lowercase))
-    return repr_list
+    repr_list, metadata = to_repr_list(token_list, ReprConfig(types_to_be_repr, splitting_config, dict_based_non_eng, lowercase))
+    return repr_list, metadata
 
 
-def preprocess_and_write(params: Tuple[bytes, bytes, PrepConfig]):
-    src_file_path, dest_file_path, prep_config = params
+def preprocess_and_write(params: Tuple[bytes, bytes, PrepConfig, str]):
+    src_file_path, dest_file_path, prep_config, part_nonbpe_vocab_folder = params
 
     dest_dirname = os.path.dirname(dest_file_path)
     if not os.path.exists(dest_dirname):
@@ -50,8 +55,13 @@ def preprocess_and_write(params: Tuple[bytes, bytes, PrepConfig]):
     not_finished_dest_file_path = dest_file_path + NOT_FINISHED_EXTENSION.encode()
     with gzip.GzipFile(src_file_path, 'rb') as i, open(not_finished_dest_file_path, 'w') as o:
         token_list = pickle.load(i)
-        repr = to_repr(prep_config, token_list, global_n_gramm_splitting_config)
+        repr, metadata = to_repr(prep_config, token_list, global_n_gramm_splitting_config)
         o.write(to_token_str(repr))
+
+    part_non_bpe_vocab_file = f'{os.path.basename(dest_file_path)}_-_{time.time()}'
+    with open(os.path.join(part_nonbpe_vocab_folder, part_non_bpe_vocab_file), 'w') as f:
+        for token in metadata.nonprocessable_tokens:
+            f.write(f'{token}\n')
 
     os.rename(not_finished_dest_file_path, dest_file_path)
 
@@ -93,7 +103,7 @@ def init_splitting_config(prep_config: PrepConfig, custom_bpe_config: Optional[C
 def params_generator(dataset: Dataset):
     for input_file_path in dataset.parsed.file_iterator():
         output_file_path = dataset.parsed.get_new_file_name(input_file_path, dataset.preprocessed)
-        yield (input_file_path, output_file_path, dataset.prep_config)
+        yield (input_file_path, output_file_path, dataset.prep_config, f'{dataset.path_to_nonbpe_vocab_file}_part')
 
 
 def exception_handler(it: Iterator):
@@ -116,6 +126,9 @@ def run(dataset: Dataset, custom_bpe_config: Optional[CustomBpeConfig]) -> None:
 
     init_splitting_config(dataset.prep_config, custom_bpe_config)
 
+    part_nonbpe_vocab_dir =f'{dataset.path_to_nonbpe_vocab_file}_part'
+    os.makedirs(part_nonbpe_vocab_dir)
+
     logger.info(f"Writing preprocessed files to {dataset.preprocessed.path}")
 
     if dataset.files_need_to_be_saved():
@@ -133,4 +146,17 @@ def run(dataset: Dataset, custom_bpe_config: Optional[CustomBpeConfig]) -> None:
         it = pool.imap_unordered(preprocess_and_write, params_generator(dataset), chunksize=CHUNKSIZE)
         for _ in tqdm(exception_handler(it), total=files_total):
             pass
+
+    print("Gathering non-bpe vocab...")
+    non_bpe_tokens = set()
+    for file in tqdm(os.listdir(part_nonbpe_vocab_dir), total=files_total):
+        with open(os.path.join(part_nonbpe_vocab_dir, file), 'r') as f:
+            for line in f:
+                non_bpe_tokens.add(line.rstrip('\n'))
+    non_bpe_tokens.update(list(placeholders.values()))
+    with open(dataset.path_to_nonbpe_vocab_file, 'w') as f:
+        for token in non_bpe_tokens:
+            f.write(f'{token}\n')
+    shutil.rmtree(part_nonbpe_vocab_dir)
+
     dataset.preprocessed.set_ready()

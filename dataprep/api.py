@@ -14,7 +14,7 @@ def preprocess(text: str, config: PrepConfig, bpe_codes_id: Optional[str] = None
     if bpe_codes_id and not is_predefined_id(bpe_codes_id):
         custom_bpe_config = create_custom_bpe_config(bpe_codes_id)
     init_splitting_config(config, custom_bpe_config)
-    return to_repr(config, parsed)
+    return to_repr(config, parsed)[0]
 
 
 def create_split_value(arguments):

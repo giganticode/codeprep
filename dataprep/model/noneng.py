@@ -1,6 +1,7 @@
-from typing import List
+from typing import List, Tuple
 
 from dataprep.model.core import ParsedToken
+from dataprep.model.metadata import PreprocessingMetadata
 from dataprep.model.placeholders import placeholders
 from dataprep.model.word import Word
 from dataprep.preprocessors.repr import torepr, ReprConfig
@@ -13,27 +14,27 @@ class NonEng(ParsedToken):
 
         self.processable_token = processable_token
 
-    def non_preprocessed_repr(self, repr_config):
+    def non_preprocessed_repr(self, repr_config) -> Tuple[List[str], PreprocessingMetadata]:
         return torepr(self.processable_token, repr_config)
 
-    def preprocessed_repr(self, repr_config: ReprConfig) -> List[str]:
+    def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
         # TODO refactor -> move this logic to parser
         if not repr_config.dict_based_non_eng:
-            s = self.processable_token.non_preprocessed_repr(repr_config)
+            s, metadata = self.processable_token.non_preprocessed_repr(repr_config)
             try:
                 s.encode('ascii')
                 return torepr(self.processable_token, repr_config)
             except UnicodeEncodeError:
                 repr = torepr(self.processable_token, repr_config)
                 if repr[0] in [placeholders['capitals'], placeholders['capital']]:
-                    return [repr[0], placeholders['non_eng']]
+                    return [repr[0], placeholders['non_eng']], PreprocessingMetadata()
                 else:
-                    return [placeholders['non_eng']]
-        repr = torepr(self.processable_token, repr_config)
+                    return [placeholders['non_eng']], PreprocessingMetadata()
+        repr, metadata = torepr(self.processable_token, repr_config)
         if repr[0] in [placeholders['capitals'], placeholders['capital']]:
-            return [repr[0], placeholders['non_eng']]
+            return [repr[0], placeholders['non_eng']], PreprocessingMetadata()
         else:
-            return [placeholders['non_eng']]
+            return [placeholders['non_eng']], PreprocessingMetadata()
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.processable_token.__repr__()})'

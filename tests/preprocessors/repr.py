@@ -3,6 +3,7 @@ import unittest
 from dataprep.model.chars import NewLine, Tab, Quote, MultilineCommentStart, MultilineCommentEnd, OneLineCommentStart
 # TODO write explanations with normal strings
 from dataprep.model.containers import SplitContainer, OneLineComment, MultilineComment, StringLiteral
+from dataprep.model.metadata import PreprocessingMetadata
 from dataprep.model.noneng import NonEng
 from dataprep.model.numeric import DecimalPoint, Number
 from dataprep.model.placeholders import placeholders
@@ -47,7 +48,7 @@ tokens = [
 ]
 
 
-class TeprTest(unittest.TestCase):
+class ReprTest(unittest.TestCase):
 
     def test_both_enonly_and_nosplit(self):
         with self.assertRaises(ValueError):
@@ -69,7 +70,7 @@ class TeprTest(unittest.TestCase):
             PrepParam.CAPS: 0
         })
 
-        actual = to_repr(prep_config, tokens, NgramSplitConfig())
+        actual, actual_metadata = to_repr(prep_config, tokens, NgramSplitConfig())
 
         expected = [
             '1.1',
@@ -79,8 +80,10 @@ class TeprTest(unittest.TestCase):
             '/*', 'ц', 'blanco_english', '*/',
             '//', "DIESELBE8", pl['olc_end']
         ]
+        expected_metadata = PreprocessingMetadata({'*', '"', "//", "/*", "*/"})
 
         self.assertEqual(expected, actual)
+        self.assertEqual(expected_metadata, actual_metadata)
 
     ############################################################################################
     ############################################################################################
@@ -94,7 +97,7 @@ class TeprTest(unittest.TestCase):
             PrepParam.CAPS: 1
         })
 
-        actual = to_repr(prep_config, tokens, NgramSplitConfig())
+        actual, actual_metadata = to_repr(prep_config, tokens, NgramSplitConfig())
 
         expected = [
             '1.1',
@@ -108,7 +111,10 @@ class TeprTest(unittest.TestCase):
             '8', pl['word_end'], pl['olc_end']
         ]
 
+        expected_metadata = PreprocessingMetadata({'*', '"', "//", "/*", "*/"})
+
         self.assertEqual(expected, actual)
+        self.assertEqual(expected_metadata, actual_metadata)
 
     ############################################################################################
     ############################################################################################
@@ -124,7 +130,7 @@ class TeprTest(unittest.TestCase):
 
         ngramSplittingConfig = NgramSplitConfig(splitting_type=NgramSplittingType.ONLY_NUMBERS)
 
-        actual = to_repr(prep_config, tokens, ngramSplittingConfig)
+        actual, actual_metadata = to_repr(prep_config, tokens, ngramSplittingConfig)
 
         expected = [
             pl["word_start"],
@@ -142,7 +148,10 @@ class TeprTest(unittest.TestCase):
             "8", pl['word_end'], pl['olc_end']
         ]
 
+        expected_metadata = PreprocessingMetadata({'*', '"', "//", "/*", "*/"})
+
         self.assertEqual(expected, actual)
+        self.assertEqual(expected_metadata, actual_metadata)
 
     ############################################################################################
     ############################################################################################
@@ -199,7 +208,7 @@ class TeprTest(unittest.TestCase):
             ])
         ]
 
-        actual = to_repr(prep_config, tokens, ngramSplittingConfig)
+        actual, actual_metadata = to_repr(prep_config, tokens, ngramSplittingConfig)
 
         expected = [
             pl['word_start'],
@@ -218,7 +227,10 @@ class TeprTest(unittest.TestCase):
             pl['olc_end']
         ]
 
+        expected_metadata = PreprocessingMetadata({'*', "//", "/*", "*/"})
+
         self.assertEqual(expected, actual)
+        self.assertEqual(expected_metadata, actual_metadata)
 
     def test_to_repr_with_enonlycontents1(self):
         prep_config = PrepConfig({
@@ -272,7 +284,7 @@ class TeprTest(unittest.TestCase):
             ])
         ]
 
-        actual = to_repr(prep_config, tokens, ngramSplittingConfig)
+        actual, actual_metadata = to_repr(prep_config, tokens, ngramSplittingConfig)
 
         expected = [
             pl['word_start'],
@@ -292,7 +304,10 @@ class TeprTest(unittest.TestCase):
             pl['olc_end']
         ]
 
+        expected_metadata = PreprocessingMetadata({'*', '"', "//", "/*", "*/"})
+
         self.assertEqual(expected, actual)
+        self.assertEqual(expected_metadata, actual_metadata)
 
     ############################################################################################
     ############################################################################################
@@ -308,7 +323,7 @@ class TeprTest(unittest.TestCase):
 
         ngramSplittingConfig = NgramSplitConfig(splitting_type=NgramSplittingType.ONLY_NUMBERS)
 
-        actual = to_repr(prep_config, tokens, ngramSplittingConfig)
+        actual, actual_metadata = to_repr(prep_config, tokens, ngramSplittingConfig)
 
         expected = [
             pl['word_start'],
@@ -323,7 +338,10 @@ class TeprTest(unittest.TestCase):
             '//', pl['word_start'], pl['capitals'], 'dieselbe', "8", pl['word_end'], pl['olc_end']
         ]
 
+        expected_metadata = PreprocessingMetadata({'*', '"', "//", "/*", "*/"})
+
         self.assertEqual(expected, actual)
+        self.assertEqual(expected_metadata, actual_metadata)
 
     #
     #     ############################################################################################
@@ -341,7 +359,7 @@ class TeprTest(unittest.TestCase):
         ngramSplittingConfig = NgramSplitConfig(splitting_type=NgramSplittingType.ONLY_NUMBERS,
                                                 )
 
-        actual = to_repr(prep_config, tokens, ngramSplittingConfig)
+        actual, actual_metadata = to_repr(prep_config, tokens, ngramSplittingConfig)
 
         expected = [
             pl['word_start'],
@@ -361,7 +379,10 @@ class TeprTest(unittest.TestCase):
             "8", pl['word_end'], pl['olc_end']
         ]
 
+        expected_metadata = PreprocessingMetadata({'*', '"', "//", "/*", "*/", '\n', '\t'})
+
         self.assertEqual(expected, actual)
+        self.assertEqual(expected_metadata, actual_metadata)
 
     #
     #     ############################################################################################
@@ -378,7 +399,7 @@ class TeprTest(unittest.TestCase):
 
         ngramSplittingConfig = NgramSplitConfig(splitting_type=NgramSplittingType.ONLY_NUMBERS)
 
-        actual = to_repr(prep_config, tokens, ngramSplittingConfig)
+        actual, actual_metadata = to_repr(prep_config, tokens, ngramSplittingConfig)
 
         expected = [
             pl['word_start'],
@@ -393,7 +414,10 @@ class TeprTest(unittest.TestCase):
             pl["comment"]
         ]
 
+        expected_metadata = PreprocessingMetadata({'*'})
+
         self.assertEqual(expected, actual)
+        self.assertEqual(expected_metadata, actual_metadata)
 
     #
     #     ############################################################################################
@@ -410,7 +434,7 @@ class TeprTest(unittest.TestCase):
 
         ngramSplittingConfig = NgramSplitConfig(splitting_type=NgramSplittingType.ONLY_NUMBERS)
 
-        actual = to_repr(prep_config, tokens, ngramSplittingConfig)
+        actual, actual_metadata = to_repr(prep_config, tokens, ngramSplittingConfig)
 
         expected = [
             pl['word_start'],
@@ -426,7 +450,10 @@ class TeprTest(unittest.TestCase):
             pl['olc_end']
         ]
 
+        expected_metadata = PreprocessingMetadata({'*', '"', "//", "/*", "*/"})
+
         self.assertEqual(expected, actual)
+        self.assertEqual(expected_metadata, actual_metadata)
 
     #
     #     ############################################################################################
@@ -444,7 +471,7 @@ class TeprTest(unittest.TestCase):
         ngramSplittingConfig = NgramSplitConfig(splitting_type=NgramSplittingType.BPE,
                                                 merges=[], merges_cache={})
 
-        actual = to_repr(prep_config, tokens, ngramSplittingConfig)
+        actual, actual_metadata = to_repr(prep_config, tokens, ngramSplittingConfig)
 
         expected = [
             pl['word_start'],
@@ -461,7 +488,10 @@ class TeprTest(unittest.TestCase):
             pl['olc_end']
         ]
 
+        expected_metadata = PreprocessingMetadata({'*', '"', "//", "/*", "*/"})
+
         self.assertEqual(expected, actual)
+        self.assertEqual(expected_metadata, actual_metadata)
 
     #
     # #################################################
@@ -482,11 +512,14 @@ class TeprTest(unittest.TestCase):
 
         tokens = [SplitContainer.from_single_token("While")]
 
-        actual = to_repr(prep_config, tokens, ngramSplittingConfig)
+        actual, actual_metadata = to_repr(prep_config, tokens, ngramSplittingConfig)
 
         expected = [pl['capital'], "while", ]
 
+        expected_metadata = PreprocessingMetadata()
+
         self.assertEqual(expected, actual)
+        self.assertEqual(expected_metadata, actual_metadata)
 
     def test_merges_no_cache(self):
         prep_config = PrepConfig({
@@ -502,11 +535,14 @@ class TeprTest(unittest.TestCase):
 
         tokens = [SplitContainer.from_single_token("While")]
 
-        actual = to_repr(prep_config, tokens, ngramSplittingConfig)
+        actual, actual_metadata = to_repr(prep_config, tokens, ngramSplittingConfig)
 
         expected = [pl['word_start'], pl['capital'], "wh", "i", "l", "e", pl["word_end"]]
 
+        expected_metadata = PreprocessingMetadata()
+
         self.assertEqual(expected, actual)
+        self.assertEqual(expected_metadata, actual_metadata)
 
 
 if __name__ == '__main__':
