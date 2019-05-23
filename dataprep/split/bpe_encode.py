@@ -5,7 +5,8 @@ from typing import List, Optional, Dict, Tuple
 
 logger = logging.getLogger(__name__)
 
-def encode(words, merges):
+
+def encode(words: Dict[str, int], merges: Dict[Tuple[str, str], int]) -> Dict[str, int]:
     letters_list = {" ".join(k): v for k, v in words.items()}
 
     new_letters_list = {}
@@ -41,7 +42,7 @@ def read_merges(merges_file: str, n_merges: Optional[int]=None) -> Dict[Tuple[st
     return merges
 
 
-def encode_word(word, merges) -> List[str]:
+def encode_word(word: str, merges: Dict[Tuple[str, str], int]) -> List[str]:
     enc_word, _ = encode({word: 0}, merges).popitem()
     subwords = enc_word.split(" ")
     return subwords
