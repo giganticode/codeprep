@@ -10,7 +10,7 @@ from multiprocessing.pool import Pool
 from tqdm import tqdm
 
 from dataprep.dataset import Dataset, NOT_FINISHED_EXTENSION
-from dataprep.preprocessors.core import parse_from_lines
+from dataprep.parse.core import convert_text
 from dataprep.config import REWRITE_PARSED_FILE, CHUNKSIZE, LIMIT_FILES_SCANNING
 
 logger = logging.getLogger(__name__)
@@ -52,7 +52,7 @@ def preprocess_and_write(params: Tuple[bytes, bytes]) -> None:
             logger.error(f"File was found when scanning the directory, but cannot be read: {src_file_path}. "
                          f"Invalid symlink? Ignoring ...")
             return
-        parsed = parse_from_lines(lines_from_file)
+        parsed = [p for p in convert_text("\n".join(lines_from_file))]
         pickle.dump(parsed, f, pickle.HIGHEST_PROTOCOL)
 
     os.rename(not_finished_dest_file_path, dest_file_path)

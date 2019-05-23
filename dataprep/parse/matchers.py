@@ -59,7 +59,8 @@ class KeywordMatcher(object):
         return token in Token.Keyword
 
     def transform(self, value: str) -> List[ParsedToken]:
-        return [simple_split_token(ParseableToken(value))]
+        return [value]
+        # return [simple_split_token(ParseableToken(value))]
 
 
 class NewLineMatcher(object):
