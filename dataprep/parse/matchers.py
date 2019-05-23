@@ -6,7 +6,7 @@ import regex
 from dataprep.model.chars import NewLine, Tab
 from dataprep.model.containers import StringLiteral, OneLineComment
 from dataprep.model.core import ParseableToken, ParsedToken
-from dataprep.preprocessors.java import process_number_literal
+from dataprep.model.numeric import Number
 from dataprep.preprocessors.split import simple_split_token
 
 
@@ -92,7 +92,7 @@ class NumberMatchers(object):
         return token in Token.Literal.Number
 
     def transform(self, value: str) -> List[ParsedToken]:
-        return [process_number_literal(value)]
+        return [Number([ch for ch in value])]
 
 
 class OperatorMatcher(object):
