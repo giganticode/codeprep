@@ -16,6 +16,7 @@ from multiprocessing.pool import Pool
 
 from tqdm import tqdm
 
+from dataprep.bperegistry import VOCAB_FILENAME
 from dataprep.dataset import Dataset, SubDataset
 from dataprep.model.placeholders import placeholders
 from dataprep.parse_projects import read_file_contents
@@ -27,7 +28,6 @@ queue_size = AtomicInteger()
 
 PARTVOCAB_EXT = 'partvocab'
 VOCABSIZE_FILENAME = 'vocabsize'
-VOCAB_FILENAME = 'vocab'
 PARTIAL_VOCABS_READY_FILENAME = 'ready'
 
 N_CHUNKS = 20

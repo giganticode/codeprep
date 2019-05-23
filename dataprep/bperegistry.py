@@ -8,6 +8,8 @@ import time
 from typing import Optional, Tuple, Dict
 
 from dataprep.config import USER_BPE_DIR
+from dataprep.split.bpe_encode import read_merges
+from dataprep.util import read_dict_from_2_columns
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +17,7 @@ logger = logging.getLogger(__name__)
 MERGES_FILE_NAME = "merges.txt"
 MERGES_CACHE_FILE_NAME = "merges_cache.txt"
 BPE_CODES_ID_FILENAME = '.name'
+VOCAB_FILENAME = 'vocab'
 
 PREDEFINED_BPE_CODES = ['1k', '5k', '10k']
 
@@ -80,25 +83,41 @@ def parse_bpe_codes_id(s: str) -> Tuple[str, int]:
         raise InvalidBpeCodesIdError(f'Invalid id format: "{s}". Format should be: "{REGEX}"')
 
 
-def create_custom_bpe_config(id: str) -> CustomBpeConfig:
+def get_bpe_dir_by_id(id: str) -> str:
     bpe_codes_id, n_merges = parse_bpe_codes_id(id)
     bpe_dirs = next(os.walk(USER_BPE_DIR))[1]
     for dir in bpe_dirs:
         current_bpe_dir = os.path.join(USER_BPE_DIR, dir)
         current_id = get_codes_id_by_bpe_path(current_bpe_dir)
         if current_id and current_id == bpe_codes_id:
-            min_merges = get_min_merges(current_bpe_dir, limit=n_merges)
-            dir_with_min_merges = os.path.join(current_bpe_dir, str(min_merges))
-            if min_merges:
-                if not n_merges or min_merges == n_merges:
-                    cache_file = os.path.join(dir_with_min_merges, MERGES_CACHE_FILE_NAME)
-                else:
-                    cache_file = None
-                return CustomBpeConfig(id, n_merges, os.path.join(dir_with_min_merges, MERGES_FILE_NAME), cache_file)
-            else:
-                break
-    raise InvalidBpeCodesIdError(f"Bpe files for custom bpe id: {id} is not found. "
-                                 f"Possible values:\n {format_available_bpe_ids()}")
+            return current_bpe_dir
+    raise InvalidBpeCodesIdError(f"Bpe id: {id} is not found. Possible values:\n {format_available_bpe_ids()}")
+
+
+def create_custom_bpe_config(id: str) -> CustomBpeConfig:
+    bpe_dir = get_bpe_dir_by_id(id)
+    bpe_codes_id, n_merges = parse_bpe_codes_id(id)
+    min_merges = get_min_merges(bpe_dir, limit=n_merges)
+    dir_with_min_merges = os.path.join(bpe_dir, str(min_merges))
+    if min_merges:
+        if not n_merges or min_merges == n_merges:
+            cache_file = os.path.join(dir_with_min_merges, MERGES_CACHE_FILE_NAME)
+        else:
+            cache_file = None
+        return CustomBpeConfig(id, n_merges, os.path.join(dir_with_min_merges, MERGES_FILE_NAME), cache_file)
+    else:
+        raise InvalidBpeCodesIdError(f"{n_merges} merges has not been computed for {bpe_codes_id}."
+                                     f"Max possible value: {get_max_merges(bpe_dir)}")
+
+
+def load_base_vocab(bpe_id: str) -> Dict[str, int]:
+    bpe_dir = get_bpe_dir_by_id(bpe_id)
+    return read_dict_from_2_columns(os.path.join(bpe_dir, VOCAB_FILENAME))
+
+
+def load_bpe_merges(bpe_id: str) -> Dict[Tuple[str, str], int]:
+    custom_bpe_config = create_custom_bpe_config(bpe_id)
+    return read_merges(custom_bpe_config.codes_file, custom_bpe_config.n_merges)
 
 
 def format_available_bpe_ids() -> str:
