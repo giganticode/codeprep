@@ -263,7 +263,7 @@ def get_dir_last_modification(path: str, limit: int = LIMIT_FILES_ON_LAST_MODIFI
 
 def has_one_of_extensions(name: bytes, extensions: List[bytes]) -> bool:
     for ext in extensions:
-        if name.endswith(ext):
+        if name.endswith(b'.' + ext):
             return True
     return False
 
