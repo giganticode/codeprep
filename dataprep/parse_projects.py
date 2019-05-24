@@ -52,7 +52,7 @@ def preprocess_and_write(params: Tuple[bytes, bytes]) -> None:
             logger.error(f"File was found when scanning the directory, but cannot be read: {src_file_path}. "
                          f"Invalid symlink? Ignoring ...")
             return
-        extension_bin = os.path.splitext(src_file_path)[1].decode()
+        extension_bin = os.path.splitext(src_file_path)[1].decode()[1:]
         parsed = [p for p in convert_text("\n".join(lines_from_file), extension_bin)]
         pickle.dump(parsed, f, pickle.HIGHEST_PROTOCOL)
 
