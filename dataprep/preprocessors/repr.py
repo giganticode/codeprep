@@ -1,6 +1,7 @@
 import logging
-from typing import List, Tuple
+from typing import List, Tuple, Generator, Union
 
+from dataprep.model.core import ParsedToken
 from dataprep.model.metadata import PreprocessingMetadata
 from dataprep.split.ngram import NgramSplitConfig
 
@@ -19,7 +20,7 @@ class ReprConfig(object):
         return cls([], NgramSplitConfig())
 
 
-def to_repr_list(token_list, repr_config) -> Tuple[List[str], PreprocessingMetadata]:
+def to_repr_list(token_list: Generator[Union[str, ParsedToken], None, None], repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
     repr_res = []
     all_metadata = PreprocessingMetadata()
     for token in token_list:

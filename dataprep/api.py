@@ -8,13 +8,18 @@ from dataprep.prepconfig import PrepConfig, PrepParam
 from dataprep.to_repr import init_splitting_config, to_repr
 
 
+def remove_trailing_newline(prep_tokens: List[str]) -> List[str]:
+    return prep_tokens[:-1] if prep_tokens[-1] == '\n' else prep_tokens
+
+
 def preprocess(text: str, config: PrepConfig, bpe_codes_id: Optional[str] = None, extension: Optional[str] = None) -> List[str]:
     parsed = convert_text(text, extension)
     custom_bpe_config = None
     if bpe_codes_id and not is_predefined_id(bpe_codes_id):
         custom_bpe_config = create_custom_bpe_config(bpe_codes_id)
     init_splitting_config(config, custom_bpe_config)
-    return to_repr(config, parsed)[0]
+    prep_tokens, metadata = to_repr(config, parsed)
+    return remove_trailing_newline(prep_tokens)
 
 
 def create_split_value(arguments):

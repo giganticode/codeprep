@@ -16,7 +16,8 @@ matchers = [
     matchers.WordMatcher(),
     matchers.KeywordMatcher(),
     matchers.StringMatcher(),
-    matchers.CommentMatcher(),
+    matchers.OneLineCommentMatcher(),
+    matchers.MultiLineLineCommentMatcher(),
 ]
 
 
@@ -33,7 +34,7 @@ def _convert(token, value: str) -> List[ParsedToken]:
 
 def convert_text(text: str, extension: str=None) -> List[ParsedToken]:
     lexer = get_lexer_by_name(extension) if extension else guess_lexer(text)
-    for token, value in lex(repr(text)[1:-1], lexer):
+    for token, value in lex(text, lexer):
         model_tokens = _convert(token, value)
         for mr in model_tokens:
             yield mr

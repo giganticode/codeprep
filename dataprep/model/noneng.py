@@ -25,7 +25,7 @@ class NonEng(ParsedToken):
                 s.encode('ascii')
                 return torepr(self.processable_token, repr_config)
             except UnicodeEncodeError:
-                repr = torepr(self.processable_token, repr_config)
+                repr, metadata = torepr(self.processable_token, repr_config)
                 if repr[0] in [placeholders['capitals'], placeholders['capital']]:
                     return [repr[0], placeholders['non_eng']], PreprocessingMetadata()
                 else:

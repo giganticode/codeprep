@@ -5,7 +5,7 @@ import pickle
 import shutil
 
 from multiprocessing.pool import Pool
-from typing import Optional, List, Tuple, Iterator
+from typing import Optional, List, Tuple, Iterator, Generator, Union
 
 from tqdm import tqdm
 import time
@@ -31,7 +31,7 @@ def get_global_n_gramm_splitting_config():
     return global_n_gramm_splitting_config
 
 
-def to_repr(prep_config: PrepConfig, token_list: List[ParsedToken],
+def to_repr(prep_config: PrepConfig, token_list: Generator[Union[str, ParsedToken], None, None],
             n_gramm_splitting_config: Optional[NgramSplitConfig] = None) -> Tuple[List[str], PreprocessingMetadata]:
     types_to_be_repr = get_types_to_be_repr(prep_config)
     splitting_config = n_gramm_splitting_config or get_global_n_gramm_splitting_config()
