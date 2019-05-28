@@ -5,7 +5,7 @@ import sys
 import re
 import time
 
-from typing import Optional, Tuple, Dict
+from typing import Optional, Tuple, Dict, Set
 
 from dataprep.config import USER_BPE_DIR
 from dataprep.split.bpe_encode import read_merges
@@ -111,9 +111,27 @@ def create_custom_bpe_config(id: str) -> CustomBpeConfig:
                                      f"Max possible value: {get_max_merges(bpe_dir)}")
 
 
-def load_base_vocab(bpe_id: str) -> Dict[str, int]:
+def load_all_vocab(bpe_id: str) -> Dict[str, int]:
     bpe_dir = get_bpe_dir_by_id(bpe_id)
     return read_dict_from_2_columns(os.path.join(bpe_dir, VOCAB_FILENAME))
+
+
+def load_nonbpe_vocab(bpe_id: str) -> Set[str]:
+    bpe_dir = get_bpe_dir_by_id(bpe_id)
+    non_bpe_vocab = set()
+    with open(os.path.join(bpe_dir, NONBPE_VOCAB_FILENAME), 'r') as f:
+        for line in f:
+            non_bpe_vocab.add(line.rstrip('\n'))
+    return non_bpe_vocab
+
+
+def load_base_vocab(bpe_id: str) -> Dict[str, int]:
+    all_vocab = load_all_vocab(bpe_id)
+    nonbpe_vocab = load_nonbpe_vocab(bpe_id)
+    for token in nonbpe_vocab:
+        del all_vocab[token]
+    return all_vocab
+
 
 
 def load_bpe_merges(bpe_id: str) -> Dict[Tuple[str, str], int]:
