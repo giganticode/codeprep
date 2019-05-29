@@ -16,3 +16,9 @@ class PreprocessingMetadata():
 
     def __eq__(self, other):
         return self.__class__ == other.__class__ and self.nonprocessable_tokens == other.nonprocessable_tokens
+
+
+def save_metadata(metadata: PreprocessingMetadata, save_to: bytes):
+    with open(save_to, 'w') as f:
+        for token in metadata.nonprocessable_tokens:
+            f.write(f'{token.encode()}\n')

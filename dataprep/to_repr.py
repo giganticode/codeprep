@@ -1,20 +1,18 @@
 import gzip
 import logging
 import os
+import time
 import pickle
-import shutil
 
 from multiprocessing.pool import Pool
 from typing import Optional, List, Tuple, Iterator, Generator, Union
 
 from tqdm import tqdm
-import time
 
 from dataprep.bperegistry import CustomBpeConfig
 from dataprep.dataset import Dataset, NOT_FINISHED_EXTENSION
 from dataprep.model.core import ParsedToken
-from dataprep.model.metadata import PreprocessingMetadata
-from dataprep.model.placeholders import placeholders
+from dataprep.model.metadata import PreprocessingMetadata, save_metadata
 from dataprep.prepconfig import PrepParam, get_types_to_be_repr, PrepConfig
 from dataprep.preprocessors.general import to_token_str
 from dataprep.preprocessors.repr import to_repr_list, ReprConfig
@@ -23,6 +21,7 @@ from dataprep.split.ngram import NgramSplittingType, NgramSplitConfig
 from dataprep.util import read_dict_from_2_columns
 from dataprep.config import DEFAULT_BPE_DIR, NO_CASE_DIR, CASE_DIR, DEFAULT_BPE_CACHE_DIR, REWRITE_PREPROCESSED_FILE, \
     CHUNKSIZE, LIMIT_FILES_SCANNING
+from dataprep.vocabloader import gather_non_bpe_vocab
 
 logger = logging.getLogger(__name__)
 
@@ -58,10 +57,7 @@ def preprocess_and_write(params: Tuple[bytes, bytes, PrepConfig, str]):
         repr, metadata = to_repr(prep_config, token_list, global_n_gramm_splitting_config)
         o.write(to_token_str(repr))
 
-    part_non_bpe_vocab_file = f'{os.path.basename(dest_file_path)}_-_{time.time()}'
-    with open(os.path.join(part_nonbpe_vocab_folder, part_non_bpe_vocab_file), 'w') as f:
-        for token in metadata.nonprocessable_tokens:
-            f.write(f'{token}\n')
+    save_metadata(metadata, os.path.join(part_nonbpe_vocab_folder, f'{os.path.basename(dest_file_path)}_-_{time.time()}'))
 
     os.rename(not_finished_dest_file_path, dest_file_path)
 
@@ -126,8 +122,7 @@ def run(dataset: Dataset, custom_bpe_config: Optional[CustomBpeConfig]) -> None:
 
     init_splitting_config(dataset.prep_config, custom_bpe_config)
 
-    part_nonbpe_vocab_dir =f'{dataset.path_to_nonbpe_vocab_file}_part'
-    os.makedirs(part_nonbpe_vocab_dir)
+    os.makedirs(f'{dataset.path_to_nonbpe_vocab_file}_part')
 
     logger.info(f"Writing preprocessed files to {dataset.preprocessed.path}")
 
@@ -147,16 +142,6 @@ def run(dataset: Dataset, custom_bpe_config: Optional[CustomBpeConfig]) -> None:
         for _ in tqdm(exception_handler(it), total=files_total):
             pass
 
-    print("Gathering non-bpe vocab...")
-    non_bpe_tokens = set()
-    for file in tqdm(os.listdir(part_nonbpe_vocab_dir), total=files_total):
-        with open(os.path.join(part_nonbpe_vocab_dir, file), 'r') as f:
-            for line in f:
-                non_bpe_tokens.add(line.rstrip('\n'))
-    non_bpe_tokens.update(list(placeholders.values()))
-    with open(dataset.path_to_nonbpe_vocab_file, 'w') as f:
-        for token in non_bpe_tokens:
-            f.write(f'{token}\n')
-    shutil.rmtree(part_nonbpe_vocab_dir)
+    gather_non_bpe_vocab(dataset)
 
     dataset.preprocessed.set_ready()
