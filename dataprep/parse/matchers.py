@@ -16,6 +16,14 @@ class DefaultMatcher(object):
         return split_string(value)
 
 
+class GenericTokenMatcher(object):
+    def match(self, token, value: str) -> bool:
+        return token in Token.Generic
+
+    def transform(self, value: str) -> List[Union[str, ParsedToken]]:
+        return split_string(value)
+
+
 class StringMatcher(object):
     def match(self, token, value: str) -> bool:
         return token in Token.Literal.String
@@ -34,7 +42,7 @@ class OneLineCommentMatcher(object):
 
 class MultiLineLineCommentMatcher(object):
     def match(self, token, value: str) -> bool:
-        return token is Token.Comment.Multiline
+        return token in Token.Comment and not token is Token.Comment.Single
 
     def transform(self, value: str) -> List[MultilineComment]:
         return [MultilineComment(split_string(value))]
@@ -43,6 +51,14 @@ class MultiLineLineCommentMatcher(object):
 class WordMatcher(object):
     def match(self, token, value: str) -> bool:
         return token in Token.Name
+
+    def transform(self, value: str) -> List[Union[str, ParsedToken]]:
+        return split_string(value)
+
+
+class GenericLiteralMatcher(object):
+    def match(self, token, value: str) -> bool:
+        return token is Token.Literal or token is Token.Literal.Date
 
     def transform(self, value: str) -> List[Union[str, ParsedToken]]:
         return split_string(value)

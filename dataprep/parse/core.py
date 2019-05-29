@@ -14,10 +14,12 @@ matchers = [
     matchers.OperatorMatcher(),
     matchers.NumberMatchers(),
     matchers.WordMatcher(),
+    matchers.GenericLiteralMatcher(),
     matchers.KeywordMatcher(),
     matchers.StringMatcher(),
     matchers.OneLineCommentMatcher(),
     matchers.MultiLineLineCommentMatcher(),
+    matchers.GenericTokenMatcher()
 ]
 
 
