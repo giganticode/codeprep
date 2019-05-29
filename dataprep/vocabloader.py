@@ -23,7 +23,8 @@ def base(bpe_id: str) -> Dict[str, int]:
     all_vocab = all(bpe_id)
     nonbpe_vocab = nonbpe(bpe_id)
     for token in nonbpe_vocab:
-        del all_vocab[token]
+        if token in all_vocab:
+            del all_vocab[token]
     return all_vocab
 
 
