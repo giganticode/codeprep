@@ -1,4 +1,3 @@
-import ast
 import os
 import shutil
 
@@ -37,7 +36,7 @@ def gather_non_bpe_vocab(dataset: Dataset):
             print('.', end='')
         non_bpe_tokens.update(_load_nonbpe_vocab_from_file(os.path.join(part_nonbpe_vocab_dir, file)))
     print()
-    non_bpe_tokens.update(list(map(lambda s: s.encode(), placeholders.values())))
+    non_bpe_tokens.update(list(placeholders.values()))
     with open(dataset.path_to_nonbpe_vocab_file, 'w') as f:
         for token in non_bpe_tokens:
             f.write(f'{token}\n')
@@ -48,5 +47,5 @@ def _load_nonbpe_vocab_from_file(file: str):
     non_bpe_tokens = set()
     with open(file, 'r') as f:
         for line in f:
-            non_bpe_tokens.add(ast.literal_eval(line))
+            non_bpe_tokens.add(line.rstrip('\n'))
     return non_bpe_tokens
