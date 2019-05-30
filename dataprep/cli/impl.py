@@ -49,7 +49,7 @@ def handle_splitting(args):
             print(prep_text)
         else:
             path = os.path.abspath(args['--path'])
-            output_path = args['--output-path'] if args['--output-path'] else '' #TODO this is bad. Fix it
+            output_path = args['--output-path'] if args['--output-path'] else os.getcwd()
             extensions = parse_extension_pattern(args['--ext']) if args['--ext'] else None
             custom_bpe_config = create_custom_bpe_config(bpe_codes_id) if bpe_codes_id else None
             dataset = Dataset.create(path, prep_config, extensions, custom_bpe_config, overriden_path_to_prep_dataset=output_path)

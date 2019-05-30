@@ -36,6 +36,9 @@ class CustomBpeConfig(object):
     def can_use_cache_file(self):
         return self.cache_file and not self.n_merges
 
+    def __repr__(self):
+        return f'{self.__class__.__name__} ({self.id}, {self.n_merges}, {self.codes_file}, {self.cache_file})'
+
 
 def is_predefined_id(id):
     return id in PREDEFINED_BPE_CODES
