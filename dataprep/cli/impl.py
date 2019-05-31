@@ -13,7 +13,7 @@ def handle_splitting(args):
         print(prep_text)
     else:
         path = os.path.abspath(args['--path'])
-        output_path = args['--output-path'] if args['--output-path'] else '' #TODO this is bad. Fix it
+        output_path = args['--output-path'] if args['--output-path'] else os.getcwd()
         extension = 'java'
         dataset = Dataset.create(path, prep_config, extension, overriden_path_to_prep_dataset=output_path)
         stages.run_until_preprocessing(dataset)

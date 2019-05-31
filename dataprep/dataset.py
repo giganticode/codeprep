@@ -69,8 +69,11 @@ class SubDataset(object):
 
     def __eq__(self, o: object) -> bool:
         if isinstance(o, SubDataset):
-            return self._dataset == o._dataset and self._path == o._path and self._suffix == o._suffix
+            return self._dataset.path == o._dataset.path and self._path == o._path and self._suffix == o._suffix
         return False
+
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__} ({self._dataset}, {self._path}, {self._suffix}) '
 
     def __str__(self) -> str:
         return self._path
@@ -163,13 +166,14 @@ class Dataset(object):
         return os.path.join(DEFAULT_PARSED_DATASETS_DIR, self.get_dataset_dir_name)
 
     def _get_path_to_prep_dataset(self, overriden_path_to_prep_dataset: Optional[str]) -> str:
+        prefix = overriden_path_to_prep_dataset if overriden_path_to_prep_dataset else DEFAULT_PREP_DATASETS_DIR
+
+        basename = f'{self.get_dataset_dir_name}_{self.prep_config}'
+
         if overriden_path_to_prep_dataset:
-            return overriden_path_to_prep_dataset
+            basename += '_prep'
 
-        if overriden_path_to_prep_dataset == '':
-            return f'{self.path}_{self.dataset_last_modified}_preprocessed_{self.prep_config}'
-
-        return os.path.join(DEFAULT_PREP_DATASETS_DIR, self.get_dataset_dir_name)
+        return os.path.join(prefix, basename)
 
     @property
     def original(self) -> SubDataset:

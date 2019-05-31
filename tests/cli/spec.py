@@ -203,7 +203,9 @@ class CliTest(unittest.TestCase):
 
     @mock.patch('dataprep.cli.impl.Dataset')
     @mock.patch('dataprep.cli.impl.stages')
-    def test_parse_and_run_path(self, stages_mock, dataset_mock, api_mock):
+    @mock.patch('dataprep.cli.impl.os.getcwd')
+    def test_parse_and_run_path(self, os_mock, stages_mock, dataset_mock, api_mock):
+        os_mock.return_value='/path/to/curdir'
         dataset_mock.create = Mock(return_value=dataset_mock)
         argv = ['nosplit', '--path', '/path/to/dataset', '--no-spaces']
         parse_and_run(argv)
@@ -214,12 +216,14 @@ class CliTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: 1,
             PrepParam.CAPS: 0
         })
-        dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, 'java', overriden_path_to_prep_dataset='')
+        dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, 'java', overriden_path_to_prep_dataset='/path/to/curdir')
         stages_mock.run_until_preprocessing.assert_called_with(dataset_mock)
 
     @mock.patch('dataprep.cli.impl.Dataset')
     @mock.patch('dataprep.cli.impl.stages')
-    def test_parse_and_run_path_short(self, stages_mock, dataset_mock, api_mock):
+    @mock.patch('dataprep.cli.impl.os.getcwd')
+    def test_parse_and_run_path_short(self, os_mock, stages_mock, dataset_mock, api_mock):
+        os_mock.return_value='/path/to/curdir'
         dataset_mock.create = Mock(return_value=dataset_mock)
         argv = ['nosplit', '-p', '/path/to/dataset', '--no-spaces']
         parse_and_run(argv)
@@ -230,7 +234,7 @@ class CliTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: 1,
             PrepParam.CAPS: 0
         })
-        dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, 'java', overriden_path_to_prep_dataset='')
+        dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, 'java', overriden_path_to_prep_dataset='/path/to/curdir')
         stages_mock.run_until_preprocessing.assert_called_with(dataset_mock)
 
     @mock.patch('dataprep.cli.impl.Dataset')
