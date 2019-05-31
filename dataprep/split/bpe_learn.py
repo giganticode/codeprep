@@ -144,7 +144,7 @@ def load_nonbpe_vocab(dataset: Dataset) -> Set[str]:
     return non_bpe_vocab
 
 
-def run(dataset: Dataset, n_merges: int, bpe_config: BpeConfig) -> None:
+def run(dataset: Dataset, n_merges: int) -> None:
 
     max_merges = get_max_merges(dataset.bpe_path, n_merges)
     if not max_merges:
@@ -193,13 +193,3 @@ def run(dataset: Dataset, n_merges: int, bpe_config: BpeConfig) -> None:
     dump_list(merges, os.path.join(new_bpe_dir, MERGES_FILE_NAME))
     dump_dict_into_2_columns(split_base_vocab, os.path.join(new_bpe_dir, BPE_REASSEMBLED_VOCAB_FILE_NAME))
     logger.info(f'Bpe output files are saved into {new_bpe_dir} folder')
-
-
-if __name__ == '__main__':
-    argument_parser = argparse.ArgumentParser()
-    argument_parser.add_argument('path_to_dataset', action='store', help=f'dataset name')
-    argument_parser.add_argument('n_merges', action='store', type=int)
-
-    args = argument_parser.parse_args()
-
-    run(args.path_to_dataset, None, args.n_merges, args.reset, BpeConfig())

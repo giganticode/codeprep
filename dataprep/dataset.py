@@ -188,7 +188,7 @@ class Dataset(object):
 
     @property
     def bpe_path(self) -> str:
-        return os.path.join(USER_BPE_DIR, self.get_dataset_dir_name)
+        return os.path.join(USER_BPE_DIR, f'{self.get_dataset_dir_name}{self._bpe_config.to_suffix() if self._bpe_config else ""}')
 
     @property
     def path_to_bpe_vocab_file(self) -> str:
@@ -202,8 +202,8 @@ class Dataset(object):
     def bpe_codes_id(self) -> Optional[str]:
         return get_codes_id_by_bpe_path(self.bpe_path)
 
-    def assign_bpe_codes_id(self, predefined_bpe_codes_id: str) -> None:
-        id = create_new_id_from(self.path, predefined_bpe_codes_id)
+    def assign_bpe_codes_id(self, bpe_config: BpeConfig, predefined_bpe_codes_id: str) -> None:
+        id = create_new_id_from(self.path, bpe_config, predefined_bpe_codes_id)
         write_bpe_codes_id(self.bpe_path, id)
 
     @property

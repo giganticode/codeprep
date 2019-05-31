@@ -28,12 +28,12 @@ def handle_learnbpe(args):
     dataset = Dataset.create(path, bpe_config.to_prep_config(), extensions, None, bpe_config)
 
     if not dataset.bpe_codes_id:
-        dataset.assign_bpe_codes_id(predefined_bpe_codes_id=bpe_codes_id)
+        dataset.assign_bpe_codes_id(bpe_config, predefined_bpe_codes_id=bpe_codes_id)
     elif bpe_codes_id:
         print(f"Ignoring passed bpe codes id: {bpe_codes_id}. "
               f"This dataset has already been assigned id: {dataset.bpe_codes_id}")
 
-    bpe_learn.run(dataset, n_merges, bpe_config=bpe_config)
+    bpe_learn.run(dataset, n_merges)
 
 
 def parse_extension_pattern(extension_pattern: str) -> List[str]:

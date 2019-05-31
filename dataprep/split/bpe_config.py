@@ -50,6 +50,24 @@ class BpeConfig(object):
             PrepParam.CAPS: 1 if self.get_param_value(BpeParam.CASE) == 'no' else 0
         })
 
+    def to_suffix(self):
+        suf = ''
+
+        if self.get_param_value(BpeParam.CASE) == 'no':
+            suf += '_nocase'
+        elif self.get_param_value(BpeParam.CASE) == 'prefix':
+            suf += '_prefix'
+
+        if self.get_param_value(BpeParam.WORD_END):
+            suf += '_we'
+
+        if self.get_param_value(BpeParam.UNICODE) == 'no':
+            suf += '_nounicode'
+        elif self.get_param_value(BpeParam.UNICODE) == 'bytes':
+            suf += '_bytes'
+
+        return suf
+
     def __eq__(self, other):
         return self.params == other.params
 

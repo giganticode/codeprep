@@ -8,6 +8,7 @@ import time
 from typing import Optional, Tuple, Dict
 
 from dataprep.config import USER_BPE_DIR
+from dataprep.split.bpe_config import BpeConfig
 from dataprep.split.bpe_encode import read_merges
 
 logger = logging.getLogger(__name__)
@@ -53,11 +54,11 @@ def get_codes_id_by_bpe_path(path: str) -> Optional[str]:
             return f.read().strip()
 
 
-def create_new_id_from(path, predefined_bpe_codes_id: Optional[str] = None) -> str:
+def create_new_id_from(path: str, bpe_config: BpeConfig, predefined_bpe_codes_id: Optional[str] = None) -> str:
     if predefined_bpe_codes_id:
         return predefined_bpe_codes_id
     else:
-        id_base = os.path.basename(path)
+        id_base = f'{os.path.basename(path)}{bpe_config.to_suffix()}'
         existing_ids = get_all_custom_bpe_codes_with_max_merges().keys()
         if id_base not in existing_ids:
             return id_base
