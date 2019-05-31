@@ -57,7 +57,8 @@ def preprocess_and_write(params: Tuple[bytes, bytes, PrepConfig, str]):
         repr, metadata = to_repr(prep_config, token_list, global_n_gramm_splitting_config)
         o.write(to_token_str(repr))
 
-    save_metadata(metadata, os.path.join(part_nonbpe_vocab_folder, f'{os.path.basename(dest_file_path)}_-_{time.time()}'))
+    if part_nonbpe_vocab_folder:
+        save_metadata(metadata, os.path.join(part_nonbpe_vocab_folder, f'{os.path.basename(dest_file_path)}_-_{time.time()}'))
 
     os.rename(not_finished_dest_file_path, dest_file_path)
 
@@ -97,9 +98,10 @@ def init_splitting_config(prep_config: PrepConfig, custom_bpe_config: Optional[C
 
 
 def params_generator(dataset: Dataset):
+    path_to_nonbpe_vocab_folder = f'{dataset.path_to_nonbpe_vocab_file}_part' if not os.path.exists(dataset.path_to_nonbpe_vocab_file) else None
     for input_file_path in dataset.parsed.file_iterator():
         output_file_path = dataset.parsed.get_new_file_name(input_file_path, dataset.preprocessed)
-        yield (input_file_path, output_file_path, dataset.prep_config, f'{dataset.path_to_nonbpe_vocab_file}_part')
+        yield (input_file_path, output_file_path, dataset.prep_config, path_to_nonbpe_vocab_folder)
 
 
 def exception_handler(it: Iterator):
@@ -122,7 +124,9 @@ def run(dataset: Dataset, custom_bpe_config: Optional[CustomBpeConfig]) -> None:
 
     init_splitting_config(dataset.prep_config, custom_bpe_config)
 
-    os.makedirs(f'{dataset.path_to_nonbpe_vocab_file}_part')
+    nonbpe_vocab_part_folder = f'{dataset.path_to_nonbpe_vocab_file}_part'
+    if not os.path.exists(nonbpe_vocab_part_folder) and not os.path.exists(dataset.path_to_nonbpe_vocab_file):
+        os.makedirs(nonbpe_vocab_part_folder)
 
     logger.info(f"Writing preprocessed files to {dataset.preprocessed.path}")
 
@@ -142,6 +146,7 @@ def run(dataset: Dataset, custom_bpe_config: Optional[CustomBpeConfig]) -> None:
         for _ in tqdm(exception_handler(it), total=files_total):
             pass
 
-    gather_non_bpe_vocab(dataset)
+    if not os.path.exists(dataset.path_to_nonbpe_vocab_file):
+        gather_non_bpe_vocab(dataset)
 
     dataset.preprocessed.set_ready()
