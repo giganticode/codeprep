@@ -129,9 +129,12 @@ def get_min_merges(dataset_bpe_dir: str, limit: Optional[int]=0) -> Optional[int
     subdirs = get_all_bpe_merges_dirs(dataset_bpe_dir)
     min_number = sys.maxsize
     for subdir in subdirs:
-        num = int(subdir)
-        if min_number > num >= limit:
-            min_number = num
+        try:
+            num = int(subdir)
+            if min_number > num >= limit:
+                min_number = num
+        except ValueError:
+            pass # for the case of part_vocab folder for example
     if min_number != sys.maxsize:
         return min_number
     else:
