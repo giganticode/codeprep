@@ -87,6 +87,10 @@ def parse_bpe_codes_id(s: str) -> Tuple[str, int]:
 
 
 def get_bpe_dir_by_id(id: str) -> str:
+    if not os.path.exists(USER_BPE_DIR):
+        raise InvalidBpeCodesIdError(f"No custom bpe codes has been trained yet. "
+                                     f"To train a custom bpe code run: `dataprep learn-bpe` command")
+
     bpe_codes_id, _ = parse_bpe_codes_id(id)
     bpe_dirs = next(os.walk(USER_BPE_DIR))[1]
     for dir in bpe_dirs:
