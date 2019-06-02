@@ -4,6 +4,10 @@ from typing import Dict
 from dataprep.prepconfig import PrepConfig, PrepParam
 
 
+class BpeConfigNotSupported(Exception):
+    pass
+
+
 class BpeParam(str, Enum):
     CASE: str = 'case'
     WORD_END: str = 'wordend'

@@ -1,10 +1,13 @@
 import unittest
+from unittest import mock
 
+from dataprep.split import bpe_learn
+from dataprep.split.bpe_config import BpeConfigNotSupported, BpeConfig, BpeParam
 from dataprep.split.bpe_learn import do_merges
 
 
-class LearnBpeTest(unittest.TestCase):
-    def testDoMergesSimple(self):
+class DoMergesTest(unittest.TestCase):
+    def test_simple(self):
         input_vocab = {
             "b i r d": 3,
             "w o r d": 7,
@@ -31,7 +34,7 @@ class LearnBpeTest(unittest.TestCase):
         self.assertEqual(expected_vocab, actual_vocab)
         self.assertEqual(expected_merges, actual_merges)
 
-    def testDoMergesSameLetter(self):
+    def test_same_letter(self):
         input_vocab = {
             "a a a a a": 3,
         }
@@ -51,7 +54,7 @@ class LearnBpeTest(unittest.TestCase):
         self.assertEqual(expected_vocab, actual_vocab)
         self.assertEqual(expected_merges, actual_merges)
 
-    def testDoMergesSameTwoLetters(self):
+    def test_same_two_letters(self):
         input_vocab = {
             "l a l a l a": 3,
         }
@@ -71,6 +74,38 @@ class LearnBpeTest(unittest.TestCase):
         self.assertEqual(expected_vocab, actual_vocab)
         self.assertEqual(expected_merges, actual_merges)
 
+
+@mock.patch('dataprep.split.bpe_learn.Dataset')
+class RunTest(unittest.TestCase):
+    def test_prefix_case(self, mocked_dataset):
+        bpe_config = BpeConfig({
+            BpeParam.BASE: 'code',
+            BpeParam.WORD_END: False,
+            BpeParam.UNICODE: 'yes',
+            BpeParam.CASE: 'prefix'
+        })
+        with self.assertRaises(BpeConfigNotSupported):
+            bpe_learn.run(mocked_dataset, 1, bpe_config)
+
+    def test_word_end(self, mocked_dataset):
+        bpe_config = BpeConfig({
+            BpeParam.BASE: 'code',
+            BpeParam.WORD_END: True,
+            BpeParam.UNICODE: 'yes',
+            BpeParam.CASE: 'no'
+        })
+        with self.assertRaises(BpeConfigNotSupported):
+            bpe_learn.run(mocked_dataset, 1, bpe_config)
+
+    def test_bytes_bpe(self, mocked_dataset):
+        bpe_config = BpeConfig({
+            BpeParam.BASE: 'code',
+            BpeParam.WORD_END: False,
+            BpeParam.UNICODE: 'bytes',
+            BpeParam.CASE: 'no'
+        })
+        with self.assertRaises(BpeConfigNotSupported):
+            bpe_learn.run(mocked_dataset, 1, bpe_config)
 
 if __name__ == '__main__':
     unittest.main()

@@ -11,7 +11,7 @@ from dataprep.cli import stages
 from dataprep.dataset import Dataset
 from dataprep.model.placeholders import placeholders
 from dataprep.preprocessors.java import special_tokens
-from dataprep.split.bpe_config import BpeConfig, BpeParam
+from dataprep.split.bpe_config import BpeConfig, BpeParam, BpeConfigNotSupported
 from dataprep.util import PriorityCounter, read_dict_from_2_columns, read_list, dump_dict_into_2_columns, dump_list
 
 logger = logging.getLogger(__name__)
@@ -144,7 +144,20 @@ def load_nonbpe_vocab(dataset: Dataset) -> Set[str]:
     return non_bpe_vocab
 
 
-def run(dataset: Dataset, n_merges: int) -> None:
+def check_if_bpe_config_supported(bpe_config: BpeConfig):
+    if bpe_config.get_param_value(BpeParam.UNICODE) == 'bytes':
+        raise BpeConfigNotSupported('Byte-BPE is not yet supported')
+
+    if bpe_config.get_param_value(BpeParam.WORD_END):
+        raise BpeConfigNotSupported('BPE with word-end characters are not yet supported')
+
+    if bpe_config.get_param_value(BpeParam.CASE) == 'prefix':
+        raise BpeConfigNotSupported('BPE with case encoded in prefix is not yet supported')
+
+
+def run(dataset: Dataset, n_merges: int, bpe_config: BpeConfig) -> None:
+
+    check_if_bpe_config_supported(bpe_config)
 
     max_merges = get_max_merges(dataset.bpe_path, n_merges)
     if not max_merges:

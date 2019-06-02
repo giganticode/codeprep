@@ -33,7 +33,7 @@ def handle_learnbpe(args):
         print(f"Ignoring passed bpe codes id: {bpe_codes_id}. "
               f"This dataset has already been assigned id: {dataset.bpe_codes_id}")
 
-    bpe_learn.run(dataset, n_merges)
+    bpe_learn.run(dataset, n_merges, bpe_config)
 
 
 def parse_extension_pattern(extension_pattern: str) -> List[str]:
