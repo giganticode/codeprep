@@ -59,16 +59,6 @@ def preprocess_and_write(params: Tuple[bytes, bytes]) -> None:
     os.rename(not_finished_dest_file_path, dest_file_path)
 
 
-def exception_handler(it: Iterator):
-    while True:
-        try:
-            yield next(it)
-        except StopIteration:
-            return
-        except Exception as err:
-            logger.error(f"{err}. Ignoring...")
-
-
 def params_generator(dataset: Dataset):
     for input_file_path in dataset.original.file_iterator():
         output_file_path = dataset.original.get_new_file_name(input_file_path, dataset.parsed)
@@ -92,6 +82,6 @@ def run(dataset: Dataset) -> None:
         files_total = len([f for f in dataset.get_all_files()])
     with Pool() as pool:
         it = pool.imap_unordered(preprocess_and_write, params_generator(dataset), chunksize=CHUNKSIZE)
-        for _ in tqdm(exception_handler(it), total=files_total):
+        for _ in tqdm(it, total=files_total):
             pass
     dataset.parsed.set_ready()
