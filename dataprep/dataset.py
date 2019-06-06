@@ -255,8 +255,10 @@ def get_dir_last_modification(path: str, limit: int = LIMIT_FILES_ON_LAST_MODIFI
                 for file in files:
                     if counter >= limit:
                         return
-                    counter += 1
-                    yield os.path.getmtime(os.path.join(root, file))
+                    full_path = os.path.join(root, file)
+                    if not os.path.islink(full_path):
+                        counter += 1
+                        yield os.path.getmtime(full_path)
 
     mtime = max(walk_path(path))
     return datetime.fromtimestamp(mtime)
@@ -292,9 +294,10 @@ def walk_and_save(path: str, file_lists_path: str, return_dirs_instead_of_regula
                 for file in files:
                     bin_name = os.path.join(os.path.relpath(root, path_bin), file)
                     if not extensions or has_one_of_extensions(bin_name, extensions_bin):
-                        f.write(f'{bin_name}\n')
-                        if not return_dirs_instead_of_regular_files:
-                            yield bin_name
+                        if not os.path.islink(os.path.join(root, file)):
+                            f.write(f'{bin_name}\n')
+                            if not return_dirs_instead_of_regular_files:
+                                yield bin_name
     set_path_ready(file_lists_path)
 
 
