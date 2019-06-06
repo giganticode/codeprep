@@ -51,7 +51,7 @@ class SubDataset(object):
     def get_new_file_name(self, file_path: bytes, new_subdataset: 'SubDataset') -> bytes:
         encoded_path = self.path.encode()
         rel_path = os.path.relpath(file_path, encoded_path)
-        if rel_path.decode() == '.': # this check is needed and the result is true for cases when only one file is being preprocessed
+        if rel_path == '.'.encode(): # this check is needed and the result is true for cases when only one file is being preprocessed
             rel_path = os.path.basename(file_path)
         return os.path.join(new_subdataset.path.encode(),
                             (rel_path[:-len(self._suffix.encode())] if len(self._suffix.encode()) else rel_path) + new_subdataset._suffix.encode())

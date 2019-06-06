@@ -96,16 +96,6 @@ def params_generator(dataset: Dataset):
         yield (input_file_path, output_file_path, dataset.prep_config)
 
 
-def exception_handler(it: Iterator):
-    while True:
-        try:
-            yield next(it)
-        except StopIteration:
-            return
-        except Exception as err:
-            logger.error(f"{err}. Ignoring...")
-
-
 def run(dataset: Dataset, bpe_n_merges: Optional[int] = None,
         path_to_merges_file: Optional[str]=None,
         path_to_merges_cache_file: Optional[str]=None) -> None:
@@ -133,6 +123,6 @@ def run(dataset: Dataset, bpe_n_merges: Optional[int] = None,
         files_total = len([f for f in dataset.get_all_files()])
     with Pool() as pool:
         it = pool.imap_unordered(preprocess_and_write, params_generator(dataset), chunksize=CHUNKSIZE)
-        for _ in tqdm(exception_handler(it), total=files_total):
+        for _ in tqdm(it, total=files_total):
             pass
     dataset.preprocessed.set_ready()
