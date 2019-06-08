@@ -9,6 +9,7 @@ from dataprep.model.numeric import DecimalPoint, Number
 from dataprep.model.placeholders import placeholders
 from dataprep.model.word import Word, Underscore
 from dataprep.prepconfig import PrepParam, PrepConfig
+from dataprep.split.merge import MergeList, Merge
 from dataprep.split.ngram import NgramSplittingType, NgramSplitConfig
 from dataprep.to_repr import to_repr
 
@@ -469,7 +470,7 @@ class ReprTest(unittest.TestCase):
         })
 
         ngramSplittingConfig = NgramSplitConfig(splitting_type=NgramSplittingType.BPE,
-                                                merges=[], merges_cache={})
+                                                merges=MergeList(), merges_cache={})
 
         actual, actual_metadata = to_repr(prep_config, tokens, ngramSplittingConfig)
 
@@ -531,7 +532,8 @@ class ReprTest(unittest.TestCase):
         })
 
         ngramSplittingConfig = NgramSplitConfig(splitting_type=NgramSplittingType.BPE,
-                                                merges={('w', 'h'): 0}, merges_cache={})
+                                                merges=MergeList().append(Merge(('w', 'h'), 10)),
+                                                merges_cache={})
 
         tokens = [SplitContainer.from_single_token("While")]
 

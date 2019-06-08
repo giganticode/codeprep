@@ -1,12 +1,14 @@
 import argparse
 import logging
 import sys
-from typing import List, Optional, Dict, Tuple
+from typing import List, Dict
+
+from dataprep.split.merge import MergeList, read_merges
 
 logger = logging.getLogger(__name__)
 
 
-def encode(words: Dict[str, int], merges: Dict[Tuple[str, str], int]) -> Dict[str, int]:
+def encode(words: Dict[str, int], merges: MergeList) -> Dict[str, int]:
     letters_list = {" ".join(k): v for k, v in words.items()}
 
     new_letters_list = {}
@@ -18,8 +20,8 @@ def encode(words: Dict[str, int], merges: Dict[Tuple[str, str], int]) -> Dict[st
             for i in range(len(subwords) - 1):
                 merge_candidate = (subwords[i], subwords[i + 1])
                 if merge_candidate in merges:
-                    if merges[merge_candidate] < merge_candidate_priority:
-                        merge_candidate_priority = merges[merge_candidate]
+                    if merges.get_priority(merge_candidate) < merge_candidate_priority:
+                        merge_candidate_priority = merges.get_priority(merge_candidate)
                         merge_index = i
             if merge_index is None:
                 break
@@ -31,24 +33,13 @@ def encode(words: Dict[str, int], merges: Dict[Tuple[str, str], int]) -> Dict[st
     return new_letters_list
 
 
-def read_merges(merges_file: str, n_merges: Optional[int]=None) -> Dict[Tuple[str, str], int]:
-    merges = {}
-    with open(merges_file, 'r') as f:
-        for idx, line in enumerate(f):
-            if n_merges and idx >= n_merges:
-                break
-            line = line.rstrip('\n')
-            merges[tuple(line.split(" ")[:2])] = idx
-    return merges
-
-
-def encode_word(word: str, merges: Dict[Tuple[str, str], int]) -> List[str]:
+def encode_word(word: str, merges: MergeList) -> List[str]:
     enc_word, _ = encode({word: 0}, merges).popitem()
     subwords = enc_word.split(" ")
     return subwords
 
 
-__all__ = [read_merges, encode_word]
+__all__ = [encode, encode_word]
 
 
 if __name__ == '__main__':

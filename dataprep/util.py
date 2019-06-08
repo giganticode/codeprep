@@ -115,25 +115,6 @@ def read_dict_from_2_columns(file, val_type=str, delim='\t'):
     return words
 
 
-def read_list(file):
-    res = []
-    with open(file, 'r') as f:
-        for line in f:
-            line = line.rstrip('\n')
-            splits = line.split(' ')
-            res.append(splits if len(splits) > 1 else splits[0])
-    return res
-
-
-def dump_list(lst, file):
-    with open(file, 'w') as f:
-        for elm in lst:
-            if isinstance(elm, list) or isinstance(elm, tuple):
-                f.write(f"{' '.join(map(lambda x: str(x), elm))}\n")
-            else:
-                f.write(f"{elm}\n")
-
-
 class PriorityCounter(object):
     REMOVED = '<removed-task>'  # placeholder for a removed task
 
@@ -209,3 +190,8 @@ def getsize(obj):
         return inner(obj_0)
 
     return _getsize(obj)
+
+
+def is_python_3_6_and_higher():
+    python_version = sys.version_info
+    return python_version[0] >= 3 and python_version[1] >= 6

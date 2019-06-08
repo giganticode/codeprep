@@ -4,6 +4,7 @@ from unittest import mock
 from dataprep.split import bpe_learn
 from dataprep.split.bpe_config import BpeConfigNotSupported, BpeConfig, BpeParam
 from dataprep.split.bpe_learn import do_merges
+from dataprep.split.merge import Merge, MergeList
 
 
 class DoMergesTest(unittest.TestCase):
@@ -22,14 +23,13 @@ class DoMergesTest(unittest.TestCase):
             "wog": 13
         }
 
-        expected_merges = [
-            ('w', 'o', 20),
-            ('wo', 'g', 13),
-            ('r', 'd', 10),
-            ('wo', 'rd', 7),
-            ('b', 'i', 3),
-            ('bi', 'rd', 3)
-        ]
+        expected_merges = MergeList()\
+            .append(Merge(('w', 'o'), 20, 0))\
+            .append(Merge(('wo', 'g'), 13, 1))\
+            .append(Merge(('r', 'd'), 10, 2))\
+            .append(Merge(('wo', 'rd'), 7, 3))\
+            .append(Merge(('b', 'i'), 3, 4))\
+            .append(Merge(('bi', 'rd'), 3, 5))
 
         self.assertEqual(expected_vocab, actual_vocab)
         self.assertEqual(expected_merges, actual_merges)
@@ -45,11 +45,9 @@ class DoMergesTest(unittest.TestCase):
             "aaaaa": 3,
         }
 
-        expected_merges = [
-            ('a', 'a', 12),
-            ('aa', 'aa', 3),
-            ('aaaa', 'a', 3),
-        ]
+        expected_merges = MergeList().append(Merge(('a', 'a'), 12, 0))\
+            .append(Merge(('aa', 'aa'), 3, 1))\
+            .append(Merge(('aaaa', 'a'), 3, 2))
 
         self.assertEqual(expected_vocab, actual_vocab)
         self.assertEqual(expected_merges, actual_merges)
@@ -65,11 +63,10 @@ class DoMergesTest(unittest.TestCase):
             "lalala": 3,
         }
 
-        expected_merges = [
-            ('l', 'a', 9),
-            ('la', 'la', 6),
-            ('lala', 'la', 3),
-        ]
+        expected_merges = MergeList()\
+            .append(Merge(('l', 'a'), 9, 0))\
+            .append(Merge(('la', 'la'), 6, 1))\
+            .append(Merge(('lala', 'la'), 3, 2))
 
         self.assertEqual(expected_vocab, actual_vocab)
         self.assertEqual(expected_merges, actual_merges)
@@ -106,6 +103,7 @@ class RunTest(unittest.TestCase):
         })
         with self.assertRaises(BpeConfigNotSupported):
             bpe_learn.run(mocked_dataset, 1, bpe_config)
+
 
 if __name__ == '__main__':
     unittest.main()

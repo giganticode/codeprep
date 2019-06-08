@@ -12,7 +12,8 @@ from dataprep.dataset import Dataset
 from dataprep.model.placeholders import placeholders
 from dataprep.preprocessors.java import special_tokens
 from dataprep.split.bpe_config import BpeConfig, BpeParam, BpeConfigNotSupported
-from dataprep.util import PriorityCounter, read_dict_from_2_columns, read_list, dump_dict_into_2_columns, dump_list
+from dataprep.split.merge import Merge, read_merges, dump_merges, MergeList
+from dataprep.util import PriorityCounter, read_dict_from_2_columns, dump_dict_into_2_columns
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +62,7 @@ def merge_vocab(pair: Tuple[str, str], input_vocab: Dict[str, int], pairs: Prior
     return output_vocab
 
 
-def do_merges(vocab: Dict[str, int], n_merges: int) -> Tuple[Dict[str, int], List[Tuple[str, str, int]]]:
+def do_merges(vocab: Dict[str, int], n_merges: int) -> Tuple[Dict[str, int], MergeList]:
     """
     Do `n_merges` bpe merges starting from vocabulary splittings `vocab` which were formed after applying `already_done_merges` merges
 
@@ -73,12 +74,12 @@ def do_merges(vocab: Dict[str, int], n_merges: int) -> Tuple[Dict[str, int], Lis
     :return: a tuple where the first elements is the resulting vocab splittings,
     the second one are all the merges done to reach those vocab splittings
     """
-    merges = []
+    merges = MergeList()
     pairs = get_stats(vocab)
     for i in tqdm(range(n_merges), total=n_merges):
         try:
             best, occurences = pairs.pop_pair()
-            merges.append((best[0], best[1], occurences))
+            merges.append(Merge(best, freq=occurences, priority=i))
         except KeyError:
             break
         vocab = merge_vocab(best, vocab, pairs)
@@ -180,7 +181,7 @@ def run(dataset: Dataset, n_merges: int, bpe_config: BpeConfig) -> None:
         path_to_bpe_vocab_file = os.path.join(dir_with_most_merges, BPE_REASSEMBLED_VOCAB_FILE_NAME)
         split_base_vocab = read_dict_from_2_columns(path_to_bpe_vocab_file)
         split_base_vocab, other_vocab = separate_vocabs(split_base_vocab, load_nonbpe_vocab(dataset))
-        already_done_merges = read_list(os.path.join(dir_with_most_merges, MERGES_FILE_NAME))
+        already_done_merges = read_merges(os.path.join(dir_with_most_merges, MERGES_FILE_NAME))
 
     print("--- Learning bpe codes...")
     split_base_vocab, merges = do_merges(split_base_vocab, n_merges-len(already_done_merges))
@@ -203,6 +204,6 @@ def run(dataset: Dataset, n_merges: int, bpe_config: BpeConfig) -> None:
     bpe_cache = create_bpe_cache(split_base_vocab)
     dump_dict_into_2_columns(bpe_cache, os.path.join(new_bpe_dir, MERGES_CACHE_FILE_NAME), val_type=list)
 
-    dump_list(merges, os.path.join(new_bpe_dir, MERGES_FILE_NAME))
+    dump_merges(merges, os.path.join(new_bpe_dir, MERGES_FILE_NAME))
     dump_dict_into_2_columns(split_base_vocab, os.path.join(new_bpe_dir, BPE_REASSEMBLED_VOCAB_FILE_NAME))
     logger.info(f'Bpe output files are saved into {new_bpe_dir} folder')
