@@ -176,7 +176,7 @@ def run(dataset: Dataset, n_merges: int, bpe_config: BpeConfig) -> None:
             base_bpe_vocab, other_vocab = get_base_vocab(dataset) #TODO extract this into stages
             split_base_vocab = {" ".join(k): v for k, v in base_bpe_vocab.items()}
             # TODO dump to vocab and other vocab files
-        already_done_merges = []
+        already_done_merges = MergeList()
     else:
         path_to_bpe_vocab_file = os.path.join(dir_with_most_merges, BPE_REASSEMBLED_VOCAB_FILE_NAME)
         split_base_vocab = read_dict_from_2_columns(path_to_bpe_vocab_file)
