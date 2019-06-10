@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 @dsc.command()
 def nosplit_handler(args):
-    """usage: {program} nosplit (-p <path> [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces]
+    """usage: {program} nosplit (-p <path> [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--verbose]
 
     Preprocess the dataset without splitting compound identifier.
 
@@ -22,13 +22,14 @@ def nosplit_handler(args):
       --no-str, -S                                  Replace strings with <string> placeholders.
       --no-com, -C                                  Replace comments with <comment> placeholders.
       --no-spaces, -0                               Preserve newlines and tabs.
+      --verbose, -v                                 Print logs with log level DEBUG and higher to stdout.
     """
     handle_splitting(args)
 
 
 @dsc.command()
 def chars_handler(args):
-    """usage: {program} chars (-p <path> [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case]
+    """usage: {program} chars (-p <path> [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case] [--verbose]
 
     Preprocess the dataset by splitting identifiers into characters.
 
@@ -42,13 +43,14 @@ def chars_handler(args):
       --no-spaces, -0                               Preserve newlines and tabs.
       --no-unicode, -U                              Replace words containing non-ascii characters with <non-en> placeholders.
       --no-case, -l                                 Lowercase words and encode information about case in <Cap> <CAP> tokens.
+      --verbose, -v                                 Print logs with log level DEBUG and higher to stdout.
     """
     handle_splitting(args)
 
 
 @dsc.command()
 def basic_handler(args):
-    """usage: {program} basic (-p <path> [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case]
+    """usage: {program} basic (-p <path> [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case] [--verbose]
 
     Preprocess the dataset by splitting compound identifiers according to CamelCase and snake_case conventions.
 
@@ -62,13 +64,14 @@ def basic_handler(args):
       --no-spaces, -0                               Preserve newlines and tabs.
       --no-unicode, -U                              Replace words containing non-ascii characters with <non-en> placeholders.
       --no-case, -l                                 Lowercase words and encode information about case in <Cap> <CAP> tokens.
+      --verbose, -v                                 Print logs with log level DEBUG and higher to stdout.
     """
     handle_splitting(args)
 
 
 @dsc.command()
 def basic_plus_numbers_handler(args):
-    """usage: {program} basic+numbers (-p <path> [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case]
+    """usage: {program} basic+numbers (-p <path> [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case] [--verbose]
 
     Preprocess the dataset by splitting compound identifiers according to CamelCase and snake_case conventions,
     and splitting numbers into digits.
@@ -83,13 +86,14 @@ def basic_plus_numbers_handler(args):
       --no-spaces, -0                               Preserve newlines and tabs.
       --no-unicode, -U                              Replace words containing non-ascii characters with <non-en> placeholders.
       --no-case, -l                                 Lowercase words and encode information about case in <Cap> <CAP> tokens.
+      --verbose, -v                                 Print logs with log level DEBUG and higher to stdout.
     """
     handle_splitting(args)
 
 
 @dsc.command()
 def bpe_handler(args):
-    """usage: {program} bpe (1k | 5k | 10k | <bpe-codes-id>) (-p <path> [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case]
+    """usage: {program} bpe (1k | 5k | 10k | <bpe-codes-id>) (-p <path> [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case] [--verbose]
 
     Preprocess the dataset by splitting compound identifiers according to CamelCase and snake_case conventions,
     and apply byte-pair encoding (BPE) on top.
@@ -105,10 +109,10 @@ def bpe_handler(args):
       --no-spaces, -0                               Preserve newlines and tabs.
       --no-unicode, -U                              Replace words containing non-ascii characters with <non-en> placeholders.
       --no-case, -l                                 Lowercase words and encode information about case in <Cap> <CAP> tokens.
+      --verbose, -v                                 Print logs with log level DEBUG and higher to stdout.
     """
     handle_splitting(args)
 
 
 def parse_and_run(args):
-    logging.root.setLevel(logging.ERROR)
     dsc.main(app_name, f'{app_name} {version}', argv=args, exit_at_end=False)
