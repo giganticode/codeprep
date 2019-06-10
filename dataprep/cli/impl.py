@@ -1,3 +1,4 @@
+import logging
 import os
 
 from typing import Dict, List
@@ -11,7 +12,15 @@ from dataprep.split import bpe_learn
 from dataprep.split.bpe_config import BpeParam, BpeConfig
 
 
+def set_log_level(args: Dict[str, str]) -> None:
+    if args['--verbose']:
+        logging.root.setLevel(logging.DEBUG)
+    else:
+        logging.root.setLevel(logging.ERROR)
+
+
 def handle_learnbpe(args):
+    set_log_level(args)
     path = os.path.abspath(args['--path'])
     bpe_config = create_bpe_config_from_args(args)
     n_merges = int(args['<n-merges>'])
@@ -41,6 +50,7 @@ def parse_extension_pattern(extension_pattern: str) -> List[str]:
 
 
 def handle_splitting(args):
+    set_log_level(args)
     try:
         prep_config = create_prep_config_from_args(args)
         bpe_codes_id = args['<bpe-codes-id>'] if '<bpe-codes-id>' in args else None
