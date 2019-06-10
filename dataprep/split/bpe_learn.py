@@ -172,10 +172,8 @@ def run(dataset: Dataset, n_merges: int, bpe_config: BpeConfig) -> None:
         logger.info("Starting the encoding from scratch...")
 
     if starting_from_scratch:
-        if not os.path.exists(dataset.path_to_bpe_vocab_file):
-            base_bpe_vocab, other_vocab = get_base_vocab(dataset) #TODO extract this into stages
-            split_base_vocab = {" ".join(k): v for k, v in base_bpe_vocab.items()}
-            # TODO dump to vocab and other vocab files
+        base_bpe_vocab, other_vocab = get_base_vocab(dataset) #TODO extract this into stages
+        split_base_vocab = {" ".join(k): v for k, v in base_bpe_vocab.items()}
         already_done_merges = MergeList()
     else:
         path_to_bpe_vocab_file = os.path.join(dir_with_most_merges, BPE_REASSEMBLED_VOCAB_FILE_NAME)
