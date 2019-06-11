@@ -10,6 +10,7 @@ from typing import Optional, Tuple, Dict
 from dataprep.config import USER_BPE_DIR
 from dataprep.split.bpe_config import BpeConfig
 from dataprep.split.bpe_encode import read_merges
+from dataprep.split.merge import MergeList
 
 logger = logging.getLogger(__name__)
 
@@ -118,7 +119,7 @@ def create_custom_bpe_config(id: str) -> CustomBpeConfig:
                                      f"Max possible value: {get_max_merges(bpe_dir)}")
 
 
-def load_bpe_merges(bpe_id: str) -> Dict[Tuple[str, str], int]:
+def load_bpe_merges(bpe_id: str) -> MergeList:
     custom_bpe_config = create_custom_bpe_config(bpe_id)
     return read_merges(custom_bpe_config.codes_file, custom_bpe_config.n_merges)
 
