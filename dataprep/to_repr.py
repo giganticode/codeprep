@@ -9,6 +9,7 @@ from typing import Optional, List, Tuple, Iterator, Generator, Union
 
 from tqdm import tqdm
 
+from dataprep import vocabloader
 from dataprep.bperegistry import CustomBpeConfig
 from dataprep.dataset import Dataset, NOT_FINISHED_EXTENSION
 from dataprep.model.core import ParsedToken
@@ -17,8 +18,8 @@ from dataprep.prepconfig import PrepParam, get_types_to_be_repr, PrepConfig
 from dataprep.preprocessors.general import to_token_str
 from dataprep.preprocessors.repr import to_repr_list, ReprConfig
 from dataprep.split.bpe_encode import read_merges
+from dataprep.split.cache import read_bpe_cache
 from dataprep.split.ngram import NgramSplittingType, NgramSplitConfig
-from dataprep.util import read_dict_from_2_columns
 from dataprep.config import DEFAULT_BPE_DIR, NO_CASE_DIR, CASE_DIR, DEFAULT_BPE_CACHE_DIR, REWRITE_PREPROCESSED_FILE, \
     CHUNKSIZE, LIMIT_FILES_SCANNING
 from dataprep.vocabloader import gather_non_bpe_vocab
@@ -70,13 +71,15 @@ def init_splitting_config(prep_config: PrepConfig, custom_bpe_config: Optional[C
         if custom_bpe_config:
             logger.info(f'Using bpe merges file: {custom_bpe_config.codes_file}')
             if custom_bpe_config.can_use_cache_file():
-                global_n_gramm_splitting_config.merges_cache = read_dict_from_2_columns(custom_bpe_config.cache_file, val_type=list)
+                global_n_gramm_splitting_config.merges_cache = read_bpe_cache(custom_bpe_config.cache_file)
             else:
                 global_n_gramm_splitting_config.merges_cache = {}
             global_n_gramm_splitting_config.merges = read_merges(custom_bpe_config.codes_file, custom_bpe_config.n_merges)
 
             if custom_bpe_config.n_merges:
                 logger.info(f'Using first {custom_bpe_config.n_merges} merges.')
+            nonbpe_vocab = vocabloader.nonbpe(custom_bpe_config.id)
+            global_n_gramm_splitting_config.merges_cache.update({s: [s] for s in nonbpe_vocab})
         else:
             bpe_n_merges_dict = {4: '5k', 5: '1k', 6: '10k', 7: '20k', 8: '0'}
             bpe_n_merges = bpe_n_merges_dict[prep_config.get_param_value(PrepParam.SPLIT)]
@@ -88,7 +91,7 @@ def init_splitting_config(prep_config: PrepConfig, custom_bpe_config: Optional[C
                                               CASE_DIR if prep_config.get_param_value(PrepParam.CAPS) == 0 else NO_CASE_DIR,
                                               str(bpe_n_merges), 'merges_cache.txt')
             if os.path.exists(bpe_merges_cache_file):
-                global_n_gramm_splitting_config.merges_cache = read_dict_from_2_columns(bpe_merges_cache_file, val_type=list)
+                global_n_gramm_splitting_config.merges_cache = read_bpe_cache(bpe_merges_cache_file)
             else:
                 global_n_gramm_splitting_config.merges_cache = {}
             global_n_gramm_splitting_config.merges = read_merges(bpe_merges_file)

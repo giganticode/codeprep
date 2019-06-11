@@ -12,6 +12,7 @@ from dataprep.dataset import Dataset
 from dataprep.model.placeholders import placeholders
 from dataprep.preprocessors.java import special_tokens
 from dataprep.split.bpe_config import BpeConfig, BpeParam, BpeConfigNotSupported
+from dataprep.split.cache import dump_bpe_cache
 from dataprep.split.merge import Merge, read_merges, dump_merges, MergeList
 from dataprep.util import PriorityCounter, read_dict_from_2_columns, dump_dict_into_2_columns
 
@@ -200,7 +201,7 @@ def run(dataset: Dataset, n_merges: int, bpe_config: BpeConfig) -> None:
     dump_dict_into_2_columns(resulting_vocab_sorted, os.path.join(new_bpe_dir, RESULTING_VOCAB_FILE_NAME))
 
     bpe_cache = create_bpe_cache(split_base_vocab)
-    dump_dict_into_2_columns(bpe_cache, os.path.join(new_bpe_dir, MERGES_CACHE_FILE_NAME), val_type=list)
+    dump_bpe_cache(bpe_cache, os.path.join(new_bpe_dir, MERGES_CACHE_FILE_NAME))
 
     dump_merges(merges, os.path.join(new_bpe_dir, MERGES_FILE_NAME))
     dump_dict_into_2_columns(split_base_vocab, os.path.join(new_bpe_dir, BPE_REASSEMBLED_VOCAB_FILE_NAME))
