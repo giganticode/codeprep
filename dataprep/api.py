@@ -9,7 +9,7 @@ from dataprep.to_repr import init_splitting_config, to_repr
 
 
 def remove_trailing_newline(prep_tokens: List[str]) -> List[str]:
-    return prep_tokens[:-1] if prep_tokens[-1] == '\n' else prep_tokens
+    return prep_tokens[:-1] if len(prep_tokens) > 0 and prep_tokens[-1] == '\n' else prep_tokens
 
 
 def preprocess(text: str, config: PrepConfig, bpe_codes_id: Optional[str] = None, extension: Optional[str] = None) -> List[str]:
