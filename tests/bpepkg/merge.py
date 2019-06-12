@@ -3,11 +3,11 @@ from unittest import mock
 
 from unittest.mock import patch, MagicMock
 
-from dataprep.split import merge
-from dataprep.split.merge import MergeList, Merge
+from dataprep.bpepkg import merge
+from dataprep.bpepkg.merge import MergeList, Merge
 
 
-@patch('dataprep.split.merge.open')
+@patch('dataprep.bpepkg.merge.open')
 class ReadMergesTest(unittest.TestCase):
     def test_simple(self, open_mock):
         open_mock.return_value = MagicMock(spec=['__enter__', '__exit__'])
@@ -28,7 +28,7 @@ class ReadMergesTest(unittest.TestCase):
             merge.read_merges('file')
 
 
-@patch('dataprep.split.merge.open')
+@patch('dataprep.bpepkg.merge.open')
 class WriteMergesTest(unittest.TestCase):
     def test_simple(self, open_mock):
         open_mock.return_value = MagicMock(spec=['__enter__', '__exit__'])

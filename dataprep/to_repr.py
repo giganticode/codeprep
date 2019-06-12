@@ -1,28 +1,29 @@
 import gzip
 import logging
 import os
-import time
 import pickle
 
+import time
 from multiprocessing.pool import Pool
-from typing import Optional, List, Tuple, Iterator, Generator, Union
-
 from tqdm import tqdm
+from typing import List, Tuple, Generator, Union
+from typing import Optional
 
-from dataprep import vocabloader
-from dataprep.bperegistry import CustomBpeConfig
-from dataprep.dataset import Dataset, NOT_FINISHED_EXTENSION
-from dataprep.model.core import ParsedToken
-from dataprep.model.metadata import PreprocessingMetadata, save_metadata
-from dataprep.prepconfig import PrepParam, get_types_to_be_repr, PrepConfig
-from dataprep.preprocessors.general import to_token_str
-from dataprep.preprocessors.repr import to_repr_list, ReprConfig
-from dataprep.split.bpe_encode import read_merges
-from dataprep.split.cache import read_bpe_cache
-from dataprep.split.ngram import NgramSplittingType, NgramSplitConfig
+from dataprep.bpepkg.bpe_encode import read_merges
+from dataprep.bpepkg.bperegistry import CustomBpeConfig
+from dataprep.bpepkg.cache import read_bpe_cache
 from dataprep.config import DEFAULT_BPE_DIR, NO_CASE_DIR, CASE_DIR, DEFAULT_BPE_CACHE_DIR, REWRITE_PREPROCESSED_FILE, \
     CHUNKSIZE, LIMIT_FILES_SCANNING
-from dataprep.vocabloader import gather_non_bpe_vocab
+from dataprep.dataset import Dataset, NOT_FINISHED_EXTENSION
+from dataprep.model.core import ParsedToken
+from dataprep.model.metadata import PreprocessingMetadata
+from dataprep.model.metadata import save_metadata
+from dataprep.model.placeholders import placeholders
+from dataprep.prepconfig import PrepParam, get_types_to_be_repr, PrepConfig
+from dataprep.preprocess.core import ReprConfig, to_repr_list
+from dataprep.split.ngram import NgramSplitConfig
+from dataprep.split.ngram import NgramSplittingType
+from dataprep.vocab import vocabloader
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +40,10 @@ def to_repr(prep_config: PrepConfig, token_list: Generator[Union[str, ParsedToke
     lowercase = (prep_config.get_param_value(PrepParam.CAPS) == 1)
     repr_list, metadata = to_repr_list(token_list, ReprConfig(types_to_be_repr, splitting_config, dict_based_non_eng, lowercase))
     return repr_list, metadata
+
+
+def to_token_str(tokens: List) -> str:
+    return repr(" ".join(map(lambda t : str(t),tokens)))[1:-1] + f" {placeholders['ect']}\n"
 
 
 def preprocess_and_write(params: Tuple[bytes, bytes, PrepConfig, str]):
@@ -140,6 +145,6 @@ def run(dataset: Dataset, custom_bpe_config: Optional[CustomBpeConfig]) -> None:
             pass
 
     if not os.path.exists(dataset.path_to_nonbpe_vocab_file):
-        gather_non_bpe_vocab(dataset)
+        vocabloader.gather_non_bpe_vocab(dataset)
 
     dataset.preprocessed.set_ready()

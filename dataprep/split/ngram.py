@@ -1,8 +1,9 @@
 from enum import Enum, auto
+
 from typing import List
 
-from dataprep.split.bpe_encode import encode_word
-from dataprep.split.merge import MergeList
+from dataprep.bpepkg.bpe_encode import encode_word
+from dataprep.bpepkg.merge import MergeList
 
 
 class NgramSplittingType(Enum):
@@ -25,7 +26,7 @@ class NgramSplitConfig(object):
         return self._merges
 
     @merges.setter
-    def merges(self, m: MergeList) -> MergeList:
+    def merges(self, m: MergeList) -> None:
         self._merges = m
 
     @merges_cache.setter

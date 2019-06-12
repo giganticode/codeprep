@@ -1,11 +1,11 @@
 from enum import Enum, auto
+
 from typing import List, Tuple
 
-from dataprep.model.chars import SpecialChar
 from dataprep.model.core import ParsedToken
 from dataprep.model.metadata import PreprocessingMetadata
 from dataprep.model.placeholders import placeholders
-from dataprep.preprocessors.repr import ReprConfig
+from dataprep.preprocess.core import ReprConfig
 from dataprep.split.ngram import do_ngram_splitting
 
 
@@ -16,7 +16,16 @@ class Capitalization(Enum):
     ALL = auto()
 
 
-class Underscore(SpecialChar):
+class Underscore():
+    def __eq__(self, other):
+        return other.__class__ == self.__class__
+
+    def __repr__(self):
+        return f'<{self.__class__.__name__}>'
+
+    def __str__(self):
+        return self.non_preprocessed_repr(ReprConfig.empty())[0]
+
     def non_preprocessed_repr(self, repr_config: ReprConfig) -> [Tuple[str, PreprocessingMetadata]]:
         return "_", PreprocessingMetadata()
 

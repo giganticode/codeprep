@@ -5,11 +5,11 @@ from typing import Dict, List
 
 from dataprep import api
 from dataprep.api import create_prep_config_from_args
-from dataprep.bperegistry import create_custom_bpe_config, InvalidBpeCodesIdError
-from dataprep.dataset import Dataset
+from dataprep.bpepkg import bpe_learn
+from dataprep.bpepkg.bpe_config import BpeParam, BpeConfig
+from dataprep.bpepkg.bperegistry import create_custom_bpe_config, InvalidBpeCodesIdError
 from dataprep.cli import stages
-from dataprep.split import bpe_learn
-from dataprep.split.bpe_config import BpeParam, BpeConfig
+from dataprep.dataset import Dataset
 
 
 def set_log_level(args: Dict[str, str]) -> None:

@@ -1,9 +1,10 @@
-import argparse
 import logging
 import sys
+
+import argparse
 from typing import List, Dict
 
-from dataprep.split.merge import MergeList, read_merges
+from dataprep.bpepkg.merge import MergeList, read_merges
 
 logger = logging.getLogger(__name__)
 

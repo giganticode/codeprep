@@ -1,11 +1,10 @@
 import unittest
 
-from dataprep.preprocessors.core import from_string, _apply_preprocessors
-from dataprep.preprocessors.preprocessor_list import pp_params
-from dataprep.model.containers import SplitContainer, StringLiteral
-from dataprep.model.numeric import Number, DecimalPoint, E
+from dataprep.model.containers import SplitContainer
+from dataprep.model.numeric import Number
 from dataprep.model.placeholders import placeholders
 from dataprep.model.word import Word, Underscore
+from dataprep.parse.core import convert_text
 from dataprep.prepconfig import PrepConfig
 from dataprep.split.ngram import NgramSplitConfig, NgramSplittingType
 from dataprep.to_repr import to_repr
@@ -24,7 +23,7 @@ test_cases = {
         [placeholders["word_start"], 'play', 'er', 's', placeholders["word_end"]]
     ),
     "0.345e+4": (
-        [Number(["0", DecimalPoint(), "3", "4", "5", E(), "+", "4"])],
+        [Number(["0", '.', "3", "4", "5", 'e', "+", "4"])],
         [placeholders["word_start"], "0.", "3", "4", "5", "e+", "4", placeholders["word_end"]]
     ),
     "bestPlayers": (
@@ -75,13 +74,13 @@ bpe_merges_cache = {
     "info": ["info"]
 }
 
-ngram_split_config = NgramSplitConfig(NgramSplittingType.BPE, merges_cache=bpe_merges_cache, merges={})
+ngram_split_config = NgramSplitConfig(NgramSplittingType.BPE, merges_cache=bpe_merges_cache)
 
 
 class SubwordSeparation(unittest.TestCase):
     def test(self):
         for input, output_tuple in test_cases.items():
-            parsed = _apply_preprocessors(from_string(input), pp_params["preprocessors"])
+            parsed = [p for p in convert_text(input, "java")][:-1]
 
             self.assertEqual(output_tuple[0], parsed)
 

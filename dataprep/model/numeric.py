@@ -3,7 +3,7 @@ from typing import List, Tuple
 from dataprep.model.core import ParsedToken
 from dataprep.model.metadata import PreprocessingMetadata
 from dataprep.model.placeholders import placeholders
-from dataprep.preprocessors.repr import ReprConfig
+from dataprep.preprocess.core import ReprConfig
 from dataprep.split.ngram import NgramSplittingType, do_ngram_splitting
 
 
@@ -41,59 +41,3 @@ class Number(ParsedToken):
 
     def __eq__(self, other):
         return self.__class__ == other.__class__ and self.parts_of_number == other.parts_of_number
-
-
-class SpecialNumberChar(ParsedToken):
-    def __repr__(self):
-        return f'{self.__class__.__name__}'
-
-    def __eq__(self, other):
-        return self.__class__ == other.__class__
-
-
-class E(SpecialNumberChar):
-    def __str__(self):
-        return self.non_preprocessed_repr(ReprConfig.empty())[0]
-
-    def non_preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[str, PreprocessingMetadata]:
-        return "e", PreprocessingMetadata()
-
-
-class L(SpecialNumberChar):
-    def __str__(self):
-        return self.non_preprocessed_repr(ReprConfig.empty())[0]
-
-    def non_preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[str, PreprocessingMetadata]:
-        return "l", PreprocessingMetadata()
-
-
-class F(SpecialNumberChar):
-    def __str__(self):
-        return self.non_preprocessed_repr(ReprConfig.empty())[0]
-
-    def non_preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[str, PreprocessingMetadata]:
-        return "f", PreprocessingMetadata()
-
-
-class D(SpecialNumberChar):
-    def __str__(self):
-        return self.non_preprocessed_repr(ReprConfig.empty())[0]
-
-    def non_preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[str, PreprocessingMetadata]:
-        return "d", PreprocessingMetadata()
-
-
-class DecimalPoint(SpecialNumberChar):
-    def __str__(self):
-        return self.non_preprocessed_repr(ReprConfig.empty())[0]
-
-    def non_preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[str, PreprocessingMetadata]:
-        return ".", PreprocessingMetadata()
-
-
-class HexStart(SpecialNumberChar):
-    def __str__(self):
-        return self.non_preprocessed_repr(ReprConfig.empty())[0]
-
-    def non_preprocessed_repr(self, repr_cofig: ReprConfig) -> Tuple[str, PreprocessingMetadata]:
-        return "0x", PreprocessingMetadata()

@@ -1,46 +1,44 @@
 import unittest
 
-from dataprep.model.chars import NewLine, Tab, Quote, MultilineCommentStart, MultilineCommentEnd, OneLineCommentStart
-# TODO write explanations with normal strings
+from dataprep.bpepkg.merge import MergeList, Merge
 from dataprep.model.containers import SplitContainer, OneLineComment, MultilineComment, StringLiteral
 from dataprep.model.metadata import PreprocessingMetadata
 from dataprep.model.noneng import NonEng
-from dataprep.model.numeric import DecimalPoint, Number
+from dataprep.model.numeric import Number
 from dataprep.model.placeholders import placeholders
+from dataprep.model.whitespace import NewLine, Tab
 from dataprep.model.word import Word, Underscore
 from dataprep.prepconfig import PrepParam, PrepConfig
-from dataprep.split.merge import MergeList, Merge
 from dataprep.split.ngram import NgramSplittingType, NgramSplitConfig
 from dataprep.to_repr import to_repr
 
 pl = placeholders
 
 tokens = [
-    Number([1, DecimalPoint(), 1]),
+    Number([1, '.', 1]),
     "*",
     SplitContainer([NonEng(Word.from_("übersetzen"))]),
     StringLiteral([
-        Quote(),
+        '"',
         SplitContainer([
             Word.from_("A"),
             NonEng(Word.from_("Wirklich"))
         ]),
-        Quote()
+        '"'
     ]),
     NewLine(),
+    MultilineComment(['/', '*']),
     MultilineComment([
-        MultilineCommentStart(),
         SplitContainer([NonEng(Word.from_('ц'))]),
         SplitContainer([
             NonEng(Word.from_("blanco")),
             Underscore(),
             Word.from_("english")
         ]),
-        MultilineCommentEnd()
     ]),
+    MultilineComment(['*', '/']),
     NewLine(), Tab(),
-    OneLineComment([
-        OneLineCommentStart(),
+    OneLineComment(['/', '/',
         SplitContainer([
             NonEng(Word.from_("DIESELBE")),
             Word.from_("8")
@@ -78,10 +76,10 @@ class ReprTest(unittest.TestCase):
             "*",
             'übersetzen',
             '"', 'AWirklich', '"',
-            '/*', 'ц', 'blanco_english', '*/',
-            '//', "DIESELBE8", pl['olc_end']
+            '/', '*', 'ц', 'blanco_english', '*', '/',
+            '/', '/', "DIESELBE8", pl['olc_end']
         ]
-        expected_metadata = PreprocessingMetadata({'*', '"', "//", "/*", "*/"})
+        expected_metadata = PreprocessingMetadata({'*', '"', "*", "/"})
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -106,13 +104,13 @@ class ReprTest(unittest.TestCase):
             pl['non_eng'],
             '"', pl['word_start'], pl['capitals'], 'a',
             pl["capital"], pl['non_eng'], pl['word_end'], '"',
-            '/*', pl['non_eng'], pl['word_start'], pl['non_eng'],
-            '_', 'english', pl['word_end'], '*/',
-            '//', pl['word_start'], pl['capitals'], pl['non_eng'],
+            '/', '*', pl['non_eng'], pl['word_start'], pl['non_eng'],
+            '_', 'english', pl['word_end'], '*', '/',
+            '/', '/', pl['word_start'], pl['capitals'], pl['non_eng'],
             '8', pl['word_end'], pl['olc_end']
         ]
 
-        expected_metadata = PreprocessingMetadata({'*', '"', "//", "/*", "*/"})
+        expected_metadata = PreprocessingMetadata({'*', '"', "/", "*"})
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -143,13 +141,13 @@ class ReprTest(unittest.TestCase):
             pl['non_eng'],
             '"', pl['word_start'], pl['capitals'], 'a',
             pl["capital"], pl['non_eng'], pl['word_end'], '"',
-            '/*', pl['non_eng'], pl['word_start'], pl['non_eng'],
-            '_', 'english', pl['word_end'], '*/',
-            '//', pl["word_start"], pl['capitals'], pl['non_eng'],
+            '/', '*', pl['non_eng'], pl['word_start'], pl['non_eng'],
+            '_', 'english', pl['word_end'], '*', '/',
+            '/', '/', pl["word_start"], pl['capitals'], pl['non_eng'],
             "8", pl['word_end'], pl['olc_end']
         ]
 
-        expected_metadata = PreprocessingMetadata({'*', '"', "//", "/*", "*/"})
+        expected_metadata = PreprocessingMetadata({'*', '"', "/", "*"})
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -169,11 +167,11 @@ class ReprTest(unittest.TestCase):
         ngramSplittingConfig = NgramSplitConfig(splitting_type=NgramSplittingType.ONLY_NUMBERS)
 
         tokens = [
-            Number([1, DecimalPoint(), 1]),
+            Number([1, '.', 1]),
             "*",
             SplitContainer([NonEng(Word.from_("dinero"))]),
             StringLiteral([
-                Quote(),
+                '"',
                 NonEng(Word.from_("ich")),
                 NonEng(Word.from_("weiss")),
                 NonEng(Word.from_("nicht")),
@@ -186,22 +184,21 @@ class ReprTest(unittest.TestCase):
                 NonEng(Word.from_("so")),
                 NonEng(Word.from_("traurig")),
                 NonEng(Word.from_("bin")),
-                Quote(),
+                '"',
             ]),
             NewLine(),
+            MultilineComment(['/', '*']),
             MultilineComment([
-                MultilineCommentStart(),
                 SplitContainer([NonEng(Word.from_('ц'))]),
                 SplitContainer([
                     NonEng(Word.from_("blanco")),
                     Underscore(),
                     Word.from_("english")
                 ]),
-                MultilineCommentEnd()
             ]),
+            MultilineComment(['*', '/']),
             NewLine(), Tab(),
-            OneLineComment([
-                OneLineCommentStart(),
+            OneLineComment(['/', '/',
                 SplitContainer([
                     NonEng(Word.from_("DIESELBE")),
                     Word.from_("8")
@@ -220,15 +217,15 @@ class ReprTest(unittest.TestCase):
             "*",
             pl['non_eng'],
             '"', pl["non_eng_content"], '"',
-            '/*', pl['non_eng'],
+            '/', '*', pl['non_eng'],
             pl['word_start'], pl['non_eng'], '_',
             'english', pl['word_end'],
-            '*/',
-            '//', pl['word_start'], pl['capitals'], pl['non_eng'], "8", pl['word_end'],
+            '*', '/',
+            '/', '/', pl['word_start'], pl['capitals'], pl['non_eng'], "8", pl['word_end'],
             pl['olc_end']
         ]
 
-        expected_metadata = PreprocessingMetadata({'*', "//", "/*", "*/"})
+        expected_metadata = PreprocessingMetadata({'*', "/"})
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -245,11 +242,11 @@ class ReprTest(unittest.TestCase):
         ngramSplittingConfig = NgramSplitConfig(splitting_type=NgramSplittingType.ONLY_NUMBERS)
 
         tokens = [
-            Number([1, DecimalPoint(), 1]),
+            Number([1, '.', 1]),
             "*",
             SplitContainer([NonEng(Word.from_("dinero"))]),
             StringLiteral([
-                Quote(),
+                '"',
                 NonEng(Word.from_("ich")),
                 NonEng(Word.from_("weiss")),
                 NonEng(Word.from_("nicht")),
@@ -262,22 +259,21 @@ class ReprTest(unittest.TestCase):
                 NonEng(Word.from_("so")),
                 NonEng(Word.from_("traurig")),
                 NonEng(Word.from_("bin")),
-                Quote(),
+                '"',
             ]),
             NewLine(),
+            MultilineComment(['/', '*']),
             MultilineComment([
-                MultilineCommentStart(),
                 SplitContainer([NonEng(Word.from_('ц'))]),
                 SplitContainer([
                     NonEng(Word.from_("blanco")),
                     Underscore(),
                     Word.from_("english")
                 ]),
-                MultilineCommentEnd()
             ]),
+            MultilineComment(['*', '/']),
             NewLine(), Tab(),
-            OneLineComment([
-                OneLineCommentStart(),
+            OneLineComment(['/', '/',
                 SplitContainer([
                     NonEng(Word.from_("DIESELBE")),
                     Word.from_("8")
@@ -297,15 +293,15 @@ class ReprTest(unittest.TestCase):
             pl['non_eng'],
             '"', pl["non_eng"], pl["non_eng"], pl["non_eng"], pl["non_eng"], pl["non_eng"], pl["non_eng"],
             pl["non_eng"], pl["non_eng"], pl["non_eng"], pl["non_eng"], pl["non_eng"], pl["non_eng"], '"',
-            '/*', pl['non_eng'],
+            '/', '*', pl['non_eng'],
             pl['word_start'], pl['non_eng'], '_',
             'english', pl['word_end'],
-            '*/',
-            '//', pl['word_start'], pl['capitals'], pl['non_eng'], "8", pl['word_end'],
+            '*', '/',
+            '/', '/', pl['word_start'], pl['capitals'], pl['non_eng'], "8", pl['word_end'],
             pl['olc_end']
         ]
 
-        expected_metadata = PreprocessingMetadata({'*', '"', "//", "/*", "*/"})
+        expected_metadata = PreprocessingMetadata({'*', '"', "/", "*"})
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -335,11 +331,11 @@ class ReprTest(unittest.TestCase):
             "*",
             'übersetzen',
             '"', pl['word_start'], pl['capitals'], 'a', pl['capital'], 'wirklich', pl['word_end'], '"',
-            '/*', 'ц', pl['word_start'], 'blanco', '_', 'english', pl['word_end'], '*/',
-            '//', pl['word_start'], pl['capitals'], 'dieselbe', "8", pl['word_end'], pl['olc_end']
+            '/', '*', 'ц', pl['word_start'], 'blanco', '_', 'english', pl['word_end'], '*', '/',
+            '/', '/', pl['word_start'], pl['capitals'], 'dieselbe', "8", pl['word_end'], pl['olc_end']
         ]
 
-        expected_metadata = PreprocessingMetadata({'*', '"', "//", "/*", "*/"})
+        expected_metadata = PreprocessingMetadata({'*', '"', "/"})
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -373,14 +369,14 @@ class ReprTest(unittest.TestCase):
             '"', pl["word_start"], pl['capitals'], 'a',
             pl["capital"], pl['non_eng'], pl['word_end'], '"',
             '\n',
-            '/*', pl['non_eng'], pl["word_start"], pl['non_eng'],
-            "_", 'english', pl['word_end'], '*/',
+            '/', '*', pl['non_eng'], pl["word_start"], pl['non_eng'],
+            "_", 'english', pl['word_end'], '*', '/',
             '\n', '\t',
-            '//', pl["word_start"], pl['capitals'], pl['non_eng'],
+            '/', '/', pl["word_start"], pl['capitals'], pl['non_eng'],
             "8", pl['word_end'], pl['olc_end']
         ]
 
-        expected_metadata = PreprocessingMetadata({'*', '"', "//", "/*", "*/", '\n', '\t'})
+        expected_metadata = PreprocessingMetadata({'*', '"', "/", '\n', '\t'})
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -411,6 +407,8 @@ class ReprTest(unittest.TestCase):
             "*",
             pl['non_eng'],
             pl["string_literal"],
+            pl["comment"],
+            pl["comment"],
             pl["comment"],
             pl["comment"]
         ]
@@ -446,12 +444,12 @@ class ReprTest(unittest.TestCase):
             "*",
             pl['non_eng'],
             '"', pl['word_start'], pl['capitals'], 'a', pl["capital"], pl['non_eng'], pl['word_end'], '"',
-            '/*', pl['non_eng'], pl['word_start'], pl['non_eng'], '_', 'english', pl['word_end'], '*/',
-            '//', pl['word_start'], pl['capitals'], pl['non_eng'], "8", pl['word_end'],
+            '/', '*', pl['non_eng'], pl['word_start'], pl['non_eng'], '_', 'english', pl['word_end'], '*', '/',
+            '/', '/', pl['word_start'], pl['capitals'], pl['non_eng'], "8", pl['word_end'],
             pl['olc_end']
         ]
 
-        expected_metadata = PreprocessingMetadata({'*', '"', "//", "/*", "*/"})
+        expected_metadata = PreprocessingMetadata({'*', '"', "/"})
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -483,13 +481,13 @@ class ReprTest(unittest.TestCase):
             "*",
             pl['non_eng'],
             '"', pl['word_start'], pl['capitals'], 'a', pl["capital"], pl['non_eng'], pl['word_end'], '"',
-            '/*', pl['non_eng'], pl['word_start'], pl['non_eng'], '_', 'e', 'n', 'g', 'l', 'i', 's', 'h',
-            pl['word_end'], '*/',
-            '//', pl['word_start'], pl['capitals'], pl['non_eng'], "8", pl['word_end'],
+            '/', '*', pl['non_eng'], pl['word_start'], pl['non_eng'], '_', 'e', 'n', 'g', 'l', 'i', 's', 'h',
+            pl['word_end'], '*', '/',
+            '/', '/', pl['word_start'], pl['capitals'], pl['non_eng'], "8", pl['word_end'],
             pl['olc_end']
         ]
 
-        expected_metadata = PreprocessingMetadata({'*', '"', "//", "/*", "*/"})
+        expected_metadata = PreprocessingMetadata({'*', '"', "/", "*"})
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)

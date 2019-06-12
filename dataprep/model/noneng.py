@@ -4,7 +4,7 @@ from dataprep.model.core import ParsedToken
 from dataprep.model.metadata import PreprocessingMetadata
 from dataprep.model.placeholders import placeholders
 from dataprep.model.word import Word
-from dataprep.preprocessors.repr import torepr, ReprConfig
+from dataprep.preprocess.core import ReprConfig, torepr
 
 
 class NonEng(ParsedToken):

@@ -1,11 +1,8 @@
-import logging
-from typing import List, Tuple, Generator, Union
+from typing import Generator, Union, Tuple, List
 
 from dataprep.model.core import ParsedToken
 from dataprep.model.metadata import PreprocessingMetadata
 from dataprep.split.ngram import NgramSplitConfig
-
-logger = logging.getLogger(__name__)
 
 
 class ReprConfig(object):

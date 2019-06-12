@@ -2,9 +2,10 @@
 """
 from typing import Optional
 
-from dataprep import parse_projects, to_repr, vocab
-from dataprep.bperegistry import CustomBpeConfig
+from dataprep import parse_projects, to_repr
+from dataprep.bpepkg.bperegistry import CustomBpeConfig
 from dataprep.dataset import Dataset, is_path_ready, is_path_outdated, archive_path
+from dataprep.vocab import vocab
 
 
 def run_parsing(dataset: Dataset) -> None:

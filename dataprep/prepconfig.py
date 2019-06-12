@@ -1,11 +1,12 @@
 import logging
 from enum import Enum
+
 from typing import Dict, List, Type
 
-from dataprep.model.chars import NewLine, Tab
 from dataprep.model.containers import SplitContainer, StringLiteral, OneLineComment, MultilineComment
 from dataprep.model.noneng import NonEng, NonEngContent
 from dataprep.model.numeric import Number
+from dataprep.model.whitespace import NewLine, Tab
 from dataprep.model.word import Word
 
 logger = logging.getLogger(__name__)

@@ -1,19 +1,18 @@
-import argparse
 import logging
 import os
-import re, collections
+
+import collections
+import re
 from tqdm import tqdm
 from typing import Dict, List, Tuple, Set
 
 from dataprep import util
-from dataprep.bperegistry import get_max_merges, MERGES_CACHE_FILE_NAME, MERGES_FILE_NAME
+from dataprep.bpepkg.bpe_config import BpeConfig, BpeParam, BpeConfigNotSupported
+from dataprep.bpepkg.bperegistry import get_max_merges, MERGES_CACHE_FILE_NAME, MERGES_FILE_NAME
+from dataprep.bpepkg.cache import dump_bpe_cache
+from dataprep.bpepkg.merge import Merge, read_merges, dump_merges, MergeList
 from dataprep.cli import stages
 from dataprep.dataset import Dataset
-from dataprep.model.placeholders import placeholders
-from dataprep.preprocessors.java import special_tokens
-from dataprep.split.bpe_config import BpeConfig, BpeParam, BpeConfigNotSupported
-from dataprep.split.cache import dump_bpe_cache
-from dataprep.split.merge import Merge, read_merges, dump_merges, MergeList
 from dataprep.util import PriorityCounter, read_dict_from_2_columns, dump_dict_into_2_columns
 
 logger = logging.getLogger(__name__)
@@ -85,18 +84,6 @@ def do_merges(vocab: Dict[str, int], n_merges: int) -> Tuple[Dict[str, int], Mer
             break
         vocab = merge_vocab(best, vocab, pairs)
     return vocab, merges
-
-
-def separate_non_splittable_vocab(all_vocab: Dict[str, int], from_reassambled: bool) -> (Dict[str, int], Dict[str, int]):
-    vocab = {}
-    non_splitable_vocab = {}
-    for k, v in all_vocab.items():
-        placeholders_values = placeholders.values()
-        if k not in placeholders_values and k not in special_tokens:
-            vocab[k if from_reassambled else " ".join(k)] = v
-        else:
-            non_splitable_vocab[k] = v
-    return vocab, non_splitable_vocab
 
 # ======== Create auxiliary data structures.
 

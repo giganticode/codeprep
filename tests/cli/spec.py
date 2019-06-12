@@ -1,12 +1,12 @@
 import unittest
 from unittest import mock
-from unittest.mock import Mock
 
 from docopt import DocoptExit
+from unittest.mock import Mock
 
+from dataprep.bpepkg.bpe_config import BpeConfig, BpeParam
 from dataprep.cli.spec import parse_and_run
 from dataprep.prepconfig import PrepParam, PrepConfig
-from dataprep.split.bpe_config import BpeConfig, BpeParam
 
 
 @mock.patch('dataprep.cli.impl.api')

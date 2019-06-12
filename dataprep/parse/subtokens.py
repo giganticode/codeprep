@@ -1,12 +1,12 @@
 import regex
 from typing import Union, List
 
-from dataprep.model.chars import NewLine, Tab
 from dataprep.model.containers import SplitContainer
 from dataprep.model.core import ParsedToken
 from dataprep.model.noneng import NonEng
+from dataprep.model.whitespace import NewLine, Tab
 from dataprep.model.word import Underscore, Word
-from dataprep.preprocessors.noneng import is_non_eng
+from dataprep.noneng import is_non_eng
 
 
 def wrap_in_noneng_if_needed(s: str):

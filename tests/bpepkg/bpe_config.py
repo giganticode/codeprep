@@ -1,6 +1,6 @@
 import unittest
 
-from dataprep.split.bpe_config import BpeConfig, BpeParam
+from dataprep.bpepkg.bpe_config import BpeConfig, BpeParam
 
 
 class BpeConfigToSuffixTest(unittest.TestCase):

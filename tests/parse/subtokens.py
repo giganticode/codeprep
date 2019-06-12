@@ -1,7 +1,7 @@
 import unittest
 
-from dataprep.model.chars import NewLine
 from dataprep.model.containers import SplitContainer
+from dataprep.model.whitespace import NewLine
 from dataprep.model.word import Word, Underscore
 from dataprep.parse.matchers import split_string
 

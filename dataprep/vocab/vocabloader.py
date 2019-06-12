@@ -1,10 +1,10 @@
 import os
-import shutil
 
+import shutil
 from typing import Set, Dict
 
-from dataprep.bperegistry import get_bpe_dir_by_id, NONBPE_VOCAB_FILENAME, VOCAB_FILENAME
-from dataprep.dataset import Dataset
+from dataprep.bpepkg.bperegistry import get_bpe_dir_by_id
+from dataprep.dataset import Dataset, NONBPE_VOCAB_FILENAME, VOCAB_FILENAME
 from dataprep.model.placeholders import placeholders
 from dataprep.util import read_dict_from_2_columns
 

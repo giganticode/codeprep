@@ -1,10 +1,10 @@
 import unittest
 
+from dataprep.model.containers import OneLineComment, SplitContainer, StringLiteral, MultilineComment
 from dataprep.model.numeric import Number
+from dataprep.model.whitespace import NewLine, Tab
 from dataprep.model.word import Word, Underscore
 from dataprep.parse.core import convert_text
-from dataprep.model.chars import NewLine, Tab
-from dataprep.model.containers import OneLineComment, SplitContainer, StringLiteral, MultilineComment
 
 
 class ConvertTextTest(unittest.TestCase):

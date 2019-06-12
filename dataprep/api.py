@@ -2,7 +2,7 @@ import collections
 
 from typing import List, Dict, Optional
 
-from dataprep.bperegistry import create_custom_bpe_config, is_predefined_id
+from dataprep.bpepkg.bperegistry import create_custom_bpe_config, is_predefined_id
 from dataprep.parse.core import convert_text
 from dataprep.prepconfig import PrepConfig, PrepParam
 from dataprep.to_repr import init_splitting_config, to_repr

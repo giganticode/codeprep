@@ -1,23 +1,20 @@
-from fnmatch import fnmatch
-
-import argparse
 import logging.config
 import multiprocessing
 import os
+from collections import Counter, defaultdict
+from fnmatch import fnmatch
 from multiprocessing import Queue
-from queue import Empty
-from typing import List, Tuple, Dict
 
+import argparse
 import dill as pickle
 import shutil
 import time
-from collections import Counter, defaultdict
 from multiprocessing.pool import Pool
-
+from queue import Empty
 from tqdm import tqdm
+from typing import List, Tuple, Dict
 
-from dataprep.bperegistry import VOCAB_FILENAME
-from dataprep.dataset import Dataset, SubDataset
+from dataprep.dataset import Dataset, SubDataset, VOCAB_FILENAME
 from dataprep.model.placeholders import placeholders
 from dataprep.parse_projects import read_file_contents
 from dataprep.util import AtomicInteger, merge_dicts_, dump_dict_into_2_columns

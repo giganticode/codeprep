@@ -3,15 +3,14 @@ import logging
 import os
 
 from datetime import datetime
-
 from typing import Type, Optional, List, Generator
 
-from dataprep.bperegistry import get_codes_id_by_bpe_path, create_new_id_from, write_bpe_codes_id, CustomBpeConfig, \
-    VOCAB_FILENAME, NONBPE_VOCAB_FILENAME
+from dataprep.bpepkg.bpe_config import BpeConfig
+from dataprep.bpepkg.bperegistry import get_codes_id_by_bpe_path, create_new_id_from, write_bpe_codes_id, \
+    CustomBpeConfig
 from dataprep.config import DEFAULT_PARSED_DATASETS_DIR, DEFAULT_PREP_DATASETS_DIR, USER_BPE_DIR, DEFAULT_FILE_LIST_DIR, \
     LIMIT_FILES_ON_LAST_MODIFICATION_CHECK
 from dataprep.prepconfig import PrepConfig
-from dataprep.split.bpe_config import BpeConfig
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +23,9 @@ PARSED_EXTENSION = ".parsed"
 PREPROCESSED_EXTENSION = ".prep"
 NOT_FINISHED_EXTENSION = ".part"
 ARCHIVED_EXT = "archived"
+
+VOCAB_FILENAME = 'vocab'
+NONBPE_VOCAB_FILENAME = 'nonbpe_vocab'
 
 
 class SubDataset(object):

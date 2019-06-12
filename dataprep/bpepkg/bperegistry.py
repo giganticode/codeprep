@@ -4,13 +4,12 @@ import sys
 
 import re
 import time
-
 from typing import Optional, Tuple, Dict
 
+from dataprep.bpepkg.bpe_config import BpeConfig
+from dataprep.bpepkg.bpe_encode import read_merges
+from dataprep.bpepkg.merge import MergeList
 from dataprep.config import USER_BPE_DIR
-from dataprep.split.bpe_config import BpeConfig
-from dataprep.split.bpe_encode import read_merges
-from dataprep.split.merge import MergeList
 
 logger = logging.getLogger(__name__)
 
@@ -18,8 +17,6 @@ logger = logging.getLogger(__name__)
 MERGES_FILE_NAME = "merges.txt"
 MERGES_CACHE_FILE_NAME = "merges_cache.txt"
 BPE_CODES_ID_FILENAME = '.name'
-VOCAB_FILENAME = 'vocab'
-NONBPE_VOCAB_FILENAME = 'nonbpe_vocab'
 
 PREDEFINED_BPE_CODES = ['1k', '5k', '10k']
 

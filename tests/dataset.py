@@ -1,7 +1,7 @@
 import unittest
 from unittest import mock
 
-from dataprep.bperegistry import CustomBpeConfig
+from dataprep.bpepkg.bperegistry import CustomBpeConfig
 from dataprep.dataset import has_one_of_extensions, Dataset, SubDataset
 from dataprep.prepconfig import PrepConfig, PrepParam
 
@@ -52,7 +52,7 @@ class CreateTest(unittest.TestCase):
         self.assertEqual(SubDataset(actual, '/parsed/dataset/dataset_01_01_01', '.parsed'), actual._parsed)
         self.assertEqual(SubDataset(actual, '/prep/dataset/dataset_01_01_01_00000', '.prep'), actual._preprocessed)
 
-    @mock.patch("dataprep.split.bpe_config.BpeConfig")
+    @mock.patch("dataprep.bpepkg.bpe_config.BpeConfig")
     def test_simple2(self, mocked_bpe_config, get_timestamp_mock, os_exists_mock):
         os_exists_mock.return_value = True
         get_timestamp_mock.return_value = "01_01_01"

@@ -1,10 +1,10 @@
 import unittest
 from unittest import mock
 
-from dataprep.split import bpe_learn
-from dataprep.split.bpe_config import BpeConfigNotSupported, BpeConfig, BpeParam
-from dataprep.split.bpe_learn import do_merges
-from dataprep.split.merge import Merge, MergeList
+from dataprep.bpepkg import bpe_learn
+from dataprep.bpepkg.bpe_config import BpeConfigNotSupported, BpeConfig, BpeParam
+from dataprep.bpepkg.bpe_learn import do_merges
+from dataprep.bpepkg.merge import Merge, MergeList
 
 
 class DoMergesTest(unittest.TestCase):
@@ -72,7 +72,7 @@ class DoMergesTest(unittest.TestCase):
         self.assertEqual(expected_merges, actual_merges)
 
 
-@mock.patch('dataprep.split.bpe_learn.Dataset')
+@mock.patch('dataprep.bpepkg.bpe_learn.Dataset')
 class RunTest(unittest.TestCase):
     def test_prefix_case(self, mocked_dataset):
         bpe_config = BpeConfig({
