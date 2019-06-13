@@ -79,7 +79,7 @@ class ReprTest(unittest.TestCase):
             '/', '*', 'ц', 'blanco_english', '*', '/',
             '/', '/', "DIESELBE8", pl['olc_end']
         ]
-        expected_metadata = PreprocessingMetadata({'*', '"', "*", "/"})
+        expected_metadata = PreprocessingMetadata({'*', '"', "*", "/"}, word_boundaries=list(range(16+1)))
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -110,7 +110,7 @@ class ReprTest(unittest.TestCase):
             '8', pl['word_end'], pl['olc_end']
         ]
 
-        expected_metadata = PreprocessingMetadata({'*', '"', "/", "*"})
+        expected_metadata = PreprocessingMetadata({'*', '"', "/", "*"}, word_boundaries=[0,1,2,3,4,10,11,12,13,14,19,20,21,22,23,28,29])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -147,7 +147,7 @@ class ReprTest(unittest.TestCase):
             "8", pl['word_end'], pl['olc_end']
         ]
 
-        expected_metadata = PreprocessingMetadata({'*', '"', "/", "*"})
+        expected_metadata = PreprocessingMetadata({'*', '"', "/", "*"}, word_boundaries=[0, 5, 6, 7, 8, 14, 15, 16, 17, 18, 23, 24, 25, 26, 27, 32, 33])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -172,18 +172,18 @@ class ReprTest(unittest.TestCase):
             SplitContainer([NonEng(Word.from_("dinero"))]),
             StringLiteral([
                 '"',
-                NonEng(Word.from_("ich")),
-                NonEng(Word.from_("weiss")),
-                NonEng(Word.from_("nicht")),
-                NonEng(Word.from_("was")),
-                NonEng(Word.from_("soll")),
-                NonEng(Word.from_("es")),
-                NonEng(Word.from_("bedeuten")),
-                NonEng(Word.from_("dass")),
-                NonEng(Word.from_("ich")),
-                NonEng(Word.from_("so")),
-                NonEng(Word.from_("traurig")),
-                NonEng(Word.from_("bin")),
+                SplitContainer([NonEng(Word.from_("ich"))]),
+                SplitContainer([NonEng(Word.from_("weiss"))]),
+                SplitContainer([NonEng(Word.from_("nicht"))]),
+                SplitContainer([NonEng(Word.from_("was"))]),
+                SplitContainer([NonEng(Word.from_("soll"))]),
+                SplitContainer([NonEng(Word.from_("es"))]),
+                SplitContainer([NonEng(Word.from_("bedeuten"))]),
+                SplitContainer([NonEng(Word.from_("dass"))]),
+                SplitContainer([NonEng(Word.from_("ich"))]),
+                SplitContainer([NonEng(Word.from_("so"))]),
+                SplitContainer([NonEng(Word.from_("traurig"))]),
+                SplitContainer([NonEng(Word.from_("bin"))]),
                 '"',
             ]),
             NewLine(),
@@ -225,7 +225,7 @@ class ReprTest(unittest.TestCase):
             pl['olc_end']
         ]
 
-        expected_metadata = PreprocessingMetadata({'*', "/"})
+        expected_metadata = PreprocessingMetadata({'*', "/"}, word_boundaries=[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 18, 19, 20, 21, 22, 27, 28])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -247,18 +247,18 @@ class ReprTest(unittest.TestCase):
             SplitContainer([NonEng(Word.from_("dinero"))]),
             StringLiteral([
                 '"',
-                NonEng(Word.from_("ich")),
-                NonEng(Word.from_("weiss")),
-                NonEng(Word.from_("nicht")),
-                NonEng(Word.from_("was")),
-                NonEng(Word.from_("soll")),
-                NonEng(Word.from_("es")),
-                NonEng(Word.from_("bedeuten")),
-                NonEng(Word.from_("dass")),
-                NonEng(Word.from_("ich")),
-                NonEng(Word.from_("so")),
-                NonEng(Word.from_("traurig")),
-                NonEng(Word.from_("bin")),
+                SplitContainer([NonEng(Word.from_("ich"))]),
+                SplitContainer([NonEng(Word.from_("weiss"))]),
+                SplitContainer([NonEng(Word.from_("nicht"))]),
+                SplitContainer([NonEng(Word.from_("was"))]),
+                SplitContainer([NonEng(Word.from_("soll"))]),
+                SplitContainer([NonEng(Word.from_("es"))]),
+                SplitContainer([NonEng(Word.from_("bedeuten"))]),
+                SplitContainer([NonEng(Word.from_("dass"))]),
+                SplitContainer([NonEng(Word.from_("ich"))]),
+                SplitContainer([NonEng(Word.from_("so"))]),
+                SplitContainer([NonEng(Word.from_("traurig"))]),
+                SplitContainer([NonEng(Word.from_("bin"))]),
                 '"',
             ]),
             NewLine(),
@@ -301,7 +301,10 @@ class ReprTest(unittest.TestCase):
             pl['olc_end']
         ]
 
-        expected_metadata = PreprocessingMetadata({'*', '"', "/", "*"})
+        expected_metadata = PreprocessingMetadata({'*', '"', "/", "*"},
+                                                  word_boundaries=[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+                                                                   17, 18, 19, 20, 21, 22, 23, 24,
+                                                                   29, 30, 31, 32, 33, 38, 39])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -335,7 +338,8 @@ class ReprTest(unittest.TestCase):
             '/', '/', pl['word_start'], pl['capitals'], 'dieselbe', "8", pl['word_end'], pl['olc_end']
         ]
 
-        expected_metadata = PreprocessingMetadata({'*', '"', "/"})
+        expected_metadata = PreprocessingMetadata({'*', '"', "/"}, word_boundaries=[0, 5, 6, 7, 8, 14, 15, 16, 17, 18,
+                                                                                    23, 24, 25, 26, 27, 32, 33])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -376,7 +380,9 @@ class ReprTest(unittest.TestCase):
             "8", pl['word_end'], pl['olc_end']
         ]
 
-        expected_metadata = PreprocessingMetadata({'*', '"', "/", '\n', '\t'})
+        expected_metadata = PreprocessingMetadata({'*', '"', "/", '\n', '\t'},
+                                                  word_boundaries=[0, 5, 6, 7, 8, 14, 15, 16, 17, 18, 19, 24, 25,
+                                                                   26, 27, 28, 29, 30, 35, 36])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -413,7 +419,7 @@ class ReprTest(unittest.TestCase):
             pl["comment"]
         ]
 
-        expected_metadata = PreprocessingMetadata({'*'})
+        expected_metadata = PreprocessingMetadata({'*'}, word_boundaries=[0, 5, 6, 7, 8, 9, 10, 11, 12])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -449,7 +455,8 @@ class ReprTest(unittest.TestCase):
             pl['olc_end']
         ]
 
-        expected_metadata = PreprocessingMetadata({'*', '"', "/"})
+        expected_metadata = PreprocessingMetadata({'*', '"', "/"}, word_boundaries=[0, 5, 6, 7, 8, 14, 15, 16, 17, 18,
+                                                                                    23, 24, 25, 26, 27, 32, 33])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -487,7 +494,9 @@ class ReprTest(unittest.TestCase):
             pl['olc_end']
         ]
 
-        expected_metadata = PreprocessingMetadata({'*', '"', "/", "*"})
+        expected_metadata = PreprocessingMetadata({'*', '"', "/", "*"},
+                                                  word_boundaries=[0, 5, 6, 7, 8, 14, 15, 16, 17, 18, 29, 30,
+                                                                   31, 32, 33, 38, 39])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -515,7 +524,7 @@ class ReprTest(unittest.TestCase):
 
         expected = [pl['capital'], "while", ]
 
-        expected_metadata = PreprocessingMetadata()
+        expected_metadata = PreprocessingMetadata(word_boundaries=[0, 2])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -539,7 +548,7 @@ class ReprTest(unittest.TestCase):
 
         expected = [pl['word_start'], pl['capital'], "wh", "i", "l", "e", pl["word_end"]]
 
-        expected_metadata = PreprocessingMetadata()
+        expected_metadata = PreprocessingMetadata(word_boundaries=[0, 7])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)

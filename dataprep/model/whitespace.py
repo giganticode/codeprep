@@ -18,7 +18,7 @@ class Whitespace(ParsedToken):
 
 class NewLine(Whitespace):
     def non_preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[str, PreprocessingMetadata]:
-        return "\n", PreprocessingMetadata({"\n"})
+        return "\n", PreprocessingMetadata(nonprocessable_tokens={"\n"}, word_boundaries=[0,1])
 
     def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
         return [], PreprocessingMetadata()
@@ -26,7 +26,7 @@ class NewLine(Whitespace):
 
 class Tab(Whitespace):
     def non_preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[str, PreprocessingMetadata]:
-        return "\t", PreprocessingMetadata({"\t"})
+        return "\t", PreprocessingMetadata({"\t"}, word_boundaries=[0,1])
 
     def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
         return [], PreprocessingMetadata()

@@ -20,7 +20,7 @@ class Number(ParsedToken):
         return f'{self.__class__.__name__}{self.parts_of_number}'
 
     def non_preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[str, PreprocessingMetadata]:
-        return "".join([str(w) for w in self.parts_of_number]), PreprocessingMetadata()
+        return self.with_full_word_metadata("".join([str(w) for w in self.parts_of_number]))
 
     def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str],PreprocessingMetadata]:
         if repr_config.ngram_split_config is None:
@@ -35,9 +35,10 @@ class Number(ParsedToken):
             subwords = [self.non_preprocessed_repr(repr_config)[0]]
 
         if len(subwords ) > 1:
-            return [placeholders['word_start']] + subwords + [placeholders['word_end']], PreprocessingMetadata()
+            subwords_with_boundaries = [placeholders['word_start']] + subwords + [placeholders['word_end']]
+            return self.with_full_word_metadata(subwords_with_boundaries)
         else:
-            return subwords, PreprocessingMetadata()
+            return self.with_full_word_metadata(subwords)
 
     def __eq__(self, other):
         return self.__class__ == other.__class__ and self.parts_of_number == other.parts_of_number

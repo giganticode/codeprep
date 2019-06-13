@@ -2,7 +2,7 @@ from enum import Enum, auto
 
 from typing import List, Tuple
 
-from dataprep.model.core import ParsedToken
+from dataprep.model.core import ParsedSubtoken
 from dataprep.model.metadata import PreprocessingMetadata
 from dataprep.model.placeholders import placeholders
 from dataprep.preprocess.core import ReprConfig
@@ -16,7 +16,7 @@ class Capitalization(Enum):
     ALL = auto()
 
 
-class Underscore():
+class Underscore(ParsedSubtoken):
     def __eq__(self, other):
         return other.__class__ == self.__class__
 
@@ -27,10 +27,10 @@ class Underscore():
         return self.non_preprocessed_repr(ReprConfig.empty())[0]
 
     def non_preprocessed_repr(self, repr_config: ReprConfig) -> [Tuple[str, PreprocessingMetadata]]:
-        return "_", PreprocessingMetadata()
+        return self.with_empty_metadata("_")
 
 
-class Word(ParsedToken):
+class Word(ParsedSubtoken):
     """
     Invariants:
     str === str(Word.of(str))
@@ -72,10 +72,11 @@ class Word(ParsedToken):
     def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str],PreprocessingMetadata]:
         if repr_config.should_lowercase:
             subwords = do_ngram_splitting(self.canonic_form, repr_config.ngram_split_config)
-            return self.__with_capitalization_prefixes(subwords), PreprocessingMetadata()
+            subwords_with_prefix = self.__with_capitalization_prefixes(subwords)
+            return self.with_empty_metadata(subwords_with_prefix)
         else:
             subwords = do_ngram_splitting(self.__with_preserved_case(), repr_config.ngram_split_config)
-            return subwords, PreprocessingMetadata()
+            return self.with_empty_metadata(subwords)
 
     def __with_preserved_case(self) -> str:
         if self.capitalization == Capitalization.UNDEFINED or self.capitalization == Capitalization.NONE:

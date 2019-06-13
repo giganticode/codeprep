@@ -1,13 +1,13 @@
 from typing import List, Tuple
 
-from dataprep.model.core import ParsedToken
+from dataprep.model.core import ParsedToken, ParsedSubtoken
 from dataprep.model.metadata import PreprocessingMetadata
 from dataprep.model.placeholders import placeholders
 from dataprep.model.word import Word
 from dataprep.preprocess.core import ReprConfig, torepr
 
 
-class NonEng(ParsedToken):
+class NonEng(ParsedSubtoken):
     def __init__(self, processable_token):
         if not isinstance(processable_token, Word):
             raise ValueError(f"NonEngFullWord excepts FullWord but {type(processable_token)} is passed")
@@ -27,14 +27,16 @@ class NonEng(ParsedToken):
             except UnicodeEncodeError:
                 repr, metadata = torepr(self.processable_token, repr_config)
                 if repr[0] in [placeholders['capitals'], placeholders['capital']]:
-                    return [repr[0], placeholders['non_eng']], PreprocessingMetadata()
+                    prep_tokens = [repr[0], placeholders['non_eng']]
                 else:
-                    return [placeholders['non_eng']], PreprocessingMetadata()
+                    prep_tokens = [placeholders['non_eng']]
+                return self.with_empty_metadata(prep_tokens)
         repr, metadata = torepr(self.processable_token, repr_config)
         if repr[0] in [placeholders['capitals'], placeholders['capital']]:
-            return [repr[0], placeholders['non_eng']], PreprocessingMetadata()
+            prep_tokens = [repr[0], placeholders['non_eng']]
         else:
-            return [placeholders['non_eng']], PreprocessingMetadata()
+            prep_tokens = [placeholders['non_eng']]
+        return self.with_empty_metadata(prep_tokens)
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.processable_token.__repr__()})'
