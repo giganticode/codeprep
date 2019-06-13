@@ -1,25 +1,32 @@
 import collections
 
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Union, Tuple
 
 from dataprep.bpepkg.bperegistry import create_custom_bpe_config, is_predefined_id
+from dataprep.model.core import ParsedToken
+from dataprep.model.metadata import PreprocessingMetadata
+from dataprep.model.whitespace import NewLine
 from dataprep.parse.core import convert_text
 from dataprep.prepconfig import PrepConfig, PrepParam
 from dataprep.to_repr import init_splitting_config, to_repr
 
 
-def remove_trailing_newline(prep_tokens: List[str]) -> List[str]:
-    return prep_tokens[:-1] if len(prep_tokens) > 0 and prep_tokens[-1] == '\n' else prep_tokens
+def remove_trailing_newline(prep_tokens: List[Union[ParsedToken, str]]) -> List[Union[ParsedToken, str]]:
+    return prep_tokens[:-1] if len(prep_tokens) > 0 and prep_tokens[-1] == NewLine() else prep_tokens
 
 
-def preprocess(text: str, config: PrepConfig, bpe_codes_id: Optional[str] = None, extension: Optional[str] = None) -> List[str]:
-    parsed = convert_text(text, extension)
+def preprocess(text: str, config: PrepConfig, bpe_codes_id: Optional[str] = None, extension: Optional[str] = None,
+               return_metadata: bool=False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
+    parsed = [parsed_token for parsed_token in convert_text(text, extension)]
     custom_bpe_config = None
     if bpe_codes_id and not is_predefined_id(bpe_codes_id):
         custom_bpe_config = create_custom_bpe_config(bpe_codes_id)
     init_splitting_config(config, custom_bpe_config)
-    prep_tokens, metadata = to_repr(config, parsed)
-    return remove_trailing_newline(prep_tokens)
+    prep_tokens, metadata = to_repr(config, remove_trailing_newline(parsed))
+    if return_metadata:
+        return prep_tokens, metadata
+    else:
+        return prep_tokens
 
 
 def create_split_value(arguments):
@@ -65,7 +72,8 @@ def create_prep_config_from_args(arguments: Dict) -> PrepConfig:
     })
 
 
-def nosplit(text: str, extension: Optional[str] = None, no_str: bool=False, no_com: bool=False, no_spaces: bool=False) -> List[str]:
+def nosplit(text: str, extension: Optional[str] = None, no_str: bool=False, no_com: bool=False, no_spaces: bool=False,
+            return_metadata: bool=False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
     """
     Split `text` into tokens leaving compound identifiers as they are.
 
@@ -73,7 +81,10 @@ def nosplit(text: str, extension: Optional[str] = None, no_str: bool=False, no_c
     :param no_str: set to True to replace each string literals with a special token, e.g <str_literal>.
     :param no_com: set to True to replace each comment with a special token, e.g. <comment>.
     :param no_spaces: set to True to remove tabs and newlines.
-    :return: list of tokens `text` was split into.
+    :param: return_metadata: if set to True additionally pre-processing metadata is returned.
+    :return: list of tokens `text` was split into. If `return_metadata` is set to True,
+    the tuple is returned with the list of preprocessed tokens as the first element
+    and pre-processing metadata as the second element (object of :class:`dataprep.model.metadata.Preprocessing.PreprocessingMetadata`)
     """
     d = collections.defaultdict(bool)
     args = {
@@ -83,10 +94,12 @@ def nosplit(text: str, extension: Optional[str] = None, no_str: bool=False, no_c
         'nosplit': True
     }
     d.update(args)
-    return preprocess(text, create_prep_config_from_args(d), extension=extension)
+    return preprocess(text, create_prep_config_from_args(d), extension=extension, return_metadata=return_metadata)
 
 
-def chars(text: str, extension: Optional[str] = None, no_str: bool=False, no_com: bool=False, no_spaces: bool=False, no_unicode: bool=False, no_case: bool=False) -> List[str]:
+def chars(text: str, extension: Optional[str] = None,
+          no_str: bool=False, no_com: bool=False, no_spaces: bool=False, no_unicode: bool=False, no_case: bool=False,
+          return_metadata: bool=False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
     """
     Split `text` into characters (With the exception of operators that consist of 2 character: such operators will remain as a single token).
     So that the information about original word boundaries is not lost, special tokens are inserted to denote original words beginnings and ends,
@@ -99,7 +112,10 @@ def chars(text: str, extension: Optional[str] = None, no_str: bool=False, no_com
     :param no_case: set to True to lowercase identifiers and encode information about their case in a separate token,
     e.g. Identifier -> [<Cap>, identifier]; IDENTIFIER -> [<CAPS>, identifier]
     :param no_unicode: set to True to replace each word containing non-ascii characters to a special token,  e.g. <non-en>
-    :return: list of tokens `text` was split into.
+    :param: return_metadata: if set to True additionally pre-processing metadata is returned.
+    :return: list of tokens `text` was split into. If `return_metadata` is set to True,
+    the tuple is returned with the list of preprocessed tokens as the first element
+    and pre-processing metadata as the second element (object of :class:`dataprep.model.metadata.Preprocessing.PreprocessingMetadata`)
     """
     d = collections.defaultdict(bool)
     args = {
@@ -111,10 +127,12 @@ def chars(text: str, extension: Optional[str] = None, no_str: bool=False, no_com
         'chars': True
     }
     d.update(args)
-    return preprocess(text, create_prep_config_from_args(d), extension=extension)
+    return preprocess(text, create_prep_config_from_args(d), extension=extension, return_metadata=return_metadata)
 
 
-def basic(text: str, extension: Optional[str] = None, no_str: bool=False, no_com: bool=False, no_spaces: bool=False, no_unicode: bool=False, no_case: bool=False) -> List[str]:
+def basic(text: str, extension: Optional[str] = None,
+          no_str: bool=False, no_com: bool=False, no_spaces: bool=False, no_unicode: bool=False, no_case: bool=False,
+          return_metadata: bool=False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
     """
     Split `text` into tokens converting identifiers that follow CamelCase or snake_case into multiple subwords.
     So that the information about original word boundaries is not lost, special tokens are inserted to denote original words beginnings and ends,
@@ -127,7 +145,10 @@ def basic(text: str, extension: Optional[str] = None, no_str: bool=False, no_com
     :param no_case: set to True to lowercase identifiers and encode information about their case in a separate token,
     e.g. Identifier -> [<Cap>, identifier]; IDENTIFIER -> [<CAPS>, identifier]
     :param no_unicode: set to True to replace each word containing non-ascii characters to a special token,  e.g. <non-en>
-    :return: list of tokens `text` was split into.
+    :param: return_metadata: if set to True additionally pre-processing metadata is returned.
+    :return: list of tokens `text` was split into. If `return_metadata` is set to True,
+    the tuple is returned with the list of preprocessed tokens as the first element
+    and pre-processing metadata as the second element (object of :class:`dataprep.model.metadata.Preprocessing.PreprocessingMetadata`)
     """
     d = collections.defaultdict(bool)
     args = {
@@ -139,10 +160,12 @@ def basic(text: str, extension: Optional[str] = None, no_str: bool=False, no_com
         'basic': True
     }
     d.update(args)
-    return preprocess(text, create_prep_config_from_args(d), extension=extension)
+    return preprocess(text, create_prep_config_from_args(d), extension=extension, return_metadata=return_metadata)
 
 
-def basic_with_numbers(text: str, extension: Optional[str] = None, no_str: bool=False, no_com: bool=False, no_spaces: bool=False, no_unicode: bool=False, no_case: bool=False) -> List[str]:
+def basic_with_numbers(text: str, extension: Optional[str] = None,
+                       no_str: bool=False, no_com: bool=False, no_spaces: bool=False, no_unicode: bool=False, no_case: bool=False,
+                       return_metadata: bool=False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
     """
     Split `text` into tokens converting identifiers that follow CamelCase or snake_case into multiple subwords,
     and numbers into sequence of digits. So that the information about original word boundaries is not lost,
@@ -156,7 +179,10 @@ def basic_with_numbers(text: str, extension: Optional[str] = None, no_str: bool=
     :param no_case: set to True to lowercase identifiers and encode information about their case in a separate token,
     e.g. Identifier -> [<Cap>, identifier]; IDENTIFIER -> [<CAPS>, identifier]
     :param no_unicode: set to True to replace each word containing non-ascii characters to a special token,  e.g. <non-en>
-    :return: list of tokens `text` was split into.
+    :param: return_metadata: if set to True additionally pre-processing metadata is returned.
+    :return: list of tokens `text` was split into. If `return_metadata` is set to True,
+    the tuple is returned with the list of preprocessed tokens as the first element
+    and pre-processing metadata as the second element (object of :class:`dataprep.model.metadata.Preprocessing.PreprocessingMetadata`)
     """
     d = collections.defaultdict(bool)
     args = {
@@ -169,10 +195,12 @@ def basic_with_numbers(text: str, extension: Optional[str] = None, no_str: bool=
 
     }
     d.update(args)
-    return preprocess(text, create_prep_config_from_args(d), extension=extension)
+    return preprocess(text, create_prep_config_from_args(d), extension=extension, return_metadata=return_metadata)
 
 
-def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_str: bool=False, no_com: bool=False, no_spaces: bool=False, no_unicode: bool=False, no_case: bool=False) -> List[str]:
+def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None,
+        no_str: bool=False, no_com: bool=False, no_spaces: bool=False, no_unicode: bool=False, no_case: bool=False,
+        return_metadata: bool=False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
     """
     Split `text` into tokens converting identifiers that follow CamelCase or snake_case into multiple subwords.
     On top of that Byte Pair Encoding (BPE) is applied with number of merges specified in `bpe_config`.
@@ -188,7 +216,10 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_str: b
     :param no_case: set to True to lowercase identifiers and encode information about their case in a separate token,
     e.g. Identifier -> [<Cap>, identifier]; IDENTIFIER -> [<CAPS>, identifier]
     :param no_unicode: set to True to replace each word containing non-ascii characters to a special token,  e.g. <non-en>
-    :return: list of tokens `text` was split into.
+    :param: return_metadata: if set to True additionally pre-processing metadata is returned.
+    :return: list of tokens `text` was split into. If `return_metadata` is set to True,
+    the tuple is returned with the list of preprocessed tokens as the first element
+    and pre-processing metadata as the second element (object of :class:`dataprep.model.metadata.Preprocessing.PreprocessingMetadata`)
     """
     d = collections.defaultdict(bool)
     args = {
@@ -201,6 +232,6 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_str: b
         bpe_codes_id: True
     }
     d.update(args)
-    return preprocess(text, create_prep_config_from_args(d), bpe_codes_id, extension=extension)
+    return preprocess(text, create_prep_config_from_args(d), bpe_codes_id, extension=extension, return_metadata=return_metadata)
 
 
