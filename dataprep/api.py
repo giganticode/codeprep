@@ -78,6 +78,9 @@ def nosplit(text: str, extension: Optional[str] = None, no_str: bool=False, no_c
     Split `text` into tokens leaving compound identifiers as they are.
 
     :param text: text to be split.
+    :param extension: extension which a file containing source code written in this programming language would have,
+    e.g. 'java', 'py', 'js'.
+    If specified, used to select a Pygments parser, otherwise Pygments will try to guess the language.
     :param no_str: set to True to replace each string literals with a special token, e.g <str_literal>.
     :param no_com: set to True to replace each comment with a special token, e.g. <comment>.
     :param no_spaces: set to True to remove tabs and newlines.
@@ -106,6 +109,9 @@ def chars(text: str, extension: Optional[str] = None,
     e.g. myClass -> [<w>, m, y, C, l, a, s, s, </w>]
 
     :param text: text to be split.
+    :param extension: extension which a file containing source code written in this programming language would have,
+    e.g. 'java', 'py', 'js'.
+    If specified, used to select a Pygments parser, otherwise Pygments will try to guess the language.
     :param no_str: set to True to replace each string literals with a special token, e.g <str_literal>.
     :param no_com: set to True to replace each comment with a special token, e.g. <comment>.
     :param no_spaces: set to True to remove tabs and newlines.
@@ -139,6 +145,9 @@ def basic(text: str, extension: Optional[str] = None,
     e.g. myClass -> [<w>, my, Class, </w>]
 
     :param text: text to be split.
+    :param extension: extension which a file containing source code written in this programming language would have,
+    e.g. 'java', 'py', 'js'.
+    If specified, used to select a Pygments parser, otherwise Pygments will try to guess the language.
     :param no_str: set to True to replace each string literals with a special token, e.g <str_literal>.
     :param no_com: set to True to replace each comment with a special token, e.g. <comment>.
     :param no_spaces: set to True to remove tabs and newlines.
@@ -173,6 +182,9 @@ def basic_with_numbers(text: str, extension: Optional[str] = None,
     e.g. myClass = 23 -> [<w>, my, Class, </w>, =, <w> 2 3 </w>]
 
     :param text: text to be split.
+    :param extension: extension which a file containing source code written in this programming language would have,
+    e.g. 'java', 'py', 'js'.
+    If specified, used to select a Pygments parser, otherwise Pygments will try to guess the language.
     :param no_str: set to True to replace each string literals with a special token, e.g <str_literal>.
     :param no_com: set to True to replace each comment with a special token, e.g. <comment>.
     :param no_spaces: set to True to remove tabs and newlines.
@@ -210,6 +222,9 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None,
     :param text: text to be split.
     :param bpe_codes_id: defines bpe codes to be used when applying bpe,
     predefined codes : 1k, 5k, 10k. Custom bpe codes can be learned by running `dataprep learn-bpe` command.
+    :param extension: extension which a file containing source code written in this programming language would have,
+    e.g. 'java', 'py', 'js'.
+    If specified, used to select a Pygments parser, otherwise Pygments will try to guess the language.
     :param no_str: set to True to replace each string literals with a special token, e.g <str_literal>.
     :param no_com: set to True to replace each comment with a special token, e.g. <comment>.
     :param no_spaces: set to True to remove tabs and newlines.
