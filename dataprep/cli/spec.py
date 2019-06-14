@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 def nosplit_handler(args):
     """usage: {program} nosplit (-p <path> [-e <ext>] [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--verbose]
 
-    Preprocess the dataset without splitting compound identifier.
+    Preprocesses the dataset without splitting compound identifier.
 
     Options:
       -p, --path <path>                            Path to the dataset to be preprocessed.
@@ -33,7 +33,7 @@ def nosplit_handler(args):
 def chars_handler(args):
     """usage: {program} chars (-p <path> [-e <ext>] [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case] [--verbose]
 
-    Preprocess the dataset by splitting identifiers into characters.
+    Preprocesses the dataset by splitting identifiers into characters.
 
     Options:
       -p, --path <path>                            Path to the dataset to be preprocessed.
@@ -56,7 +56,7 @@ def chars_handler(args):
 def basic_handler(args):
     """usage: {program} basic (-p <path> [-e <ext>] [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case] [--verbose]
 
-    Preprocess the dataset by splitting compound identifiers according to CamelCase and snake_case conventions.
+    Preprocesses the dataset by splitting compound identifiers according to CamelCase and snake_case conventions.
 
     Options:
       -p, --path <path>                            Path to the dataset to be preprocessed.
@@ -79,7 +79,7 @@ def basic_handler(args):
 def basic_plus_numbers_handler(args):
     """usage: {program} basic+numbers (-p <path> [-e <ext>] [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case] [--verbose]
 
-    Preprocess the dataset by splitting compound identifiers according to CamelCase and snake_case conventions,
+    Preprocesses the dataset by splitting compound identifiers according to CamelCase and snake_case conventions,
     and splitting numbers into digits.
 
     Options:
@@ -103,8 +103,8 @@ def basic_plus_numbers_handler(args):
 def bpe_handler(args):
     """usage: {program} bpe (1k | 5k | 10k | <bpe-codes-id>) (-p <path> [-e <ext>] [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case] [--verbose]
 
-    Preprocess the dataset by splitting compound identifiers according to CamelCase and snake_case conventions,
-    and apply byte-pair encoding (BPE) on top.
+    Preprocesses the dataset by splitting compound identifiers according to CamelCase and snake_case conventions,
+    and applies byte-pair encoding (BPE) on top.
 
     Options:
       <bpe-codes-id>                               Id which defines bpe codes to use (1k, 5k, 10k are predefined ids)
@@ -126,16 +126,15 @@ def bpe_handler(args):
 
 @dsc.command()
 def bpelearn_handler(args):
-    """usage: {program} learn-bpe <n-merges> -p <path> [-e <ext>] [-o <path-out>] [--id <bpe-codes-id>] [--no-case | --case-prefix] [--no-unicode | --bytes] [--word-end] [--legacy] [--verbose]
+    """usage: {program} learn-bpe <n-merges> -p <path> [-e <ext>] [--id <bpe-codes-id>] [--no-case | --case-prefix] [--no-unicode | --bytes] [--word-end] [--legacy] [--verbose]
 
-    #TODO
+    Trains bpe codes on a specified corpus.
 
     Options:
       <n-merges>                                   The number of BPE merges to compute
       -p, --path <path>                            Path to the dataset to be used to learn bpe codes.
       -e --ext <ext>                               Limits the set of input files to the files with the specified extension(s).
                                                    The format is the following: "ext1|ext2|...|extN" If not specififed, all the files are read.
-      -o <path-out>, --output-path <path-out>      Path to the file to which computed bpe codes are to be written. If not specified, equals to '<path>_bpe_codes.txt'.
       --id <bpe-codes-id>                          Give an id to bpe-codes. If not specified, will be assigned automatically based on the name of the directory bpe codes were learned from
       --no-case, -l                                Lowercase all the words before running bpe.
       --case-prefix, -c                            Let bpe algorithm decide whether case should a part of the word or not.
