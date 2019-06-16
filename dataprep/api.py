@@ -2,7 +2,7 @@ import collections
 
 from typing import List, Dict, Optional, Union, Tuple
 
-from dataprep.bpepkg.bperegistry import create_custom_bpe_config, is_predefined_id
+from dataprep.bpepkg.bperegistry import is_predefined_id, CustomBpeConfig
 from dataprep.model.core import ParsedToken
 from dataprep.model.metadata import PreprocessingMetadata
 from dataprep.model.whitespace import NewLine
@@ -20,7 +20,7 @@ def preprocess(text: str, config: PrepConfig, bpe_codes_id: Optional[str] = None
     parsed = [parsed_token for parsed_token in convert_text(text, extension)]
     custom_bpe_config = None
     if bpe_codes_id and not is_predefined_id(bpe_codes_id):
-        custom_bpe_config = create_custom_bpe_config(bpe_codes_id)
+        custom_bpe_config = CustomBpeConfig.from_id(bpe_codes_id)
     init_splitting_config(config, custom_bpe_config)
     prep_tokens, metadata = to_repr(config, remove_trailing_newline(parsed))
     if return_metadata:

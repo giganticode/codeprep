@@ -4,7 +4,7 @@ import sys
 
 import re
 import time
-from typing import Optional, Tuple, Dict
+from typing import Optional, Dict, Callable, Tuple, List
 
 from dataprep.bpepkg.bpe_config import BpeConfig
 from dataprep.bpepkg.bpe_encode import read_merges
@@ -26,8 +26,8 @@ class InvalidBpeCodesIdError(Exception):
 
 
 class CustomBpeConfig(object):
-    def __init__(self, id: str, n_merges: int, codes_file: str, cache_file: str):
-        self.id = id
+    def __init__(self, merge_list_id: str, n_merges: int, codes_file: str, cache_file: str):
+        self.merge_list_id = merge_list_id
         self.n_merges = n_merges
         self.codes_file = codes_file
         self.cache_file = cache_file
@@ -35,16 +35,37 @@ class CustomBpeConfig(object):
     def can_use_cache_file(self):
         return self.cache_file and not self.n_merges
 
+    @staticmethod
+    def from_id(id_str: str) -> 'CustomBpeConfig':
+        return CustomBpeConfig._create(*parse_merge_list_id(id_str))
+
+    @staticmethod
+    def _create(merge_list_id: str, n_merges: int) -> 'CustomBpeConfig':
+        dataset_bpe_dir = get_dataset_bpe_dir(merge_list_id)
+        min_merges = get_min_merges(dataset_bpe_dir, limit=n_merges)
+        # check if not None?
+        dir_with_min_merges = os.path.join(dataset_bpe_dir, str(min_merges))
+        if min_merges:
+            if not n_merges == 0 or min_merges == n_merges:
+                cache_file = os.path.join(dir_with_min_merges, MERGES_CACHE_FILE_NAME)
+            else:
+                cache_file = None
+            return CustomBpeConfig(merge_list_id, n_merges, os.path.join(dir_with_min_merges, MERGES_FILE_NAME), cache_file)
+        else:
+            raise InvalidBpeCodesIdError(
+                f"{n_merges} merges has not been computed for {merge_list_id}."
+                f"Max possible value: {get_max_merges(dataset_bpe_dir)}")
+
     def __repr__(self):
-        return f'{self.__class__.__name__} ({self.id}, {self.n_merges}, {self.codes_file}, {self.cache_file})'
+        return f'{self.__class__.__name__} ({self.merge_list_id}, {self.n_merges}, {self.codes_file}, {self.cache_file})'
 
 
 def is_predefined_id(id):
     return id in PREDEFINED_BPE_CODES
 
 
-def get_codes_id_by_bpe_path(path: str) -> Optional[str]:
-    file_with_id = os.path.join(path, BPE_CODES_ID_FILENAME)
+def get_codes_id_by_bpe_path(dataset_bpe_dir: str) -> Optional[str]:
+    file_with_id = os.path.join(dataset_bpe_dir, BPE_CODES_ID_FILENAME)
     if not os.path.exists(file_with_id):
         return None
     else:
@@ -57,7 +78,7 @@ def create_new_id_from(path: str, bpe_config: BpeConfig, predefined_bpe_codes_id
         return predefined_bpe_codes_id
     else:
         id_base = f'{os.path.basename(path)}{bpe_config.to_suffix()}'
-        existing_ids = get_all_custom_bpe_codes_with_max_merges().keys()
+        existing_ids = _get_all_custom_bpe_codes_and_max_merges().keys()
         if id_base not in existing_ids:
             return id_base
         else:
@@ -70,13 +91,13 @@ def create_new_id_from(path: str, bpe_config: BpeConfig, predefined_bpe_codes_id
             return f'{id_base}_{new_number}'
 
 
-def write_bpe_codes_id(bpe_path: str, bpe_codes_id: str) -> None:
-    file_with_id = os.path.join(bpe_path, BPE_CODES_ID_FILENAME)
+def write_bpe_codes_id(dataset_bpe_dir: str, bpe_codes_id: str) -> None:
+    file_with_id = os.path.join(dataset_bpe_dir, BPE_CODES_ID_FILENAME)
     with open(file_with_id, 'w') as f:
         f.write(bpe_codes_id)
 
 
-def parse_bpe_codes_id(s: str) -> Tuple[str, int]:
+def parse_merge_list_id(s: str) -> Tuple[str, int]:
     REGEX = "(.*)-([1-9][0-9]*)$"
     m = re.match(REGEX, s)
     if m:
@@ -85,82 +106,65 @@ def parse_bpe_codes_id(s: str) -> Tuple[str, int]:
         raise InvalidBpeCodesIdError(f'Invalid id format: "{s}". Format should be: "{REGEX}"')
 
 
-def get_bpe_dir_by_id(id: str) -> str:
+def get_dataset_bpe_dir(bpe_list_id: str) -> str:
     if not os.path.exists(USER_BPE_DIR):
         raise InvalidBpeCodesIdError(f"No custom bpe codes has been trained yet. "
                                      f"To train a custom bpe code run: `dataprep learn-bpe` command")
 
-    bpe_codes_id, _ = parse_bpe_codes_id(id)
     bpe_dirs = next(os.walk(USER_BPE_DIR))[1]
     for dir in bpe_dirs:
         current_bpe_dir = os.path.join(USER_BPE_DIR, dir)
         current_id = get_codes_id_by_bpe_path(current_bpe_dir)
-        if current_id and current_id == bpe_codes_id:
+        if current_id and current_id == bpe_list_id:
             return current_bpe_dir
-    raise InvalidBpeCodesIdError(f"Bpe id: {id} is not found. Possible values:\n {format_available_bpe_ids()}")
+    raise InvalidBpeCodesIdError(f"Bpe id: {bpe_list_id} is not found. Possible values:\n {format_available_merge_list_ids()}")
 
 
-def create_custom_bpe_config(id: str) -> CustomBpeConfig:
-    bpe_dir = get_bpe_dir_by_id(id)
-    bpe_codes_id, n_merges = parse_bpe_codes_id(id)
-    min_merges = get_min_merges(bpe_dir, limit=n_merges)
-    dir_with_min_merges = os.path.join(bpe_dir, str(min_merges))
-    if min_merges:
-        if not n_merges or min_merges == n_merges:
-            cache_file = os.path.join(dir_with_min_merges, MERGES_CACHE_FILE_NAME)
-        else:
-            cache_file = None
-        return CustomBpeConfig(id, n_merges, os.path.join(dir_with_min_merges, MERGES_FILE_NAME), cache_file)
+def get_bpe_dir(merge_list_id: str, n_merges: int) -> str:
+    bpe_dir = os.path.join(get_dataset_bpe_dir(merge_list_id), str(n_merges))
+    if os.path.exists(bpe_dir):
+        return bpe_dir
     else:
-        raise InvalidBpeCodesIdError(f"{n_merges} merges has not been computed for {bpe_codes_id}."
-                                     f"Max possible value: {get_max_merges(bpe_dir)}")
+        raise InvalidBpeCodesIdError(f'Dir {bpe_dir} not found.')
 
 
-def load_bpe_merges(bpe_id: str) -> MergeList:
-    custom_bpe_config = create_custom_bpe_config(bpe_id)
-    return read_merges(custom_bpe_config.codes_file, custom_bpe_config.n_merges)
+def load_bpe_merges(merge_list_id: str, n_merges: int) -> MergeList:
+    custom_bpe_config = CustomBpeConfig.create(merge_list_id, n_merges)
+    return read_merges(custom_bpe_config.codes_file, n_merges)
 
 
-def format_available_bpe_ids() -> str:
+def format_available_merge_list_ids() -> str:
     res = ""
-    for k, v in get_all_custom_bpe_codes_with_max_merges().items():
+    for k, v in _get_all_custom_bpe_codes_and_max_merges().items():
         res += f'{k}-[1..{v}]\n'
     return res
 
 
-def get_min_merges(dataset_bpe_dir: str, limit: Optional[int]=0) -> Optional[int]:
-    subdirs = get_all_bpe_merges_dirs(dataset_bpe_dir)
-    min_number = sys.maxsize
+def _get_extreme_n_merges(root_bpe_dir: str, limit: int, init_val: int, in_order: Callable[[int, int, int], bool]):
+    subdirs = _get_all_bpe_merges_dirs(root_bpe_dir)
+    extreme_value = init_val
     for subdir in subdirs:
         try:
             num = int(subdir)
-            if min_number > num >= limit:
-                min_number = num
+            if in_order(extreme_value, num, limit):
+                extreme_value = num
         except ValueError:
             pass # for the case of part_vocab folder for example
-    if min_number != sys.maxsize:
-        return min_number
+    if extreme_value != init_val:
+        return extreme_value
     else:
         return None
+
+
+def get_min_merges(dataset_bpe_dir: str, limit: Optional[int]=0) -> Optional[int]:
+    return _get_extreme_n_merges(dataset_bpe_dir, limit, sys.maxsize, lambda e,n,l: e > n >= l)
 
 
 def get_max_merges(dataset_bpe_dir: str, limit: Optional[int]=sys.maxsize) -> Optional[int]:
-    subdirs = get_all_bpe_merges_dirs(dataset_bpe_dir)
-    max_number = 0
-    for subdir in subdirs:
-        try:
-            num = int(subdir)
-            if max_number < num <= limit:
-                max_number = num
-        except ValueError:
-            pass # for the case of part_vocab folder for example
-    if max_number != 0:
-        return max_number
-    else:
-        return None
+    return _get_extreme_n_merges(dataset_bpe_dir, limit, 0, lambda e,n,l: e < n <= l)
 
 
-def get_all_custom_bpe_codes_with_max_merges() -> Dict[str, int]:
+def _get_all_custom_bpe_codes_and_max_merges() -> Dict[str, int]:
     result = {}
     bpe_dirs = next(os.walk(USER_BPE_DIR))[1]
     for bpe_dir in bpe_dirs:
@@ -172,7 +176,7 @@ def get_all_custom_bpe_codes_with_max_merges() -> Dict[str, int]:
     return result
 
 
-def get_all_bpe_merges_dirs(dataset_bpe_dir: str):
+def _get_all_bpe_merges_dirs(dataset_bpe_dir: str) -> List[str]:
     if not os.path.exists(dataset_bpe_dir):
         raise FileNotFoundError(f'Directory {dataset_bpe_dir} does not exist!')
     return next(os.walk(dataset_bpe_dir))[1]

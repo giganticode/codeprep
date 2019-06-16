@@ -1,7 +1,9 @@
 import ast
 import logging
 import os
+import random
 
+import math
 from datetime import datetime
 from typing import Type, Optional, List, Generator
 
@@ -177,7 +179,7 @@ class Dataset(object):
 
         basename = f'{self.get_dataset_dir_name}_{self.prep_config}'
         if self._custom_bpe_config:
-            basename += f'_{self._custom_bpe_config.id}'
+            basename += f'_{self._custom_bpe_config.merge_list_id}'
 
         if overriden_path_to_prep_dataset:
             basename += '_prep'

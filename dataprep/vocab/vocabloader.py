@@ -3,29 +3,35 @@ import os
 import shutil
 from typing import Set, Dict
 
-from dataprep.bpepkg.bperegistry import get_bpe_dir_by_id
+from dataprep.bpepkg.bpe_learn import BPE_REASSEMBLED_VOCAB_FILE_NAME
+from dataprep.bpepkg.bperegistry import get_dataset_bpe_dir, get_bpe_dir
 from dataprep.dataset import Dataset, NONBPE_VOCAB_FILENAME, VOCAB_FILENAME
 from dataprep.model.placeholders import placeholders
 from dataprep.util import read_dict_from_2_columns
 
 
-def all(bpe_id: str) -> Dict[str, int]:
-    bpe_dir = get_bpe_dir_by_id(bpe_id)
+def all(merge_list_id: str) -> Dict[str, int]:
+    bpe_dir = get_dataset_bpe_dir(merge_list_id)
     return read_dict_from_2_columns(os.path.join(bpe_dir, VOCAB_FILENAME))
 
 
-def nonbpe(bpe_id: str) -> Set[str]:
-    bpe_dir = get_bpe_dir_by_id(bpe_id)
+def nonbpe(merge_list_id: str) -> Set[str]:
+    bpe_dir = get_dataset_bpe_dir(merge_list_id)
     return _load_nonbpe_vocab_from_file(os.path.join(bpe_dir, NONBPE_VOCAB_FILENAME))
 
 
-def base(bpe_id: str) -> Dict[str, int]:
-    all_vocab = all(bpe_id)
-    nonbpe_vocab = nonbpe(bpe_id)
+def base(merge_list_id: str) -> Dict[str, int]:
+    all_vocab = all(merge_list_id)
+    nonbpe_vocab = nonbpe(merge_list_id)
     for token in nonbpe_vocab:
         if token in all_vocab:
             del all_vocab[token]
     return all_vocab
+
+
+def bpe(merge_list_id: str, n_merges: int) -> Dict[str, int]:
+    bpe_dir = get_bpe_dir(merge_list_id, n_merges)
+    return read_dict_from_2_columns(os.path.join(bpe_dir, BPE_REASSEMBLED_VOCAB_FILE_NAME))
 
 
 def gather_non_bpe_vocab(dataset: Dataset):

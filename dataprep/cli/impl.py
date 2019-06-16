@@ -7,7 +7,7 @@ from dataprep import api
 from dataprep.api import create_prep_config_from_args
 from dataprep.bpepkg import bpe_learn
 from dataprep.bpepkg.bpe_config import BpeParam, BpeConfig
-from dataprep.bpepkg.bperegistry import create_custom_bpe_config, InvalidBpeCodesIdError
+from dataprep.bpepkg.bperegistry import InvalidBpeCodesIdError, CustomBpeConfig
 from dataprep.cli import stages
 from dataprep.dataset import Dataset
 
@@ -61,7 +61,7 @@ def handle_splitting(args):
             path = os.path.abspath(args['--path'])
             output_path = args['--output-path'] if args['--output-path'] else os.getcwd()
             extensions = parse_extension_pattern(args['--ext']) if args['--ext'] else None
-            custom_bpe_config = create_custom_bpe_config(bpe_codes_id) if bpe_codes_id else None
+            custom_bpe_config = CustomBpeConfig.from_id(bpe_codes_id) if bpe_codes_id else None
             dataset = Dataset.create(path, prep_config, extensions, custom_bpe_config, overriden_path_to_prep_dataset=output_path)
             stages.run_until_preprocessing(dataset, custom_bpe_config)
             print(f"Preprocessed dataset is ready at {dataset.preprocessed.path}")
