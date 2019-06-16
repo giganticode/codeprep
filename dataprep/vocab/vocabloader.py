@@ -3,7 +3,7 @@ import os
 import shutil
 from typing import Set, Dict
 
-from dataprep.bpepkg.bpe_learn import BPE_REASSEMBLED_VOCAB_FILE_NAME
+from dataprep.bpepkg.bpe_learn import RESULTING_VOCAB_FILE_NAME
 from dataprep.bpepkg.bperegistry import get_dataset_bpe_dir, get_bpe_dir
 from dataprep.dataset import Dataset, NONBPE_VOCAB_FILENAME, VOCAB_FILENAME
 from dataprep.model.placeholders import placeholders
@@ -31,7 +31,7 @@ def base(merge_list_id: str) -> Dict[str, int]:
 
 def bpe(merge_list_id: str, n_merges: int) -> Dict[str, int]:
     bpe_dir = get_bpe_dir(merge_list_id, n_merges)
-    return read_dict_from_2_columns(os.path.join(bpe_dir, BPE_REASSEMBLED_VOCAB_FILE_NAME))
+    return read_dict_from_2_columns(os.path.join(bpe_dir, RESULTING_VOCAB_FILE_NAME))
 
 
 def gather_non_bpe_vocab(dataset: Dataset):
