@@ -3,7 +3,14 @@
 [![Build Status](https://travis-ci.org/giganticode/dataprep.svg?branch=master)](https://travis-ci.org/giganticode/dataprep)
 
 **This is a tool for preprocessing source code corpora according to a specified vocabulary modeling choice.**
-Supported modeling choices are: splitting algorithm (no identifier splitting, camel-case splitting, snake-case splitting, BPE (byte-pair-encoding), number-splitting); number of BPE merges if using bpe; ignoring/preserving string literals; ignoring/preserving comments; preserving case/lowercasing.
+
+Supported modeling choices are: 
+* Splitting algorithm (no identifier splitting, camel-case splitting, snake-case splitting, BPE (byte-pair-encoding), number-splitting); 
+* Number of merges if using BPE; 
+* Ignoring/preserving string literals; 
+* Ignoring/preserving comments; 
+* Preserving case/lowercasing;
+* Preserving/ignoring newlines and tabs.
 
 # Getting started
 
