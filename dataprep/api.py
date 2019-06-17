@@ -34,6 +34,8 @@ def create_split_value(arguments):
         return 0
     elif 'chars' in arguments and arguments['chars']:
         return 8
+    elif 'ronin' in arguments and arguments['ronin']:
+        return 3
     elif 'basic' in arguments and arguments['basic']:
         return 1
     elif 'basic+numbers' in arguments and arguments['basic+numbers']:
@@ -95,6 +97,34 @@ def nosplit(text: str, extension: Optional[str] = None, no_str: bool=False, no_c
         '--no-com': no_com,
         '--no-spaces': no_spaces,
         'nosplit': True
+    }
+    d.update(args)
+    return preprocess(text, create_prep_config_from_args(d), extension=extension, return_metadata=return_metadata)
+
+
+def ronin(text: str, extension: Optional[str] = None, no_str: bool=False, no_com: bool=False, no_spaces: bool=False,
+            return_metadata: bool=False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
+    """
+    Split `text` into tokens leaving compound identifiers as they are.
+
+    :param text: text to be split.
+    :param extension: extension which a file containing source code written in this programming language would have,
+    e.g. 'java', 'py', 'js'.
+    If specified, used to select a Pygments parser, otherwise Pygments will try to guess the language.
+    :param no_str: set to True to replace each string literals with a special token, e.g <str_literal>.
+    :param no_com: set to True to replace each comment with a special token, e.g. <comment>.
+    :param no_spaces: set to True to remove tabs and newlines.
+    :param: return_metadata: if set to True additionally pre-processing metadata is returned.
+    :return: list of tokens `text` was split into. If `return_metadata` is set to True,
+    the tuple is returned with the list of preprocessed tokens as the first element
+    and pre-processing metadata as the second element (object of :class:`dataprep.model.metadata.Preprocessing.PreprocessingMetadata`)
+    """
+    d = collections.defaultdict(bool)
+    args = {
+        '--no-str': no_str,
+        '--no-com': no_com,
+        '--no-spaces': no_spaces,
+        'ronin': True
     }
     d.update(args)
     return preprocess(text, create_prep_config_from_args(d), extension=extension, return_metadata=return_metadata)

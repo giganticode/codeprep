@@ -103,6 +103,8 @@ def init_splitting_config(prep_config: PrepConfig, custom_bpe_config: Optional[C
         global_n_gramm_splitting_config.set_splitting_type(NgramSplittingType.BPE)
     elif prep_config.get_param_value(PrepParam.SPLIT) == 2:
         global_n_gramm_splitting_config.set_splitting_type(NgramSplittingType.ONLY_NUMBERS)
+    elif prep_config.get_param_value(PrepParam.SPLIT) == 3:
+        global_n_gramm_splitting_config.set_splitting_type(NgramSplittingType.RONIN)
 
 
 def params_generator(dataset: Dataset):

@@ -30,6 +30,27 @@ def nosplit_handler(args):
 
 
 @dsc.command()
+def ronin_handler(args):
+    """usage: {program} ronin (-p <path> [-e <ext>] [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--verbose]
+
+    Preprocesses the dataset splitting identifiers with Ronin algorithm: http://joss.theoj.org/papers/10.21105/joss.00653.
+
+    Options:
+      -p, --path <path>                            Path to the dataset to be preprocessed.
+      -e --ext <ext>                               Limits the set of input files to the files with the specified extension(s).
+                                                   The format is the following: "ext1|ext2|...|extN" If not specififed, all the files are read.
+      -o <path-out>, --output-path <path-out>      Directory to which the pre-preprocessed corpus is to be written. If not specified, equals to '<path>_preprocessed'.
+      <text>                                       Text to be preprocessed.
+
+      --no-str, -S                                  Replace strings with <string> placeholders.
+      --no-com, -C                                  Replace comments with <comment> placeholders.
+      --no-spaces, -0                               Preserve newlines and tabs.
+      --verbose, -v                                 Print logs with log level DEBUG and higher to stdout.
+    """
+    handle_splitting(args)
+
+
+@dsc.command()
 def chars_handler(args):
     """usage: {program} chars (-p <path> [-e <ext>] [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case] [--verbose]
 

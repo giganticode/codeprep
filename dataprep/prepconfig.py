@@ -24,7 +24,7 @@ class PrepConfig(object):
     possible_param_values = {
         PrepParam.EN_ONLY: [0, 1, 2, 3],
         PrepParam.COM_STR: [0, 1, 2, 3],
-        PrepParam.SPLIT: [0, 1, 2, 4, 5, 6, 7, 8, 9],
+        PrepParam.SPLIT: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
         PrepParam.TABS_NEWLINES: [0, 1],
         PrepParam.CAPS: [0, 1]
     }
@@ -41,6 +41,7 @@ class PrepConfig(object):
         PrepParam.SPLIT: {0: 'NO_splitting',
                           1: 'camel+underscore',
                           2: 'camel+underscore+numbers',
+                          3: 'ronin',
                           4: 'camel+underscore+bpe_5k',
                           5: 'camel+underscore+bpe_1k',
                           6: 'camel+underscore+bpe_10k',
@@ -97,6 +98,18 @@ class PrepConfig(object):
             raise ValueError("Combination NO_SPL=0 and EN_ONLY=3 is not supported: "
                              "basic splitting needs to be dont done to check for non-English words.")
 
+        if params[PrepParam.EN_ONLY] == 1 and params[PrepParam.SPLIT] == 3:
+            raise ValueError("Combination NO_SPL=3 and EN_ONLY=1 is not supported: "
+                             "basic splitting needs to be dont done to check for non-English words.")
+
+        if params[PrepParam.EN_ONLY] == 2 and params[PrepParam.SPLIT] == 3:
+            raise ValueError("Combination NO_SPL=3 and EN_ONLY=2 is not supported: "
+                             "basic splitting needs to be dont done to check for non-English words.")
+
+        if params[PrepParam.EN_ONLY] == 3 and params[PrepParam.SPLIT] == 3:
+            raise ValueError("Combination NO_SPL=3 and EN_ONLY=3 is not supported: "
+                             "basic splitting needs to be dont done to check for non-English words.")
+
         if params[PrepParam.EN_ONLY] == 2 and params[PrepParam.COM_STR] == 2:
             raise ValueError("Combination EN_ONLY=2 and COM_STR=2 is obsolete: "
                              "Non-eng-content blocks can be present only in comment or string literal blocks, "
@@ -104,6 +117,10 @@ class PrepConfig(object):
 
         if params[PrepParam.CAPS] == 1 and params[PrepParam.SPLIT] == 0:
             raise ValueError("Combination NO_SPL=0 and CAPS=1 is not supported: "
+                             "basic splitting needs to be dont done to lowercase the subword.")
+
+        if params[PrepParam.CAPS] == 1 and params[PrepParam.SPLIT] == 3:
+            raise ValueError("Combination NO_SPL=3 and CAPS=1 is not supported: "
                              "basic splitting needs to be dont done to lowercase the subword.")
 
     def __init__(self, params: Dict[PrepParam, int]):

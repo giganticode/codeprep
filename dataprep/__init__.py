@@ -3,6 +3,7 @@ from dataprep.api import chars
 from dataprep.api import basic
 from dataprep.api import basic_with_numbers
 from dataprep.api import bpe
+from dataprep.api import ronin
 
 import logging
 import logging.config
@@ -23,3 +24,6 @@ def load_logging_config():
 
 
 load_logging_config()
+
+logging.getLogger('matplotlib').setLevel(logging.INFO)
+logging.getLogger('Ronin').setLevel(logging.INFO)

@@ -1,5 +1,6 @@
 from enum import Enum, auto
 
+from spiral import ronin
 from typing import List
 
 from dataprep.bpepkg.bpe_encode import encode_word
@@ -9,6 +10,7 @@ from dataprep.bpepkg.merge import MergeList
 class NgramSplittingType(Enum):
     BPE = auto()
     ONLY_NUMBERS = auto()
+    RONIN = auto()
 
 
 class NgramSplitConfig(object):
@@ -53,6 +55,8 @@ def get_bpe_subwords(word, config) -> List[str]:
 def do_ngram_splitting(token, ngram_split_config):
     if ngram_split_config.splitting_type and ngram_split_config.splitting_type == NgramSplittingType.BPE:
         subwords = get_bpe_subwords(token, ngram_split_config)
+    elif ngram_split_config.splitting_type and ngram_split_config.splitting_type == NgramSplittingType.RONIN:
+        subwords = ronin.split(token)
     else:
         subwords = [token]
 

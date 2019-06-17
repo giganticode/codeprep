@@ -6,6 +6,7 @@ from dataprep.model.noneng import NonEng, NonEngContent
 from dataprep.model.placeholders import placeholders
 from dataprep.model.word import Word
 from dataprep.preprocess.core import ReprConfig, torepr
+from dataprep.split.ngram import NgramSplittingType, do_ngram_splitting
 
 
 class ProcessableTokenContainer(ParsedToken):
@@ -28,6 +29,13 @@ class ProcessableTokenContainer(ParsedToken):
         return f'{self.__class__.__name__}{self.subtokens}'
 
 
+def wrap_in_word_boundaries_if_necessary(res: List[str]) -> List[str]:
+    if len(res) == 1 or (len(res) == 2 and res[0] in [placeholders['capitals'], placeholders['capital']]):
+        return res
+    else:
+        return [placeholders['word_start']] + res + [placeholders['word_end']]
+
+
 class SplitContainer(ProcessableTokenContainer):
     def __init__(self, subtokens):
         super().__init__(subtokens)
@@ -41,9 +49,14 @@ class SplitContainer(ProcessableTokenContainer):
     def __repr__(self):
         return f'{self.__class__.__name__}{self.subtokens}'
 
-    def non_preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[str, PreprocessingMetadata]:
+    def non_preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
         # TODO refactor
-        return self.with_full_word_metadata("".join(map(lambda s: torepr(s, repr_config)[0][0], self.subtokens)))
+        nospl_str = "".join(map(lambda s: torepr(s, repr_config)[0][0], self.subtokens))
+        if repr_config.ngram_split_config and repr_config.ngram_split_config.splitting_type == NgramSplittingType.RONIN:
+            parts = do_ngram_splitting(nospl_str, repr_config.ngram_split_config)
+        else:
+            parts = [nospl_str]
+        return self.with_full_word_metadata(wrap_in_word_boundaries_if_necessary(parts))
         # return "".join(map(lambda s: s.non_preprocessed_repr(repr_config) if isinstance(s, NonEng) else str(s), self.subtokens))
 
     def preprocessed_repr(self, repr_config) -> Tuple[List[str], PreprocessingMetadata]:
@@ -53,10 +66,7 @@ class SplitContainer(ProcessableTokenContainer):
             r, metadata = torepr(subtoken, repr_config)
             res.extend(r if isinstance(r, list) else [r])
             all_metadata.update(metadata)
-        if len(res) == 1 or (len(res) == 2 and res[0] in [placeholders['capitals'], placeholders['capital']]):
-            return self.with_full_word_metadata(res, all_metadata)
-        else:
-            return self.with_full_word_metadata([placeholders['word_start']] + res + [placeholders['word_end']], all_metadata)
+        return self.with_full_word_metadata(wrap_in_word_boundaries_if_necessary(res), all_metadata)
 
     @classmethod
     def from_single_token(cls, token: str):

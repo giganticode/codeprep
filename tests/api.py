@@ -242,6 +242,18 @@ class CliTest(unittest.TestCase):
 
         self.assertEqual(expected, actual)
 
+    def test_create_prep_config_00300(self):
+        actual = dataprep.ronin(input_text, "java")
+
+        expected = ['void', ws, 'test', 'Word', 'Ueberraschung', 'Printer', we, '(', ')', '{',  '\n',
+                    '\t', 'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', ws, 'FIX', 'ME', we, '\n', ce,
+                    '\t', '\t', ws, 'print', 'Word', we, '(', '"', '\t', '.', '.', '.', '\t', 'Überraschung', '"', ')', ';', '\n',
+                    '\t', '}', '\n',
+                    '}'
+        ]
+
+        self.assertEqual(expected, actual)
+
 
 if __name__ == '__main__':
     unittest.main()

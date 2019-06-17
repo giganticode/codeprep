@@ -1,4 +1,5 @@
 appdirs==1.4.3
+git+https://github.com/casics/spiral.git
 docopt==0.6.2
 jsons==0.8.3
 regex==2019.3.12
