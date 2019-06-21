@@ -22,7 +22,7 @@ class PrepParam(str, Enum):
 
 class PrepConfig(object):
     possible_param_values = {
-        PrepParam.EN_ONLY: [0, 1, 2, 3],
+        PrepParam.EN_ONLY: [0, 3],
         PrepParam.COM_STR: [0, 1, 2, 3],
         PrepParam.SPLIT: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
         PrepParam.TABS_NEWLINES: [0, 1],
@@ -31,8 +31,6 @@ class PrepConfig(object):
 
     human_readable_values = {
         PrepParam.EN_ONLY: {0: 'multilang',
-                            1: 'en_only',
-                            2: 'en_only+en_only_content',
                             3: 'asci_only'},
         PrepParam.COM_STR: {0: 'strings+comments',
                             1: 'NO_strings+comments',
@@ -86,35 +84,6 @@ class PrepConfig(object):
                 raise ValueError(f'Invalid value {params[pp]} for prep param {pp}, '
                                  f'possible values are: {PrepConfig.possible_param_values[pp]}')
 
-        if params[PrepParam.EN_ONLY] == 1 and params[PrepParam.SPLIT] == 0:
-            raise ValueError("Combination NO_SPL=0 and EN_ONLY=1 is not supported: "
-                             "basic splitting needs to be dont done to check for non-English words.")
-
-        if params[PrepParam.EN_ONLY] == 2 and params[PrepParam.SPLIT] == 0:
-            raise ValueError("Combination NO_SPL=0 and EN_ONLY=2 is not supported: "
-                             "basic splitting needs to be dont done to check for non-English words.")
-
-        if params[PrepParam.EN_ONLY] == 3 and params[PrepParam.SPLIT] == 0:
-            raise ValueError("Combination NO_SPL=0 and EN_ONLY=3 is not supported: "
-                             "basic splitting needs to be dont done to check for non-English words.")
-
-        if params[PrepParam.EN_ONLY] == 1 and params[PrepParam.SPLIT] == 3:
-            raise ValueError("Combination NO_SPL=3 and EN_ONLY=1 is not supported: "
-                             "basic splitting needs to be dont done to check for non-English words.")
-
-        if params[PrepParam.EN_ONLY] == 2 and params[PrepParam.SPLIT] == 3:
-            raise ValueError("Combination NO_SPL=3 and EN_ONLY=2 is not supported: "
-                             "basic splitting needs to be dont done to check for non-English words.")
-
-        if params[PrepParam.EN_ONLY] == 3 and params[PrepParam.SPLIT] == 3:
-            raise ValueError("Combination NO_SPL=3 and EN_ONLY=3 is not supported: "
-                             "basic splitting needs to be dont done to check for non-English words.")
-
-        if params[PrepParam.EN_ONLY] == 2 and params[PrepParam.COM_STR] == 2:
-            raise ValueError("Combination EN_ONLY=2 and COM_STR=2 is obsolete: "
-                             "Non-eng-content blocks can be present only in comment or string literal blocks, "
-                             "which are obfuscated")
-
         if params[PrepParam.CAPS] == 1 and params[PrepParam.SPLIT] == 0:
             raise ValueError("Combination NO_SPL=0 and CAPS=1 is not supported: "
                              "basic splitting needs to be dont done to lowercase the subword.")
@@ -158,8 +127,6 @@ com_str_to_types_to_be_repr = {
 
 en_only_to_types_to_be_repr = {
     0: [],
-    1: [NonEng],
-    2: [NonEng, NonEngContent],
     3: [NonEng]
 }
 

@@ -2,7 +2,7 @@ from enum import Enum, auto
 
 from typing import List, Tuple
 
-from dataprep.model.core import ParsedSubtoken
+from dataprep.model.core import ParsedSubtoken, with_empty_metadata
 from dataprep.model.metadata import PreprocessingMetadata
 from dataprep.model.placeholders import placeholders
 from dataprep.preprocess.core import ReprConfig
@@ -27,7 +27,7 @@ class Underscore(ParsedSubtoken):
         return self.non_preprocessed_repr(ReprConfig.empty())[0]
 
     def non_preprocessed_repr(self, repr_config: ReprConfig) -> [Tuple[str, PreprocessingMetadata]]:
-        return self.with_empty_metadata("_")
+        return with_empty_metadata("_")
 
 
 class Word(ParsedSubtoken):
@@ -73,10 +73,10 @@ class Word(ParsedSubtoken):
         if repr_config.should_lowercase:
             subwords = do_ngram_splitting(self.canonic_form, repr_config.ngram_split_config)
             subwords_with_prefix = self.__with_capitalization_prefixes(subwords)
-            return self.with_empty_metadata(subwords_with_prefix)
+            return with_empty_metadata(subwords_with_prefix)
         else:
             subwords = do_ngram_splitting(self.__with_preserved_case(), repr_config.ngram_split_config)
-            return self.with_empty_metadata(subwords)
+            return with_empty_metadata(subwords)
 
     def __with_preserved_case(self) -> str:
         if self.capitalization == Capitalization.UNDEFINED or self.capitalization == Capitalization.NONE:

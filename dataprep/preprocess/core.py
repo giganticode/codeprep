@@ -6,10 +6,9 @@ from dataprep.split.ngram import NgramSplitConfig
 
 
 class ReprConfig(object):
-    def __init__(self, types_to_be_repr, ngram_split_config, dict_based_non_eng=True, should_lowercase=True):
+    def __init__(self, types_to_be_repr, ngram_split_config, should_lowercase=True):
         self.types_to_be_repr = types_to_be_repr
         self.ngram_split_config = ngram_split_config
-        self.dict_based_non_eng = dict_based_non_eng
         self.should_lowercase = should_lowercase
 
     @classmethod

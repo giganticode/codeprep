@@ -42,8 +42,7 @@ class PartialVocab(object):
         self.merged_word_counts = word_counts
         self.stats = [(1,
                        len(self.merged_word_counts),
-                       self.merged_word_counts[placeholders['non_eng']],
-                       self.merged_word_counts[placeholders['non_eng_content']])]
+                       self.merged_word_counts[placeholders['non_eng']])]
         self.n_files = 1
         self.chunk = chunk
         self.id = self._generate_id()
@@ -64,8 +63,7 @@ class PartialVocab(object):
         self.n_files += partial_vocab.n_files
         new_stats_entry = (self.n_files,
                            cur_vocab_size,
-                           self.merged_word_counts[placeholders['non_eng']],
-                           self.merged_word_counts[placeholders['non_eng_content']])
+                           self.merged_word_counts[placeholders['non_eng']])
         self.stats.extend(partial_vocab.stats + [new_stats_entry])
         return new_words
 
@@ -74,8 +72,8 @@ class PartialVocab(object):
         with open(path_to_stats_file, 'w') as f:
             vocabsize = int(stats[-1][1][0])
             f.write(f'{vocabsize}\n')
-            for percent, (v, n, nn) in stats:
-                f.write(f"{percent:.4f} {int(v)} {int(n)} {int(nn)}\n")
+            for percent, (v, n) in stats:
+                f.write(f"{percent:.4f} {int(v)} {int(n)}\n")
 
     def limit_max_vocab(self, vocab_size_threshold: int):
         sorted_vocab = sorted(self.merged_word_counts.items(), key=lambda x: x[1], reverse=True)

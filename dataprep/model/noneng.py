@@ -1,16 +1,16 @@
 from typing import List, Tuple
 
-from dataprep.model.core import ParsedToken, ParsedSubtoken
+from dataprep.model.containers import SplitContainer
+from dataprep.model.core import ParsedToken, with_empty_metadata
 from dataprep.model.metadata import PreprocessingMetadata
 from dataprep.model.placeholders import placeholders
-from dataprep.model.word import Word
 from dataprep.preprocess.core import ReprConfig, torepr
 
 
-class NonEng(ParsedSubtoken):
+class NonEng(ParsedToken):
     def __init__(self, processable_token):
-        if not isinstance(processable_token, Word):
-            raise ValueError(f"NonEngFullWord excepts FullWord but {type(processable_token)} is passed")
+        if not isinstance(processable_token, SplitContainer):
+            raise ValueError(f"Only SplitContainer can be wrapped in {self.__class__}. Type passed: {type(processable_token)}")
 
         self.processable_token = processable_token
 
@@ -18,25 +18,7 @@ class NonEng(ParsedSubtoken):
         return torepr(self.processable_token, repr_config)
 
     def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
-        # TODO refactor -> move this logic to parser
-        if not repr_config.dict_based_non_eng:
-            s, metadata = self.processable_token.non_preprocessed_repr(repr_config)
-            try:
-                s.encode('ascii')
-                return torepr(self.processable_token, repr_config)
-            except UnicodeEncodeError:
-                repr, metadata = torepr(self.processable_token, repr_config)
-                if repr[0] in [placeholders['capitals'], placeholders['capital']]:
-                    prep_tokens = [repr[0], placeholders['non_eng']]
-                else:
-                    prep_tokens = [placeholders['non_eng']]
-                return self.with_empty_metadata(prep_tokens)
-        repr, metadata = torepr(self.processable_token, repr_config)
-        if repr[0] in [placeholders['capitals'], placeholders['capital']]:
-            prep_tokens = [repr[0], placeholders['non_eng']]
-        else:
-            prep_tokens = [placeholders['non_eng']]
-        return self.with_empty_metadata(prep_tokens)
+        return with_empty_metadata([placeholders['non_eng']])
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.processable_token.__repr__()})'

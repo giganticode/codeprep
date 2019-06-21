@@ -26,8 +26,16 @@ class CliTest(unittest.TestCase):
 
     def test_parse_and_run_from_args_3x0xx(self, api_mock):
         argv = ['nosplit', 'str', '--no-spaces', '--no-unicode']
-        with self.assertRaises(DocoptExit) as context:
-            parse_and_run(argv)
+        parse_and_run(argv)
+        parse_and_run(argv)
+        prep_config = PrepConfig({
+            PrepParam.EN_ONLY: 3,
+            PrepParam.COM_STR: 0,
+            PrepParam.SPLIT: 0,
+            PrepParam.TABS_NEWLINES: 1,
+            PrepParam.CAPS: 0
+        })
+        api_mock.preprocess.assert_called_with("str", prep_config, None)
 
     def test_parse_and_run_x20xx(self, api_mock):
         argv = ['nosplit', 'str', '--no-spaces', '--no-str', '--no-com']

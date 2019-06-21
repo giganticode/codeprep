@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 @dsc.command()
 def nosplit_handler(args):
-    """usage: {program} nosplit (-p <path> [-e <ext>] [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--verbose]
+    """usage: {program} nosplit (-p <path> [-e <ext>] [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--verbose]
 
     Preprocesses the dataset without splitting compound identifier.
 
@@ -24,6 +24,7 @@ def nosplit_handler(args):
       --no-str, -S                                  Replace strings with <string> placeholders.
       --no-com, -C                                  Replace comments with <comment> placeholders.
       --no-spaces, -0                               Preserve newlines and tabs.
+      --no-unicode, -U                              Replace words containing non-ascii characters with <non-en> placeholders.
       --verbose, -v                                 Print logs with log level DEBUG and higher to stdout.
     """
     handle_splitting(args)
@@ -31,7 +32,7 @@ def nosplit_handler(args):
 
 @dsc.command()
 def ronin_handler(args):
-    """usage: {program} ronin (-p <path> [-e <ext>] [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--verbose]
+    """usage: {program} ronin (-p <path> [-e <ext>] [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--verbose]
 
     Preprocesses the dataset splitting identifiers with Ronin algorithm: http://joss.theoj.org/papers/10.21105/joss.00653.
 
@@ -45,6 +46,7 @@ def ronin_handler(args):
       --no-str, -S                                  Replace strings with <string> placeholders.
       --no-com, -C                                  Replace comments with <comment> placeholders.
       --no-spaces, -0                               Preserve newlines and tabs.
+      --no-unicode, -U                              Replace words containing non-ascii characters with <non-en> placeholders.
       --verbose, -v                                 Print logs with log level DEBUG and higher to stdout.
     """
     handle_splitting(args)

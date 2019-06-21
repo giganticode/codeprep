@@ -46,8 +46,16 @@ class CliTest(unittest.TestCase):
         self.assertEqual(expected_metadata, metadata)
 
     def test_create_prep_config_3x0xx(self):
-        with self.assertRaises(TypeError) as context:
-            dataprep.nosplit(input_text, "java", no_spaces=True, no_unicode=True)
+        actual = dataprep.nosplit(input_text, "java", no_spaces=True, no_unicode=True)
+
+        expected = ['void', 'test_WordUeberraschungPrinter', '(', ')', '{',
+                    'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', 'FIXME', ce,
+                    'printWord', '(', '"', '.', '.', '.', ne, '"', ')', ';',
+                    '}',
+                    '}'
+        ]
+
+        self.assertEqual(expected, actual)
 
     def test_create_prep_config_x20xx(self):
         actual, metadata = dataprep.nosplit(input_text, "java", no_spaces=True, no_str=True, no_com=True, return_metadata=True)
@@ -110,7 +118,7 @@ class CliTest(unittest.TestCase):
 
         expected = ['void', ws, 'test', '_', cap, 'word', cap, 'ueberraschung', cap, 'printer', we, '(', ')', '{',
                     'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', caps, 'fixme', ce,
-                    ws, 'print', cap, 'word', we, '(', '"', '.', '.', '.', cap, ne, '"', ')', ';',
+                    ws, 'print', cap, 'word', we, '(', '"', '.', '.', '.', ne, '"', ')', ';',
                     '}',
                     '}'
         ]

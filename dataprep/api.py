@@ -75,7 +75,7 @@ def create_prep_config_from_args(arguments: Dict) -> PrepConfig:
 
 
 def nosplit(text: str, extension: Optional[str] = None, no_str: bool=False, no_com: bool=False, no_spaces: bool=False,
-            return_metadata: bool=False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
+            no_unicode: bool=False, return_metadata: bool=False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
     """
     Split `text` into tokens leaving compound identifiers as they are.
 
@@ -86,6 +86,7 @@ def nosplit(text: str, extension: Optional[str] = None, no_str: bool=False, no_c
     :param no_str: set to True to replace each string literals with a special token, e.g <str_literal>.
     :param no_com: set to True to replace each comment with a special token, e.g. <comment>.
     :param no_spaces: set to True to remove tabs and newlines.
+    :param no_unicode: set to True to replace each word containing non-ascii characters to a special token,  e.g. <non-en>
     :param: return_metadata: if set to True additionally pre-processing metadata is returned.
     :return: list of tokens `text` was split into. If `return_metadata` is set to True,
     the tuple is returned with the list of preprocessed tokens as the first element
@@ -96,6 +97,7 @@ def nosplit(text: str, extension: Optional[str] = None, no_str: bool=False, no_c
         '--no-str': no_str,
         '--no-com': no_com,
         '--no-spaces': no_spaces,
+        '--no-unicode': no_unicode,
         'nosplit': True
     }
     d.update(args)
@@ -103,7 +105,7 @@ def nosplit(text: str, extension: Optional[str] = None, no_str: bool=False, no_c
 
 
 def ronin(text: str, extension: Optional[str] = None, no_str: bool=False, no_com: bool=False, no_spaces: bool=False,
-            return_metadata: bool=False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
+            no_unicode: bool=False, return_metadata: bool=False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
     """
     Split `text` into tokens leaving compound identifiers as they are.
 
@@ -114,6 +116,7 @@ def ronin(text: str, extension: Optional[str] = None, no_str: bool=False, no_com
     :param no_str: set to True to replace each string literals with a special token, e.g <str_literal>.
     :param no_com: set to True to replace each comment with a special token, e.g. <comment>.
     :param no_spaces: set to True to remove tabs and newlines.
+    :param no_unicode: set to True to replace each word containing non-ascii characters to a special token,  e.g. <non-en>
     :param: return_metadata: if set to True additionally pre-processing metadata is returned.
     :return: list of tokens `text` was split into. If `return_metadata` is set to True,
     the tuple is returned with the list of preprocessed tokens as the first element
@@ -124,6 +127,7 @@ def ronin(text: str, extension: Optional[str] = None, no_str: bool=False, no_com
         '--no-str': no_str,
         '--no-com': no_com,
         '--no-spaces': no_spaces,
+        '--no-unicode': no_unicode,
         'ronin': True
     }
     d.update(args)
