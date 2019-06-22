@@ -71,7 +71,7 @@ def preprocess_and_write(params: Tuple[bytes, bytes, PrepConfig, str]):
 
 def init_splitting_config(prep_config: PrepConfig, custom_bpe_config: Optional[CustomBpeConfig]):
     global global_n_gramm_splitting_config
-    if 'global_bpe_data' in globals():
+    if 'global_n_gramm_splitting_config' in globals():
         return # already initialized
     global_n_gramm_splitting_config = NgramSplitConfig()
     if prep_config.get_param_value(PrepParam.SPLIT) in [4, 5, 6, 7, 8, 9]:
