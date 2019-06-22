@@ -66,6 +66,8 @@ def preprocess_and_write(params: Tuple[bytes, bytes, PrepConfig, str]):
 
 def init_bpe_data(prep_config: PrepConfig, custom_bpe_config: Optional[CustomBpeConfig]):
     global global_bpe_data
+    if 'global_bpe_data' in globals():
+        return # already initialized
     global_bpe_data = BpeData()
     if prep_config.get_param_value(PrepParam.SPLIT) in [4, 5, 6, 7, 8, 9]:
         if custom_bpe_config:
