@@ -1,3 +1,4 @@
+from spiral import ronin
 from typing import List, Tuple, Union, Optional
 
 from dataprep.model.core import ParsedToken, ParsedSubtoken
@@ -5,7 +6,6 @@ from dataprep.model.metadata import PreprocessingMetadata
 from dataprep.model.placeholders import placeholders
 from dataprep.model.word import Word
 from dataprep.preprocess.core import ReprConfig, torepr
-from dataprep.split.ngram import NgramSplittingType, do_ngram_splitting
 
 
 class ProcessableTokenContainer(ParsedToken):
@@ -49,14 +49,10 @@ class SplitContainer(ProcessableTokenContainer):
         return f'{self.__class__.__name__}{self.subtokens}'
 
     def non_preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
-        # TODO refactor
+        #TODO code duplication here and in Number class (wrapping in word boundaries and metadata extraction)
         nospl_str = "".join(map(lambda s: torepr(s, repr_config)[0][0], self.subtokens))
-        if repr_config.ngram_split_config and repr_config.ngram_split_config.splitting_type == NgramSplittingType.RONIN:
-            parts = do_ngram_splitting(nospl_str, repr_config.ngram_split_config)
-        else:
-            parts = [nospl_str]
+        parts = ronin.split(nospl_str) if repr_config.is_ronin else [nospl_str]
         return self.with_full_word_metadata(wrap_in_word_boundaries_if_necessary(parts))
-        # return "".join(map(lambda s: s.non_preprocessed_repr(repr_config) if isinstance(s, NonEng) else str(s), self.subtokens))
 
     def preprocessed_repr(self, repr_config) -> Tuple[List[str], PreprocessingMetadata]:
         res = []

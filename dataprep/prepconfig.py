@@ -1,13 +1,20 @@
+"""
+This module encapsulate all the tricky ilogic of encoding preprocessing options into e.g. 30100
+"""
+
 import logging
 from enum import Enum
 
-from typing import Dict, List, Type
+from typing import Dict, List, Type, Callable, Optional
 
+from dataprep.bpepkg.bpe_encode import BpeData, get_bpe_subwords
 from dataprep.model.containers import SplitContainer, StringLiteral, OneLineComment, MultilineComment
-from dataprep.model.noneng import NonEng, NonEngContent
+from dataprep.model.noneng import NonEng
 from dataprep.model.numeric import Number
 from dataprep.model.whitespace import NewLine, Tab
 from dataprep.model.word import Word
+
+from dataprep.preprocess.core import ReprConfig
 
 logger = logging.getLogger(__name__)
 
@@ -117,6 +124,51 @@ class PrepConfig(object):
     def __eq__(self, other):
         return self.params == other.params
 
+    def get_number_splitter(self) -> Callable[[str, BpeData], List[str]]:
+        split_param_value = self.get_param_value(PrepParam.SPLIT)
+        if split_param_value in [0, 1]:
+            return lambda s,c: [s]
+        elif split_param_value in [2, 3]:
+            return lambda s,c: [ch for ch in s]
+        elif split_param_value in [4, 5, 6, 7, 8, 9]:
+            return lambda s,c: get_bpe_subwords(s, c)
+        else:
+            raise ValueError(f"Invalid SPLIT param value: {split_param_value}")
+
+    def get_word_splitter(self) -> Optional[Callable[[str, BpeData], List[str]]]:
+        split_param_value = self.get_param_value(PrepParam.SPLIT)
+        if split_param_value in [4, 5, 6, 7, 8, 9]:
+            return lambda s, c: get_bpe_subwords(s, c)
+        elif split_param_value in [1, 2]:
+            return lambda s,c: [s]
+        elif split_param_value in [0, 3]:
+            return None
+        else:
+            raise ValueError(f"Invalid SPLIT param value: {split_param_value}")
+
+    def is_ronin(self):
+        return self.get_param_value(PrepParam.SPLIT) == 3
+
+    def get_types_to_be_repr(self) -> List[Type]:
+        res = []
+        if self.get_param_value(PrepParam.SPLIT) in [1, 2, 4, 5, 6, 7, 8, 9]:
+            res.extend([SplitContainer, Word])
+        if self.get_param_value(PrepParam.SPLIT) in [2, 3, 4, 5, 6, 7, 8, 9]:
+            res.append(Number)
+        res.extend(com_str_to_types_to_be_repr[self.get_param_value(PrepParam.COM_STR)])
+        res.extend(en_only_to_types_to_be_repr[self.get_param_value(PrepParam.EN_ONLY)])
+        if self.get_param_value(PrepParam.TABS_NEWLINES):
+            res.extend([NewLine, Tab])
+        return res
+
+    def get_repr_config(self, bpe_data: BpeData):
+        return ReprConfig(self.get_types_to_be_repr(),
+                          bpe_data,
+                          self.get_param_value(PrepParam.CAPS) == 1,
+                          self.get_number_splitter(),
+                          self.get_word_splitter(),
+                          self.is_ronin())
+
 
 com_str_to_types_to_be_repr = {
     0: [],
@@ -129,16 +181,3 @@ en_only_to_types_to_be_repr = {
     0: [],
     3: [NonEng]
 }
-
-
-def get_types_to_be_repr(prep_config: PrepConfig) -> List[Type]:
-    res = []
-    if prep_config.get_param_value(PrepParam.SPLIT) in [1, 2, 4, 5, 6, 7, 8, 9]:
-        res.extend([SplitContainer, Word])
-    if prep_config.get_param_value(PrepParam.SPLIT) in [2, 4, 5, 6, 7, 8, 9]:
-        res.append(Number)
-    res.extend(com_str_to_types_to_be_repr[prep_config.get_param_value(PrepParam.COM_STR)])
-    res.extend(en_only_to_types_to_be_repr[prep_config.get_param_value(PrepParam.EN_ONLY)])
-    if prep_config.get_param_value(PrepParam.TABS_NEWLINES):
-        res.extend([NewLine, Tab])
-    return res

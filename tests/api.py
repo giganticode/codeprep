@@ -254,7 +254,7 @@ class CliTest(unittest.TestCase):
         actual = dataprep.ronin(input_text, "java")
 
         expected = ['void', ws, 'test', 'Word', 'Ueberraschung', 'Printer', we, '(', ')', '{',  '\n',
-                    '\t', 'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', ws, 'FIX', 'ME', we, '\n', ce,
+                    '\t', 'if', '(', 'eps', '>', '=', ws ,'0', '.', '3', '4', '5', 'e', '+', '4', we, ')', '{', '/', '/', ws, 'FIX', 'ME', we, '\n', ce,
                     '\t', '\t', ws, 'print', 'Word', we, '(', '"', '\t', '.', '.', '.', '\t', 'Überraschung', '"', ')', ';', '\n',
                     '\t', '}', '\n',
                     '}'

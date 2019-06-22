@@ -9,6 +9,12 @@ from dataprep.bpepkg.merge import MergeList, read_merges
 logger = logging.getLogger(__name__)
 
 
+class BpeData(object):
+    def __init__(self, merges_cache=None, merges: MergeList=None):
+        self.merges_cache = merges_cache
+        self.merges = merges
+
+
 def encode(words: Dict[str, int], merges: MergeList) -> Dict[str, int]:
     letters_list = {" ".join(k): v for k, v in words.items()}
 
@@ -38,6 +44,15 @@ def encode_word(word: str, merges: MergeList) -> List[str]:
     enc_word, _ = encode({word: 0}, merges).popitem()
     subwords = enc_word.split(" ")
     return subwords
+
+
+def get_bpe_subwords(word: str, bpe_data: BpeData) -> List[str]:
+    merges = bpe_data.merges
+    cache = bpe_data.merges_cache
+    if word in cache:
+        return cache[word]
+    else:
+        return encode_word(word, merges)
 
 
 __all__ = [encode, encode_word]

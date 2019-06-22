@@ -1,5 +1,6 @@
 import unittest
 
+from dataprep.bpepkg.bpe_encode import BpeData
 from dataprep.bpepkg.merge import MergeList, Merge
 from dataprep.model.containers import SplitContainer, OneLineComment, MultilineComment, StringLiteral
 from dataprep.model.metadata import PreprocessingMetadata
@@ -9,7 +10,6 @@ from dataprep.model.placeholders import placeholders
 from dataprep.model.whitespace import NewLine, Tab
 from dataprep.model.word import Word, Underscore
 from dataprep.prepconfig import PrepParam, PrepConfig
-from dataprep.split.ngram import NgramSplittingType, NgramSplitConfig
 from dataprep.to_repr import to_repr
 
 pl = placeholders
@@ -66,7 +66,7 @@ class ReprTest(unittest.TestCase):
                 PrepParam.TABS_NEWLINES: 1,
                 PrepParam.CAPS: 1
             })
-            to_repr(prep_config, [], NgramSplitConfig())
+            to_repr(prep_config, [], BpeData())
 
     def test_to_repr_0(self):
         prep_config = PrepConfig({
@@ -77,7 +77,7 @@ class ReprTest(unittest.TestCase):
             PrepParam.CAPS: 0
         })
 
-        actual, actual_metadata = to_repr(prep_config, tokens, NgramSplitConfig())
+        actual, actual_metadata = to_repr(prep_config, tokens, BpeData())
 
         expected = [
             '1.1',
@@ -104,7 +104,7 @@ class ReprTest(unittest.TestCase):
             PrepParam.CAPS: 1
         })
 
-        actual, actual_metadata = to_repr(prep_config, tokens, NgramSplitConfig())
+        actual, actual_metadata = to_repr(prep_config, tokens, BpeData())
 
         expected = [
             '1.1',
@@ -134,9 +134,7 @@ class ReprTest(unittest.TestCase):
             PrepParam.CAPS: 1
         })
 
-        ngramSplittingConfig = NgramSplitConfig(splitting_type=NgramSplittingType.ONLY_NUMBERS)
-
-        actual, actual_metadata = to_repr(prep_config, tokens, ngramSplittingConfig)
+        actual, actual_metadata = to_repr(prep_config, tokens, BpeData())
 
         expected = [
             pl["word_start"],
@@ -167,8 +165,6 @@ class ReprTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: 1,
             PrepParam.CAPS: 1
         })
-
-        ngramSplittingConfig = NgramSplitConfig(splitting_type=NgramSplittingType.ONLY_NUMBERS)
 
         tokens = [
             Number([1, '.', 1]),
@@ -214,7 +210,7 @@ class ReprTest(unittest.TestCase):
             ])
         ]
 
-        actual, actual_metadata = to_repr(prep_config, tokens, ngramSplittingConfig)
+        actual, actual_metadata = to_repr(prep_config, tokens, BpeData())
 
         expected = [
             pl['word_start'],
@@ -250,9 +246,7 @@ class ReprTest(unittest.TestCase):
             PrepParam.CAPS: 1
         })
 
-        ngramSplittingConfig = NgramSplitConfig(splitting_type=NgramSplittingType.ONLY_NUMBERS)
-
-        actual, actual_metadata = to_repr(prep_config, tokens, ngramSplittingConfig)
+        actual, actual_metadata = to_repr(prep_config, tokens, BpeData())
 
         expected = [
             pl['word_start'],
@@ -286,10 +280,7 @@ class ReprTest(unittest.TestCase):
             PrepParam.CAPS: 1
         })
 
-        ngramSplittingConfig = NgramSplitConfig(splitting_type=NgramSplittingType.ONLY_NUMBERS,
-                                                )
-
-        actual, actual_metadata = to_repr(prep_config, tokens, ngramSplittingConfig)
+        actual, actual_metadata = to_repr(prep_config, tokens, BpeData())
 
         expected = [
             pl['word_start'],
@@ -325,9 +316,7 @@ class ReprTest(unittest.TestCase):
             PrepParam.CAPS: 1
         })
 
-        ngramSplittingConfig = NgramSplitConfig(splitting_type=NgramSplittingType.ONLY_NUMBERS)
-
-        actual, actual_metadata = to_repr(prep_config, tokens, ngramSplittingConfig)
+        actual, actual_metadata = to_repr(prep_config, tokens, BpeData())
 
         expected = [
             pl['word_start'],
@@ -362,9 +351,7 @@ class ReprTest(unittest.TestCase):
             PrepParam.CAPS: 1
         })
 
-        ngramSplittingConfig = NgramSplitConfig(splitting_type=NgramSplittingType.ONLY_NUMBERS)
-
-        actual, actual_metadata = to_repr(prep_config, tokens, ngramSplittingConfig)
+        actual, actual_metadata = to_repr(prep_config, tokens, BpeData())
 
         expected = [
             pl['word_start'],
@@ -398,10 +385,38 @@ class ReprTest(unittest.TestCase):
             PrepParam.CAPS: 1
         })
 
-        ngramSplittingConfig = NgramSplitConfig(splitting_type=NgramSplittingType.BPE,
-                                                merges=MergeList(), merges_cache={})
+        actual, actual_metadata = to_repr(prep_config, tokens, BpeData(merges_cache={}, merges=MergeList()))
 
-        actual, actual_metadata = to_repr(prep_config, tokens, ngramSplittingConfig)
+        expected = [
+            pl['word_start'],
+            '1',
+            '.',
+            '1',
+            pl['word_end'],
+            "*",
+            pl['non_eng'],
+            '"', pl['non_eng'], '"',
+            '/', '*', pl['non_eng'], pl['non_eng'], '*', '/',
+            '/', '/', pl['non_eng'],
+            pl['olc_end']
+        ]
+
+        expected_metadata = PreprocessingMetadata({'*', '"', "/", "*"},
+                                                  word_boundaries=[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15])
+
+        self.assertEqual(expected, actual)
+        self.assertEqual(expected_metadata, actual_metadata)
+
+    def test_to_repr_ronin(self):
+        prep_config = PrepConfig({
+            PrepParam.EN_ONLY: 3,
+            PrepParam.COM_STR: 0,
+            PrepParam.SPLIT: 3,
+            PrepParam.TABS_NEWLINES: 1,
+            PrepParam.CAPS: 0
+        })
+
+        actual, actual_metadata = to_repr(prep_config, tokens, BpeData(merges_cache={}, merges=MergeList()))
 
         expected = [
             pl['word_start'],
@@ -437,12 +452,9 @@ class ReprTest(unittest.TestCase):
             PrepParam.CAPS: 1
         })
 
-        ngramSplittingConfig = NgramSplitConfig(splitting_type=NgramSplittingType.BPE,
-                                                merges_cache={'while': ['while']})
-
         tokens = [SplitContainer.from_single_token("While")]
 
-        actual, actual_metadata = to_repr(prep_config, tokens, ngramSplittingConfig)
+        actual, actual_metadata = to_repr(prep_config, tokens, BpeData(merges_cache={'while': ['while']}))
 
         expected = [pl['capital'], "while", ]
 
@@ -460,13 +472,10 @@ class ReprTest(unittest.TestCase):
             PrepParam.CAPS: 1
         })
 
-        ngramSplittingConfig = NgramSplitConfig(splitting_type=NgramSplittingType.BPE,
-                                                merges=MergeList().append(Merge(('w', 'h'), 10)),
-                                                merges_cache={})
-
         tokens = [SplitContainer.from_single_token("While")]
 
-        actual, actual_metadata = to_repr(prep_config, tokens, ngramSplittingConfig)
+        actual, actual_metadata = to_repr(prep_config, tokens, BpeData(merges=MergeList().append(Merge(('w', 'h'), 10)),
+                                                                        merges_cache={} ))
 
         expected = [pl['word_start'], pl['capital'], "wh", "i", "l", "e", pl["word_end"]]
 

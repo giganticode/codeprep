@@ -1,12 +1,12 @@
 import unittest
 
+from dataprep.bpepkg.bpe_encode import BpeData
 from dataprep.model.containers import SplitContainer
 from dataprep.model.numeric import Number
 from dataprep.model.placeholders import placeholders
 from dataprep.model.word import Word, Underscore
 from dataprep.parse.core import convert_text
 from dataprep.prepconfig import PrepConfig
-from dataprep.split.ngram import NgramSplitConfig, NgramSplittingType
 from dataprep.to_repr import to_repr
 
 test_cases = {
@@ -74,8 +74,6 @@ bpe_merges_cache = {
     "info": ["info"]
 }
 
-ngram_split_config = NgramSplitConfig(NgramSplittingType.BPE, merges_cache=bpe_merges_cache)
-
 
 class SubwordSeparation(unittest.TestCase):
     def test(self):
@@ -84,7 +82,7 @@ class SubwordSeparation(unittest.TestCase):
 
             self.assertEqual(output_tuple[0], parsed)
 
-            repred, metadata = to_repr(PrepConfig.from_encoded_string('30411'), parsed, ngram_split_config)
+            repred, metadata = to_repr(PrepConfig.from_encoded_string('30411'), parsed, BpeData(merges_cache=bpe_merges_cache))
 
             self.assertEqual(output_tuple[1], repred)
 

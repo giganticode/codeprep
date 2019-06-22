@@ -4,7 +4,6 @@ from dataprep.model.core import ParsedToken
 from dataprep.model.metadata import PreprocessingMetadata
 from dataprep.model.placeholders import placeholders
 from dataprep.preprocess.core import ReprConfig
-from dataprep.split.ngram import NgramSplittingType, do_ngram_splitting
 
 
 class Number(ParsedToken):
@@ -22,17 +21,8 @@ class Number(ParsedToken):
     def non_preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[str, PreprocessingMetadata]:
         return self.with_full_word_metadata("".join([str(w) for w in self.parts_of_number]))
 
-    def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str],PreprocessingMetadata]:
-        if repr_config.ngram_split_config is None:
-            r, metadata = self.non_preprocessed_repr(repr_config)
-            return (r if isinstance(r, list) else [r]), metadata
-
-        if repr_config.ngram_split_config.splitting_type == NgramSplittingType.ONLY_NUMBERS:
-            subwords = [str(w) for w in self.parts_of_number]
-        elif repr_config.ngram_split_config.splitting_type is not None:
-            subwords = do_ngram_splitting(self.non_preprocessed_repr(repr_config)[0], repr_config.ngram_split_config)
-        else:
-            subwords = [self.non_preprocessed_repr(repr_config)[0]]
+    def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
+        subwords = repr_config.number_splitter(self.non_preprocessed_repr(repr_config)[0], repr_config.bpe_data)
 
         if len(subwords ) > 1:
             subwords_with_boundaries = [placeholders['word_start']] + subwords + [placeholders['word_end']]

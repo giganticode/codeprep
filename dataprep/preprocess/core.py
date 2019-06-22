@@ -1,19 +1,27 @@
 from typing import Generator, Union, Tuple, List
 
+from dataprep.bpepkg.bpe_encode import BpeData
 from dataprep.model.core import ParsedToken
 from dataprep.model.metadata import PreprocessingMetadata
-from dataprep.split.ngram import NgramSplitConfig
 
 
 class ReprConfig(object):
-    def __init__(self, types_to_be_repr, ngram_split_config, should_lowercase=True):
+    def __init__(self, types_to_be_repr,
+                 bpe_data,
+                 should_lowercase,
+                 number_splitter,
+                 word_splitter,
+                 is_ronin):
         self.types_to_be_repr = types_to_be_repr
-        self.ngram_split_config = ngram_split_config
+        self.bpe_data = bpe_data
         self.should_lowercase = should_lowercase
+        self.number_splitter = number_splitter
+        self.word_splitter = word_splitter
+        self.is_ronin = is_ronin
 
     @classmethod
     def empty(cls):
-        return cls([], NgramSplitConfig())
+        return cls([], BpeData())
 
 
 def to_repr_list(token_list: Generator[Union[str, ParsedToken], None, None], repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:

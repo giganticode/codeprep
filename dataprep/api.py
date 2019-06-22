@@ -8,7 +8,7 @@ from dataprep.model.metadata import PreprocessingMetadata
 from dataprep.model.whitespace import NewLine
 from dataprep.parse.core import convert_text
 from dataprep.prepconfig import PrepConfig, PrepParam
-from dataprep.to_repr import init_splitting_config, to_repr
+from dataprep.to_repr import init_bpe_data, to_repr
 
 
 def remove_trailing_newline(prep_tokens: List[Union[ParsedToken, str]]) -> List[Union[ParsedToken, str]]:
@@ -21,7 +21,7 @@ def preprocess(text: str, config: PrepConfig, bpe_codes_id: Optional[str] = None
     custom_bpe_config = None
     if bpe_codes_id and not is_predefined_id(bpe_codes_id):
         custom_bpe_config = CustomBpeConfig.from_id(bpe_codes_id)
-    init_splitting_config(config, custom_bpe_config)
+    init_bpe_data(config, custom_bpe_config)
     prep_tokens, metadata = to_repr(config, remove_trailing_newline(parsed))
     if return_metadata:
         return prep_tokens, metadata
