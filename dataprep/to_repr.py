@@ -113,7 +113,8 @@ def run(dataset: Dataset, custom_bpe_config: Optional[CustomBpeConfig]) -> None:
         exit(3)
     logger.info(f"Reading parsed files from: {path_to_parsed_dataset}")
 
-    init_bpe_data(dataset.prep_config, custom_bpe_config)
+    if dataset.prep_config.is_bpe():
+        init_bpe_data(dataset.prep_config, custom_bpe_config)
 
     nonbpe_vocab_part_folder = f'{dataset.path_to_nonbpe_vocab_file}_part'
     if not os.path.exists(nonbpe_vocab_part_folder) and not os.path.exists(dataset.path_to_nonbpe_vocab_file):
