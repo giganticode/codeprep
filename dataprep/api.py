@@ -16,12 +16,12 @@ def remove_trailing_newline(prep_tokens: List[Union[ParsedToken, str]]) -> List[
 
 
 def preprocess(text: str, config: PrepConfig, bpe_codes_id: Optional[str] = None, extension: Optional[str] = None,
-               return_metadata: bool=False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
+               return_metadata: bool=False, force_reinit_bpe_data: bool=True) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
     parsed = [parsed_token for parsed_token in convert_text(text, extension)]
-    custom_bpe_config = None
-    if bpe_codes_id and not is_predefined_id(bpe_codes_id):
-        custom_bpe_config = CustomBpeConfig.from_id(bpe_codes_id)
-    init_bpe_data(config, custom_bpe_config)
+    if config.is_bpe():
+        assert bpe_codes_id
+        custom_bpe_config = None if is_predefined_id(bpe_codes_id) else CustomBpeConfig.from_id(bpe_codes_id)
+        init_bpe_data(config, custom_bpe_config, force_reinit_bpe_data)
     prep_tokens, metadata = to_repr(config, remove_trailing_newline(parsed))
     if return_metadata:
         return prep_tokens, metadata
@@ -167,7 +167,7 @@ def chars(text: str, extension: Optional[str] = None,
         'chars': True
     }
     d.update(args)
-    return preprocess(text, create_prep_config_from_args(d), extension=extension, return_metadata=return_metadata)
+    return preprocess(text, create_prep_config_from_args(d), '0', extension=extension, return_metadata=return_metadata)
 
 
 def basic(text: str, extension: Optional[str] = None,
@@ -246,7 +246,7 @@ def basic_with_numbers(text: str, extension: Optional[str] = None,
 
 def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None,
         no_str: bool=False, no_com: bool=False, no_spaces: bool=False, no_unicode: bool=False, no_case: bool=False,
-        return_metadata: bool=False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
+        return_metadata: bool=False, force_reinit_bpe_data: bool=True) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
     """
     Split `text` into tokens converting identifiers that follow CamelCase or snake_case into multiple subwords.
     On top of that Byte Pair Encoding (BPE) is applied with number of merges specified in `bpe_config`.
@@ -265,7 +265,12 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None,
     :param no_case: set to True to lowercase identifiers and encode information about their case in a separate token,
     e.g. Identifier -> [<Cap>, identifier]; IDENTIFIER -> [<CAPS>, identifier]
     :param no_unicode: set to True to replace each word containing non-ascii characters to a special token,  e.g. <non-en>
-    :param: return_metadata: if set to True additionally pre-processing metadata is returned.
+    :param force_reinit_bpe_data: if set to True, bpe data (merges and bpe cache) is reloaded from the disk
+    even if it has been loaded already (for example if this method has been called before). Defaults to True.
+    Set this param to False if you want to call this method in a loop.
+    Note: if you want to call this method multiple times with different bpe code ids, bpe data has to be reloaded,
+    so you must not set this param to False!
+    :param return_metadata: if set to True additionally pre-processing metadata is returned.
     :return: list of tokens `text` was split into. If `return_metadata` is set to True,
     the tuple is returned with the list of preprocessed tokens as the first element
     and pre-processing metadata as the second element (object of :class:`dataprep.model.metadata.Preprocessing.PreprocessingMetadata`)
@@ -281,6 +286,7 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None,
         bpe_codes_id: True
     }
     d.update(args)
-    return preprocess(text, create_prep_config_from_args(d), bpe_codes_id, extension=extension, return_metadata=return_metadata)
+    return preprocess(text, create_prep_config_from_args(d), bpe_codes_id, extension=extension,
+                      return_metadata=return_metadata, force_reinit_bpe_data=force_reinit_bpe_data)
 
 

@@ -77,7 +77,7 @@ class ReprTest(unittest.TestCase):
             PrepParam.CAPS: 0
         })
 
-        actual, actual_metadata = to_repr(prep_config, tokens, BpeData())
+        actual, actual_metadata = to_repr(prep_config, tokens)
 
         expected = [
             '1.1',
@@ -104,7 +104,7 @@ class ReprTest(unittest.TestCase):
             PrepParam.CAPS: 1
         })
 
-        actual, actual_metadata = to_repr(prep_config, tokens, BpeData())
+        actual, actual_metadata = to_repr(prep_config, tokens)
 
         expected = [
             '1.1',
@@ -134,7 +134,7 @@ class ReprTest(unittest.TestCase):
             PrepParam.CAPS: 1
         })
 
-        actual, actual_metadata = to_repr(prep_config, tokens, BpeData())
+        actual, actual_metadata = to_repr(prep_config, tokens)
 
         expected = [
             pl["word_start"],
@@ -210,7 +210,7 @@ class ReprTest(unittest.TestCase):
             ])
         ]
 
-        actual, actual_metadata = to_repr(prep_config, tokens, BpeData())
+        actual, actual_metadata = to_repr(prep_config, tokens)
 
         expected = [
             pl['word_start'],
@@ -246,7 +246,7 @@ class ReprTest(unittest.TestCase):
             PrepParam.CAPS: 1
         })
 
-        actual, actual_metadata = to_repr(prep_config, tokens, BpeData())
+        actual, actual_metadata = to_repr(prep_config, tokens)
 
         expected = [
             pl['word_start'],
@@ -280,7 +280,7 @@ class ReprTest(unittest.TestCase):
             PrepParam.CAPS: 1
         })
 
-        actual, actual_metadata = to_repr(prep_config, tokens, BpeData())
+        actual, actual_metadata = to_repr(prep_config, tokens)
 
         expected = [
             pl['word_start'],
@@ -316,7 +316,7 @@ class ReprTest(unittest.TestCase):
             PrepParam.CAPS: 1
         })
 
-        actual, actual_metadata = to_repr(prep_config, tokens, BpeData())
+        actual, actual_metadata = to_repr(prep_config, tokens)
 
         expected = [
             pl['word_start'],
@@ -351,7 +351,7 @@ class ReprTest(unittest.TestCase):
             PrepParam.CAPS: 1
         })
 
-        actual, actual_metadata = to_repr(prep_config, tokens, BpeData())
+        actual, actual_metadata = to_repr(prep_config, tokens)
 
         expected = [
             pl['word_start'],

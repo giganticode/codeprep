@@ -161,13 +161,22 @@ class PrepConfig(object):
             res.extend([NewLine, Tab])
         return res
 
-    def get_repr_config(self, bpe_data: BpeData):
+    def get_repr_config(self, bpe_data: Optional[BpeData]):
         return ReprConfig(self.get_types_to_be_repr(),
                           bpe_data,
                           self.get_param_value(PrepParam.CAPS) == 1,
                           self.get_number_splitter(),
                           self.get_word_splitter(),
                           self.is_ronin())
+
+    def is_bpe(self):
+        """
+        Check if this config corresponds to preprocessing with BPE.
+        Note: splitting into chars is implemented as BPE with 0 merges, so in this case this method will also return True.
+
+        :return: True if this config corresponds to preprocessing with BPE, False otherwise.
+        """
+        return self.get_param_value(PrepParam.SPLIT) in [4, 5, 6, 7, 8, 9]
 
 
 com_str_to_types_to_be_repr = {
