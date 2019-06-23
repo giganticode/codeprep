@@ -26,13 +26,13 @@ from dataprep.vocab import vocabloader
 logger = logging.getLogger(__name__)
 
 
-def get_global_bpe_data():
-    return global_bpe_data
+def get_global_bpe_data_if_available() -> Optional[BpeData]:
+    return global_bpe_data if 'global_bpe_data' in globals() else None
 
 
 def to_repr(prep_config: PrepConfig, token_list: List[Union[str, ParsedToken]],
             bpe_data: Optional[BpeData] = None) -> Tuple[List[str], PreprocessingMetadata]:
-    bpe_data = bpe_data or get_global_bpe_data() if prep_config.is_bpe() else None
+    bpe_data = bpe_data or get_global_bpe_data_if_available()
     repr_list, metadata = to_repr_list(token_list, prep_config.get_repr_config(bpe_data))
     return repr_list, metadata
 
@@ -55,7 +55,7 @@ def preprocess_and_write(params: Tuple[bytes, bytes, PrepConfig, str]):
     not_finished_dest_file_path = dest_file_path + NOT_FINISHED_EXTENSION.encode()
     with gzip.GzipFile(src_file_path, 'rb') as i, open(not_finished_dest_file_path, 'w') as o:
         token_list = pickle.load(i)
-        repr, metadata = to_repr(prep_config, token_list, global_bpe_data)
+        repr, metadata = to_repr(prep_config, token_list, get_global_bpe_data_if_available())
         o.write(to_token_str(repr))
 
     if part_nonbpe_vocab_folder:
@@ -65,9 +65,9 @@ def preprocess_and_write(params: Tuple[bytes, bytes, PrepConfig, str]):
 
 
 def init_bpe_data(prep_config: PrepConfig, custom_bpe_config: Optional[CustomBpeConfig], force_reinit: bool=True):
-    global global_bpe_data
-    if 'global_bpe_data' in globals() and not force_reinit:
+    if get_global_bpe_data_if_available() and not force_reinit:
         return # already initialized
+    global global_bpe_data
     global_bpe_data = BpeData()
     if custom_bpe_config:
         logger.info(f'Using bpe merges file: {custom_bpe_config.codes_file}')
