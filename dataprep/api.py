@@ -31,46 +31,46 @@ def preprocess(text: str, config: PrepConfig, bpe_codes_id: Optional[str] = None
 
 def create_split_value(arguments):
     if 'nosplit' in arguments and arguments['nosplit']:
-        return 0
+        return '0'
     elif 'chars' in arguments and arguments['chars']:
-        return 8
+        return '8'
     elif 'ronin' in arguments and arguments['ronin']:
-        return 3
+        return '3'
     elif 'basic' in arguments and arguments['basic']:
-        return 1
+        return '1'
     elif 'basic+numbers' in arguments and arguments['basic+numbers']:
-        return 2
+        return '2'
     elif 'bpe' in arguments and arguments['bpe']:
         if arguments['1k']:
-            return 5
+            return '5'
         elif arguments['5k']:
-            return 4
+            return '4'
         elif arguments['10k']:
-            return 6
+            return '6'
         else:
-            return 9
+            return '9'
     else:
         raise AssertionError(f"Invalid split option: {arguments}")
 
 
 def create_com_str_value(arguments):
     if arguments['--no-com'] and arguments['--no-str']:
-        return 2
+        return '2'
     elif arguments['--no-com'] and not arguments['--no-str']:
-        return 3
+        return '3'
     elif not arguments['--no-com'] and arguments['--no-str']:
-        return 1
+        return '1'
     else: # com and str present
-        return 0
+        return '0'
 
 
 def create_prep_config_from_args(arguments: Dict) -> PrepConfig:
     return PrepConfig({
-        PrepParam.EN_ONLY: 3 if '--no-unicode' in arguments and arguments['--no-unicode'] else 0,
+        PrepParam.EN_ONLY: 'U' if '--no-unicode' in arguments and arguments['--no-unicode'] else 'u',
         PrepParam.COM_STR: create_com_str_value(arguments),
         PrepParam.SPLIT: create_split_value(arguments),
-        PrepParam.TABS_NEWLINES: 1 if arguments['--no-spaces'] else 0,
-        PrepParam.CAPS: 1 if '--no-case' in arguments and arguments['--no-case'] else 0
+        PrepParam.TABS_NEWLINES: '0' if arguments['--no-spaces'] else 's',
+        PrepParam.CASE: 'l' if '--no-case' in arguments and arguments['--no-case'] else 'u'
     })
 
 

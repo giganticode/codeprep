@@ -60,21 +60,21 @@ class ReprTest(unittest.TestCase):
     def test_both_enonly_and_nosplit(self):
         with self.assertRaises(ValueError):
             prep_config = PrepConfig({
-                PrepParam.EN_ONLY: 3,
-                PrepParam.COM_STR: 0,
-                PrepParam.SPLIT: 0,
-                PrepParam.TABS_NEWLINES: 1,
-                PrepParam.CAPS: 1
+                PrepParam.EN_ONLY: 'U',
+                PrepParam.COM_STR: '0',
+                PrepParam.SPLIT: '0',
+                PrepParam.TABS_NEWLINES: '0',
+                PrepParam.CASE: 'l'
             })
             to_repr(prep_config, [], BpeData())
 
     def test_to_repr_0(self):
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 0,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 0,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 0
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '0',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'u'
         })
 
         actual, actual_metadata = to_repr(prep_config, tokens)
@@ -97,11 +97,11 @@ class ReprTest(unittest.TestCase):
 
     def test_to_repr_1_nosep(self):
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 3,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 1,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 1
+            PrepParam.EN_ONLY: 'U',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '1',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'l'
         })
 
         actual, actual_metadata = to_repr(prep_config, tokens)
@@ -127,11 +127,11 @@ class ReprTest(unittest.TestCase):
 
     def test_to_repr_2_nosep(self):
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 3,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 2,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 1
+            PrepParam.EN_ONLY: 'U',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '2',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'l'
         })
 
         actual, actual_metadata = to_repr(prep_config, tokens)
@@ -159,11 +159,11 @@ class ReprTest(unittest.TestCase):
 
     def test_to_repr_with_enonlycontents1(self):
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 3,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 2,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 1
+            PrepParam.EN_ONLY: 'U',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '2',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'l'
         })
 
         tokens = [
@@ -239,11 +239,11 @@ class ReprTest(unittest.TestCase):
 
     def test_to_repr_with_non_eng(self):
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 0,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 2,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 1
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '2',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'l'
         })
 
         actual, actual_metadata = to_repr(prep_config, tokens)
@@ -273,11 +273,11 @@ class ReprTest(unittest.TestCase):
     #
     def test_to_repr_with_newlines_and_tabs(self):
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 3,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 2,
-            PrepParam.TABS_NEWLINES: 0,
-            PrepParam.CAPS: 1
+            PrepParam.EN_ONLY: 'U',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '2',
+            PrepParam.TABS_NEWLINES: 's',
+            PrepParam.CASE: 'l'
         })
 
         actual, actual_metadata = to_repr(prep_config, tokens)
@@ -309,11 +309,11 @@ class ReprTest(unittest.TestCase):
     #
     def test_to_repr_no_str_no_com(self):
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 3,
-            PrepParam.COM_STR: 2,
-            PrepParam.SPLIT: 2,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 1
+            PrepParam.EN_ONLY: 'U',
+            PrepParam.COM_STR: '2',
+            PrepParam.SPLIT: '2',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'l'
         })
 
         actual, actual_metadata = to_repr(prep_config, tokens)
@@ -344,11 +344,11 @@ class ReprTest(unittest.TestCase):
     #
     def test_to_repr_no_nosep(self):
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 3,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 2,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 1
+            PrepParam.EN_ONLY: 'U',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '2',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'l'
         })
 
         actual, actual_metadata = to_repr(prep_config, tokens)
@@ -378,11 +378,11 @@ class ReprTest(unittest.TestCase):
     #
     def test_to_repr_no_no_sep_with_bpe_no_merges(self):
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 3,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 4,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 1
+            PrepParam.EN_ONLY: 'U',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '4',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'l'
         })
 
         actual, actual_metadata = to_repr(prep_config, tokens, BpeData(merges_cache={}, merges=MergeList()))
@@ -409,11 +409,11 @@ class ReprTest(unittest.TestCase):
 
     def test_to_repr_ronin(self):
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 3,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 3,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 0
+            PrepParam.EN_ONLY: 'U',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '3',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'u'
         })
 
         actual, actual_metadata = to_repr(prep_config, tokens, BpeData(merges_cache={}, merges=MergeList()))
@@ -445,11 +445,11 @@ class ReprTest(unittest.TestCase):
     #
     def test_1(self):
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 0,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 4,
-            PrepParam.TABS_NEWLINES: 0,
-            PrepParam.CAPS: 1
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '4',
+            PrepParam.TABS_NEWLINES: 's',
+            PrepParam.CASE: 'l'
         })
 
         tokens = [SplitContainer.from_single_token("While")]
@@ -465,11 +465,11 @@ class ReprTest(unittest.TestCase):
 
     def test_merges_no_cache(self):
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 0,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 4,
-            PrepParam.TABS_NEWLINES: 0,
-            PrepParam.CAPS: 1
+            PrepParam.EN_ONLY: 'U',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '4',
+            PrepParam.TABS_NEWLINES: 's',
+            PrepParam.CASE: 'l'
         })
 
         tokens = [SplitContainer.from_single_token("While")]

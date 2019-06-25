@@ -82,15 +82,15 @@ def init_bpe_data(prep_config: PrepConfig, custom_bpe_config: Optional[CustomBpe
         nonbpe_vocab = vocabloader.nonbpe(custom_bpe_config.id)
         global_bpe_data.merges_cache.update({s: [s] for s in nonbpe_vocab})
     else:
-        bpe_n_merges_dict = {4: '5k', 5: '1k', 6: '10k', 7: '20k', 8: '0'}
+        bpe_n_merges_dict = {'4': '5k', '5': '1k', '6': '10k', '7': '20k', '8': '0'}
         bpe_n_merges = bpe_n_merges_dict[prep_config.get_param_value(PrepParam.SPLIT)]
 
         bpe_merges_file = os.path.join(DEFAULT_BPE_DIR,
-                                          CASE_DIR if prep_config.get_param_value(PrepParam.CAPS) == 0 else NO_CASE_DIR,
-                                          str(bpe_n_merges), 'merges.txt')
+                                       CASE_DIR if prep_config.get_param_value(PrepParam.CASE) == 'u' else NO_CASE_DIR,
+                                       str(bpe_n_merges), 'merges.txt')
         bpe_merges_cache_file = os.path.join(DEFAULT_BPE_CACHE_DIR,
-                                          CASE_DIR if prep_config.get_param_value(PrepParam.CAPS) == 0 else NO_CASE_DIR,
-                                          str(bpe_n_merges), 'merges_cache.txt')
+                                             CASE_DIR if prep_config.get_param_value(PrepParam.CASE) == 'u' else NO_CASE_DIR,
+                                             str(bpe_n_merges), 'merges_cache.txt')
         if os.path.exists(bpe_merges_cache_file):
             global_bpe_data.merges_cache = read_bpe_cache(bpe_merges_cache_file)
         else:

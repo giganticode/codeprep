@@ -82,7 +82,7 @@ class SubwordSeparation(unittest.TestCase):
 
             self.assertEqual(output_tuple[0], parsed)
 
-            repred, metadata = to_repr(PrepConfig.from_encoded_string('30411'), parsed, BpeData(merges_cache=bpe_merges_cache))
+            repred, metadata = to_repr(PrepConfig.from_encoded_string('U040l'), parsed, BpeData(merges_cache=bpe_merges_cache))
 
             self.assertEqual(output_tuple[1], repred)
 

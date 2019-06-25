@@ -32,11 +32,11 @@ class CreateTest(unittest.TestCase):
         os_exists_mock.return_value = True
         get_timestamp_mock.return_value = "01_01_01"
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 0,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 0,
-            PrepParam.TABS_NEWLINES: 0,
-            PrepParam.CAPS: 0
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '0',
+            PrepParam.TABS_NEWLINES: 's',
+            PrepParam.CASE: 'u'
         })
 
         actual = Dataset.create('/path/to/dataset', prep_config, None, None)
@@ -50,18 +50,18 @@ class CreateTest(unittest.TestCase):
 
         self.assertEqual(SubDataset(actual, '/path/to/dataset', ''), actual._original)
         self.assertEqual(SubDataset(actual, '/parsed/dataset/dataset_01_01_01', '.parsed'), actual._parsed)
-        self.assertEqual(SubDataset(actual, '/prep/dataset/dataset_01_01_01_00000', '.prep'), actual._preprocessed)
+        self.assertEqual(SubDataset(actual, '/prep/dataset/dataset_01_01_01_u00su', '.prep'), actual._preprocessed)
 
     @mock.patch("dataprep.bpepkg.bpe_config.BpeConfig")
     def test_simple2(self, mocked_bpe_config, get_timestamp_mock, os_exists_mock):
         os_exists_mock.return_value = True
         get_timestamp_mock.return_value = "01_01_01"
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 0,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 0,
-            PrepParam.TABS_NEWLINES: 0,
-            PrepParam.CAPS: 0
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '0',
+            PrepParam.TABS_NEWLINES: 's',
+            PrepParam.CASE: 'u'
         })
 
         custom_bpe_config = CustomBpeConfig("id-1000", 1000, "/codes/file", "/cache/file")
@@ -77,7 +77,7 @@ class CreateTest(unittest.TestCase):
 
         self.assertEqual(SubDataset(actual, '/path/to/dataset', ''), actual._original)
         self.assertEqual(SubDataset(actual, '/parsed/dataset/dataset_01_01_01', '.parsed'), actual._parsed)
-        self.assertEqual(SubDataset(actual, '/path/overridden/dataset_01_01_01_00000_id-1000_prep', '.prep'), actual._preprocessed)
+        self.assertEqual(SubDataset(actual, '/path/overridden/dataset_01_01_01_u00su_id-1000_prep', '.prep'), actual._preprocessed)
 
 
 if __name__ == '__main__':

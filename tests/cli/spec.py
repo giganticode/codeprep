@@ -16,11 +16,11 @@ class CliTest(unittest.TestCase):
         argv = ['nosplit', 'str', '--no-spaces']
         parse_and_run(argv)
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 0,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 0,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 0
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '0',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'u'
         })
         api_mock.preprocess.assert_called_with("str", prep_config, None)
 
@@ -29,11 +29,11 @@ class CliTest(unittest.TestCase):
         parse_and_run(argv)
         parse_and_run(argv)
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 3,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 0,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 0
+            PrepParam.EN_ONLY: 'U',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '0',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'u'
         })
         api_mock.preprocess.assert_called_with("str", prep_config, None)
 
@@ -41,11 +41,11 @@ class CliTest(unittest.TestCase):
         argv = ['nosplit', 'str', '--no-spaces', '--no-str', '--no-com']
         parse_and_run(argv)
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 0,
-            PrepParam.COM_STR: 2,
-            PrepParam.SPLIT: 0,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 0
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM_STR: '2',
+            PrepParam.SPLIT: '0',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'u'
         })
         api_mock.preprocess.assert_called_with("str", prep_config, None)
 
@@ -53,11 +53,11 @@ class CliTest(unittest.TestCase):
         argv = ['nosplit', 'str']
         parse_and_run(argv)
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 0,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 0,
-            PrepParam.TABS_NEWLINES: 0,
-            PrepParam.CAPS: 0
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '0',
+            PrepParam.TABS_NEWLINES: 's',
+            PrepParam.CASE: 'u'
         })
         api_mock.preprocess.assert_called_with("str", prep_config, None)
 
@@ -70,11 +70,11 @@ class CliTest(unittest.TestCase):
         argv = ['basic', 'str', '--no-spaces', '--no-case']
         parse_and_run(argv)
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 0,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 1,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 1
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '1',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'l'
         })
         api_mock.preprocess.assert_called_with("str", prep_config, None)
 
@@ -82,11 +82,11 @@ class CliTest(unittest.TestCase):
         argv = ['basic', 'str', '--no-spaces', '--no-case', '--no-unicode']
         parse_and_run(argv)
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 3,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 1,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 1
+            PrepParam.EN_ONLY: 'U',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '1',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'l'
         })
         api_mock.preprocess.assert_called_with("str", prep_config, None)
 
@@ -94,11 +94,11 @@ class CliTest(unittest.TestCase):
         argv = ['basic', 'str', '--no-spaces', '--no-case', '--no-str']
         parse_and_run(argv)
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 0,
-            PrepParam.COM_STR: 1,
-            PrepParam.SPLIT: 1,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 1
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM_STR: '1',
+            PrepParam.SPLIT: '1',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'l'
         })
         api_mock.preprocess.assert_called_with("str", prep_config, None)
 
@@ -106,11 +106,11 @@ class CliTest(unittest.TestCase):
         argv = ['basic', 'str', '--no-spaces', '--no-case', '--no-str', '--no-com']
         parse_and_run(argv)
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 0,
-            PrepParam.COM_STR: 2,
-            PrepParam.SPLIT: 1,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 1
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM_STR: '2',
+            PrepParam.SPLIT: '1',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'l'
         })
         api_mock.preprocess.assert_called_with("str", prep_config, None)
 
@@ -118,11 +118,11 @@ class CliTest(unittest.TestCase):
         argv = ['basic', 'str', '--no-spaces', '--no-case', '--no-com']
         parse_and_run(argv)
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 0,
-            PrepParam.COM_STR: 3,
-            PrepParam.SPLIT: 1,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 1
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM_STR: '3',
+            PrepParam.SPLIT: '1',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'l'
         })
         api_mock.preprocess.assert_called_with("str", prep_config, None)
 
@@ -130,11 +130,11 @@ class CliTest(unittest.TestCase):
         argv = ['basic+numbers', 'str', '--no-spaces', '--no-case']
         parse_and_run(argv)
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 0,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 2,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 1
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '2',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'l'
         })
         api_mock.preprocess.assert_called_with("str", prep_config, None)
 
@@ -142,11 +142,11 @@ class CliTest(unittest.TestCase):
         argv = ['bpe', '5k', 'str', '--no-spaces', '--no-case']
         parse_and_run(argv)
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 0,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 4,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 1
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '4',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'l'
         })
         api_mock.preprocess.assert_called_with("str", prep_config, None)
 
@@ -154,11 +154,11 @@ class CliTest(unittest.TestCase):
         argv = ['bpe', '1k', 'str', '--no-spaces', '--no-case']
         parse_and_run(argv)
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 0,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 5,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 1
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '5',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'l'
         })
         api_mock.preprocess.assert_called_with("str", prep_config, None)
 
@@ -166,11 +166,11 @@ class CliTest(unittest.TestCase):
         argv = ['bpe', '10k', 'str', '--no-spaces', '--no-case']
         parse_and_run(argv)
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 0,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 6,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 1
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '6',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'l'
         })
         api_mock.preprocess.assert_called_with("str", prep_config, None)
 
@@ -178,11 +178,11 @@ class CliTest(unittest.TestCase):
         argv = ['chars', 'str', '--no-spaces', '--no-case']
         parse_and_run(argv)
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 0,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 8,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 1
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '8',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'l'
         })
         api_mock.preprocess.assert_called_with("str", prep_config, None)
 
@@ -190,11 +190,11 @@ class CliTest(unittest.TestCase):
         argv = ['basic', 'str', '--no-case']
         parse_and_run(argv)
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 0,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 1,
-            PrepParam.TABS_NEWLINES: 0,
-            PrepParam.CAPS: 1
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '1',
+            PrepParam.TABS_NEWLINES: 's',
+            PrepParam.CASE: 'l'
         })
         api_mock.preprocess.assert_called_with("str", prep_config, None)
 
@@ -202,11 +202,11 @@ class CliTest(unittest.TestCase):
         argv = ['basic', 'str', '--no-spaces']
         parse_and_run(argv)
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 0,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 1,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 0
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '1',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'u'
         })
         api_mock.preprocess.assert_called_with("str", prep_config, None)
 
@@ -219,11 +219,11 @@ class CliTest(unittest.TestCase):
         argv = ['nosplit', '--path', '/path/to/dataset', '--no-spaces']
         parse_and_run(argv)
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 0,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 0,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 0
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '0',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'u'
         })
         dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, None, None, overriden_path_to_prep_dataset='/path/to/curdir')
         stages_mock.run_until_preprocessing.assert_called_with(dataset_mock, None)
@@ -237,11 +237,11 @@ class CliTest(unittest.TestCase):
         argv = ['nosplit', '-p', '/path/to/dataset', '--no-spaces']
         parse_and_run(argv)
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 0,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 0,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 0
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '0',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'u'
         })
         dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, None, None, overriden_path_to_prep_dataset='/path/to/curdir')
         stages_mock.run_until_preprocessing.assert_called_with(dataset_mock, None)
@@ -253,11 +253,11 @@ class CliTest(unittest.TestCase):
         argv = ['nosplit', '--path', '/path/to/dataset', '--output-path', '/path/to/output', '--no-spaces']
         parse_and_run(argv)
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 0,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 0,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 0
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '0',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'u'
         })
         dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, None, None, overriden_path_to_prep_dataset='/path/to/output')
         stages_mock.run_until_preprocessing.assert_called_with(dataset_mock, None)
@@ -269,11 +269,11 @@ class CliTest(unittest.TestCase):
         argv = ['nosplit', '--path', '/path/to/dataset', '-o', '/path/to/output', '--no-spaces']
         parse_and_run(argv)
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 0,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 0,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 0
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '0',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'u'
         })
         dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, None, None, overriden_path_to_prep_dataset='/path/to/output')
         stages_mock.run_until_preprocessing.assert_called_with(dataset_mock, None)
@@ -287,11 +287,11 @@ class CliTest(unittest.TestCase):
         argv = ['basic', 'str', '-0lSCU']
         parse_and_run(argv)
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 3,
-            PrepParam.COM_STR: 2,
-            PrepParam.SPLIT: 1,
-            PrepParam.TABS_NEWLINES: 1,
-            PrepParam.CAPS: 1
+            PrepParam.EN_ONLY: 'U',
+            PrepParam.COM_STR: '2',
+            PrepParam.SPLIT: '1',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'l'
         })
         api_mock.preprocess.assert_called_with("str", prep_config, None)
 
@@ -308,11 +308,11 @@ class CliTest(unittest.TestCase):
 
         # then
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 0,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 1,
-            PrepParam.TABS_NEWLINES: 0,
-            PrepParam.CAPS: 0
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '1',
+            PrepParam.TABS_NEWLINES: 's',
+            PrepParam.CASE: 'u'
         })
         bpe_config = BpeConfig({
             BpeParam.CASE: 'yes',
@@ -336,11 +336,11 @@ class CliTest(unittest.TestCase):
 
         # then
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 3,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 1,
-            PrepParam.TABS_NEWLINES: 0,
-            PrepParam.CAPS: 1
+            PrepParam.EN_ONLY: 'U',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '1',
+            PrepParam.TABS_NEWLINES: 's',
+            PrepParam.CASE: 'l'
         })
         bpe_config = BpeConfig({
             BpeParam.CASE: 'no',
@@ -364,11 +364,11 @@ class CliTest(unittest.TestCase):
 
         # then
         prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 0,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 1,
-            PrepParam.TABS_NEWLINES: 0,
-            PrepParam.CAPS: 0
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '1',
+            PrepParam.TABS_NEWLINES: 's',
+            PrepParam.CASE: 'u'
         })
         bpe_config = BpeConfig({
             BpeParam.CASE: 'prefix',
