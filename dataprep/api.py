@@ -40,6 +40,8 @@ def create_split_value(arguments):
         return '1'
     elif 'basic+numbers' in arguments and arguments['basic+numbers']:
         return '2'
+    elif 'basic+stemming' in arguments and arguments['basic+stemming']:
+        return 's'
     elif 'bpe' in arguments and arguments['bpe']:
         if arguments['1k']:
             return '5'
@@ -107,7 +109,41 @@ def nosplit(text: str, extension: Optional[str] = None, no_str: bool=False, no_c
 def ronin(text: str, extension: Optional[str] = None, no_str: bool=False, no_com: bool=False, no_spaces: bool=False,
             no_unicode: bool=False, return_metadata: bool=False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
     """
-    Split `text` into tokens leaving compound identifiers as they are.
+    Split `text` into tokens with Ronin algorithm: http://joss.theoj.org/papers/10.21105/joss.00653.
+
+    :param text: text to be split.
+    :param extension: extension which a file containing source code written in this programming language would have,
+    e.g. 'java', 'py', 'js'.
+    If specified, used to select a Pygments parser, otherwise Pygments will try to guess the language.
+    :param no_str: set to True to replace each string literals with a special token, e.g <str_literal>.
+    :param no_com: set to True to replace each comment with a special token, e.g. <comment>.
+    :param no_spaces: set to True to remove tabs and newlines.
+    :param no_unicode: set to True to replace each word containing non-ascii characters to a special token,  e.g. <non-en>
+    :param: return_metadata: if set to True additionally pre-processing metadata is returned.
+    :return: list of tokens `text` was split into. If `return_metadata` is set to True,
+    the tuple is returned with the list of preprocessed tokens as the first element
+    and pre-processing metadata as the second element (object of :class:`dataprep.model.metadata.Preprocessing.PreprocessingMetadata`)
+    """
+    d = collections.defaultdict(bool)
+    args = {
+        '--no-str': no_str,
+        '--no-com': no_com,
+        '--no-spaces': no_spaces,
+        '--no-unicode': no_unicode,
+        'ronin': True
+    }
+    d.update(args)
+    return preprocess(text, create_prep_config_from_args(d), extension=extension, return_metadata=return_metadata)
+
+
+def basic_with_stemming(text: str, extension: Optional[str] = None, no_str: bool=False, no_com: bool=False, no_spaces: bool=False,
+            no_unicode: bool=False, return_metadata: bool=False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
+    """
+    Split `text` into tokens converting identifiers that follow CamelCase or snake_case into multiple subwords,
+    followed by splitting numbers into digits and stemming.
+
+    So that the information about original word boundaries is not lost, special tokens are inserted to denote original words beginnings and ends,
+    e.g. myClass -> [<w>, my, Class, </w>]
 
     :param text: text to be split.
     :param extension: extension which a file containing source code written in this programming language would have,

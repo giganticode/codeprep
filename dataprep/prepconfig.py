@@ -15,6 +15,7 @@ from dataprep.model.whitespace import NewLine, Tab
 from dataprep.model.word import Word
 
 from dataprep.preprocess.core import ReprConfig
+from dataprep.stemming import stem
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +32,7 @@ class PrepConfig(object):
     possible_param_values = {
         PrepParam.EN_ONLY: ['u', 'U'],
         PrepParam.COM_STR: ['0', '1', '2', '3'],
-        PrepParam.SPLIT: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+        PrepParam.SPLIT: ['0', '1', '2', '3', 's', '4', '5', '6', '7', '8', '9'],
         PrepParam.TABS_NEWLINES: ['s', '0'],
         PrepParam.CASE: ['u', 'l']
     }
@@ -46,7 +47,8 @@ class PrepConfig(object):
         PrepParam.SPLIT: {'0': 'NO_splitting',
                           '1': 'camel+underscore',
                           '2': 'camel+underscore+numbers',
-                          '3': 'ronin',
+                          '3': 'numbers+ronin',
+                          's': 'camel+underscore+numbers+stemming',
                           '4': 'camel+underscore+bpe_5k',
                           '5': 'camel+underscore+bpe_1k',
                           '6': 'camel+underscore+bpe_10k',
@@ -99,6 +101,10 @@ class PrepConfig(object):
             raise ValueError("Combination RONIN and LOWERCASED is not supported: "
                              "basic splitting needs to be dont done to lowercase the subword.")
 
+        if params[PrepParam.CASE] == 'l' and params[PrepParam.SPLIT] == 's':
+            raise ValueError("Combination STEMMING and LOWERCASED is not supported: "
+                             "basic splitting needs to be dont done to lowercase the subword.")
+
     def __init__(self, params: Dict[PrepParam, str]):
         PrepConfig.__check_invariants(params)
 
@@ -128,7 +134,7 @@ class PrepConfig(object):
         split_param_value = self.get_param_value(PrepParam.SPLIT)
         if split_param_value in ['0', '1']:
             return lambda s,c: [s]
-        elif split_param_value in ['2', '3']:
+        elif split_param_value in ['2', '3', 's']:
             return lambda s,c: [ch for ch in s]
         elif split_param_value in ['4', '5', '6', '7', '8', '9']:
             return lambda s,c: get_bpe_subwords(s, c)
@@ -141,6 +147,8 @@ class PrepConfig(object):
             return lambda s, c: get_bpe_subwords(s, c)
         elif split_param_value in ['1', '2']:
             return lambda s,c: [s]
+        elif split_param_value == 's':
+            return lambda s,c: [stem(s)]
         elif split_param_value in ['0', '3']:
             return None
         else:
@@ -151,9 +159,9 @@ class PrepConfig(object):
 
     def get_types_to_be_repr(self) -> List[Type]:
         res = []
-        if self.get_param_value(PrepParam.SPLIT) in ['1', '2', '4', '5', '6', '7', '8', '9']:
+        if self.get_param_value(PrepParam.SPLIT) in ['1', '2', '4', '5', '6', '7', '8', '9', 's']:
             res.extend([SplitContainer, Word])
-        if self.get_param_value(PrepParam.SPLIT) in ['2', '3', '4', '5', '6', '7', '8', '9']:
+        if self.get_param_value(PrepParam.SPLIT) in ['2', '3', '4', '5', '6', '7', '8', '9', 's']:
             res.append(Number)
         res.extend(com_str_to_types_to_be_repr[self.get_param_value(PrepParam.COM_STR)])
         res.extend(en_only_to_types_to_be_repr[self.get_param_value(PrepParam.EN_ONLY)])
