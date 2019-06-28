@@ -127,12 +127,41 @@ class CliTest(unittest.TestCase):
         api_mock.preprocess.assert_called_with("str", prep_config, None)
 
     def test_parse_and_run_012xx(self, api_mock):
-        argv = ['basic+numbers', 'str', '--no-spaces', '--no-case']
+        argv = ['basic', 'str', '--no-spaces', '--no-case', '--split-numbers']
         parse_and_run(argv)
         prep_config = PrepConfig({
             PrepParam.EN_ONLY: 'u',
             PrepParam.COM_STR: '0',
             PrepParam.SPLIT: '2',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'l'
+        })
+        api_mock.preprocess.assert_called_with("str", prep_config, None)
+
+    def test_parse_and_run_013xx(self, api_mock):
+        argv = ['ronin', 'str', '--no-spaces']
+        parse_and_run(argv)
+        prep_config = PrepConfig({
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '3',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'u'
+        })
+        api_mock.preprocess.assert_called_with("str", prep_config, None)
+
+    def test_parse_and_run_xx3xl(self, api_mock):
+        with self.assertRaises(DocoptExit):
+            argv = ['ronin', 'str', '--no-spaces', '--no-case']
+            parse_and_run(argv)
+
+    def test_parse_and_run_01sxx(self, api_mock):
+        argv = ['basic', 'str', '--no-spaces', '--stem']
+        parse_and_run(argv)
+        prep_config = PrepConfig({
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: 's',
             PrepParam.TABS_NEWLINES: '0',
             PrepParam.CASE: 'l'
         })

@@ -101,9 +101,9 @@ class PrepConfig(object):
             raise ValueError("Combination RONIN and LOWERCASED is not supported: "
                              "basic splitting needs to be dont done to lowercase the subword.")
 
-        if params[PrepParam.CASE] == 'l' and params[PrepParam.SPLIT] == 's':
-            raise ValueError("Combination STEMMING and LOWERCASED is not supported: "
-                             "basic splitting needs to be dont done to lowercase the subword.")
+        if params[PrepParam.CASE] == 'u' and params[PrepParam.SPLIT] == 's':
+            raise ValueError("Combination STEMMING and UPPERCASE is not supported: "
+                             "stemmer always lowercases words.")
 
     def __init__(self, params: Dict[PrepParam, str]):
         PrepConfig.__check_invariants(params)
