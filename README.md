@@ -107,7 +107,7 @@ The following code does **camelCase-** and **snake_case-** splitting and applies
 **Dataprep** by default does BPE using bpe codes leaned on [the Github Java Corpus](http://groups.inf.ed.ac.uk/cup/javaGithub/). The argument `bpe_codes_id='10k'` tells the **dataprep** tool to use 10,000 bpe merges. 
 Other possible values are `1k` and `5k` (1,000 and 5,000 merges respectively). Please refer to section [Learning custom BPE codes](#Learning-custom-BPE-codes) to train custom bpe codes.
 
-**For other commands like `basic+numbers` and `chars` please refer to the [docs](dataprep/cli/spec.py)**.
+**For other commands like `ronin` and `chars`, options `--splt-numbers`, `--stem`, please refer to the [docs](dataprep/cli/spec.py)**.
 
 ## Learning custom BPE codes
 If you don't want to use, pre-trained BPE codes, it's possible to train custom ones. For example, to train 10,000 merges on the corpus located at the path `/path/to/train/on`, the following command should be run (only CLI):
