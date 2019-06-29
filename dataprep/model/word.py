@@ -2,11 +2,10 @@ from enum import Enum, auto
 
 from typing import List, Tuple
 
-from dataprep.model.core import ParsedSubtoken
+from dataprep.model.core import ParsedSubtoken, with_empty_metadata
 from dataprep.model.metadata import PreprocessingMetadata
 from dataprep.model.placeholders import placeholders
 from dataprep.preprocess.core import ReprConfig
-from dataprep.split.ngram import do_ngram_splitting
 
 
 class Capitalization(Enum):
@@ -27,7 +26,7 @@ class Underscore(ParsedSubtoken):
         return self.non_preprocessed_repr(ReprConfig.empty())[0]
 
     def non_preprocessed_repr(self, repr_config: ReprConfig) -> [Tuple[str, PreprocessingMetadata]]:
-        return self.with_empty_metadata("_")
+        return with_empty_metadata("_")
 
 
 class Word(ParsedSubtoken):
@@ -69,14 +68,14 @@ class Word(ParsedSubtoken):
             raise AssertionError(f"Unknown value: {self.capitalization}")
         return res
 
-    def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str],PreprocessingMetadata]:
+    def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
         if repr_config.should_lowercase:
-            subwords = do_ngram_splitting(self.canonic_form, repr_config.ngram_split_config)
+            subwords = repr_config.word_splitter(self.canonic_form, repr_config.bpe_data)
             subwords_with_prefix = self.__with_capitalization_prefixes(subwords)
-            return self.with_empty_metadata(subwords_with_prefix)
+            return with_empty_metadata(subwords_with_prefix)
         else:
-            subwords = do_ngram_splitting(self.__with_preserved_case(), repr_config.ngram_split_config)
-            return self.with_empty_metadata(subwords)
+            subwords = repr_config.word_splitter(self.__with_preserved_case(), repr_config.bpe_data)
+            return with_empty_metadata(subwords)
 
     def __with_preserved_case(self) -> str:
         if self.capitalization == Capitalization.UNDEFINED or self.capitalization == Capitalization.NONE:

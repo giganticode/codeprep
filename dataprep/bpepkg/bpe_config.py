@@ -47,11 +47,11 @@ class BpeConfig(object):
 
     def to_prep_config(self):
         return PrepConfig({
-            PrepParam.EN_ONLY: 3 if self.get_param_value(BpeParam.UNICODE) == 'no' else 0,
-            PrepParam.COM_STR: 0,
-            PrepParam.SPLIT: 1,
-            PrepParam.TABS_NEWLINES: 0,
-            PrepParam.CAPS: 1 if self.get_param_value(BpeParam.CASE) == 'no' else 0
+            PrepParam.EN_ONLY: 'U' if self.get_param_value(BpeParam.UNICODE) == 'no' else 'u',
+            PrepParam.COM_STR: '0',
+            PrepParam.SPLIT: '1',
+            PrepParam.TABS_NEWLINES: 's',
+            PrepParam.CASE: 'l' if self.get_param_value(BpeParam.CASE) == 'no' else 'u'
         })
 
     def to_suffix(self):

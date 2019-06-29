@@ -7,7 +7,6 @@ placeholders = {
     'capitals': '`Cs',
     'ect': '``',
     'non_eng': '`E',
-    'non_eng_content': '`Es',
     'olc_end': 'm`',
 }
 
@@ -16,7 +15,6 @@ placeholders_beautiful = {
     'string_literal': '<str_literal>',
     'ect': '\n\n',
     'non_eng': '<non-en>',
-    'non_eng_content': '<non-en-content>'
 }
 
 separators_beautiful = {

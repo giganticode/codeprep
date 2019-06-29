@@ -25,7 +25,7 @@ class CliTest(unittest.TestCase):
         self.assertEqual([], dataprep.nosplit(''))
         self.assertEqual([], dataprep.basic(''))
         self.assertEqual([], dataprep.chars(''))
-        self.assertEqual([], dataprep.basic_with_numbers(''))
+        self.assertEqual([], dataprep.ronin(''))
         self.assertEqual([], dataprep.bpe('', '1k'))
 
     def test_create_prep_config_00010(self):
@@ -46,8 +46,16 @@ class CliTest(unittest.TestCase):
         self.assertEqual(expected_metadata, metadata)
 
     def test_create_prep_config_3x0xx(self):
-        with self.assertRaises(TypeError) as context:
-            dataprep.nosplit(input_text, "java", no_spaces=True, no_unicode=True)
+        actual = dataprep.nosplit(input_text, "java", no_spaces=True, no_unicode=True)
+
+        expected = ['void', 'test_WordUeberraschungPrinter', '(', ')', '{',
+                    'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', 'FIXME', ce,
+                    'printWord', '(', '"', '.', '.', '.', ne, '"', ')', ';',
+                    '}',
+                    '}'
+        ]
+
+        self.assertEqual(expected, actual)
 
     def test_create_prep_config_x20xx(self):
         actual, metadata = dataprep.nosplit(input_text, "java", no_spaces=True, no_str=True, no_com=True, return_metadata=True)
@@ -110,7 +118,7 @@ class CliTest(unittest.TestCase):
 
         expected = ['void', ws, 'test', '_', cap, 'word', cap, 'ueberraschung', cap, 'printer', we, '(', ')', '{',
                     'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', caps, 'fixme', ce,
-                    ws, 'print', cap, 'word', we, '(', '"', '.', '.', '.', cap, ne, '"', ')', ';',
+                    ws, 'print', cap, 'word', we, '(', '"', '.', '.', '.', ne, '"', ')', ';',
                     '}',
                     '}'
         ]
@@ -154,10 +162,22 @@ class CliTest(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_create_prep_config_012xx(self):
-        actual = dataprep.basic_with_numbers(input_text, "java", no_spaces=True, no_case=True)
+        actual = dataprep.basic(input_text, "java", no_spaces=True, no_case=True, split_numbers=True)
 
         expected = ['void', ws, 'test', '_', cap, 'word', cap, 'ueberraschung', cap, 'printer', we, '(', ')', '{',
                     'if', '(', 'eps', '>', '=', ws, '0',  '.', '3', '4', '5', 'e', '+', '4', we, ')', '{', '/', '/', caps, 'fixme', ce,
+                    ws, 'print', cap, 'word', we, '(', '"', '.', '.', '.', cap,  'überraschung', '"', ')', ';',
+                    '}',
+                    '}'
+        ]
+
+        self.assertEqual(expected, actual)
+
+    def test_create_prep_config_01sxx(self):
+        actual = dataprep.basic(input_text, "java", no_spaces=True, stem=True)
+
+        expected = ['void', ws, 'test', '_', cap, 'word', cap, 'ueberraschung', cap, 'printer', we, '(', ')', '{',
+                    'if', '(', 'ep', '>', '=', ws, '0',  '.', '3', '4', '5', 'e', '+', '4', we, ')', '{', '/', '/', caps, 'fixm', ce,
                     ws, 'print', cap, 'word', we, '(', '"', '.', '.', '.', cap,  'überraschung', '"', ')', ';',
                     '}',
                     '}'
@@ -237,6 +257,18 @@ class CliTest(unittest.TestCase):
                     'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', 'FIXME', ce,
                     ws, 'print', 'Word', we, '(', '"', '.', '.', '.', 'Überraschung', '"', ')', ';',
                     '}',
+                    '}'
+        ]
+
+        self.assertEqual(expected, actual)
+
+    def test_create_prep_config_00300(self):
+        actual = dataprep.ronin(input_text, "java")
+
+        expected = ['void', ws, 'test', 'Word', 'Ueberraschung', 'Printer', we, '(', ')', '{',  '\n',
+                    '\t', 'if', '(', 'eps', '>', '=', ws ,'0', '.', '3', '4', '5', 'e', '+', '4', we, ')', '{', '/', '/', ws, 'FIX', 'ME', we, '\n', ce,
+                    '\t', '\t', ws, 'print', 'Word', we, '(', '"', '\t', '.', '.', '.', '\t', 'Überraschung', '"', ')', ';', '\n',
+                    '\t', '}', '\n',
                     '}'
         ]
 
