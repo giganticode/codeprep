@@ -3,9 +3,9 @@ from unittest import mock
 
 from unittest.mock import Mock
 
-from dataprep.bpepkg.bperegistry import InvalidBpeCodesIdError, get_max_merges, parse_merge_list_id, is_predefined_id, \
+from dataprep.installation.bperegistry import InvalidBpeCodesIdError, get_max_merges, parse_merge_list_id, is_predefined_id, \
     format_available_merge_list_ids, get_min_merges
-from dataprep.dataset import create_new_id_from
+from dataprep.installation.dataset import create_new_id_from
 
 
 @mock.patch("dataprep.bpepkg.bpe_config.BpeConfig")
@@ -15,14 +15,14 @@ class CreateBpeCodeIdTest(unittest.TestCase):
         actual = create_new_id_from('/path/to/dataset', bpe_config_mock, 'id23')
         self.assertEqual('id23', actual)
 
-    @mock.patch('dataprep.bpepkg.bperegistry._get_all_custom_bpe_codes_and_max_merges')
+    @mock.patch('dataprep.installation.bperegistry._get_all_custom_bpe_codes_and_max_merges')
     def test_no_existing_bpe_codes(self, mock, bpe_config_mock):
         bpe_config_mock.to_suffix.return_value = ""
         mock.return_value={}
         actual = create_new_id_from('/path/to/dataset', bpe_config_mock)
         self.assertEqual('dataset', actual)
 
-    @mock.patch('dataprep.bpepkg.bperegistry._get_all_custom_bpe_codes_and_max_merges')
+    @mock.patch('dataprep.installation.bperegistry._get_all_custom_bpe_codes_and_max_merges')
     def test_ids_for_same_dataset_exist(self, mock, bpe_config_mock):
         bpe_config_mock.to_suffix.return_value = ""
         mock.return_value={'dataset': 10, 'dataset4': 20, 'dataset_3': 30}
@@ -54,7 +54,7 @@ class CreateNewIdFromTest(unittest.TestCase):
 
         self.assertEqual('my-id', actual)
 
-    @mock.patch('dataprep.bpepkg.bperegistry._get_all_custom_bpe_codes_and_max_merges')
+    @mock.patch('dataprep.installation.bperegistry._get_all_custom_bpe_codes_and_max_merges')
     def test_simple(self, mock, bpe_config_mock):
         # given
         bpe_config_mock.to_suffix.return_value = ""
@@ -64,7 +64,7 @@ class CreateNewIdFromTest(unittest.TestCase):
 
         self.assertEqual('path', actual)
 
-    @mock.patch('dataprep.bpepkg.bperegistry._get_all_custom_bpe_codes_and_max_merges')
+    @mock.patch('dataprep.installation.bperegistry._get_all_custom_bpe_codes_and_max_merges')
     def test_same_path_exists(self, mock, bpe_config_mock):
         # given
         bpe_config_mock.to_suffix.return_value = ""
@@ -74,7 +74,7 @@ class CreateNewIdFromTest(unittest.TestCase):
 
         self.assertEqual('path_1', actual)
 
-    @mock.patch('dataprep.bpepkg.bperegistry._get_all_custom_bpe_codes_and_max_merges')
+    @mock.patch('dataprep.installation.bperegistry._get_all_custom_bpe_codes_and_max_merges')
     def test_same_path_and_next_one_exist(self, mock, bpe_config_mock):
         # given
         bpe_config_mock.to_suffix.return_value = ""
@@ -84,7 +84,7 @@ class CreateNewIdFromTest(unittest.TestCase):
 
         self.assertEqual('path_2', actual)
 
-    @mock.patch('dataprep.bpepkg.bperegistry._get_all_custom_bpe_codes_and_max_merges')
+    @mock.patch('dataprep.installation.bperegistry._get_all_custom_bpe_codes_and_max_merges')
     def test_same_path_and_one_more_exist(self, mock, bpe_config_mock):
         # given
         bpe_config_mock.to_suffix.return_value = ""
@@ -95,7 +95,7 @@ class CreateNewIdFromTest(unittest.TestCase):
         self.assertEqual('path_29', actual)
 
 
-@mock.patch('dataprep.bpepkg.bperegistry.os')
+@mock.patch('dataprep.installation.bperegistry.os')
 class GetMaxMergesTest(unittest.TestCase):
     def test_none(self, mocked_os):
         mocked_os.walk = Mock(return_value=iter([('', [],[])]))
@@ -116,7 +116,7 @@ class IsPredefinedIdTest(unittest.TestCase):
         self.assertFalse(is_predefined_id('abc'))
 
 
-@mock.patch('dataprep.bpepkg.bperegistry._get_all_custom_bpe_codes_and_max_merges')
+@mock.patch('dataprep.installation.bperegistry._get_all_custom_bpe_codes_and_max_merges')
 class FormatAvailableMergeListIds(unittest.TestCase):
     def test_no_available_merge_lists(self, mock):
         mock.return_value = {}
@@ -131,7 +131,7 @@ class FormatAvailableMergeListIds(unittest.TestCase):
         self.assertEqual("a-[1..1000]\nb-[1..500]\n", actual)
 
 
-@mock.patch('dataprep.bpepkg.bperegistry._get_all_bpe_merges_dirs')
+@mock.patch('dataprep.installation.bperegistry._get_all_bpe_merges_dirs')
 class GetMinMaxMergesTest(unittest.TestCase):
     def test_max_no_folders(self, mock):
         mock.return_value = []

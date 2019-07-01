@@ -6,22 +6,22 @@ import pickle
 import time
 from multiprocessing.pool import Pool
 from tqdm import tqdm
-from typing import List, Tuple, Generator, Union
+from typing import List, Tuple, Union
 from typing import Optional
 
 from dataprep.bpepkg.bpe_encode import read_merges, BpeData
-from dataprep.bpepkg.bperegistry import CustomBpeConfig
+from dataprep.installation.bperegistry import CustomBpeConfig
 from dataprep.bpepkg.cache import read_bpe_cache
 from dataprep.config import DEFAULT_BPE_DIR, NO_CASE_DIR, CASE_DIR, DEFAULT_BPE_CACHE_DIR, REWRITE_PREPROCESSED_FILE, \
     CHUNKSIZE, LIMIT_FILES_SCANNING
-from dataprep.dataset import Dataset, NOT_FINISHED_EXTENSION
+from dataprep.installation.dataset import Dataset, NOT_FINISHED_EXTENSION
 from dataprep.model.core import ParsedToken
 from dataprep.model.metadata import PreprocessingMetadata
 from dataprep.model.metadata import save_metadata
 from dataprep.model.placeholders import placeholders
 from dataprep.prepconfig import PrepParam, PrepConfig
 from dataprep.preprocess.core import to_repr_list
-from dataprep.vocab import vocabloader
+from dataprep.installation import vocabloader
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +63,7 @@ def preprocess_and_write(params: Tuple[bytes, bytes, PrepConfig, str]):
 
     os.rename(not_finished_dest_file_path, dest_file_path)
 
-
+#TODO make this method independent of actual directory structure
 def init_bpe_data(prep_config: PrepConfig, custom_bpe_config: Optional[CustomBpeConfig], force_reinit: bool=True):
     if get_global_bpe_data_if_available() and not force_reinit:
         return # already initialized
@@ -79,7 +79,7 @@ def init_bpe_data(prep_config: PrepConfig, custom_bpe_config: Optional[CustomBpe
 
         if custom_bpe_config.n_merges:
             logger.info(f'Using first {custom_bpe_config.n_merges} merges.')
-        nonbpe_vocab = vocabloader.nonbpe(custom_bpe_config.id)
+        nonbpe_vocab = vocabloader.nonbpe(custom_bpe_config.merge_list_id)
         global_bpe_data.merges_cache.update({s: [s] for s in nonbpe_vocab})
     else:
         bpe_n_merges_dict = {'4': '5k', '5': '1k', '6': '10k', '7': '20k', '8': '0'}
@@ -98,11 +98,10 @@ def init_bpe_data(prep_config: PrepConfig, custom_bpe_config: Optional[CustomBpe
         global_bpe_data.merges = read_merges(bpe_merges_file)
 
 
-def params_generator(dataset: Dataset):
-    path_to_nonbpe_vocab_folder = f'{dataset.path_to_nonbpe_vocab_file}_part' if not os.path.exists(dataset.path_to_nonbpe_vocab_file) else None
+def params_generator(dataset: Dataset, path_to_part_metadata: Optional[str]):
     for input_file_path in dataset.parsed.file_iterator():
         output_file_path = dataset.parsed.get_new_file_name(input_file_path, dataset.preprocessed)
-        yield (input_file_path, output_file_path, dataset.prep_config, path_to_nonbpe_vocab_folder)
+        yield (input_file_path, output_file_path, dataset.prep_config, path_to_part_metadata)
 
 
 def run(dataset: Dataset, custom_bpe_config: Optional[CustomBpeConfig]) -> None:
@@ -116,9 +115,12 @@ def run(dataset: Dataset, custom_bpe_config: Optional[CustomBpeConfig]) -> None:
     if dataset.prep_config.is_bpe():
         init_bpe_data(dataset.prep_config, custom_bpe_config)
 
-    nonbpe_vocab_part_folder = f'{dataset.path_to_nonbpe_vocab_file}_part'
-    if not os.path.exists(nonbpe_vocab_part_folder) and not os.path.exists(dataset.path_to_nonbpe_vocab_file):
-        os.makedirs(nonbpe_vocab_part_folder)
+    if not os.path.exists(dataset.path_to_nonbpe_vocab_file) and dataset.prep_config.is_base_bpe_config():
+        path_to_part_metadata = f'{dataset.path_to_nonbpe_vocab_file}_part'
+    else:
+        path_to_part_metadata = None
+    if path_to_part_metadata and not os.path.exists(path_to_part_metadata):
+        os.makedirs(path_to_part_metadata)
 
     logger.info(f"Writing preprocessed files to {dataset.preprocessed.path}")
 
@@ -134,11 +136,11 @@ def run(dataset: Dataset, custom_bpe_config: Optional[CustomBpeConfig]) -> None:
     else:
         files_total = len([f for f in dataset.get_all_files()])
     with Pool() as pool:
-        it = pool.imap_unordered(preprocess_and_write, params_generator(dataset), chunksize=CHUNKSIZE)
+        it = pool.imap_unordered(preprocess_and_write, params_generator(dataset, path_to_part_metadata), chunksize=CHUNKSIZE)
         for _ in tqdm(it, total=files_total):
             pass
 
-    if not os.path.exists(dataset.path_to_nonbpe_vocab_file):
+    if path_to_part_metadata:
         vocabloader.gather_non_bpe_vocab(dataset)
 
     dataset.preprocessed.set_ready()

@@ -3,34 +3,18 @@ import logging
 import os
 import pickle
 
-from typing import List, Tuple, Iterator
+from typing import Tuple
 
 from multiprocessing.pool import Pool
 
 from tqdm import tqdm
 
-from dataprep.dataset import Dataset, NOT_FINISHED_EXTENSION
+from dataprep.fileutils import read_file_contents
+from dataprep.installation.dataset import Dataset, NOT_FINISHED_EXTENSION
 from dataprep.parse.core import convert_text
 from dataprep.config import REWRITE_PARSED_FILE, CHUNKSIZE, LIMIT_FILES_SCANNING
 
 logger = logging.getLogger(__name__)
-
-
-#TODO move two methods below to a new fileutils module
-def read_file_with_encoding(file_path: bytes, encoding: str) -> Tuple[List[str], bytes]:
-    with open(file_path, 'r', encoding=encoding) as f:
-        return [line.rstrip('\n') for line in f], file_path
-
-
-def read_file_contents(file_path: bytes) -> Tuple[List[str], bytes]:
-    try:
-        return read_file_with_encoding(file_path, 'utf-8')
-    except UnicodeDecodeError:
-        logger.warning(f"Encoding is not utf-8, trying ISO-8859-1")
-        try:
-            return read_file_with_encoding(file_path, 'ISO-8859-1')
-        except UnicodeDecodeError:
-            logger.error(f"Unicode decode error in file: {file_path}")
 
 
 def preprocess_and_write(params: Tuple[bytes, bytes]) -> None:

@@ -109,6 +109,15 @@ Other possible values are `1k` and `5k` (1,000 and 5,000 merges respectively). P
 
 **For other commands like `ronin` and `chars`, options `--splt-numbers`, `--stem`, please refer to the [docs](dataprep/cli/spec.py)**.
 
+## Calculate vocabulary 
+Use `--calc-vocab` switch with the preprocessing command to calculate the vocabulary of the preprocessed corpus (CLI only), e.g.:
+```bash
+>>>dataprep basic -p /path/to/train/on --calc-vocab
+...
+Vocab is available at /path/to/vocab
+
+```
+
 ## Learning custom BPE codes
 If you don't want to use, pre-trained BPE codes, it's possible to train custom ones. For example, to train 10,000 merges on the corpus located at the path `/path/to/train/on`, the following command should be run (only CLI):
 

@@ -2,14 +2,14 @@ import logging
 import os
 import sys
 
-import re
+import regex
 import time
 from typing import Optional, Dict, Callable, Tuple, List
 
 from dataprep.bpepkg.bpe_config import BpeConfig
 from dataprep.bpepkg.bpe_encode import read_merges
 from dataprep.bpepkg.merge import MergeList
-from dataprep.config import USER_BPE_DIR
+from dataprep.config import USER_BPE_DIR, USER_VOCAB_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +83,7 @@ def create_new_id_from(path: str, bpe_config: BpeConfig, predefined_bpe_codes_id
             return id_base
         else:
             def extract_number(full_id: str, id_base: str) -> int:
-                m = re.match(f"{id_base}_([0-9]*)", full_id)
+                m = regex.match(f"{id_base}_([0-9]*)", full_id)
                 return int(m[1]) if m else 0
 
             numbers = list(map(lambda d: extract_number(d, id_base), existing_ids))
@@ -99,11 +99,23 @@ def write_bpe_codes_id(dataset_bpe_dir: str, bpe_codes_id: str) -> None:
 
 def parse_merge_list_id(s: str) -> Tuple[str, int]:
     REGEX = "(.*)-([1-9][0-9]*)$"
-    m = re.match(REGEX, s)
+    m = regex.match(REGEX, s)
     if m:
         return m[1], int(m[2])
     else:
         raise InvalidBpeCodesIdError(f'Invalid id format: "{s}". Format should be: "{REGEX}"')
+
+
+def get_base_vocab_dir(bpe_list_id: str) -> str:
+    dataset_bpe_dir = get_dataset_bpe_dir(bpe_list_id)
+    prep_config_str = os.path.basename(dataset_bpe_dir)
+    #TODO do not hard code date and dir format in general
+    m = regex.fullmatch(r'(.*_\d\d-\d\d-\d\dT\d\d-\d\d-\d\d)(.*)', prep_config_str)
+    if not m:
+        raise ValueError(f'Invalid dir format: {prep_config_str}')
+    bpe_config = BpeConfig.from_suffix(m[2])
+    base_prep_config = bpe_config.to_prep_config()
+    return os.path.join(USER_VOCAB_DIR, f'{m[1]}_{base_prep_config}')
 
 
 def get_dataset_bpe_dir(bpe_list_id: str) -> str:

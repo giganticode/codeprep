@@ -1,18 +1,17 @@
 import ast
 import logging
 import os
-import random
 
-import math
-from datetime import datetime
-from typing import Type, Optional, List, Generator
+from typing import Type, Optional, Generator
 
 from dataprep.bpepkg.bpe_config import BpeConfig
-from dataprep.bpepkg.bperegistry import get_codes_id_by_bpe_path, create_new_id_from, write_bpe_codes_id, \
+from dataprep.dirutils import walk_and_save, get_timestamp
+from dataprep.installation.bperegistry import get_codes_id_by_bpe_path, create_new_id_from, write_bpe_codes_id, \
     CustomBpeConfig
 from dataprep.config import DEFAULT_PARSED_DATASETS_DIR, DEFAULT_PREP_DATASETS_DIR, USER_BPE_DIR, DEFAULT_FILE_LIST_DIR, \
-    LIMIT_FILES_ON_LAST_MODIFICATION_CHECK
+    USER_VOCAB_DIR
 from dataprep.prepconfig import PrepConfig
+from dataprep.vocab import VOCAB_FILENAME
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +25,6 @@ PREPROCESSED_EXTENSION = ".prep"
 NOT_FINISHED_EXTENSION = ".part"
 ARCHIVED_EXT = "archived"
 
-VOCAB_FILENAME = 'vocab'
 NONBPE_VOCAB_FILENAME = 'nonbpe_vocab'
 
 
@@ -43,7 +41,7 @@ class SubDataset(object):
     def set_ready(self) -> None:
         set_path_ready(self.path)
 
-    def is_outdated(self) -> None:
+    def is_outdated(self) -> bool:
         return is_path_outdated(self.path)
 
     def file_iterator(self) -> Generator[bytes, None, None]:
@@ -174,15 +172,19 @@ class Dataset(object):
     def _get_path_to_parsed_dataset(self) -> str:
         return os.path.join(DEFAULT_PARSED_DATASETS_DIR, self.get_dataset_dir_name)
 
+    def _get_prep_suffix(self) -> str:
+        suffix = f'_-_{self.prep_config}'
+        if self._custom_bpe_config:
+            suffix += f'_{self._custom_bpe_config.merge_list_id}-{self._custom_bpe_config.n_merges}'
+        return suffix
+
     def _get_path_to_prep_dataset(self, overriden_path_to_prep_dataset: Optional[str]) -> str:
         prefix = overriden_path_to_prep_dataset if overriden_path_to_prep_dataset else DEFAULT_PREP_DATASETS_DIR
 
-        basename = f'{self.get_dataset_dir_name}_{self.prep_config}'
-        if self._custom_bpe_config:
-            basename += f'_{self._custom_bpe_config.merge_list_id}'
+        basename = f'{self.get_dataset_dir_name}{self._get_prep_suffix()}'
 
         if overriden_path_to_prep_dataset:
-            basename += '_prep'
+            basename += '_-_prep'
 
         return os.path.join(prefix, basename)
 
@@ -195,12 +197,24 @@ class Dataset(object):
         return os.path.join(USER_BPE_DIR, f'{self.get_dataset_dir_name}{self._bpe_config.to_suffix() if self._bpe_config else ""}')
 
     @property
+    def base_bpe_vocab_path(self) -> str:
+        return os.path.join(USER_VOCAB_DIR, f'{self.get_dataset_dir_name}_{self._bpe_config.to_prep_config()}')
+
+    @property
+    def vocab_path(self) -> str:
+        return os.path.join(USER_VOCAB_DIR, f'{self.get_dataset_dir_name}{self._get_prep_suffix()}')
+
+    @property
+    def path_to_vocab_file(self) -> str:
+        return os.path.join(self.vocab_path, VOCAB_FILENAME)
+
+    @property
     def path_to_bpe_vocab_file(self) -> str:
-        return os.path.join(self.bpe_path, VOCAB_FILENAME)
+        return os.path.join(self.base_bpe_vocab_path, VOCAB_FILENAME)
 
     @property
     def path_to_nonbpe_vocab_file(self) -> str:
-        return os.path.join(self.bpe_path, NONBPE_VOCAB_FILENAME)
+        return os.path.join(self.base_bpe_vocab_path if self._bpe_config else self.vocab_path, NONBPE_VOCAB_FILENAME)
 
     @property
     def bpe_codes_id(self) -> Optional[str]:
@@ -216,10 +230,14 @@ class Dataset(object):
 
     def get_all_files(self, return_dirs_instead_of_regular_files: bool=False) -> Generator[bytes, None, None]:
         if self.files_need_to_be_saved():
+            if not os.path.exists(self.path_to_file_list_folder):
+                os.makedirs(self.path_to_file_list_folder)
             for filepath in walk_and_save(self.original.path,
-                                   self.path_to_file_list_folder,
-                                   return_dirs_instead_of_regular_files, self._extensions):
+                                          os.path.join(self.path_to_file_list_folder, DIR_LIST_FILENAME),
+                                          os.path.join(self.path_to_file_list_folder, FILE_LIST_FILENAME),
+                                          return_dirs_instead_of_regular_files, self._extensions):
                 yield filepath
+            set_path_ready(self.path_to_file_list_folder)
         else:
             file_to_save_to = DIR_LIST_FILENAME if return_dirs_instead_of_regular_files else FILE_LIST_FILENAME
             with open(os.path.join(self.path_to_file_list_folder, file_to_save_to)) as f:
@@ -241,73 +259,6 @@ class Dataset(object):
 def _get_last_modif_file_path_for_dir(path: str) -> str:
     dirname, filename = os.path.split(path)
     return os.path.join(dirname, f'.{filename}.lastmodif')
-
-
-def get_dir_last_modification(path: str, limit: int = LIMIT_FILES_ON_LAST_MODIFICATION_CHECK) -> datetime:
-
-    def walk_path(path):
-        counter = 0
-        if os.path.isfile(path) or len(os.listdir(path)) == 0:
-            yield os.path.getmtime(path)
-        else:
-            for root, dirs, files in os.walk(path):
-                for dir in dirs:
-                    if counter >= limit:
-                        return
-                    counter += 1
-                    yield os.path.getmtime(os.path.join(root, dir))
-                for file in files:
-                    if counter >= limit:
-                        return
-                    full_path = os.path.join(root, file)
-                    if not os.path.islink(full_path):
-                        counter += 1
-                        yield os.path.getmtime(full_path)
-
-    mtime = max(walk_path(path))
-    return datetime.fromtimestamp(mtime)
-
-
-def has_one_of_extensions(name: bytes, extensions: List[bytes]) -> bool:
-    for ext in extensions:
-        if name.endswith(b'.' + ext):
-            return True
-    return False
-
-
-def walk_and_save(path: str, file_lists_path: str, return_dirs_instead_of_regular_files: bool, extensions: Optional[List[str]]) -> Generator[bytes, None, None]:
-    if not os.path.exists(file_lists_path):
-        os.makedirs(file_lists_path)
-    with open(os.path.join(file_lists_path, DIR_LIST_FILENAME), 'w') as d, open(os.path.join(file_lists_path, FILE_LIST_FILENAME), 'w') as f:
-        path_bin = path.encode()
-        extensions_bin = list(map(lambda e: e.encode(), extensions)) if extensions else None
-        # we want to list and store all the files a sequences of bytes to avoid problems with different encodings for filenames
-        if os.path.isfile(path_bin):
-            res = os.path.basename(path_bin)
-            f.write(f'{res}\n')
-            if not return_dirs_instead_of_regular_files:
-                yield res
-        else:
-            for root, dirs, files in os.walk(path_bin):
-                # we pass bytes to os.walk -> the output are bytes as well
-                for dir in dirs:
-                    bin_name = os.path.join(os.path.relpath(root, path_bin), dir)
-                    d.write(f'{bin_name}\n')
-                    if return_dirs_instead_of_regular_files:
-                        yield bin_name
-                for file in files:
-                    bin_name = os.path.join(os.path.relpath(root, path_bin), file)
-                    if not extensions or has_one_of_extensions(bin_name, extensions_bin):
-                        if not os.path.islink(os.path.join(root, file)):
-                            f.write(f'{bin_name}\n')
-                            if not return_dirs_instead_of_regular_files:
-                                yield bin_name
-    set_path_ready(file_lists_path)
-
-
-def get_timestamp(path: str) -> str:
-    last_modif_time = get_dir_last_modification(path)
-    return last_modif_time.strftime("%y-%m-%dT%H-%M-%S")
 
 
 def set_path_ready(path: str) -> None:

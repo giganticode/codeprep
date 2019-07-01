@@ -1,8 +1,9 @@
 import unittest
 from unittest import mock
 
-from dataprep.bpepkg.bperegistry import CustomBpeConfig
-from dataprep.dataset import has_one_of_extensions, Dataset, SubDataset
+from dataprep.installation.bperegistry import CustomBpeConfig
+from dataprep.installation.dataset import Dataset, SubDataset
+from dataprep.fileutils import has_one_of_extensions
 from dataprep.prepconfig import PrepConfig, PrepParam
 
 
@@ -24,9 +25,9 @@ class HasOneOfExtensionsTest(unittest.TestCase):
 
 
 @mock.patch('os.path.exists')
-@mock.patch('dataprep.dataset.get_timestamp')
-@mock.patch('dataprep.dataset.DEFAULT_PARSED_DATASETS_DIR', '/parsed/dataset')
-@mock.patch('dataprep.dataset.DEFAULT_PREP_DATASETS_DIR', '/prep/dataset')
+@mock.patch('dataprep.installation.dataset.get_timestamp')
+@mock.patch('dataprep.installation.dataset.DEFAULT_PARSED_DATASETS_DIR', '/parsed/dataset')
+@mock.patch('dataprep.installation.dataset.DEFAULT_PREP_DATASETS_DIR', '/prep/dataset')
 class CreateTest(unittest.TestCase):
     def test_simple(self, get_timestamp_mock, os_exists_mock):
         os_exists_mock.return_value = True
@@ -50,7 +51,7 @@ class CreateTest(unittest.TestCase):
 
         self.assertEqual(SubDataset(actual, '/path/to/dataset', ''), actual._original)
         self.assertEqual(SubDataset(actual, '/parsed/dataset/dataset_01_01_01', '.parsed'), actual._parsed)
-        self.assertEqual(SubDataset(actual, '/prep/dataset/dataset_01_01_01_u00su', '.prep'), actual._preprocessed)
+        self.assertEqual(SubDataset(actual, '/prep/dataset/dataset_01_01_01_-_u00su', '.prep'), actual._preprocessed)
 
     @mock.patch("dataprep.bpepkg.bpe_config.BpeConfig")
     def test_simple2(self, mocked_bpe_config, get_timestamp_mock, os_exists_mock):
@@ -64,7 +65,7 @@ class CreateTest(unittest.TestCase):
             PrepParam.CASE: 'u'
         })
 
-        custom_bpe_config = CustomBpeConfig("id-1000", 1000, "/codes/file", "/cache/file")
+        custom_bpe_config = CustomBpeConfig("id", 1000, "/codes/file", "/cache/file")
         actual = Dataset.create('/path/to/dataset', prep_config, "c|java", custom_bpe_config,
                                 mocked_bpe_config, overriden_path_to_prep_dataset="/path/overridden")
 
@@ -77,7 +78,7 @@ class CreateTest(unittest.TestCase):
 
         self.assertEqual(SubDataset(actual, '/path/to/dataset', ''), actual._original)
         self.assertEqual(SubDataset(actual, '/parsed/dataset/dataset_01_01_01', '.parsed'), actual._parsed)
-        self.assertEqual(SubDataset(actual, '/path/overridden/dataset_01_01_01_u00su_id-1000_prep', '.prep'), actual._preprocessed)
+        self.assertEqual(SubDataset(actual, '/path/overridden/dataset_01_01_01_-_u00su_id-1000_-_prep', '.prep'), actual._preprocessed)
 
 
 if __name__ == '__main__':

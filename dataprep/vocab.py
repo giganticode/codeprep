@@ -5,27 +5,27 @@ from collections import Counter, defaultdict
 from fnmatch import fnmatch
 from multiprocessing import Queue
 
-import argparse
 import dill as pickle
 import shutil
 import time
 from multiprocessing.pool import Pool
 from queue import Empty
 from tqdm import tqdm
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Generator, Iterator
 
-from dataprep.dataset import Dataset, SubDataset, VOCAB_FILENAME
 from dataprep.model.placeholders import placeholders
-from dataprep.parse_projects import read_file_contents
-from dataprep.util import AtomicInteger, merge_dicts_, dump_dict_into_2_columns
+from dataprep.fileutils import read_file_contents
+from dataprep.util import AtomicInteger, merge_dicts_
 
 logger = logging.getLogger(__name__)
 
 queue_size = AtomicInteger()
 
 PARTVOCAB_EXT = 'partvocab'
-VOCABSIZE_FILENAME = 'vocabsize'
 PARTIAL_VOCABS_READY_FILENAME = 'ready'
+
+VOCABSIZE_FILENAME = 'vocabsize'
+VOCAB_FILENAME = 'vocab'
 
 N_CHUNKS = 20
 BLOCKING_TIMEOUT_SECONDS_SHORT = 5
@@ -53,7 +53,7 @@ class PartialVocab(object):
     def renew_id(self) -> None:
         self.id = self._generate_id()
 
-    def set_path_to_dump(self, path) -> None:
+    def set_path_to_dump(self, path: str) -> None:
         self.path_to_dump = path
 
     def add_vocab(self, partial_vocab: 'PartialVocab') -> List[str]:
@@ -75,7 +75,7 @@ class PartialVocab(object):
             for percent, (v, n) in stats:
                 f.write(f"{percent:.4f} {int(v)} {int(n)}\n")
 
-    def limit_max_vocab(self, vocab_size_threshold: int):
+    def limit_max_vocab(self, vocab_size_threshold: int) -> None:
         sorted_vocab = sorted(self.merged_word_counts.items(), key=lambda x: x[1], reverse=True)
         if vocab_size_threshold > len(sorted_vocab):
             return
@@ -87,7 +87,7 @@ class PartialVocab(object):
 
     def write_vocab(self, path_to_vocab_file: str) -> None:
         sorted_vocab = sorted(self.merged_word_counts.items(), key=lambda x: x[1], reverse=True)
-        dump_dict_into_2_columns(sorted_vocab, path_to_vocab_file)
+        _dump_vocab_dict(sorted_vocab, path_to_vocab_file)
 
     def __generate_stats(self):
         d = defaultdict(list)
@@ -99,7 +99,8 @@ class PartialVocab(object):
 
 class VocabMerger(multiprocessing.Process):
     def __init__(self, id: int, tasks: Dict[int, Queue], path_to_dump: str, process_counter: AtomicInteger,
-                 chunk_queue: Queue, merges_left_counter: AtomicInteger, output_dir: str):
+                 chunk_queue: Queue, merges_left_counter: AtomicInteger,
+                 vocab_file_path: str, vocab_size_file_path: str):
         multiprocessing.Process.__init__(self)
         self.id = id
         self.tasks = tasks
@@ -108,9 +109,10 @@ class VocabMerger(multiprocessing.Process):
         self.chunk_queue = chunk_queue
         self.merges_left_counter = merges_left_counter
         self.total_merges = merges_left_counter.value
-        self.output_dir = output_dir
+        self.vocab_file_path = vocab_file_path
+        self.vocav_size_file_path = vocab_size_file_path
 
-    def run(self):
+    def run(self) -> None:
         while True:
             chunk_assigned = self.chunk_queue.get(block=True, timeout=BLOCKING_TIMEOUT_SECONDS_SHORT)
             if chunk_assigned == -1:
@@ -151,7 +153,7 @@ class VocabMerger(multiprocessing.Process):
 
             self.tasks[chunk_assigned].put_nowait(first)
 
-    def _finish_merges(self):
+    def _finish_merges(self) -> None:
         logger.info("===============     Finishing merges    ===============")
         list_from_chunks = [queue.get(block=True, timeout=BLOCKING_TIMEOUT_SECONDS_SHORT) for queue in
                             self.tasks.values()]
@@ -169,11 +171,11 @@ class VocabMerger(multiprocessing.Process):
 
             self._log_merge_results(new_words, len(first.merged_word_counts), time.time() - start)
 
-        first.write_stats(os.path.join(self.output_dir, f'{VOCABSIZE_FILENAME}'))
-        first.write_vocab(os.path.join(self.output_dir, f'{VOCAB_FILENAME}'))
+        first.write_stats(self.vocav_size_file_path)
+        first.write_vocab(self.vocab_file_path)
         shutil.rmtree(self.path_to_dump)
 
-    def _log_merge_results(self, new_words: List[str], resulting_vocab_size: int, time: float):
+    def _log_merge_results(self, new_words: List[str], resulting_vocab_size: int, time: float) -> None:
         logger.debug(f"[{self.id}] New words: {new_words[:10]} ..., total: {len(new_words)}")
         logger.info(
             f"[{self.id}] Merging took {time:.3f} s, current vocab size: {resulting_vocab_size}")
@@ -200,7 +202,7 @@ def get_vocab(path_to_file: str) -> Counter:
     return vocab
 
 
-def create_and_dump_partial_vocab(param):
+def create_and_dump_partial_vocab(param: Tuple[str, str, int]) -> PartialVocab:
     path_to_file, path_to_dump, chunk = param
     vocab = get_vocab(path_to_file)
     partial_vocab = PartialVocab(vocab, chunk)
@@ -208,7 +210,7 @@ def create_and_dump_partial_vocab(param):
     return partial_vocab
 
 
-def finish_file_dumping(path_to_new_file):
+def finish_file_dumping(path_to_new_file: str) -> None:
     try:
         pickle.load(open(path_to_new_file, 'rb'))
     except EOFError:
@@ -241,7 +243,7 @@ def list_to_queue(lst: List) -> Queue:
     return queue
 
 
-def create_chunk_generator(total: int, n_chunks: int):
+def create_chunk_generator(total: int, n_chunks: int) -> Generator[int, None, None]:
     min_elms_in_chunk = total // n_chunks
     for i in range(min_elms_in_chunk):
         for j in range(n_chunks):
@@ -250,7 +252,7 @@ def create_chunk_generator(total: int, n_chunks: int):
         yield i
 
 
-def create_initial_partial_vocabs(all_files, path_to_dump: str):
+def create_initial_partial_vocabs(all_files: List[bytes], path_to_dump: str) -> List[PartialVocab]:
     partial_vocabs_queue = []
     files_total = len(all_files)
     chunk_generator = create_chunk_generator(len(all_files), N_CHUNKS)
@@ -276,6 +278,7 @@ def mapify_tasks(tasks: List[PartialVocab]) -> Tuple[Dict[int, Queue], Dict[int,
 
 
 def load_partial_vocabs(path: str) -> List[PartialVocab]:
+    logger.info(f"Loading partially calculated vocabs from {path} ...")
     for file in os.listdir(path):
         if fnmatch(file, f'[0-9]*_[0-9]*_[0-9]*.{PARTVOCAB_EXT}'):
             # hasn't been terminated properly
@@ -289,18 +292,16 @@ def load_partial_vocabs(path: str) -> List[PartialVocab]:
                 raise TypeError(f"Object {str(part_vocab)} must be VocabMerger version {part_vocab.VERSION}")
             task_list.append(part_vocab)
 
-    logger.info(f"Loaded partially calculated vocabs from {path}")
     return task_list
 
 
-def create_partial_vocabs(sub_dataset, path_to_dump) -> List[PartialVocab]:
+def create_partial_vocabs(file_iterator: Iterator[bytes], path_to_dump: str) -> List[PartialVocab]:
     logger.info(f"Calculating vocabulary from scratch")
     if os.path.exists(path_to_dump):
         shutil.rmtree(path_to_dump)
     os.makedirs(path_to_dump)
-    logger.info(f"Reading files from: {sub_dataset.path}")
 
-    all_files = [file for file in sub_dataset.file_iterator()]
+    all_files = [file for file in file_iterator]
     if not all_files:
         logger.warning("No preprocessed files found.")
         exit(4)
@@ -309,18 +310,51 @@ def create_partial_vocabs(sub_dataset, path_to_dump) -> List[PartialVocab]:
     return task_list
 
 
-def run_with_paths(sub_dataset: SubDataset, output_dir: str):
+def partial_vocabs_ready(path_to_dump: str) -> bool:
+    return os.path.exists(os.path.join(path_to_dump, PARTIAL_VOCABS_READY_FILENAME))
 
-    if os.path.exists(os.path.join(output_dir, f'{VOCABSIZE_FILENAME}')):
-        logger.warning(f"File already exists: {os.path.join(output_dir, f'{VOCABSIZE_FILENAME}')}. Doing nothing.")
-        exit(0)
+
+def _dump_vocab_dict(lst: List[Tuple[str, int]], file: str) -> None:
+    with open(file, 'w') as f:
+        for word, freq in lst:
+            f.write(f'{str(word)}{VOCAB_DICT_DELIM}{freq}\n')
+
+
+VOCAB_DICT_DELIM = '\t'
+
+
+def _load_vocab_dict(file) -> Dict[str, int]:
+    words = {}
+    with open(file, 'r') as f:
+        for line in f:
+            line = line.rstrip('\n')
+            splits = line.split(VOCAB_DICT_DELIM)
+            words[splits[0]] = int(splits[1])
+    return words
+
+
+def _load_vocab_set(file: str):
+    non_bpe_tokens = set()
+    with open(file, 'r') as f:
+        for line in f:
+            non_bpe_tokens.add(line.rstrip('\n'))
+    return non_bpe_tokens
+
+
+def calc_vocab(path: str, file_iterator: Iterator[bytes], output_dir: str):
+    vocab_file_path = os.path.join(output_dir, VOCAB_FILENAME)
+    vocab_size_file_path = os.path.join(output_dir, VOCABSIZE_FILENAME)
+    if os.path.exists(vocab_size_file_path) and os.path.exists(vocab_file_path):
+        print(f"Vocab files already exist at: {os.path.dirname(vocab_size_file_path)}/ . Doing nothing.")
+        return
 
     path_to_dump = os.path.join(output_dir, 'part_vocab')
 
-    if os.path.exists(os.path.join(path_to_dump, PARTIAL_VOCABS_READY_FILENAME)):
+    if partial_vocabs_ready(path_to_dump):
         task_list = load_partial_vocabs(path_to_dump)
     else:
-        task_list = create_partial_vocabs(sub_dataset, path_to_dump)
+        logger.info(f"Reading files from: {path}")
+        task_list = create_partial_vocabs(file_iterator, path_to_dump)
 
     n_processes = multiprocessing.cpu_count()
     logger.info(f"Using {n_processes} mergers, number of partial vocabs: {len(task_list)}")
@@ -331,7 +365,9 @@ def run_with_paths(sub_dataset: SubDataset, output_dir: str):
     process_counter = AtomicInteger(n_processes)
     merges_left_counter = AtomicInteger(merges_to_be_done)
     mergers = [VocabMerger(i + 1, tasks_queues, path_to_dump, process_counter, chunk_queue,
-                           merges_left_counter, output_dir)
+                           merges_left_counter,
+                           vocab_file_path=vocab_file_path,
+                           vocab_size_file_path=vocab_size_file_path)
                for i in range(n_processes)]
     for merger in mergers:
         merger.start()
@@ -339,19 +375,5 @@ def run_with_paths(sub_dataset: SubDataset, output_dir: str):
     for merger in mergers:
         merger.join()
 
-
-def run(dataset: Dataset) -> None:
-    run_with_paths(dataset.preprocessed, dataset.bpe_path)
-
-
-if __name__ == '__main__':
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('path_to_dataset', action='store', help=f'path to dataset')
-    parser.add_argument('output_dir', action='store', help=f'output dir')
-    parser.add_argument('extension', action='store', help=f'extension')
-
-    args = parser.parse_known_args()
-    args = args[0]
-
-    run_with_paths(SubDataset(args.path_to_dataset, args.extension), args.output_dir)
+    print(f"Vocab is available at {vocab_file_path}")
+    print(f"Vocab stats is available at {vocab_size_file_path}")

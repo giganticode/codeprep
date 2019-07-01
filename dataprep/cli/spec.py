@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 @dsc.command()
 def nosplit_handler(args):
-    """usage: {program} nosplit (-p <path> [-e <ext>] [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--verbose]
+    """usage: {program} nosplit (-p <path> [-e <ext>] [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--calc-vocab] [--verbose]
 
     Preprocesses the dataset without splitting compound identifier.
 
@@ -25,6 +25,9 @@ def nosplit_handler(args):
       --no-com, -C                                  Replace comments with <comment> placeholders.
       --no-spaces, -0                               Preserve newlines and tabs.
       --no-unicode, -U                              Replace words containing non-ascii characters with <non-en> placeholders.
+
+      --calc-vocab -V                               Calculate vocabulary of the preprocessed dataset afterwards
+
       --verbose, -v                                 Print logs with log level DEBUG and higher to stdout.
     """
     handle_splitting(args)
@@ -32,7 +35,7 @@ def nosplit_handler(args):
 
 @dsc.command()
 def ronin_handler(args):
-    """usage: {program} ronin (-p <path> [-e <ext>] [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--verbose]
+    """usage: {program} ronin (-p <path> [-e <ext>] [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--calc-vocab] [--verbose]
 
     Preprocesses the dataset splitting identifiers with Ronin algorithm: http://joss.theoj.org/papers/10.21105/joss.00653.
     Numbers are split into digits.
@@ -48,6 +51,9 @@ def ronin_handler(args):
       --no-com, -C                                  Replace comments with <comment> placeholders.
       --no-spaces, -0                               Preserve newlines and tabs.
       --no-unicode, -U                              Replace words containing non-ascii characters with <non-en> placeholders.
+
+      --calc-vocab -V                               Calculate vocabulary of the preprocessed dataset afterwards
+
       --verbose, -v                                 Print logs with log level DEBUG and higher to stdout.
     """
     handle_splitting(args)
@@ -55,7 +61,7 @@ def ronin_handler(args):
 
 @dsc.command()
 def chars_handler(args):
-    """usage: {program} chars (-p <path> [-e <ext>] [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case] [--verbose]
+    """usage: {program} chars (-p <path> [-e <ext>] [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case] [--calc-vocab] [--verbose]
 
     Preprocesses the dataset by splitting identifiers into characters.
 
@@ -71,6 +77,9 @@ def chars_handler(args):
       --no-spaces, -0                               Preserve newlines and tabs.
       --no-unicode, -U                              Replace words containing non-ascii characters with <non-en> placeholders.
       --no-case, -l                                 Lowercase words and encode information about case in <Cap> <CAP> tokens.
+
+      --calc-vocab -V                               Calculate vocabulary of the preprocessed dataset afterwards
+
       --verbose, -v                                 Print logs with log level DEBUG and higher to stdout.
     """
     handle_splitting(args)
@@ -78,7 +87,7 @@ def chars_handler(args):
 
 @dsc.command()
 def basic_handler(args):
-    """usage: {program} basic (-p <path> [-e <ext>] [-o <path-out>] | <text>) [-n [-s]] [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case] [--verbose]
+    """usage: {program} basic (-p <path> [-e <ext>] [-o <path-out>] | <text>) [-n [-s]] [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case] [--calc-vocab] [--verbose]
 
     Preprocesses the dataset by splitting compound identifiers according to CamelCase and snake_case conventions.
 
@@ -97,6 +106,9 @@ def basic_handler(args):
       --no-spaces, -0                               Preserve newlines and tabs.
       --no-unicode, -U                              Replace words containing non-ascii characters with <non-en> placeholders.
       --no-case, -l                                 Lowercase words and encode information about case in <Cap> <CAP> tokens.
+
+      --calc-vocab -V                               Calculate vocabulary of the preprocessed dataset afterwards
+
       --verbose, -v                                 Print logs with log level DEBUG and higher to stdout.
     """
     handle_splitting(args)
@@ -104,7 +116,7 @@ def basic_handler(args):
 
 @dsc.command()
 def bpe_handler(args):
-    """usage: {program} bpe (1k | 5k | 10k | <bpe-codes-id>) (-p <path> [-e <ext>] [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case] [--verbose]
+    """usage: {program} bpe (1k | 5k | 10k | <bpe-codes-id>) (-p <path> [-e <ext>] [-o <path-out>] | <text>) [--no-str] [--no-com] [--no-spaces] [--no-unicode] [--no-case] [--calc-vocab] [--verbose]
 
     Preprocesses the dataset by splitting compound identifiers according to CamelCase and snake_case conventions,
     and applies byte-pair encoding (BPE) on top.
@@ -122,6 +134,9 @@ def bpe_handler(args):
       --no-spaces, -0                               Preserve newlines and tabs.
       --no-unicode, -U                              Replace words containing non-ascii characters with <non-en> placeholders.
       --no-case, -l                                 Lowercase words and encode information about case in <Cap> <CAP> tokens.
+
+      --calc-vocab -V                               Calculate vocabulary of the preprocessed dataset afterwards
+
       --verbose, -v                                 Print logs with log level DEBUG and higher to stdout.
     """
     handle_splitting(args)

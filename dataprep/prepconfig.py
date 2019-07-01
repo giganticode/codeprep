@@ -186,6 +186,12 @@ class PrepConfig(object):
         """
         return self.get_param_value(PrepParam.SPLIT) in ['4', '5', '6', '7', '8', '9']
 
+    #TODO make use of basic_bpe mask
+    def is_base_bpe_config(self):
+        return self.get_param_value(PrepParam.COM_STR) == '0' \
+               and self.get_param_value(PrepParam.SPLIT) == '1' \
+               and self.get_param_value(PrepParam.TABS_NEWLINES) == 's'
+
 
 com_str_to_types_to_be_repr = {
     '0': [],

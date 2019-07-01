@@ -5,11 +5,11 @@ from typing import Dict, List
 
 from dataprep import api
 from dataprep.api import create_prep_config_from_args
-from dataprep.bpepkg import bpe_learn
 from dataprep.bpepkg.bpe_config import BpeParam, BpeConfig
-from dataprep.bpepkg.bperegistry import InvalidBpeCodesIdError, CustomBpeConfig
 from dataprep.cli import stages
-from dataprep.dataset import Dataset
+from dataprep.installation import bpelearner
+from dataprep.installation.bperegistry import InvalidBpeCodesIdError, CustomBpeConfig
+from dataprep.installation.dataset import Dataset
 
 
 def set_log_level(args: Dict[str, str]) -> None:
@@ -42,7 +42,7 @@ def handle_learnbpe(args):
         print(f"Ignoring passed bpe codes id: {bpe_codes_id}. "
               f"This dataset has already been assigned id: {dataset.bpe_codes_id}")
 
-    bpe_learn.run(dataset, n_merges, bpe_config)
+    bpelearner.run(dataset, n_merges, bpe_config)
 
 
 def parse_extension_pattern(extension_pattern: str) -> List[str]:
@@ -63,7 +63,10 @@ def handle_splitting(args):
             extensions = parse_extension_pattern(args['--ext']) if args['--ext'] else None
             custom_bpe_config = CustomBpeConfig.from_id(bpe_codes_id) if bpe_codes_id else None
             dataset = Dataset.create(path, prep_config, extensions, custom_bpe_config, overriden_path_to_prep_dataset=output_path)
-            stages.run_until_preprocessing(dataset, custom_bpe_config)
+            if args['--calc-vocab']:
+                stages.run_until_vocab(dataset, custom_bpe_config)
+            else:
+                stages.run_until_preprocessing(dataset, custom_bpe_config)
             print(f"Preprocessed dataset is ready at {dataset.preprocessed.path}")
     except InvalidBpeCodesIdError as err:
         print(err)

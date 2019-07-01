@@ -325,8 +325,8 @@ class CliTest(unittest.TestCase):
         api_mock.preprocess.assert_called_with("str", prep_config, None)
 
     @mock.patch('dataprep.cli.impl.Dataset')
-    @mock.patch('dataprep.cli.impl.bpe_learn')
-    def test_parse_and_run_learnbpe_yes_false_java_yes(self, bpe_learn_mock, dataset_mock, api_mock):
+    @mock.patch('dataprep.cli.impl.bpelearner')
+    def test_parse_and_run_learnbpe_yes_false_java_yes(self, bpe_learner_mock, dataset_mock, api_mock):
 
         # given
         dataset_mock.create = Mock(return_value=dataset_mock)
@@ -350,11 +350,11 @@ class CliTest(unittest.TestCase):
             BpeParam.UNICODE: 'yes',
         })
         dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, ['java'], None, bpe_config)
-        bpe_learn_mock.run.assert_called_with(dataset_mock, 1000, bpe_config)
+        bpe_learner_mock.run.assert_called_with(dataset_mock, 1000, bpe_config)
 
     @mock.patch('dataprep.cli.impl.Dataset')
-    @mock.patch('dataprep.cli.impl.bpe_learn')
-    def test_parse_and_run_learnbpe_no_true_code_no(self, bpe_learn_mock, dataset_mock, api_mock):
+    @mock.patch('dataprep.cli.impl.bpelearner')
+    def test_parse_and_run_learnbpe_no_true_code_no(self, bpe_learner_mock, dataset_mock, api_mock):
 
         # given
         dataset_mock.create = Mock(return_value=dataset_mock)
@@ -378,11 +378,11 @@ class CliTest(unittest.TestCase):
             BpeParam.UNICODE: 'no',
         })
         dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, None, None, bpe_config)
-        bpe_learn_mock.run.assert_called_with(dataset_mock, 1000, bpe_config)
+        bpe_learner_mock.run.assert_called_with(dataset_mock, 1000, bpe_config)
 
     @mock.patch('dataprep.cli.impl.Dataset')
-    @mock.patch('dataprep.cli.impl.bpe_learn')
-    def test_parse_and_run_learnbpe_prefix_true_code_bytes(self, bpe_learn_mock, dataset_mock, api_mock):
+    @mock.patch('dataprep.cli.impl.bpelearner')
+    def test_parse_and_run_learnbpe_prefix_true_code_bytes(self, bpe_learner_mock, dataset_mock, api_mock):
 
         # given
         dataset_mock.create = Mock(return_value=dataset_mock)
@@ -406,7 +406,7 @@ class CliTest(unittest.TestCase):
             BpeParam.UNICODE: 'bytes',
         })
         dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, None, None, bpe_config)
-        bpe_learn_mock.run.assert_called_with(dataset_mock, 1000, bpe_config)
+        bpe_learner_mock.run.assert_called_with(dataset_mock, 1000, bpe_config)
 
 
 if __name__ == '__main__':

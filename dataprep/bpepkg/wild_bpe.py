@@ -1,10 +1,10 @@
 import logging
 import os
 import sys
-import time
 from collections import defaultdict
 from enum import Enum, auto
 
+import time
 from typing import List, Dict, Tuple, Set, Generator, Optional
 
 from dataprep.util import PriorityCounter, getsize

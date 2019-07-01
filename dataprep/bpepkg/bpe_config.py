@@ -1,4 +1,5 @@
 from enum import Enum
+
 from typing import Dict
 
 from dataprep.prepconfig import PrepConfig, PrepParam
@@ -54,21 +55,51 @@ class BpeConfig(object):
             PrepParam.CASE: 'l' if self.get_param_value(BpeParam.CASE) == 'no' else 'u'
         })
 
+    UNICODE_NO = '_nounicode'
+    UNICODE_BYTES = '_bytes'
+    CASE_NO = '_nocase'
+    CASE_PREFIX = '_prefix'
+    WORD_END = '_we'
+
+    @staticmethod
+    def from_suffix(suffix: str):
+        if suffix.find(BpeConfig.CASE_NO) != -1:
+            case = 'no'
+        elif suffix.find(BpeConfig.CASE_PREFIX) != -1:
+            case = 'prefix'
+        else:
+            case = 'yes'
+
+        if suffix.find(BpeConfig.UNICODE_NO) != -1:
+            unicode = 'no'
+        elif suffix.find(BpeConfig.UNICODE_BYTES) != -1:
+            unicode = 'bytes'
+        else:
+            unicode = 'yes'
+
+
+        return BpeConfig({
+            BpeParam.CASE: case,
+            BpeParam.WORD_END: suffix.find(BpeConfig.WORD_END) != -1,
+            BpeParam.BASE: 'code',
+            BpeParam.UNICODE: unicode,
+        })
+
     def to_suffix(self):
         suf = ''
 
         if self.get_param_value(BpeParam.CASE) == 'no':
-            suf += '_nocase'
+            suf += BpeConfig.CASE_NO
         elif self.get_param_value(BpeParam.CASE) == 'prefix':
-            suf += '_prefix'
+            suf += BpeConfig.CASE_PREFIX
 
         if self.get_param_value(BpeParam.WORD_END):
-            suf += '_we'
+            suf += BpeConfig.WORD_END
 
         if self.get_param_value(BpeParam.UNICODE) == 'no':
-            suf += '_nounicode'
+            suf += BpeConfig.UNICODE_NO
         elif self.get_param_value(BpeParam.UNICODE) == 'bytes':
-            suf += '_bytes'
+            suf += BpeConfig.UNICODE_BYTES
 
         return suf
 

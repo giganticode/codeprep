@@ -2,7 +2,7 @@ import collections
 
 from typing import List, Dict, Optional, Union, Tuple
 
-from dataprep.bpepkg.bperegistry import is_predefined_id, CustomBpeConfig
+from dataprep.installation.bperegistry import is_predefined_id, CustomBpeConfig
 from dataprep.model.core import ParsedToken
 from dataprep.model.metadata import PreprocessingMetadata
 from dataprep.model.whitespace import NewLine

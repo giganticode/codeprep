@@ -1,8 +1,5 @@
 import unittest
-from unittest import mock
 
-from dataprep.bpepkg import bpe_learn
-from dataprep.bpepkg.bpe_config import BpeConfigNotSupported, BpeConfig, BpeParam
 from dataprep.bpepkg.bpe_learn import do_merges
 from dataprep.bpepkg.merge import Merge, MergeList
 
@@ -70,39 +67,6 @@ class DoMergesTest(unittest.TestCase):
 
         self.assertEqual(expected_vocab, actual_vocab)
         self.assertEqual(expected_merges, actual_merges)
-
-
-@mock.patch('dataprep.bpepkg.bpe_learn.Dataset')
-class RunTest(unittest.TestCase):
-    def test_prefix_case(self, mocked_dataset):
-        bpe_config = BpeConfig({
-            BpeParam.BASE: 'code',
-            BpeParam.WORD_END: False,
-            BpeParam.UNICODE: 'yes',
-            BpeParam.CASE: 'prefix'
-        })
-        with self.assertRaises(BpeConfigNotSupported):
-            bpe_learn.run(mocked_dataset, 1, bpe_config)
-
-    def test_word_end(self, mocked_dataset):
-        bpe_config = BpeConfig({
-            BpeParam.BASE: 'code',
-            BpeParam.WORD_END: True,
-            BpeParam.UNICODE: 'yes',
-            BpeParam.CASE: 'no'
-        })
-        with self.assertRaises(BpeConfigNotSupported):
-            bpe_learn.run(mocked_dataset, 1, bpe_config)
-
-    def test_bytes_bpe(self, mocked_dataset):
-        bpe_config = BpeConfig({
-            BpeParam.BASE: 'code',
-            BpeParam.WORD_END: False,
-            BpeParam.UNICODE: 'bytes',
-            BpeParam.CASE: 'no'
-        })
-        with self.assertRaises(BpeConfigNotSupported):
-            bpe_learn.run(mocked_dataset, 1, bpe_config)
 
 
 if __name__ == '__main__':
