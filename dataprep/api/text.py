@@ -1,13 +1,12 @@
-import collections
+from typing import List, Optional, Union, Tuple
 
-from typing import List, Dict, Optional, Union, Tuple
-
+from dataprep.api.common import create_prep_config
 from dataprep.installation.bperegistry import is_predefined_id, CustomBpeConfig
 from dataprep.model.core import ParsedToken
 from dataprep.model.metadata import PreprocessingMetadata
 from dataprep.model.whitespace import NewLine
 from dataprep.parse.core import convert_text
-from dataprep.prepconfig import PrepConfig, PrepParam
+from dataprep.prepconfig import PrepConfig
 from dataprep.to_repr import init_bpe_data, to_repr
 
 
@@ -29,54 +28,6 @@ def preprocess(text: str, config: PrepConfig, bpe_codes_id: Optional[str] = None
         return prep_tokens
 
 
-def create_split_value(arguments):
-    if 'nosplit' in arguments and arguments['nosplit']:
-        return '0'
-    elif 'chars' in arguments and arguments['chars']:
-        return '8'
-    elif 'ronin' in arguments and arguments['ronin']:
-        return '3'
-    elif 'basic' in arguments and arguments['basic']:
-        if '--stem' in arguments and arguments['--stem']:
-            return 's'
-        elif '--split-numbers' in arguments and arguments['--split-numbers']:
-            return '2'
-        else:
-            return '1'
-    elif 'bpe' in arguments and arguments['bpe']:
-        if arguments['1k']:
-            return '5'
-        elif arguments['5k']:
-            return '4'
-        elif arguments['10k']:
-            return '6'
-        else:
-            return '9'
-    else:
-        raise AssertionError(f"Invalid split option: {arguments}")
-
-
-def create_com_str_value(arguments):
-    if arguments['--no-com'] and arguments['--no-str']:
-        return '2'
-    elif arguments['--no-com'] and not arguments['--no-str']:
-        return '3'
-    elif not arguments['--no-com'] and arguments['--no-str']:
-        return '1'
-    else: # com and str present
-        return '0'
-
-
-def create_prep_config_from_args(arguments: Dict) -> PrepConfig:
-    return PrepConfig({
-        PrepParam.EN_ONLY: 'U' if '--no-unicode' in arguments and arguments['--no-unicode'] else 'u',
-        PrepParam.COM_STR: create_com_str_value(arguments),
-        PrepParam.SPLIT: create_split_value(arguments),
-        PrepParam.TABS_NEWLINES: '0' if arguments['--no-spaces'] else 's',
-        PrepParam.CASE: 'l' if ('--no-case' in arguments and arguments['--no-case']) or ('--stem' in arguments and arguments['--stem']) else 'u'
-    })
-
-
 def nosplit(text: str, extension: Optional[str] = None, no_str: bool=False, no_com: bool=False, no_spaces: bool=False,
             no_unicode: bool=False, return_metadata: bool=False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
     """
@@ -95,16 +46,8 @@ def nosplit(text: str, extension: Optional[str] = None, no_str: bool=False, no_c
     the tuple is returned with the list of preprocessed tokens as the first element
     and pre-processing metadata as the second element (object of :class:`dataprep.model.metadata.Preprocessing.PreprocessingMetadata`)
     """
-    d = collections.defaultdict(bool)
-    args = {
-        '--no-str': no_str,
-        '--no-com': no_com,
-        '--no-spaces': no_spaces,
-        '--no-unicode': no_unicode,
-        'nosplit': True
-    }
-    d.update(args)
-    return preprocess(text, create_prep_config_from_args(d), extension=extension, return_metadata=return_metadata)
+    prep_config= create_prep_config('nosplit', no_str=no_str, no_com=no_com, no_spaces=no_spaces, no_unicode=no_unicode)
+    return preprocess(text, prep_config, extension=extension, return_metadata=return_metadata)
 
 
 def ronin(text: str, extension: Optional[str] = None, no_str: bool=False, no_com: bool=False, no_spaces: bool=False,
@@ -126,16 +69,8 @@ def ronin(text: str, extension: Optional[str] = None, no_str: bool=False, no_com
     the tuple is returned with the list of preprocessed tokens as the first element
     and pre-processing metadata as the second element (object of :class:`dataprep.model.metadata.Preprocessing.PreprocessingMetadata`)
     """
-    d = collections.defaultdict(bool)
-    args = {
-        '--no-str': no_str,
-        '--no-com': no_com,
-        '--no-spaces': no_spaces,
-        '--no-unicode': no_unicode,
-        'ronin': True
-    }
-    d.update(args)
-    return preprocess(text, create_prep_config_from_args(d), extension=extension, return_metadata=return_metadata)
+    prep_config= create_prep_config('ronin', no_str=no_str, no_com=no_com, no_spaces=no_spaces, no_unicode=no_unicode)
+    return preprocess(text, prep_config, extension=extension, return_metadata=return_metadata)
 
 
 def chars(text: str, extension: Optional[str] = None,
@@ -161,17 +96,10 @@ def chars(text: str, extension: Optional[str] = None,
     the tuple is returned with the list of preprocessed tokens as the first element
     and pre-processing metadata as the second element (object of :class:`dataprep.model.metadata.Preprocessing.PreprocessingMetadata`)
     """
-    d = collections.defaultdict(bool)
-    args = {
-        '--no-str': no_str,
-        '--no-com': no_com,
-        '--no-spaces': no_spaces,
-        '--no-unicode': no_unicode,
-        '--no-case': no_case,
-        'chars': True
-    }
-    d.update(args)
-    return preprocess(text, create_prep_config_from_args(d), '0', extension=extension, return_metadata=return_metadata)
+    prep_config = create_prep_config('chars',
+                                     no_str=no_str, no_com=no_com, no_spaces=no_spaces,
+                                     no_unicode=no_unicode, no_case=no_case)
+    return preprocess(text, prep_config, '0', extension=extension, return_metadata=return_metadata)
 
 
 def basic(text: str, extension: Optional[str] = None, split_numbers: bool=False, stem:bool=False,
@@ -201,19 +129,11 @@ def basic(text: str, extension: Optional[str] = None, split_numbers: bool=False,
     the tuple is returned with the list of preprocessed tokens as the first element
     and pre-processing metadata as the second element (object of :class:`dataprep.model.metadata.Preprocessing.PreprocessingMetadata`)
     """
-    d = collections.defaultdict(bool)
-    args = {
-        '--split-numbers': split_numbers or stem,
-        '--stem': stem,
-        '--no-str': no_str,
-        '--no-com': no_com,
-        '--no-spaces': no_spaces,
-        '--no-unicode': no_unicode,
-        '--no-case': no_case or stem,
-        'basic': True
-    }
-    d.update(args)
-    return preprocess(text, create_prep_config_from_args(d), extension=extension, return_metadata=return_metadata)
+    prep_config = create_prep_config('basic',
+                                     no_str=no_str, no_com=no_com, no_spaces=no_spaces,
+                                     no_unicode=no_unicode, no_case=no_case or stem,
+                                     split_numbers=split_numbers or stem, stem=stem)
+    return preprocess(text, prep_config, extension=extension, return_metadata=return_metadata)
 
 
 def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None,
@@ -247,18 +167,10 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None,
     the tuple is returned with the list of preprocessed tokens as the first element
     and pre-processing metadata as the second element (object of :class:`dataprep.model.metadata.Preprocessing.PreprocessingMetadata`)
     """
-    d = collections.defaultdict(bool)
-    args = {
-        '--no-str': no_str,
-        '--no-com': no_com,
-        '--no-spaces': no_spaces,
-        '--no-unicode': no_unicode,
-        '--no-case': no_case,
-        'bpe': True,
-        bpe_codes_id: True
-    }
-    d.update(args)
-    return preprocess(text, create_prep_config_from_args(d), bpe_codes_id, extension=extension,
+    prep_config = create_prep_config('bpe', bpe_codes_id=bpe_codes_id,
+                                     no_str=no_str, no_com=no_com, no_spaces=no_spaces,
+                                     no_unicode=no_unicode, no_case=no_case)
+    return preprocess(text, prep_config, bpe_codes_id, extension=extension,
                       return_metadata=return_metadata, force_reinit_bpe_data=force_reinit_bpe_data)
 
 

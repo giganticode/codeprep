@@ -1,6 +1,6 @@
 import unittest
 
-import dataprep
+import dataprep.api.text as api
 from dataprep.model.metadata import PreprocessingMetadata
 from dataprep.model.placeholders import placeholders
 
@@ -22,14 +22,14 @@ input_text='''void test_WordUeberraschungPrinter() {
 
 class CliTest(unittest.TestCase):
     def test_empty_without_metadata(self):
-        self.assertEqual([], dataprep.nosplit(''))
-        self.assertEqual([], dataprep.basic(''))
-        self.assertEqual([], dataprep.chars(''))
-        self.assertEqual([], dataprep.ronin(''))
-        self.assertEqual([], dataprep.bpe('', '1k'))
+        self.assertEqual([], api.nosplit(''))
+        self.assertEqual([], api.basic(''))
+        self.assertEqual([], api.chars(''))
+        self.assertEqual([], api.ronin(''))
+        self.assertEqual([], api.bpe('', '1k'))
 
     def test_create_prep_config_00010(self):
-        actual, metadata = dataprep.nosplit(input_text, "java", no_spaces=True, return_metadata=True)
+        actual, metadata = api.nosplit(input_text, "java", no_spaces=True, return_metadata=True)
 
         expected = ['void', 'test_WordUeberraschungPrinter', '(', ')', '{',
                     'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', 'FIXME', ce,
@@ -46,7 +46,7 @@ class CliTest(unittest.TestCase):
         self.assertEqual(expected_metadata, metadata)
 
     def test_create_prep_config_3x0xx(self):
-        actual = dataprep.nosplit(input_text, "java", no_spaces=True, no_unicode=True)
+        actual = api.nosplit(input_text, "java", no_spaces=True, no_unicode=True)
 
         expected = ['void', 'test_WordUeberraschungPrinter', '(', ')', '{',
                     'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', 'FIXME', ce,
@@ -58,7 +58,7 @@ class CliTest(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_create_prep_config_x20xx(self):
-        actual, metadata = dataprep.nosplit(input_text, "java", no_spaces=True, no_str=True, no_com=True, return_metadata=True)
+        actual, metadata = api.nosplit(input_text, "java", no_spaces=True, no_str=True, no_com=True, return_metadata=True)
 
         expected = ['void', 'test_WordUeberraschungPrinter', '(', ')', '{',
                     'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', com,
@@ -75,7 +75,7 @@ class CliTest(unittest.TestCase):
         self.assertEqual(expected_metadata, metadata)
 
     def test_create_prep_config_xx00x(self):
-        actual, metadata = dataprep.nosplit(input_text, "java", return_metadata=True)
+        actual, metadata = api.nosplit(input_text, "java", return_metadata=True)
 
         expected = ['void', 'test_WordUeberraschungPrinter', '(', ')', '{', '\n',
                     '\t', 'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', 'FIXME', '\n', placeholders['olc_end'],
@@ -93,10 +93,10 @@ class CliTest(unittest.TestCase):
 
     def test_create_prep_config_xx0x1(self):
         with self.assertRaises(TypeError) as context:
-            dataprep.nosplit(input_text, "java", no_spaces=True, no_case=True)
+            api.nosplit(input_text, "java", no_spaces=True, no_case=True)
 
     def test_create_prep_config_00111(self):
-        actual, metadata = dataprep.basic(input_text, "java", no_spaces=True, no_case=True, return_metadata=True)
+        actual, metadata = api.basic(input_text, "java", no_spaces=True, no_case=True, return_metadata=True)
 
         expected = ['void', ws, 'test', '_', cap, 'word', cap, 'ueberraschung', cap, 'printer', we, '(', ')', '{',
                     'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', caps, 'fixme', ce,
@@ -114,7 +114,7 @@ class CliTest(unittest.TestCase):
         self.assertEqual(expected_metadata, metadata)
 
     def test_create_prep_config_3x1xx(self):
-        actual = dataprep.basic(input_text, "java", no_spaces=True, no_case=True, no_unicode=True)
+        actual = api.basic(input_text, "java", no_spaces=True, no_case=True, no_unicode=True)
 
         expected = ['void', ws, 'test', '_', cap, 'word', cap, 'ueberraschung', cap, 'printer', we, '(', ')', '{',
                     'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', caps, 'fixme', ce,
@@ -126,7 +126,7 @@ class CliTest(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_create_prep_config_x11xx(self):
-        actual = dataprep.basic(input_text, "java", no_spaces=True, no_case=True, no_str=True)
+        actual = api.basic(input_text, "java", no_spaces=True, no_case=True, no_str=True)
 
         expected = ['void', ws, 'test', '_', cap, 'word', cap, 'ueberraschung', cap, 'printer', we, '(', ')', '{',
                     'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', caps, 'fixme', ce,
@@ -138,7 +138,7 @@ class CliTest(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_create_prep_config_x21xx(self):
-        actual = dataprep.basic(input_text, "java", no_spaces=True, no_case=True, no_str=True, no_com=True)
+        actual = api.basic(input_text, "java", no_spaces=True, no_case=True, no_str=True, no_com=True)
 
         expected = ['void', ws, 'test', '_', cap, 'word', cap, 'ueberraschung', cap, 'printer', we, '(', ')', '{',
                     'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', com,
@@ -150,7 +150,7 @@ class CliTest(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_create_prep_config_x31xx(self):
-        actual = dataprep.basic(input_text, "java", no_spaces=True, no_case=True, no_com=True)
+        actual = api.basic(input_text, "java", no_spaces=True, no_case=True, no_com=True)
 
         expected = ['void', ws, 'test', '_', cap, 'word', cap, 'ueberraschung', cap, 'printer', we, '(', ')', '{',
                     'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', com,
@@ -162,7 +162,7 @@ class CliTest(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_create_prep_config_012xx(self):
-        actual = dataprep.basic(input_text, "java", no_spaces=True, no_case=True, split_numbers=True)
+        actual = api.basic(input_text, "java", no_spaces=True, no_case=True, split_numbers=True)
 
         expected = ['void', ws, 'test', '_', cap, 'word', cap, 'ueberraschung', cap, 'printer', we, '(', ')', '{',
                     'if', '(', 'eps', '>', '=', ws, '0',  '.', '3', '4', '5', 'e', '+', '4', we, ')', '{', '/', '/', caps, 'fixme', ce,
@@ -174,7 +174,7 @@ class CliTest(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_create_prep_config_01sxx(self):
-        actual = dataprep.basic(input_text, "java", no_spaces=True, stem=True)
+        actual = api.basic(input_text, "java", no_spaces=True, stem=True)
 
         expected = ['void', ws, 'test', '_', cap, 'word', cap, 'ueberraschung', cap, 'printer', we, '(', ')', '{',
                     'if', '(', 'ep', '>', '=', ws, '0',  '.', '3', '4', '5', 'e', '+', '4', we, ')', '{', '/', '/', caps, 'fixm', ce,
@@ -186,7 +186,7 @@ class CliTest(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_create_prep_config_014xx(self):
-        actual = dataprep.bpe(input_text, '5k', "java", no_spaces=True, no_case=True)
+        actual = api.bpe(input_text, '5k', "java", no_spaces=True, no_case=True)
 
         expected = ['void', ws, 'test', '_', cap, 'word', cap, 'ue', 'b', 'err', 'as', 'ch', 'un', 'g', cap, 'printer', we, '(', ')', '{',
                     'if', '(', ws, 'ep', 's', we, '>', '=', ws, '0.', '34', '5', 'e+', '4', we, ')', '{', '/', '/', ws, caps, 'fix', 'me', we, ce,
@@ -198,7 +198,7 @@ class CliTest(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_create_prep_config_015xx(self):
-        actual = dataprep.bpe(input_text, '1k', "java", no_spaces=True, no_case=True)
+        actual = api.bpe(input_text, '1k', "java", no_spaces=True, no_case=True)
 
         expected = ['void', ws, 'test', '_', cap, 'word', cap, 'ue', 'b', 'err', 'as', 'ch', 'un', 'g', cap, 'pr', 'inter', we, '(', ')', '{',
                     'if', '(', ws, 'ep', 's', we, '>','=', ws, '0', '.', '3', '4', '5', 'e', '+', '4', we, ')', '{', '/', '/', ws, caps, 'fix', 'me', we, ce,
@@ -210,7 +210,7 @@ class CliTest(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_create_prep_config_xx6xx(self):
-        actual = dataprep.bpe(input_text, '10k', "java", no_spaces=True, no_case=True)
+        actual = api.bpe(input_text, '10k', "java", no_spaces=True, no_case=True)
 
         expected = ['void', ws, 'test', '_', cap, 'word', cap, 'ue', 'b', 'err', 'as', 'ch', 'ung', cap, 'printer', we, '(', ')', '{',
                     'if', '(', 'eps', '>', '=', ws, '0.', '345', 'e+', '4', we, ')', '{', '/', '/', caps, 'fixme', ce,
@@ -222,7 +222,7 @@ class CliTest(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_create_prep_config_xx8xx(self):
-        actual, metadata = dataprep.chars(input_text, "java", no_spaces=True, no_case=True, return_metadata=True)
+        actual, metadata = api.chars(input_text, "java", no_spaces=True, no_case=True, return_metadata=True)
 
         expected = ['void', ws, 't', 'e', 's', 't', '_', cap, 'w', 'o', 'r', 'd', cap, 'u', 'e', 'b', 'e', 'r', 'r', 'a', 's', 'c', 'h', 'u', 'n', 'g', cap, 'p', 'r', 'i', 'n', 't', 'e', 'r', we, '(', ')', '{',
                     'if', '(', ws, 'e', 'p', 's', we, '>','=', ws, '0', '.', '3', '4', '5', 'e', '+', '4', we, ')', '{', '/', '/', ws, caps, 'f', 'i', 'x', 'm', 'e', we, ce,
@@ -239,7 +239,7 @@ class CliTest(unittest.TestCase):
         self.assertEqual(expected_metadata, metadata)
 
     def test_create_prep_config_xx10x(self):
-        actual = dataprep.basic(input_text, "java", no_case=True)
+        actual = api.basic(input_text, "java", no_case=True)
 
         expected = ['void', ws, 'test', '_', cap, 'word', cap, 'ueberraschung', cap, 'printer', we, '(', ')', '{', '\n',
                     '\t', 'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', caps, 'fixme', '\n', ce,
@@ -251,7 +251,7 @@ class CliTest(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_create_prep_config_xx1x1(self):
-        actual = dataprep.basic(input_text, "java", no_spaces=True)
+        actual = api.basic(input_text, "java", no_spaces=True)
 
         expected = ['void', ws, 'test', '_', 'Word', 'Ueberraschung', 'Printer', we, '(', ')', '{',
                     'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', 'FIXME', ce,
@@ -263,7 +263,7 @@ class CliTest(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_create_prep_config_00300(self):
-        actual = dataprep.ronin(input_text, "java")
+        actual = api.ronin(input_text, "java")
 
         expected = ['void', ws, 'test', 'Word', 'Ueberraschung', 'Printer', we, '(', ')', '{',  '\n',
                     '\t', 'if', '(', 'eps', '>', '=', ws ,'0', '.', '3', '4', '5', 'e', '+', '4', we, ')', '{', '/', '/', ws, 'FIX', 'ME', we, '\n', ce,

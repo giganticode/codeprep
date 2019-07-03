@@ -5,12 +5,14 @@
 **This is a tool for preprocessing source code corpora according to a specified vocabulary modeling choice.**
 
 Supported modeling choices are: 
-* Splitting algorithm (no identifier splitting, camel-case splitting, snake-case splitting, BPE (byte-pair-encoding), number-splitting); 
+* Splitting algorithm (no identifier splitting, camel-case splitting, snake-case splitting, BPE (byte-pair-encoding), 
+number-splitting, ronin: http://joss.theoj.org/papers/10.21105/joss.00653); 
 * Number of merges if using BPE; 
 * Ignoring/preserving string literals; 
 * Ignoring/preserving comments; 
 * Preserving case/lowercasing;
 * Preserving/ignoring newlines and tabs.
+* applying/not applying stemming after basic splitting 
 
 # Getting started
 
@@ -27,13 +29,21 @@ cd dataprep
 pip install .
 ```
 
-The tool can be used **as a python library** as well as a standalone module runnable with a **CLI**. Below you can see the general patterns of usage.
+The tool can be used **as a python library** as well as a standalone module runnable with a **CLI**. 
+You can pass the path to the dataset or the text itself to be preprocessed. When using Python API for the former option 
+you need to import methods from `dataprep.api.text` module, for the latter - from `dataprep.api.corpus`.
+Below you can see the general patterns of usage.
 
 
 Python API
 ```python
->>> import dataprep
->>> dataprep.<commmand>('Some code to be split')
+>>> import dataprep.api.text as pp
+>>> pp.<commmand>('Some code to be split')
+```
+
+```python
+>>> import dataprep.api.corpus as pp
+>>> pp.<commmand>('/path/to/the/dataset')
 ```
 
 CLI
@@ -41,12 +51,11 @@ CLI
 dataprep <commmand> "Some code to be split"
 ```
 
-OR
 ```bash
 dataprep <commmand> --path /path/to/the/dataset
 ```
 
-Hereafter we will demonstrate its usage as a python library. The CLI is analogous to the python API. You can find the documentation about how to use it [here](dataprep/cli/spec.py). 
+Hereafter we will demonstrate the usage as a python library. The CLI is analogous to the python API. You can find the documentation about how to use it [here](dataprep/cli/spec.py). 
 
 ## Usage examples
 
@@ -54,13 +63,13 @@ Hereafter we will demonstrate its usage as a python library. The CLI is analogou
 Tokenization + CamelCase- and snake_case- splitting:
 
 ```python
->>> import dataprep
+>>> import dataprep.api.text as pp
 >>> input_code = '''void test_WordUeberraschungPrinter() {
 ...     if (eps >= 0.345e+4) { // FIXME
 ...         printWord("     ...     Überraschung");
 ...     }
 ... }'''
->>> dataprep.basic(input_code)
+>>> pp.basic(input_code)
 ['void', '<w>', 'test', '_', 'Word', 'Ueberraschung', 'Printer', '</w>', '(', ')', '{', '\n', 
 '\t', 'if', '(', 'eps', '>', '=', '0', '.', '<w>', '345', 'e', '</w>', '+', '4', ')', '{', '/', '/', 'FIXME', '\n', 
 '\t', '\t', '<w>', 'print', 'Word', '</w>', '(', '"', '\t', '.', '.', '.', '\t', 'Überraschung', '"', ')', ';', '\n', 
@@ -71,13 +80,13 @@ Tokenization + CamelCase- and snake_case- splitting:
 ### Tokenize but don't split identifiers
 
 ```python
->>> import dataprep
+>>> import dataprep.api.text as pp
 >>> input_code = '''void test_WordUeberraschungPrinter() {
 ...     if (eps >= 0.345e+4) { // FIXME
 ...         printWord("     ...     Überraschung");
 ...     }
 ... }'''
->>> dataprep.nosplit(input_code)
+>>> pp.nosplit(input_code)
 ['void', 'test_WordUeberraschungPrinter', '(', ')', '{', '\n', 
 '\t', 'if', '(', 'eps', '>', '=', '0', '.', '345e', '+', '4', ')', '{', '/', '/', 'FIXME', '\n', 
 '\t', '\t', 'printWord', '(', '"', '\t', '.', '.', '.', '\t', 'Überraschung', '"', ')', ';', '\n', 
@@ -90,13 +99,13 @@ Tokenization + CamelCase- and snake_case- splitting:
 The following code does **camelCase-** and **snake_case-** splitting and applies **bpe with 10k merges** on top:
 
 ```python
->>> import dataprep
+>>> import dataprep.api.text as pp
 >>> input_code = '''void test_WordUeberraschungPrinter() {
 ...     if (eps >= 0.345e+4) { // FIXME
 ...         printWord("     ...     Überraschung");
 ...     }
 ... }'''
->>> dataprep.bpe(input_code, bpe_codes_id='10k')
+>>> pp.bpe(input_code, bpe_codes_id='10k')
 ['void', '<w>', 'test', '_', 'Word', 'U', 'e', 'ber', 'r', 'as', 'ch', 'ung', 'Printer', '</w>', '(', ')', '{', '\n', 
 '\t', 'if', '(', '<w>', 'ep', 's', '</w>', '>', '=', '0', '.', '<w>', '34', '5', 'e', '</w>', '+', '4', ')', '{', '/', '/', 'FIXME', '\n', 
 '\t', '\t', '<w>', 'print', 'Word', '</w>', '(', '"', '\t', '.', '.', '.', '\t', '<w>', 'Ü', 'ber', 'r', 'as', 'ch', 'ung', '</w>', '"', ')', ';', '\n', 
@@ -110,12 +119,12 @@ Other possible values are `1k` and `5k` (1,000 and 5,000 merges respectively). P
 **For other commands like `ronin` and `chars`, options `--splt-numbers`, `--stem`, please refer to the [docs](dataprep/cli/spec.py)**.
 
 ## Calculate vocabulary 
-Use `--calc-vocab` switch with the preprocessing command to calculate the vocabulary of the preprocessed corpus (CLI only), e.g.:
-```bash
->>>dataprep basic -p /path/to/train/on --calc-vocab
+Set `calc_vocab` param to `True` when calling a preprocessing method to calculate the vocabulary of the preprocessed corpus, e.g.:
+```python
+>>> import dataprep.api.corpus as pp
+>>> pp.basic('/path/to/train/on', calc-vocab=True)
 ...
 Vocab is available at /path/to/vocab
-
 ```
 
 ## Learning custom BPE codes
@@ -144,13 +153,13 @@ You can pass the following parameters with a `True` value (default values for al
  * `no_unicode` - replace words containing non-ascii characters with <non-en> placeholders.
  * `no_case` - lowercase words and encode information about case in <Cap> <CAP> tokens.
 ```python
->>> import dataprep
+>>> import dataprep.api.text as pp
 >>> input_code = '''void test_WordUeberraschungPrinter() {
 ...     if (eps >= 0.345e+4) { // FIXME
 ...         printWord("     ...     Überraschung");
 ...     }
 ... }'''
->>> dataprep.basic(input_code, no_str=True, no_com=True, no_spaces=True, no_unicode=True, no_case=True)
+>>> pp.basic(input_code, no_str=True, no_com=True, no_spaces=True, no_unicode=True, no_case=True)
 ['void', '<w>', 'test', '_', '<Cap>', 'word', '<Cap>', 'ueberraschung', '<Cap>', 'printer', '</w>', '(', ')', '{', 
 'if', '(', 'eps', '>', '=', '0', '.', '<w>', '345', 'e', '</w>', '+', '4', ')', '{', '/', '/', '<CAPS>', 'fixme', 
 '<w>', 'print', '<Cap>', 'word', '</w>', '(', '"', '.', '.', '.', '<Cap>', '<non-en>', '"', ')', ';', 
@@ -163,10 +172,10 @@ Similar params can be specified as switches `--no-str`, `--no-com`, `--no-spaces
 ### Specifying the language
 Unless explicitely specified, **dataprep** will try to guess the language of the code to be preprocessed. To make sure the input is preprocessed as intended, it is always a good idea to specify it:
 ```python
-import dataprep
->>> dataprep.bpe("volatile", '1k', extension="py")
+import dataprep.api.text as pp
+>>> pp.bpe("volatile", '1k', extension="py")
 ['<w>', 'vo', 'l', 'at', 'ile', '</w>']
->>> dataprep.bpe("volatile", '1k', extension="java")
+>>> pp.bpe("volatile", '1k', extension="java")
 ['volatile']
 # Since 'volatile' is a keyword in java, it is represented as one token unlike in python 
 # where it is pretty rare when used as an identifier and therefore represented as multiple subtokens.
