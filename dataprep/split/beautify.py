@@ -1,6 +1,6 @@
 import re
 
-from dataprep.model.placeholders import placeholders, placeholders_beautiful, separators_beautiful
+from dataprep.parse.model.placeholders import placeholders, placeholders_beautiful, separators_beautiful
 
 ws = placeholders['word_start']
 we = placeholders['word_end']

@@ -1,11 +1,11 @@
 import regex
 from typing import Union, List
 
-from dataprep.model.containers import SplitContainer
-from dataprep.model.core import ParsedToken
-from dataprep.model.noneng import NonEng
-from dataprep.model.whitespace import NewLine, Tab
-from dataprep.model.word import Underscore, Word
+from dataprep.parse.model.containers import SplitContainer
+from dataprep.parse.model.core import ParsedToken
+from dataprep.parse.model.noneng import NonEng
+from dataprep.parse.model.whitespace import NewLine, Tab
+from dataprep.parse.model.word import Underscore, Word
 from dataprep.noneng import is_non_eng
 
 

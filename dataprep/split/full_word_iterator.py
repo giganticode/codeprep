@@ -1,7 +1,7 @@
 import logging
 from typing import List, Optional, Tuple
 
-from dataprep.model.placeholders import placeholders
+from dataprep.parse.model.placeholders import placeholders
 
 logger = logging.getLogger(__name__)
 

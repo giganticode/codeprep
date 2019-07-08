@@ -1,11 +1,11 @@
 import unittest
 
 from dataprep.bpepkg.bpe_encode import BpeData
-from dataprep.model.containers import SplitContainer
-from dataprep.model.numeric import Number
-from dataprep.model.placeholders import placeholders
-from dataprep.model.word import Word, Underscore
+from dataprep.parse.model.containers import SplitContainer
+from dataprep.parse.model.numeric import Number
+from dataprep.parse.model.placeholders import placeholders
 from dataprep.parse.core import convert_text
+from dataprep.parse.model.word import Underscore, Word
 from dataprep.prepconfig import PrepConfig
 from dataprep.to_repr import to_repr
 

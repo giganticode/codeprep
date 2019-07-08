@@ -1,10 +1,10 @@
 import unittest
 
-from dataprep.model.containers import OneLineComment, SplitContainer, StringLiteral, MultilineComment
-from dataprep.model.numeric import Number
-from dataprep.model.whitespace import NewLine, Tab
-from dataprep.model.word import Word, Underscore
 from dataprep.parse.core import convert_text
+from dataprep.parse.model.containers import SplitContainer, StringLiteral, OneLineComment, MultilineComment
+from dataprep.parse.model.numeric import Number
+from dataprep.parse.model.whitespace import Tab, NewLine
+from dataprep.parse.model.word import Word, Underscore
 
 
 class ConvertTextTest(unittest.TestCase):
@@ -31,6 +31,7 @@ class ConvertTextTest(unittest.TestCase):
                            Number(['0', 'x', '3', '4', 'L']),
                            '}',
                            ';', NewLine()]
+
 
         actual = [t for t in convert_text(text, 'java')]
 

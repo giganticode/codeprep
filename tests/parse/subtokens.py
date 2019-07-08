@@ -1,9 +1,9 @@
 import unittest
 
-from dataprep.model.containers import SplitContainer
-from dataprep.model.whitespace import NewLine
-from dataprep.model.word import Word, Underscore
 from dataprep.parse.matchers import split_string
+from dataprep.parse.model.containers import SplitContainer
+from dataprep.parse.model.whitespace import NewLine
+from dataprep.parse.model.word import Word, Underscore
 
 
 class SplitStringTest(unittest.TestCase):

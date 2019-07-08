@@ -8,11 +8,11 @@ from enum import Enum
 from typing import Dict, List, Type, Callable, Optional
 
 from dataprep.bpepkg.bpe_encode import BpeData, get_bpe_subwords
-from dataprep.model.containers import SplitContainer, StringLiteral, OneLineComment, MultilineComment
-from dataprep.model.noneng import NonEng
-from dataprep.model.numeric import Number
-from dataprep.model.whitespace import NewLine, Tab
-from dataprep.model.word import Word
+from dataprep.parse.model.containers import SplitContainer, StringLiteral, OneLineComment, MultilineComment
+from dataprep.parse.model.noneng import NonEng
+from dataprep.parse.model.numeric import Number
+from dataprep.parse.model.whitespace import NewLine, Tab
+from dataprep.parse.model.word import Word
 
 from dataprep.preprocess.core import ReprConfig
 from dataprep.stemming import stem

@@ -1,10 +1,10 @@
 from spiral import ronin
 from typing import List, Tuple, Union, Optional
 
-from dataprep.model.core import ParsedToken, ParsedSubtoken
-from dataprep.model.metadata import PreprocessingMetadata
-from dataprep.model.placeholders import placeholders
-from dataprep.model.word import Word
+from dataprep.parse.model.core import ParsedToken, ParsedSubtoken
+from dataprep.parse.model.metadata import PreprocessingMetadata
+from dataprep.parse.model.placeholders import placeholders
+from dataprep.parse.model.word import Word
 from dataprep.preprocess.core import ReprConfig, torepr
 
 

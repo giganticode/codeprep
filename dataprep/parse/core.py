@@ -6,9 +6,9 @@ from typing import List
 from pygments import lex
 from pygments.lexers import get_lexer_by_name, guess_lexer
 
-from dataprep.model.core import ParsedToken
 from dataprep.parse import matchers
 from dataprep.parse.matchers import DefaultMatcher
+from dataprep.parse.model.core import ParsedToken
 
 logger = logging.getLogger(__name__)
 

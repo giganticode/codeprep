@@ -1,7 +1,7 @@
 import unittest
 
 from dataprep.split.full_word_iterator import FullWordIterator
-from dataprep.model.placeholders import placeholders
+from dataprep.parse.model.placeholders import placeholders
 
 def iter_to_int_list(it):
     return [w for w in it]

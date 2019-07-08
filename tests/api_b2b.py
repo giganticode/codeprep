@@ -1,8 +1,8 @@
 import unittest
 
 import dataprep.api.text as api
-from dataprep.model.metadata import PreprocessingMetadata
-from dataprep.model.placeholders import placeholders
+from dataprep.parse.model.metadata import PreprocessingMetadata
+from dataprep.parse.model.placeholders import placeholders
 
 cap = placeholders['capital']
 caps = placeholders['capitals']

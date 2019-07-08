@@ -1,6 +1,6 @@
 import unittest
 
-from dataprep.model.placeholders import placeholders
+from dataprep.parse.model.placeholders import placeholders
 from dataprep.split.beautify import beautify_text
 
 ws = placeholders['word_start']

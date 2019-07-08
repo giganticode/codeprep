@@ -1,6 +1,6 @@
 from typing import List, Tuple, Union
 
-from dataprep.model.metadata import PreprocessingMetadata
+from dataprep.parse.model.metadata import PreprocessingMetadata
 
 
 def with_empty_metadata(tokens: Union[List[str], str]) -> Tuple[Union[List[str], str], PreprocessingMetadata]:

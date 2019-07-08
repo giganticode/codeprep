@@ -13,7 +13,7 @@ from queue import Empty
 from tqdm import tqdm
 from typing import List, Tuple, Dict, Generator, Iterator
 
-from dataprep.model.placeholders import placeholders
+from dataprep.parse.model.placeholders import placeholders
 from dataprep.fileutils import read_file_contents
 from dataprep.util import AtomicInteger, merge_dicts_
 

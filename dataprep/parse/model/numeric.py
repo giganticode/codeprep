@@ -1,8 +1,8 @@
 from typing import List, Tuple
 
-from dataprep.model.core import ParsedToken
-from dataprep.model.metadata import PreprocessingMetadata
-from dataprep.model.placeholders import placeholders
+from dataprep.parse.model.core import ParsedToken
+from dataprep.parse.model.metadata import PreprocessingMetadata
+from dataprep.parse.model.placeholders import placeholders
 from dataprep.preprocess.core import ReprConfig
 
 

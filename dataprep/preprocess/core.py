@@ -1,8 +1,8 @@
 from typing import Generator, Union, Tuple, List
 
 from dataprep.bpepkg.bpe_encode import BpeData
-from dataprep.model.core import ParsedToken
-from dataprep.model.metadata import PreprocessingMetadata
+from dataprep.parse.model.core import ParsedToken
+from dataprep.parse.model.metadata import PreprocessingMetadata
 
 
 class ReprConfig(object):

@@ -6,7 +6,7 @@ from typing import Set, Dict
 from dataprep.installation.bpelearner import RESULTING_VOCAB_FILE_NAME
 from dataprep.installation.bperegistry import get_bpe_dir, get_base_vocab_dir
 from dataprep.installation.dataset import Dataset, NONBPE_VOCAB_FILENAME
-from dataprep.model.placeholders import placeholders
+from dataprep.parse.model.placeholders import placeholders
 from dataprep.vocab import _load_vocab_dict, _load_vocab_set, VOCAB_FILENAME
 
 

@@ -2,13 +2,13 @@ import unittest
 
 from dataprep.bpepkg.bpe_encode import BpeData
 from dataprep.bpepkg.merge import MergeList, Merge
-from dataprep.model.containers import SplitContainer, OneLineComment, MultilineComment, StringLiteral
-from dataprep.model.metadata import PreprocessingMetadata
-from dataprep.model.noneng import NonEng
-from dataprep.model.numeric import Number
-from dataprep.model.placeholders import placeholders
-from dataprep.model.whitespace import NewLine, Tab
-from dataprep.model.word import Word, Underscore
+from dataprep.parse.model.containers import SplitContainer, OneLineComment, MultilineComment, StringLiteral
+from dataprep.parse.model.metadata import PreprocessingMetadata
+from dataprep.parse.model.noneng import NonEng
+from dataprep.parse.model.numeric import Number
+from dataprep.parse.model.placeholders import placeholders
+from dataprep.parse.model.whitespace import Tab, NewLine
+from dataprep.parse.model.word import Word, Underscore
 from dataprep.prepconfig import PrepParam, PrepConfig
 from dataprep.to_repr import to_repr
 

@@ -1,10 +1,10 @@
 from pygments.token import Token
 from typing import List, Union
 
-from dataprep.model.containers import StringLiteral, OneLineComment, MultilineComment
-from dataprep.model.core import ParsedToken
-from dataprep.model.numeric import Number
-from dataprep.model.whitespace import NewLine, Tab
+from dataprep.parse.model.containers import StringLiteral, OneLineComment, MultilineComment
+from dataprep.parse.model.core import ParsedToken
+from dataprep.parse.model.numeric import Number
+from dataprep.parse.model.whitespace import NewLine, Tab
 from dataprep.parse.subtokens import split_string
 
 

@@ -2,9 +2,9 @@ from typing import List, Optional, Union, Tuple
 
 from dataprep.api.common import create_prep_config
 from dataprep.installation.bperegistry import is_predefined_id, CustomBpeConfig
-from dataprep.model.core import ParsedToken
-from dataprep.model.metadata import PreprocessingMetadata
-from dataprep.model.whitespace import NewLine
+from dataprep.parse.model.core import ParsedToken
+from dataprep.parse.model.metadata import PreprocessingMetadata
+from dataprep.parse.model.whitespace import NewLine
 from dataprep.parse.core import convert_text
 from dataprep.prepconfig import PrepConfig
 from dataprep.to_repr import init_bpe_data, to_repr
