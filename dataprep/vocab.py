@@ -15,7 +15,7 @@ from typing import List, Tuple, Dict, Generator, Iterator
 
 from dataprep.parse.model.placeholders import placeholders
 from dataprep.fileutils import read_file_contents
-from dataprep.util import AtomicInteger, merge_dicts_
+from dataprep.util import AtomicInteger, merge_dicts_, groupify, create_chunk_generator
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ VOCAB_FILENAME = 'vocab'
 N_CHUNKS = 20
 BLOCKING_TIMEOUT_SECONDS_SHORT = 5
 BLOCKING_TIMEOUT_SECONDS_LONG = 300
-
+MAX_INIT_PARTIAL_VOCABS = 256 * 20
 
 class PartialVocab(object):
     CLASS_VERSION = '2.0.0'
@@ -194,15 +194,16 @@ class VocabMerger(multiprocessing.Process):
         return first, new_words
 
 
-def get_vocab(path_to_file: str) -> Counter:
+def get_vocab(file_paths: List[str]) -> Counter:
     vocab = Counter()
-    lines, _ = read_file_contents(path_to_file)
-    for line in lines:
-        vocab.update(line.split(' '))
+    for file in file_paths:
+        lines, _ = read_file_contents(file)
+        for line in lines:
+            vocab.update(line.split(' '))
     return vocab
 
 
-def create_and_dump_partial_vocab(param: Tuple[str, str, int]) -> PartialVocab:
+def create_and_dump_partial_vocab(param: Tuple[List[str], str, int]) -> PartialVocab:
     path_to_file, path_to_dump, chunk = param
     vocab = get_vocab(path_to_file)
     partial_vocab = PartialVocab(vocab, chunk)
@@ -243,23 +244,15 @@ def list_to_queue(lst: List) -> Queue:
     return queue
 
 
-def create_chunk_generator(total: int, n_chunks: int) -> Generator[int, None, None]:
-    min_elms_in_chunk = total // n_chunks
-    for i in range(min_elms_in_chunk):
-        for j in range(n_chunks):
-            yield j
-    for i in range(total % n_chunks):
-        yield i
-
-
 def create_initial_partial_vocabs(all_files: List[bytes], path_to_dump: str) -> List[PartialVocab]:
     partial_vocabs_queue = []
-    files_total = len(all_files)
-    chunk_generator = create_chunk_generator(len(all_files), N_CHUNKS)
-    params = [(file, path_to_dump, chunk) for file, chunk in zip(all_files, chunk_generator)]
+    file_groups = groupify(all_files, MAX_INIT_PARTIAL_VOCABS)
+    file_groups_total = len(file_groups)
+    chunk_generator = create_chunk_generator(len(file_groups), N_CHUNKS)
+    params = [(file_group, path_to_dump, chunk) for file_group, chunk in zip(file_groups, chunk_generator)]
     pool = Pool()
     partial_vocab_it = pool.imap_unordered(create_and_dump_partial_vocab, params)
-    for partial_vocab in tqdm(partial_vocab_it, total=files_total):
+    for partial_vocab in tqdm(partial_vocab_it, total=file_groups_total):
         partial_vocabs_queue.append(partial_vocab)
     return partial_vocabs_queue
 

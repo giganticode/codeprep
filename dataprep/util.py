@@ -2,7 +2,7 @@ import multiprocessing
 from heapq import heappush, heappop, heapify
 
 import itertools
-from typing import Dict, Tuple, List, Optional
+from typing import Dict, Tuple, List, Optional, Generator
 
 
 def merge_dicts_(dict1, dict2) -> Tuple[Dict, List]:
@@ -144,3 +144,20 @@ def getsize(obj):
 def is_python_3_6_and_higher():
     python_version = sys.version_info
     return python_version[0] >= 3 and python_version[1] >= 6
+
+
+def create_chunk_generator(total: int, n_chunks: int) -> Generator[int, None, None]:
+    min_elms_in_chunk = total // n_chunks
+    for i in range(min_elms_in_chunk):
+        for j in range(n_chunks):
+            yield j
+    for i in range(total % n_chunks):
+        yield i
+
+
+def groupify(all: List, n_chunks: int) -> List[List]:
+    groups = [[] for _ in range(n_chunks if len(all) >= n_chunks else len(all))]
+    chunk_gen = create_chunk_generator(len(all), n_chunks)
+    for elm, label in zip(all, chunk_gen):
+        groups[label].append(elm)
+    return groups
