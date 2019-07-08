@@ -2,7 +2,7 @@ import logging
 
 import argparse
 
-from dataprep.installation.dataset import SubDataset
+from dataprep.dirutils import walk
 from dataprep.vocab import calc_vocab
 
 logger = logging.getLogger(__name__)
@@ -17,4 +17,4 @@ if __name__ == '__main__':
     args = parser.parse_known_args()
     args = args[0]
 
-    calc_vocab(SubDataset(args.path_to_dataset, args.extension), args.output_dir)
+    calc_vocab(args.path_to_dataset, walk(args.path_to_dataset.encode(), extension=args.extension.encode()), args.output_dir)

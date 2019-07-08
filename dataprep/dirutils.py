@@ -9,6 +9,17 @@ from dataprep.fileutils import has_one_of_extensions
 
 logger = logging.getLogger(__name__)
 
+
+def walk(path:bytes, extension: Optional[bytes] = None) -> Generator[bytes, None, None]:
+    if os.path.isfile(path) and (not extension or path.endswith(extension)):
+        yield path
+    else:
+        for root, dirs, files in os.walk(path):
+            for file in files:
+                if not extension or file.endswith(extension):
+                    yield os.path.join(root, file)
+
+
 def walk_and_save(path: str, dir_list_path: str, file_list_path: str, return_dirs_instead_of_regular_files: bool,
                   extensions: Optional[List[str]]) -> Generator[bytes, None, None]:
     with open(dir_list_path, 'w') as d, open(file_list_path, 'w') as f:
