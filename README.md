@@ -122,7 +122,7 @@ Other possible values are `1k` and `5k` (1,000 and 5,000 merges respectively). P
 Set `calc_vocab` param to `True` when calling a preprocessing method to calculate the vocabulary of the preprocessed corpus, e.g.:
 ```python
 >>> import dataprep.api.corpus as pp
->>> pp.basic('/path/to/train/on', calc-vocab=True)
+>>> pp.basic('/path/to/train/on', calc_vocab=True)
 ...
 Vocab is available at /path/to/vocab
 ```
