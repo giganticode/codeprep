@@ -1,5 +1,5 @@
 import os
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Callable, Generator
 
 from dataprep.api.common import create_prep_config
 from dataprep.installation import stages
@@ -10,8 +10,11 @@ from dataprep.vocab import _load_vocab_dict
 
 
 class PreprocessedCorpus(object):
-    def __init__(self, path_to_prep_dataset, path_to_vocab):
+    def __init__(self, path_to_prep_dataset: str,
+                 get_file_iterator: Callable[[], Generator[bytes, None, None]],
+                 path_to_vocab:str):
         self.path_to_prep_dataset = path_to_prep_dataset
+        self.get_file_iterator = get_file_iterator
         self.path_to_vocab = path_to_vocab
 
     def load_vocab(self) -> Dict[str, int]:
@@ -172,7 +175,7 @@ def preprocess_corpus(path: str, prep_config: PrepConfig, bpe_codes_id: Optional
         stages.run_until_preprocessing(dataset, custom_bpe_config)
         path_to_vocab = None
     print(f"Preprocessed dataset is ready at {dataset.preprocessed.path}")
-    return PreprocessedCorpus(dataset.preprocessed.path, path_to_vocab)
+    return PreprocessedCorpus(dataset.preprocessed.path, lambda : dataset.preprocessed.file_iterator(), path_to_vocab)
 
 
 def parse_extension_pattern(extension_pattern: str) -> List[str]:
