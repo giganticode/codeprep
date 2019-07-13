@@ -1,15 +1,15 @@
 import logging
 import os
-
 from typing import Dict
 
 import dataprep
-from dataprep.api.corpus import parse_extension_pattern
+import dataprep.api.corpus
+import dataprep.api.text
 from dataprep.api.common import create_split_value, create_com_str_value
 from dataprep.bpepkg.bpe_config import BpeParam, BpeConfig
 from dataprep.installation import bpelearner
 from dataprep.installation.bperegistry import InvalidBpeCodesIdError
-from dataprep.installation.dataset import Dataset
+from dataprep.installation.dataset import Dataset, normalize_extension_string
 from dataprep.prepconfig import PrepConfig, PrepParam
 
 
@@ -29,15 +29,15 @@ def handle_learnbpe(args):
     path = os.path.abspath(args['--path'])
     bpe_config = create_bpe_config_from_args(args)
     n_merges = int(args['<n-merges>'])
-    parsed_extensions = parse_extension_pattern(args['--ext']) if args['--ext'] else None
     if args['--legacy']:
+        parsed_extensions = normalize_extension_string(args['--ext'])
         if parsed_extensions and parsed_extensions != ['java']:
             print("Only --ext 'java' is supported when --legacy is specified")
             return
         else:
-            extensions = ['java']
+            extensions = 'java'
     else:
-        extensions = parsed_extensions
+        extensions = args['--ext']
     bpe_codes_id = args['--id']
     dataset = Dataset.create(path, bpe_config.to_prep_config(), extensions, None, bpe_config)
 

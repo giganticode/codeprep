@@ -1,10 +1,10 @@
 import logging
 import os
 import sys
-
-import regex
 import time
 from typing import Optional, Dict, Callable, Tuple, List
+
+import regex
 
 from dataprep.bpepkg.bpe_config import BpeConfig
 from dataprep.bpepkg.bpe_encode import read_merges
@@ -13,6 +13,9 @@ from dataprep.config import USER_BPE_DIR, USER_VOCAB_DIR
 
 logger = logging.getLogger(__name__)
 
+OTHER_VOCAB_FILE_NAME = "other_vocab"
+BPE_REASSEMBLED_VOCAB_FILE_NAME = "bpe_vocab_reassembled.txt"
+RESULTING_VOCAB_FILE_NAME = "vocab_res.txt"
 
 MERGES_FILE_NAME = "merges.txt"
 MERGES_CACHE_FILE_NAME = "merges_cache.txt"

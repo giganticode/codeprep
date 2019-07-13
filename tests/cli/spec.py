@@ -346,7 +346,7 @@ class ParseAndRunLearnBpeTest(unittest.TestCase):
             BpeParam.BASE: 'java',
             BpeParam.UNICODE: 'yes',
         })
-        dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, ['java'], None, bpe_config)
+        dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, 'java', None, bpe_config)
         bpe_learner_mock.run.assert_called_with(dataset_mock, 1000, bpe_config)
 
     def test_no_true_code_no(self, bpe_learner_mock, dataset_mock):

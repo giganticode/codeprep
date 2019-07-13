@@ -2,7 +2,7 @@ import unittest
 from unittest import mock
 
 from dataprep.installation.bperegistry import CustomBpeConfig
-from dataprep.installation.dataset import Dataset, SubDataset
+from dataprep.installation.dataset import Dataset, SubDataset, normalize_extension_string
 from dataprep.fileutils import has_one_of_extensions
 from dataprep.prepconfig import PrepConfig, PrepParam
 
@@ -44,7 +44,7 @@ class CreateTest(unittest.TestCase):
 
         self.assertEqual('/path/to/dataset', actual._path)
         self.assertEqual(prep_config, actual._prep_config)
-        self.assertEqual(None, actual._extensions)
+        self.assertEqual(None, actual._normalized_extension_list)
         self.assertEqual(None, actual._custom_bpe_config)
         self.assertEqual(None, actual._bpe_config)
         self.assertEqual('01_01_01', actual._dataset_last_modified)
@@ -71,14 +71,32 @@ class CreateTest(unittest.TestCase):
 
         self.assertEqual('/path/to/dataset', actual._path)
         self.assertEqual(prep_config, actual._prep_config)
-        self.assertEqual("c|java", actual._extensions)
+        self.assertEqual(['c', 'java'], actual._normalized_extension_list)
         self.assertEqual(custom_bpe_config, actual._custom_bpe_config)
         self.assertEqual(mocked_bpe_config, actual._bpe_config)
         self.assertEqual('01_01_01', actual._dataset_last_modified)
 
         self.assertEqual(SubDataset(actual, '/path/to/dataset', ''), actual._original)
-        self.assertEqual(SubDataset(actual, '/parsed/dataset/dataset_01_01_01', '.parsed'), actual._parsed)
-        self.assertEqual(SubDataset(actual, '/path/overridden/dataset_01_01_01_-_u00su_id-1000_-_prep', '.prep'), actual._preprocessed)
+        self.assertEqual(SubDataset(actual, '/parsed/dataset/dataset_01_01_01_-_c_java', '.parsed'), actual._parsed)
+        self.assertEqual(SubDataset(actual, '/path/overridden/dataset_01_01_01_-_c_java_-_u00su_id-1000_-_prep', '.prep'), actual._preprocessed)
+
+
+class NormalizeExtensionStringTest(unittest.TestCase):
+    def test_simple(self):
+        actual = normalize_extension_string("java|c|python")
+        self.assertEqual(['c', 'java', 'python'], actual)
+
+    def test_single(self):
+        actual = normalize_extension_string("java")
+        self.assertEqual(['java'], actual)
+
+    def test_repetitive(self):
+        actual = normalize_extension_string("java|c|java")
+        self.assertEqual(['c', 'java'], actual)
+
+    def test_none(self):
+        actual = normalize_extension_string(None)
+        self.assertIsNone(actual)
 
 
 if __name__ == '__main__':

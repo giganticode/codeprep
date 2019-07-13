@@ -1,6 +1,5 @@
 import logging
 import os
-
 from typing import Tuple, Dict, Set
 
 from dataprep.bpepkg.bpe_config import BpeConfig, BpeParam, BpeConfigNotSupported
@@ -8,13 +7,10 @@ from dataprep.bpepkg.bpe_learn import separate_vocabs, logger, do_merges, create
 from dataprep.bpepkg.cache import dump_bpe_cache
 from dataprep.bpepkg.merge import MergeList, read_merges, dump_merges
 from dataprep.installation import stages
-from dataprep.installation.bperegistry import get_max_merges, MERGES_FILE_NAME, MERGES_CACHE_FILE_NAME
+from dataprep.installation.bperegistry import get_max_merges, MERGES_FILE_NAME, MERGES_CACHE_FILE_NAME, \
+    RESULTING_VOCAB_FILE_NAME, BPE_REASSEMBLED_VOCAB_FILE_NAME
 from dataprep.installation.dataset import Dataset
 from dataprep.vocab import _dump_vocab_dict, _load_vocab_dict
-
-OTHER_VOCAB_FILE_NAME = "other_vocab"
-BPE_REASSEMBLED_VOCAB_FILE_NAME = "bpe_vocab_reassembled.txt"
-RESULTING_VOCAB_FILE_NAME = "vocab_res.txt"
 
 
 def get_base_vocab(dataset: Dataset) -> Tuple[Dict[str, int], Dict[str, int]]:

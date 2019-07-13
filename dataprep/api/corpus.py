@@ -159,7 +159,6 @@ def bpe(path: str, bpe_codes_id: str, extensions: Optional[str] = None,
 def preprocess_corpus(path: str, prep_config: PrepConfig, bpe_codes_id: Optional[str]=None,
                       extensions: Optional[str]=None, output_path: Optional[str]=None, calc_vocab: Optional[bool]=False) -> PreprocessedCorpus:
     output_path = output_path or os.getcwd()
-    extensions = parse_extension_pattern(extensions) if extensions else None
     custom_bpe_config = None
     if prep_config.is_bpe():
         assert bpe_codes_id
@@ -176,7 +175,3 @@ def preprocess_corpus(path: str, prep_config: PrepConfig, bpe_codes_id: Optional
         path_to_vocab = None
     print(f"Preprocessed dataset is ready at {dataset.preprocessed.path}")
     return PreprocessedCorpus(dataset.preprocessed.path, lambda : dataset.preprocessed.file_iterator(), path_to_vocab)
-
-
-def parse_extension_pattern(extension_pattern: str) -> List[str]:
-    return extension_pattern.split("|")

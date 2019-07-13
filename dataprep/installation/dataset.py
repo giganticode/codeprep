@@ -1,15 +1,14 @@
 import ast
 import logging
 import os
-
-from typing import Type, Optional, Generator
+from typing import Type, Optional, Generator, List
 
 from dataprep.bpepkg.bpe_config import BpeConfig
+from dataprep.config import DEFAULT_PARSED_DATASETS_DIR, DEFAULT_PREP_DATASETS_DIR, USER_BPE_DIR, DEFAULT_FILE_LIST_DIR, \
+    USER_VOCAB_DIR
 from dataprep.dirutils import walk_and_save, get_timestamp
 from dataprep.installation.bperegistry import get_codes_id_by_bpe_path, create_new_id_from, write_bpe_codes_id, \
     CustomBpeConfig
-from dataprep.config import DEFAULT_PARSED_DATASETS_DIR, DEFAULT_PREP_DATASETS_DIR, USER_BPE_DIR, DEFAULT_FILE_LIST_DIR, \
-    USER_VOCAB_DIR
 from dataprep.prepconfig import PrepConfig
 from dataprep.vocab import VOCAB_FILENAME
 
@@ -84,13 +83,13 @@ class Dataset(object):
     Abstaction that incapsulates the location of the dataset in the file system and assures integrity of intermediate
     representation of data when the data preprocessing operation consists of multiple steps.
     """
-    def __init__(self, path: str, prep_config: PrepConfig, extensions: Optional[str],
+    def __init__(self, path: str, prep_config: PrepConfig, normalized_extension_list: Optional[List[str]],
                  custom_bpe_config: Optional[CustomBpeConfig],
                  bpe_config: Optional[BpeConfig],
                  overridden_path_to_prep_dataset):
         self._path = path
         self._prep_config = prep_config
-        self._extensions = extensions
+        self._normalized_extension_list = normalized_extension_list
         self._custom_bpe_config = custom_bpe_config
         self._bpe_config = bpe_config
         self._dataset_last_modified = get_timestamp(path)
@@ -103,7 +102,7 @@ class Dataset(object):
         if isinstance(o, Dataset):
             return self._path == o._path and \
                    self._prep_config == o._prep_config and \
-                   self._extensions == o._extensions and \
+                   self._normalized_extension_list == o._normalized_extension_list and \
                    self._custom_bpe_config == o._custom_bpe_config and \
                    self._bpe_config == o._bpe_config and \
                    self._dataset_last_modified == o._dataset_last_modified and \
@@ -114,7 +113,6 @@ class Dataset(object):
 
     #####################################################
 
-
     @classmethod
     def create(cls: Type['Dataset'], path_to_dataset: str, prep_config: PrepConfig, extensions: Optional[str],
                custom_bpe_config: Optional[CustomBpeConfig],
@@ -123,7 +121,8 @@ class Dataset(object):
         if not os.path.exists(path_to_dataset):
             raise ValueError(f"Path {path_to_dataset} does not exist")
 
-        dataset = cls(path_to_dataset, prep_config, extensions, custom_bpe_config, bpe_config, overriden_path_to_prep_dataset)
+        normalized_extension_list = normalize_extension_string(extensions)
+        dataset = cls(path_to_dataset, prep_config, normalized_extension_list, custom_bpe_config, bpe_config, overriden_path_to_prep_dataset)
 
         if not os.path.exists(dataset.parsed.path):
             os.makedirs(dataset.parsed.path)
@@ -159,7 +158,10 @@ class Dataset(object):
 
     @property
     def get_dataset_dir_name(self) -> str:
-        return f'{self.name}_{self.dataset_last_modified}'
+        name = f'{self.name}_{self.dataset_last_modified}'
+        if self._normalized_extension_list:
+            name += ('_-_' + "_".join(self._normalized_extension_list))
+        return name
 
     @property
     def parsed(self) -> SubDataset:
@@ -235,7 +237,7 @@ class Dataset(object):
             for filepath in walk_and_save(self.original.path,
                                           os.path.join(self.path_to_file_list_folder, DIR_LIST_FILENAME),
                                           os.path.join(self.path_to_file_list_folder, FILE_LIST_FILENAME),
-                                          return_dirs_instead_of_regular_files, self._extensions):
+                                          return_dirs_instead_of_regular_files, self._normalized_extension_list):
                 yield filepath
             set_path_ready(self.path_to_file_list_folder)
         else:
@@ -291,3 +293,12 @@ def archive_path(path: str) -> None:
         os.makedirs(DEFAULT_PREP_DATASETS_DIR)
     os.rename(path, os.path.join(DEFAULT_PREP_DATASETS_DIR, f'{os.path.basename(path)}.{ARCHIVED_EXT}.{timestamp}'))
     os.rename(modif_file, os.path.join(DEFAULT_PREP_DATASETS_DIR, f'{os.path.basename(modif_file)}.{ARCHIVED_EXT}.{timestamp}'))
+
+
+def normalize_extension_string(extensions: Optional[str]) -> Optional[List[str]]:
+    if not extensions:
+        return extensions
+
+    exts = extensions.split("|")
+    unique_ext = set(exts)
+    return sorted(unique_ext)
