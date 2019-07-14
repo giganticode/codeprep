@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Dict
+from typing import Dict, Optional, Any
 
 import dataprep
 import dataprep.api.corpus
@@ -8,7 +8,7 @@ import dataprep.api.text
 from dataprep.api.common import create_split_value, create_com_str_value
 from dataprep.bpepkg.bpe_config import BpeParam, BpeConfig
 from dataprep.installation import bpelearner
-from dataprep.installation.bperegistry import InvalidBpeCodesIdError
+from dataprep.installation.bperegistry import InvalidBpeCodesIdError, USER_PREDEFINED_BPE_CODES
 from dataprep.installation.dataset import Dataset, normalize_extension_string
 from dataprep.prepconfig import PrepConfig, PrepParam
 
@@ -20,8 +20,12 @@ def set_log_level(args: Dict[str, str]) -> None:
         logging.root.setLevel(logging.ERROR)
 
 
-def is_option_true(args: Dict, option: str):
+def get_option(args: Dict, option: str) -> Optional[Any]:
     return option in args and args[option]
+
+
+def is_option_true(args: Dict, option: str) -> bool:
+    return get_option(args, option)
 
 
 def handle_learnbpe(args):
@@ -54,7 +58,7 @@ def handle_splitting(args: Dict) -> None:
     set_log_level(args)
     try:
         prep_config = create_prep_config_from_args(args)
-        bpe_codes_id = args['<bpe-codes-id>'] if '<bpe-codes-id>' in args else None
+        bpe_codes_id = get_option(args, '<bpe-codes-id>') or get_predefined_bpe_codes_id(args)
         if args['<text>']:
             prep_text = dataprep.api.text.preprocess(args['<text>'], prep_config, bpe_codes_id)
             print(prep_text)
@@ -99,6 +103,14 @@ def create_prep_config_from_args(arguments: Dict) -> PrepConfig:
     })
 
 
+def get_predefined_bpe_codes_id(arguments: Dict) -> Optional[str]:
+    for predefined_id in USER_PREDEFINED_BPE_CODES:
+        if is_option_true(arguments, predefined_id):
+            return predefined_id
+
+    return None
+
+
 def create_split_value_from_args(arguments: Dict) -> str:
     if is_option_true(arguments, 'nosplit'):
         return create_split_value('nosplit')
@@ -111,14 +123,7 @@ def create_split_value_from_args(arguments: Dict) -> str:
                                   stem=is_option_true(arguments, '--stem'),
                                   split_numbers=is_option_true(arguments, '--split-numbers'))
     elif is_option_true(arguments, 'bpe'):
-        if arguments['1k']:
-            return create_split_value('bpe', '1k')
-        elif arguments['5k']:
-            return create_split_value('bpe', '5k')
-        elif arguments['10k']:
-            return create_split_value('bpe', '10k')
-        else:
-            return create_split_value('bpe')
+        return create_split_value('bpe', get_predefined_bpe_codes_id(arguments))
     else:
         raise AssertionError(f"Invalid split option: {arguments}")
 

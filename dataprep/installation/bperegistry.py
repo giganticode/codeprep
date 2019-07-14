@@ -21,7 +21,8 @@ MERGES_FILE_NAME = "merges.txt"
 MERGES_CACHE_FILE_NAME = "merges_cache.txt"
 BPE_CODES_ID_FILENAME = '.name'
 
-PREDEFINED_BPE_CODES = ['1k', '5k', '10k', '0']
+USER_PREDEFINED_BPE_CODES = ['1k', '5k', '10k']
+PREDEFINED_BPE_CODES = USER_PREDEFINED_BPE_CODES + ['0']
 
 
 class InvalidBpeCodesIdError(Exception):

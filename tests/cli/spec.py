@@ -176,7 +176,7 @@ class ParseAndRunTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: '0',
             PrepParam.CASE: 'l'
         })
-        api_mock.text.preprocess.assert_called_with("str", prep_config, None)
+        api_mock.text.preprocess.assert_called_with("str", prep_config, '5k')
 
     def test_u05xx(self, api_mock):
         argv = ['bpe', '1k', 'str', '--no-spaces', '--no-case']
@@ -188,7 +188,7 @@ class ParseAndRunTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: '0',
             PrepParam.CASE: 'l'
         })
-        api_mock.text.preprocess.assert_called_with("str", prep_config, None)
+        api_mock.text.preprocess.assert_called_with("str", prep_config, '1k')
 
     def test_xx6xx(self, api_mock):
         argv = ['bpe', '10k', 'str', '--no-spaces', '--no-case']
@@ -200,7 +200,7 @@ class ParseAndRunTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: '0',
             PrepParam.CASE: 'l'
         })
-        api_mock.text.preprocess.assert_called_with("str", prep_config, None)
+        api_mock.text.preprocess.assert_called_with("str", prep_config, '10k')
 
     def test_xx9xx(self, api_mock):
         argv = ['bpe', 'custom-id-5000', 'str', '--no-spaces', '--no-case']
