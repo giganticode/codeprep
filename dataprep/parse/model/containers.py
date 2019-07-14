@@ -1,4 +1,3 @@
-from spiral import ronin
 from typing import List, Tuple, Union, Optional
 
 from dataprep.parse.model.core import ParsedToken, ParsedSubtoken
@@ -51,7 +50,11 @@ class SplitContainer(ProcessableTokenContainer):
     def non_preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
         #TODO code duplication here and in Number class (wrapping in word boundaries and metadata extraction)
         nospl_str = "".join(map(lambda s: torepr(s, repr_config)[0][0], self.subtokens))
-        parts = ronin.split(nospl_str) if repr_config.is_ronin else [nospl_str]
+        if repr_config.is_ronin:
+            from spiral import ronin
+            parts = ronin.split(nospl_str)
+        else:
+            parts = [nospl_str]
         return self.with_full_word_metadata(wrap_in_word_boundaries_if_necessary(parts))
 
     def preprocessed_repr(self, repr_config) -> Tuple[List[str], PreprocessingMetadata]:

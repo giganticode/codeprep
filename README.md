@@ -29,6 +29,11 @@ cd dataprep
 pip install .
 ```
 
+In order to run the **ronin** algorithm, you will have to additionally install Spiral module (https://github.com/casics/spiral/):
+```bash
+pip install git+https://github.com/casics/spiral.git
+```
+
 The tool can be used **as a python library** as well as a standalone module runnable with a **CLI**. 
 You can pass the path to the dataset or the text itself to be preprocessed. When using Python API for the former option 
 you need to import methods from `dataprep.api.text` module, for the latter - from `dataprep.api.corpus`.
