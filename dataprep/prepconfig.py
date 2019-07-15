@@ -15,7 +15,6 @@ from dataprep.parse.model.whitespace import NewLine, Tab
 from dataprep.parse.model.word import Word
 
 from dataprep.preprocess.core import ReprConfig
-from dataprep.stemming import stem
 
 logger = logging.getLogger(__name__)
 
@@ -148,6 +147,7 @@ class PrepConfig(object):
         elif split_param_value in ['1', '2']:
             return lambda s,c: [s]
         elif split_param_value == 's':
+            from dataprep.stemming import stem
             return lambda s,c: [stem(s)]
         elif split_param_value in ['0', '3']:
             return None
