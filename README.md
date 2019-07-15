@@ -24,9 +24,7 @@ python -m pip install --upgrade pip setuptools wheel
 
 Install **dataprep** lib:
 ```bash
-git clone https://github.com/giganticode/dataprep
-cd dataprep
-pip install .
+pip install giganticode-dataprep
 ```
 
 In order to run the **ronin** algorithm, you will have to additionally install Spiral module (https://github.com/casics/spiral/):
