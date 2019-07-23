@@ -3,7 +3,7 @@ import logging.config
 import os
 import yaml
 
-from dataprep.config import root_package_dir
+from dataprep.config import root_package_dir, version
 
 
 def load_logging_config():
@@ -20,3 +20,5 @@ load_logging_config()
 
 logging.getLogger('matplotlib').setLevel(logging.INFO)
 logging.getLogger('Ronin').setLevel(logging.INFO)
+
+__version__ = version
