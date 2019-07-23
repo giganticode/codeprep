@@ -41,10 +41,10 @@ class CustomBpeConfig(object):
 
     @staticmethod
     def from_id(id_str: str) -> 'CustomBpeConfig':
-        return CustomBpeConfig._create(*parse_merge_list_id(id_str))
+        return CustomBpeConfig.create(*parse_merge_list_id(id_str))
 
     @staticmethod
-    def _create(merge_list_id: str, n_merges: int) -> 'CustomBpeConfig':
+    def create(merge_list_id: str, n_merges: int) -> 'CustomBpeConfig':
         dataset_bpe_dir = get_dataset_bpe_dir(merge_list_id)
         min_merges = get_min_merges(dataset_bpe_dir, limit=n_merges)
         # check if not None?
