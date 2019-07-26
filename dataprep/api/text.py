@@ -59,34 +59,6 @@ def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False,
     return preprocess(text, prep_config, extension=extension, return_metadata=return_metadata)
 
 
-def ronin(text: str, extension: Optional[str] = None, no_spaces: bool = False, no_unicode: bool = False,
-          no_com: bool = False, no_str: bool = False, max_str_length=sys.maxsize, return_metadata: bool = False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
-    """
-    Split `text` into tokens with Ronin algorithm: http://joss.theoj.org/papers/10.21105/joss.00653.
-    Numbers are split into digits.
-
-    :param text: text to be split.
-    :param extension: extension which a file containing source code written in this programming language would have,
-    e.g. 'java', 'py', 'js'.
-    If specified, used to select a Pygments parser, otherwise Pygments will try to guess the language.
-
-    :param no_spaces: set to True to remove tabs and newlines.
-    :param no_unicode: set to True to replace each word containing non-ascii characters to a special token,  e.g. <non-en>
-    :param no_com: set to True to replace each comment with a special token, e.g. <comment>.
-    :param no_str: set to True to replace each string literals with a special token, e.g <str_literal>.
-    :param max_str_length: replace string literal with `""` if its length including quotes exceeds `max_str_length`.
-    Does not have effect if `no_str` is set to `True`
-
-    :param return_metadata: if set to True additionally pre-processing metadata is returned.
-
-    :return: list of tokens `text` was split into. If `return_metadata` is set to True,
-    the tuple is returned with the list of preprocessed tokens as the first element
-    and pre-processing metadata as the second element (object of :class:`dataprep.model.metadata.Preprocessing.PreprocessingMetadata`)
-    """
-    prep_config= create_prep_config('ronin', no_spaces=no_spaces, no_unicode=no_unicode, no_com=no_com, no_str=no_str, max_str_length=max_str_length)
-    return preprocess(text, prep_config, extension=extension, return_metadata=return_metadata)
-
-
 def chars(text: str, extension: Optional[str] = None, no_spaces: bool = False, no_unicode: bool = False,
           no_case: bool = False, no_com: bool = False, no_str: bool = False, max_str_length=sys.maxsize,
           return_metadata: bool = False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
@@ -121,7 +93,7 @@ def chars(text: str, extension: Optional[str] = None, no_spaces: bool = False, n
     return preprocess(text, prep_config, '0', extension=extension, return_metadata=return_metadata)
 
 
-def basic(text: str, extension: Optional[str] = None, split_numbers: bool = False, stem: bool = False,
+def basic(text: str, extension: Optional[str] = None, split_numbers: bool = False, ronin: bool = False, stem: bool = False,
           no_spaces: bool = False, no_unicode: bool = False, no_case: bool = False, no_com: bool = False,
           no_str: bool = False, max_str_length: int = sys.maxsize, return_metadata: bool = False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
     """
@@ -135,6 +107,7 @@ def basic(text: str, extension: Optional[str] = None, split_numbers: bool = Fals
     If specified, used to select a Pygments parser, otherwise Pygments will try to guess the language.
 
     :param split_numbers: set to True to split numbers into digits
+    :param ronin: Split words into subwords with Ronin algorithm: http://joss.theoj.org/papers/10.21105/joss.00653.
     :param stem: set to True to do stemming with Porter stemmer. Setting this param to True, sets `no_case` and `spit_numbers` to True
 
     :param no_spaces: set to True to remove tabs and newlines.
@@ -154,7 +127,7 @@ def basic(text: str, extension: Optional[str] = None, split_numbers: bool = Fals
     """
     prep_config = create_prep_config('basic', no_spaces=no_spaces, no_unicode=no_unicode, no_case=no_case or stem,
                                      no_com=no_com, no_str=no_str, max_str_length=max_str_length,
-                                     stem=stem, split_numbers=split_numbers or stem)
+                                     split_numbers=split_numbers or ronin or stem, ronin=ronin or stem, stem=stem)
     return preprocess(text, prep_config, extension=extension, return_metadata=return_metadata)
 
 

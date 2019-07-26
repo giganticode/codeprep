@@ -229,7 +229,7 @@ class ParseAndRunTest(unittest.TestCase):
         api_mock.text.preprocess.assert_called_with("str", prep_config, None)
 
     def test_uc13xx(self, api_mock):
-        argv = ['ronin', 'str', '--no-spaces']
+        argv = ['basic', 'str', '--no-spaces', '--ronin']
         parse_and_run(argv)
         prep_config = PrepConfig({
             PrepParam.EN_ONLY: 'u',
@@ -241,15 +241,24 @@ class ParseAndRunTest(unittest.TestCase):
         })
         api_mock.text.preprocess.assert_called_with("str", prep_config, None)
 
-    def test_xxA3xx(self, api_mock):
-        argv = ['ronin', 'str', '--no-str', '--max-str-length=10']
+    def test_xx0xxx_with_max_str_length(self, api_mock):
+        argv = ['basic', 'str', '--no-str', '--max-str-length=10']
         with self.assertRaises(DocoptExit):
             parse_and_run(argv)
 
     def test_xxx3xl(self, api_mock):
-        with self.assertRaises(DocoptExit):
-            argv = ['ronin', 'str', '--no-spaces', '--no-case']
-            parse_and_run(argv)
+        # with self.assertRaises(DocoptExit):
+        argv = ['basic', 'str', '--no-spaces', '--no-case', '--ronin']
+        parse_and_run(argv)
+        prep_config = PrepConfig({
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM: 'c',
+            PrepParam.STR: '1',
+            PrepParam.SPLIT: '3',
+            PrepParam.TABS_NEWLINES: '0',
+            PrepParam.CASE: 'l'
+        })
+        api_mock.text.preprocess.assert_called_with("str", prep_config, None)
 
     def test_uc1sxx(self, api_mock):
         argv = ['basic', 'str', '--no-spaces', '--stem']

@@ -26,7 +26,6 @@ class CliTest(unittest.TestCase):
         self.assertEqual([], api.nosplit(''))
         self.assertEqual([], api.basic(''))
         self.assertEqual([], api.chars(''))
-        self.assertEqual([], api.ronin(''))
         self.assertEqual([], api.bpe('', '1k'))
 
     def test_create_prep_config_0c1010(self):
@@ -319,7 +318,8 @@ class CliTest(unittest.TestCase):
         actual = api.basic(input_text, "java", stem=True, no_spaces=True)
 
         expected = ['void', ws, 'test', '_', cap, 'word', cap, 'ueberraschung', cap, 'printer', we, '(', ')', '{',
-                    'if', '(', 'ep', '>', '=', ws, '0',  '.', '3', '4', '5', 'e', '+', '4', we, ')', '{', '/', '/', caps, 'fixm', ce,
+                    'if', '(', 'ep', '>', '=', ws, '0',  '.', '3', '4', '5', 'e', '+', '4', we, ')', '{', '/', '/',
+                    ws, caps, 'fix', 'me', we, ce,
                     ws, 'print', cap, 'word', we, '(', '"', '.', '.', '.', cap,  'überraschung', '"', ')', ';',
                     '}',
                     '}'
@@ -405,9 +405,9 @@ class CliTest(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_create_prep_config_0c1300(self):
-        actual = api.ronin(input_text, "java")
+        actual = api.basic(input_text, "java", split_numbers=True, ronin=True)
 
-        expected = ['void', ws, 'test', 'Word', 'Ueberraschung', 'Printer', we, '(', ')', '{',  '\n',
+        expected = ['void', ws, 'test', '_', 'Word', 'Ueberraschung', 'Printer', we, '(', ')', '{',  '\n',
                     '\t', 'if', '(', 'eps', '>', '=', ws ,'0', '.', '3', '4', '5', 'e', '+', '4', we, ')', '{', '/', '/', ws, 'FIX', 'ME', we, '\n', ce,
                     '\t', '\t', ws, 'print', 'Word', we, '(', '"', '.', '.', '.', 'Überraschung', '"', ')', ';', '\n',
                     '\t', '}', '\n',

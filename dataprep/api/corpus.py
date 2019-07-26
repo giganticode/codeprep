@@ -51,31 +51,6 @@ def nosplit(path: str, extensions: Optional[str] = None, no_spaces: bool = False
                              output_path=output_path, calc_vocab=calc_vocab)
 
 
-def ronin(path: str, extensions: Optional[str] = None, no_spaces: bool = False, no_unicode: bool = False,
-          no_com: bool = False, no_str: bool = False, max_str_length=sys.maxsize, output_path: Optional[str] = None,
-          calc_vocab=False) -> PreprocessedCorpus:
-    """
-    Split corpus at `path` into tokens with Ronin algorithm: http://joss.theoj.org/papers/10.21105/joss.00653.
-    Numbers are split into digits.
-
-    :param path: path to the corpus to be split.
-    :param extensions: Limits the set of input files to the files with the specified extension(s).
-    The format is the following: "ext1|ext2|...|extN" If not specififed, all the files are read.
-
-    :param no_spaces: set to True to remove tabs and newlines.
-    :param no_unicode: set to True to replace each word containing non-ascii characters to a special token,  e.g. <non-en>
-    :param no_com: set to True to replace each comment with a special token, e.g. <comment>.
-    :param no_str: set to True to replace each string literals with a special token, e.g <str_literal>.
-    :param max_str_length: replace string literal with `""` if its length including quotes exceeds `max_str_length`.
-    Does not have effect if `no_str` is set to `True`
-
-    :return: `PreprocessedDataset` object which holds metadata of the preprocessed dataset
-    """
-    prep_config= create_prep_config('ronin', no_spaces=no_spaces, no_unicode=no_unicode, no_com=no_com, no_str=no_str, max_str_length=max_str_length)
-    return preprocess_corpus(path, prep_config, extensions=extensions,
-                             output_path=output_path, calc_vocab=calc_vocab)
-
-
 def chars(path: str, extensions: Optional[str] = None, no_spaces: bool = False, no_unicode: bool = False,
           no_case: bool = False, no_com: bool = False, no_str: bool = False, max_str_length=sys.maxsize,
           output_path: Optional[str] = None, calc_vocab=False) -> PreprocessedCorpus:
@@ -104,7 +79,7 @@ def chars(path: str, extensions: Optional[str] = None, no_spaces: bool = False, 
     return preprocess_corpus(path, prep_config, '0', extensions=extensions, output_path=output_path, calc_vocab=calc_vocab)
 
 
-def basic(path: str, extensions: Optional[str] = None, split_numbers: bool = False, stem: bool = False,
+def basic(path: str, extensions: Optional[str] = None, split_numbers: bool = False, ronin = False, stem: bool = False,
           no_spaces: bool = False, no_unicode: bool = False, no_case: bool = False, no_com: bool = False,
           no_str: bool = False, max_str_length=sys.maxsize, output_path: Optional[str] = None, calc_vocab=False) -> PreprocessedCorpus:
     """
@@ -117,7 +92,10 @@ def basic(path: str, extensions: Optional[str] = None, split_numbers: bool = Fal
     The format is the following: "ext1|ext2|...|extN" If not specififed, all the files are read.
 
     :param split_numbers: set to True to split numbers into digits
-    :param stem: set to True to do stemming with Porter stemmer. Setting this param to True, sets `no_case` and `spit_numbers` to True
+    :param ronin: Split words into subwords with Ronin algorithm: http://joss.theoj.org/papers/10.21105/joss.00653.
+    Setting `ronin` to `True` implies `split_numbers`=`True`
+    :param stem: set to True to do stemming with Porter stemmer.
+    Setting `stem` to `True` implies `no_case`=`True`, `ronin`= `True`, and `split_numbers`=`True`
 
     :param no_spaces: set to True to remove tabs and newlines.
     :param no_case: set to True to lowercase identifiers and encode information about their case in a separate token,
@@ -132,7 +110,7 @@ def basic(path: str, extensions: Optional[str] = None, split_numbers: bool = Fal
     """
     prep_config = create_prep_config('basic', no_spaces=no_spaces, no_unicode=no_unicode, no_case=no_case or stem,
                                      no_com=no_com, no_str=no_str, max_str_length=max_str_length,
-                                     stem=stem, split_numbers=split_numbers or stem)
+                                     split_numbers=split_numbers or stem or ronin, ronin=ronin or stem, stem=stem)
     return preprocess_corpus(path, prep_config, extensions=extensions, output_path=output_path, calc_vocab=calc_vocab)
 
 

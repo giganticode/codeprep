@@ -120,12 +120,11 @@ def create_split_value_from_args(arguments: Dict) -> str:
         return create_split_value('nosplit', full_strings=is_option_true(arguments, '--full-strings'))
     elif is_option_true(arguments, 'chars'):
         return create_split_value('chars')
-    elif is_option_true(arguments, 'ronin'):
-        return create_split_value('ronin')
     elif is_option_true(arguments, 'basic'):
         return create_split_value('basic',
-                                  stem=is_option_true(arguments, '--stem'),
-                                  split_numbers=is_option_true(arguments, '--split-numbers'))
+                                  split_numbers=is_option_true(arguments, '--split-numbers'),
+                                  ronin=is_option_true(arguments, '--ronin'),
+                                  stem=is_option_true(arguments, '--stem'))
     elif is_option_true(arguments, 'bpe'):
         return create_split_value('bpe', bpe_codes_id=get_predefined_bpe_codes_id(arguments))
     else:

@@ -14,7 +14,6 @@ class ReprConfig(object):
                  should_lowercase: bool,
                  number_splitter: Splitter,
                  word_splitter: Optional[Splitter],
-                 is_ronin: bool,
                  full_strings: bool,
                  max_str_length: int):
         self.types_to_be_repr = types_to_be_repr
@@ -22,7 +21,6 @@ class ReprConfig(object):
         self.should_lowercase = should_lowercase
         self.number_splitter = number_splitter
         self.word_splitter = word_splitter
-        self.is_ronin = is_ronin
         self.full_strings = full_strings
         self.max_str_length = max_str_length
 

@@ -39,36 +39,6 @@ def nosplit_handler(args):
 
 
 @dsc.command()
-def ronin_handler(args):
-    """usage: {program} ronin (-p <path> [-e <ext>] [-o <path-out>] | <text>)
-    [--no-spaces] [--no-unicode] [--no-com] [--no-str | -L=<max-str-length>]
-    [--calc-vocab] [--verbose]
-
-    Preprocesses the dataset splitting identifiers with Ronin algorithm: http://joss.theoj.org/papers/10.21105/joss.00653.
-    Numbers are split into digits.
-
-    Options:
-      -p, --path <path>                            Path to the dataset to be preprocessed.
-      -e --ext <ext>                               Limits the set of input files to the files with the specified extension(s).
-                                                   The format is the following: "ext1|ext2|...|extN" If not specififed, all the files are read.
-      -o <path-out>, --output-path <path-out>      Directory to which the pre-preprocessed corpus is to be written. If not specified, equals to '<path>_preprocessed'.
-      <text>                                       Text to be preprocessed.
-
-      --no-spaces, -0                               Preserve newlines and tabs.
-      --no-unicode, -U                              Replace words containing non-ascii characters with <non-en> placeholders.
-      --no-com, -C                                  Replace comments with <comment> placeholders.
-      --no-str, -S                                  Replace strings with <string> placeholders.
-      -L, --max-str-length=<max-str-length>         Replace string literal with `""` if its length including quotes exceeds `max_str_length`;
-                                                    equals to `sys.maxsize` if not specified.
-
-      --calc-vocab -V                               Calculate vocabulary of the preprocessed dataset afterwards
-
-      --verbose, -v                                 Print logs with log level DEBUG and higher to stdout.
-    """
-    handle_splitting(args)
-
-
-@dsc.command()
 def chars_handler(args):
     """usage: {program} chars (-p <path> [-e <ext>] [-o <path-out>] | <text>)
     [--no-spaces] [--no-unicode] [--no-case] [--no-com] [--no-str | -L=<max-str-length>]
@@ -100,7 +70,7 @@ def chars_handler(args):
 
 @dsc.command()
 def basic_handler(args):
-    """usage: {program} basic (-p <path> [-e <ext>] [-o <path-out>] | <text>) [-n [-s]]
+    """usage: {program} basic (-p <path> [-e <ext>] [-o <path-out>] | <text>) [-n [-r [-s]]]
     [--no-spaces] [--no-unicode] [--no-case] [--no-com] [--no-str | -L=<max-str-length>]
     [--calc-vocab] [--verbose]
 
@@ -115,6 +85,7 @@ def basic_handler(args):
       <text>                                       Text to be preprocessed.
 
       --split-numbers, -n                           Split numbers into digits
+      --ronin, -r                                   Preprocesses the dataset splitting identifiers with Ronin algorithm: http://joss.theoj.org/papers/10.21105/joss.00653.
       --stem, -s                                    Do stemming with Porter stemmer
 
       --no-spaces, -0                               Preserve newlines and tabs.

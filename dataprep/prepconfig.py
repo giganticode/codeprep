@@ -113,10 +113,6 @@ class PrepConfig(object):
             raise ValueError("Combination NOSPLIT and LOWERCASED is not supported: "
                              "basic splitting needs to be dont done to lowercase the subword.")
 
-        if params[PrepParam.CASE] == 'l' and params[PrepParam.SPLIT] == '3':
-            raise ValueError("Combination RONIN and LOWERCASED is not supported: "
-                             "basic splitting needs to be dont done to lowercase the subword.")
-
         if params[PrepParam.CASE] == 'u' and params[PrepParam.SPLIT] == 's':
             raise ValueError("Combination STEMMING and UPPERCASE is not supported: "
                              "stemmer always lowercases words.")
@@ -164,20 +160,21 @@ class PrepConfig(object):
             return lambda s, c: get_bpe_subwords(s, c)
         elif split_param_value in ['1', '2']:
             return lambda s,c: [s]
+        elif split_param_value == '3':
+            from spiral import ronin
+            return lambda s, c: ronin.split(s)
         elif split_param_value == 's':
             from dataprep.stemming import stem
-            return lambda s,c: [stem(s)]
-        elif split_param_value in ['0', 'F', '3']:
+            from spiral import ronin
+            return lambda s,c: list(map(lambda ss: stem(ss), ronin.split(s)))
+        elif split_param_value in ['0', 'F']:
             return None
         else:
             raise ValueError(f"Invalid SPLIT param value: {split_param_value}")
 
-    def is_ronin(self):
-        return self.get_param_value(PrepParam.SPLIT) == '3'
-
     def get_types_to_be_repr(self) -> List[Type]:
         res = []
-        if self.get_param_value(PrepParam.SPLIT) in ['1', '2', '4', '5', '6', '7', '8', '9', 's']:
+        if self.get_param_value(PrepParam.SPLIT) in ['1', '2', '3', '4', '5', '6', '7', '8', '9', 's']:
             res.extend([SplitContainer, Word])
         if self.get_param_value(PrepParam.SPLIT) in ['2', '3', '4', '5', '6', '7', '8', '9', 's']:
             res.append(Number)
@@ -197,7 +194,6 @@ class PrepConfig(object):
                           self.get_param_value(PrepParam.CASE) == 'l',
                           self.get_number_splitter(),
                           self.get_word_splitter(),
-                          self.is_ronin(),
                           self.get_param_value(PrepParam.SPLIT) == 'F',
                           get_max_str_length(self.get_param_value(PrepParam.STR)))
 
