@@ -3,12 +3,13 @@ from typing import List, Tuple, Union, Optional
 from dataprep.parse.model.core import ParsedToken, ParsedSubtoken
 from dataprep.parse.model.metadata import PreprocessingMetadata
 from dataprep.parse.model.placeholders import placeholders
+from dataprep.parse.model.whitespace import SpaceInString
 from dataprep.parse.model.word import Word
 from dataprep.preprocess.core import ReprConfig, torepr
 
 
 class ProcessableTokenContainer(ParsedToken):
-    def __init__(self, subtokens):
+    def __init__(self, subtokens: Union[List[ParsedSubtoken], List[Union[str, ParsedToken]]]):
         if isinstance(subtokens, list):
             self.subtokens = subtokens
         else:
@@ -26,6 +27,9 @@ class ProcessableTokenContainer(ParsedToken):
     def __repr__(self):
         return f'{self.__class__.__name__}{self.subtokens}'
 
+    def __str__(self):
+        return " ".join(self.non_preprocessed_repr()[0])
+
 
 def wrap_in_word_boundaries_if_necessary(res: List[str]) -> List[str]:
     if len(res) == 1 or (len(res) == 2 and res[0] in [placeholders['capitals'], placeholders['capital']]):
@@ -35,22 +39,19 @@ def wrap_in_word_boundaries_if_necessary(res: List[str]) -> List[str]:
 
 
 class SplitContainer(ProcessableTokenContainer):
-    def __init__(self, subtokens):
+    def __init__(self, subtokens: List[ParsedSubtoken]):
         super().__init__(subtokens)
 
     def empty_repr(self):
         return self.subtokens
 
-    def __str__(self):
-        return self.non_preprocessed_repr(ReprConfig.empty())[0]
-
     def __repr__(self):
         return f'{self.__class__.__name__}{self.subtokens}'
 
-    def non_preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
-        #TODO code duplication here and in Number class (wrapping in word boundaries and metadata extraction)
+    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[List[str], PreprocessingMetadata]:
+        # TODO code duplication here and in Number class (wrapping in word boundaries and metadata extraction)
         nospl_str = "".join(map(lambda s: torepr(s, repr_config)[0][0], self.subtokens))
-        if repr_config.is_ronin:
+        if repr_config and repr_config.is_ronin:
             from spiral import ronin
             parts = ronin.split(nospl_str)
         else:
@@ -72,14 +73,13 @@ class SplitContainer(ProcessableTokenContainer):
 
 
 class TextContainer(ProcessableTokenContainer):
-    def __str__(self):
-        return " ".join([str(s) for s, _ in self.non_preprocessed_repr(ReprConfig.empty())])
 
-    def __init__(self, tokens):
+    def __init__(self, tokens: List[Union[str, ParsedToken]]):
         super().__init__(tokens)
         for token in tokens:
             if isinstance(token, ParsedSubtoken):
-                raise TypeError(f"ParsedTokens cannot be a part of Text container, but one ofn the tokens passed was {type(token)} ({token})")
+                raise TypeError(
+                    f"ParsedTokens cannot be a part of Text container, but one ofn the tokens passed was {type(token)} ({token})")
 
     def __repr__(self):
         return f'{self.__class__.__name__}{self.subtokens}'
@@ -87,17 +87,18 @@ class TextContainer(ProcessableTokenContainer):
     def __eq__(self, other):
         return self.__class__ == other.__class__ and self.subtokens == other.subtokens
 
-    def with_each_word_metadata(self, tokens: List[str], metadata: Optional[PreprocessingMetadata] = None) -> Tuple[Union[List[str], str], PreprocessingMetadata]:
+    def with_each_word_metadata(self, tokens: List[str], metadata: Optional[PreprocessingMetadata] = None) -> Tuple[
+        Union[List[str], str], PreprocessingMetadata]:
         updated_metadata = metadata or PreprocessingMetadata()
-        updated_metadata.word_boundaries = list(range(len(tokens)+1))
+        updated_metadata.word_boundaries = list(range(len(tokens) + 1))
         return tokens, updated_metadata
 
 
 class OneLineComment(TextContainer):
-    def __init__(self, tokens):
+    def __init__(self, tokens: List[Union[str, ParsedToken]]):
         super().__init__(tokens)
 
-    def non_preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
+    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[List[str], PreprocessingMetadata]:
         prep_tokens, metadata = torepr(self.subtokens, repr_config)
         metadata.update(PreprocessingMetadata(word_boundaries=[0, 1]))
         return prep_tokens + [placeholders['olc_end']], metadata
@@ -107,10 +108,10 @@ class OneLineComment(TextContainer):
 
 
 class MultilineComment(TextContainer):
-    def __init__(self, tokens):
+    def __init__(self, tokens: List[Union[str, ParsedToken]]):
         super().__init__(tokens)
 
-    def non_preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
+    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[List[str], PreprocessingMetadata]:
         return torepr(self.subtokens, repr_config)
 
     def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
@@ -118,11 +119,24 @@ class MultilineComment(TextContainer):
 
 
 class StringLiteral(TextContainer):
-    def __init__(self, tokens):
+    def __init__(self, tokens: List[Union[str, ParsedToken]], length: int):
         super().__init__(tokens)
+        self.length = length
 
-    def non_preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
-        return torepr(self.subtokens, repr_config)
+    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[List[str], PreprocessingMetadata]:
+        if repr_config and self.length > repr_config.max_str_length:
+            return self.with_each_word_metadata(['""'] if repr_config.full_strings else ['"', '"'],
+                                                metadata=PreprocessingMetadata(nonprocessable_tokens={'"'}))
+        elif not repr_config or repr_config.full_strings:
+            return self.with_each_word_metadata(["".join(map(lambda t: str(t), self.subtokens))])
+        else:
+            return torepr(list(filter(lambda t: type(t) != SpaceInString, self.subtokens)), repr_config)
 
     def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
         return self.with_each_word_metadata([placeholders['string_literal']])
+
+    def __eq__(self, other):
+        return super().__eq__(other) and self.length == other.length
+
+    def _repr__(self):
+        return super().__repr__() + f" , length: {self.length}"

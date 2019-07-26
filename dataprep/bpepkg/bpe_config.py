@@ -1,5 +1,4 @@
 from enum import Enum
-
 from typing import Dict
 
 from dataprep.prepconfig import PrepConfig, PrepParam
@@ -49,7 +48,8 @@ class BpeConfig(object):
     def to_prep_config(self):
         return PrepConfig({
             PrepParam.EN_ONLY: 'U' if self.get_param_value(BpeParam.UNICODE) == 'no' else 'u',
-            PrepParam.COM_STR: '0',
+            PrepParam.COM: 'c',
+            PrepParam.STR: '1',
             PrepParam.SPLIT: '1',
             PrepParam.TABS_NEWLINES: 's',
             PrepParam.CASE: 'l' if self.get_param_value(BpeParam.CASE) == 'no' else 'u'

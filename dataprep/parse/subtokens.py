@@ -4,7 +4,7 @@ from typing import Union, List
 from dataprep.parse.model.containers import SplitContainer
 from dataprep.parse.model.core import ParsedToken
 from dataprep.parse.model.noneng import NonEng
-from dataprep.parse.model.whitespace import NewLine, Tab
+from dataprep.parse.model.whitespace import NewLine, Tab, SpaceInString
 from dataprep.parse.model.word import Underscore, Word
 from dataprep.noneng import is_non_eng
 
@@ -29,7 +29,24 @@ def to_parsed_token_if_needed(param: str) -> Union[str, ParsedToken]:
         return param
 
 
+def to_parsed_string_token_if_needed(param: str) -> Union[str, ParsedToken]:
+    if param == '\n':
+        return NewLine()
+    elif param == '\t':
+        return Tab()
+    elif regex.fullmatch(" +", param):
+        return SpaceInString(n_chars=len(param))
+    elif is_word(param):
+        return split_identifier(param)
+    else:
+        return param
+
+
 def split_string(s: str) -> List[Union[str, ParsedToken]]:
+    return [to_parsed_string_token_if_needed(m[0]) for m in regex.finditer("(\\w+|( )+|[^ ])", s)]
+
+
+def split_into_words(s: str) -> List[Union[str, ParsedToken]]:
     return [to_parsed_token_if_needed(m[0]) for m in regex.finditer("(\\w+|[^ ]|    )", s)]
 
 

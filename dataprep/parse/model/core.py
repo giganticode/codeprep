@@ -17,12 +17,13 @@ class ParsedToken(object):
 class ParsedSubtoken(object):
     pass
 
+
 class ParseableToken(object):
     """
     This class represents parts of input that still needs to be parsed
     """
 
-    def __init__(self, val):
+    def __init__(self, val: str):
         if not isinstance(val, str):
             raise ValueError(f"val should be str but is {type(val)}")
         self.val = val

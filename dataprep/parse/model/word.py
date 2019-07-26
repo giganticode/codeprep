@@ -1,6 +1,5 @@
 from enum import Enum, auto
-
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 from dataprep.parse.model.core import ParsedSubtoken, with_empty_metadata
 from dataprep.parse.model.metadata import PreprocessingMetadata
@@ -23,9 +22,9 @@ class Underscore(ParsedSubtoken):
         return f'<{self.__class__.__name__}>'
 
     def __str__(self):
-        return self.non_preprocessed_repr(ReprConfig.empty())[0]
+        return self.non_preprocessed_repr()[0]
 
-    def non_preprocessed_repr(self, repr_config: ReprConfig) -> [Tuple[str, PreprocessingMetadata]]:
+    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> [Tuple[str, PreprocessingMetadata]]:
         return with_empty_metadata("_")
 
 
@@ -55,7 +54,7 @@ class Word(ParsedSubtoken):
             raise AssertionError(f"Bad canonic form: {canonic_form}")
 
     def __str__(self):
-        return self.non_preprocessed_repr(ReprConfig.empty())[0]
+        return self.non_preprocessed_repr(ReprConfig)[0]
 
     def __with_capitalization_prefixes(self, subwords: List[str]) -> List[str]:
         if self.capitalization == Capitalization.UNDEFINED or self.capitalization == Capitalization.NONE:
@@ -87,7 +86,7 @@ class Word(ParsedSubtoken):
         else:
             raise AssertionError(f"Unknown value: {self.capitalization}")
 
-    def non_preprocessed_repr(self, repr_config) -> [Tuple[str, PreprocessingMetadata]]:
+    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> [Tuple[str, PreprocessingMetadata]]:
         return self.__with_preserved_case(), PreprocessingMetadata()
 
     def __repr__(self):

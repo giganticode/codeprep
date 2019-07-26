@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 from dataprep.parse.model.core import ParsedToken
 from dataprep.parse.model.metadata import PreprocessingMetadata
@@ -13,12 +13,12 @@ class Number(ParsedToken):
         self.parts_of_number = parts_of_number
 
     def __str__(self):
-        return self.non_preprocessed_repr(ReprConfig.empty())[0]
+        return self.non_preprocessed_repr()[0]
 
     def __repr__(self):
         return f'{self.__class__.__name__}{self.parts_of_number}'
 
-    def non_preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[str, PreprocessingMetadata]:
+    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[str, PreprocessingMetadata]:
         return self.with_full_word_metadata("".join([str(w) for w in self.parts_of_number]))
 
     def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:

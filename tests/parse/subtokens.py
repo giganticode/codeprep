@@ -1,14 +1,14 @@
 import unittest
 
-from dataprep.parse.matchers import split_string
+from dataprep.parse.matchers import split_into_words
 from dataprep.parse.model.containers import SplitContainer
 from dataprep.parse.model.whitespace import NewLine
 from dataprep.parse.model.word import Word, Underscore
 
 
-class SplitStringTest(unittest.TestCase):
+class SplitIntoTokensTest(unittest.TestCase):
     def test_simple(self):
-        actual = split_string("123\nAb2cd34Ef000GG j_89_J")
+        actual = split_into_words("123\nAb2cd34Ef000GG j_89_J")
 
         expected = [SplitContainer.from_single_token('123'),
                     NewLine(),

@@ -1,27 +1,30 @@
-from typing import Generator, Union, Tuple, List
+from typing import Generator, Union, Tuple, List, Optional, Callable
 
 from dataprep.bpepkg.bpe_encode import BpeData
 from dataprep.parse.model.core import ParsedToken
 from dataprep.parse.model.metadata import PreprocessingMetadata
 
 
+Splitter = Callable[[str, BpeData], List[str]]
+
+
 class ReprConfig(object):
     def __init__(self, types_to_be_repr,
-                 bpe_data,
-                 should_lowercase,
-                 number_splitter,
-                 word_splitter,
-                 is_ronin):
+                 bpe_data: Optional[BpeData],
+                 should_lowercase: bool,
+                 number_splitter: Splitter,
+                 word_splitter: Optional[Splitter],
+                 is_ronin: bool,
+                 full_strings: bool,
+                 max_str_length: int):
         self.types_to_be_repr = types_to_be_repr
         self.bpe_data = bpe_data
         self.should_lowercase = should_lowercase
         self.number_splitter = number_splitter
         self.word_splitter = word_splitter
         self.is_ronin = is_ronin
-
-    @classmethod
-    def empty(cls):
-        return cls([], BpeData())
+        self.full_strings = full_strings
+        self.max_str_length = max_str_length
 
 
 def to_repr_list(token_list: Generator[Union[str, ParsedToken], None, None], repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
@@ -43,7 +46,7 @@ def torepr(token, repr_config) -> Tuple[List[str], PreprocessingMetadata]:
     if clazz == str:
         return [token], PreprocessingMetadata(nonprocessable_tokens={token}, word_boundaries=[0,1])
 
-    if clazz in repr_config.types_to_be_repr:
+    if repr_config and clazz in repr_config.types_to_be_repr:
         return token.preprocessed_repr(repr_config)
     else:
         non_prep, metadata = token.non_preprocessed_repr(repr_config)

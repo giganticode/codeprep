@@ -1,11 +1,13 @@
+import sys
 from typing import Optional
 
-from dataprep.prepconfig import PrepConfig, PrepParam
+from dataprep.prepconfig import PrepConfig, PrepParam, get_possible_str_values
 
 
-def create_split_value(split_type: str, bpe_codes_id: Optional[str]=None, stem: bool=False, split_numbers: bool=False):
+def create_split_value(split_type: str, bpe_codes_id: Optional[str]=None,
+                       full_strings: bool=False, stem: bool=False, split_numbers: Optional[bool]=False):
     if split_type == 'nosplit':
-        return '0'
+        return 'F' if full_strings else '0'
     elif split_type == 'chars':
         return '8'
     elif split_type == 'ronin':
@@ -30,24 +32,27 @@ def create_split_value(split_type: str, bpe_codes_id: Optional[str]=None, stem: 
         raise AssertionError(f"Invalid split option: {split_type}")
 
 
-def create_com_str_value(no_com: bool, no_str: bool):
-    if no_com and no_str:
-        return '2'
-    elif no_com and not no_str:
-        return '3'
-    elif not no_com and no_str:
-        return '1'
-    else: # com and str present
+def create_str_value(no_str: bool, max_str_len: int) -> str:
+    if no_str:
         return '0'
+    if 0 <= max_str_len < 2:
+        return '2'
+    if 2 <= max_str_len < len(get_possible_str_values()):
+        return get_possible_str_values()[max_str_len]
+    else:
+        return '1'
 
 
-def create_prep_config(spl_type: str, bpe_codes_id: Optional[str]=None,
-                       no_str: bool=False, no_com: bool=False, no_spaces: bool=False, no_unicode: bool=False, no_case: bool=False,
-                       stem: bool=False, split_numbers: bool=False):
+def create_prep_config(spl_type: str, bpe_codes_id: Optional[str] = None, no_spaces: bool = False,
+                       no_unicode: bool = False, no_case: bool = False, no_com: bool = False, no_str: bool = False,
+                       full_strings: bool = False, max_str_length: int = sys.maxsize, stem: bool = False,
+                       split_numbers: bool = False):
     return PrepConfig({
         PrepParam.EN_ONLY: 'U' if no_unicode else 'u',
-        PrepParam.COM_STR: create_com_str_value(no_com=no_com, no_str=no_str),
-        PrepParam.SPLIT: create_split_value(spl_type, bpe_codes_id, stem=stem, split_numbers=split_numbers),
+        PrepParam.COM: '0' if no_com else 'c',
+        PrepParam.STR: create_str_value(no_str, max_str_length),
+        PrepParam.SPLIT: create_split_value(spl_type, bpe_codes_id=bpe_codes_id,
+                                            full_strings=full_strings, stem=stem, split_numbers=split_numbers),
         PrepParam.TABS_NEWLINES: '0' if no_spaces else 's',
         PrepParam.CASE: 'l' if no_case or stem else 'u'
     })

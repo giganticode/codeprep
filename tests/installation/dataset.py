@@ -34,7 +34,8 @@ class CreateTest(unittest.TestCase):
         get_timestamp_mock.return_value = "01_01_01"
         prep_config = PrepConfig({
             PrepParam.EN_ONLY: 'u',
-            PrepParam.COM_STR: '0',
+            PrepParam.COM: 'c',
+            PrepParam.STR: '1',
             PrepParam.SPLIT: '0',
             PrepParam.TABS_NEWLINES: 's',
             PrepParam.CASE: 'u'
@@ -51,7 +52,7 @@ class CreateTest(unittest.TestCase):
 
         self.assertEqual(SubDataset(actual, '/path/to/dataset', ''), actual._original)
         self.assertEqual(SubDataset(actual, '/parsed/dataset/dataset_01_01_01', '.parsed'), actual._parsed)
-        self.assertEqual(SubDataset(actual, '/prep/dataset/dataset_01_01_01_-_u00su', '.prep'), actual._preprocessed)
+        self.assertEqual(SubDataset(actual, '/prep/dataset/dataset_01_01_01_-_uc10su', '.prep'), actual._preprocessed)
 
     @mock.patch("dataprep.bpepkg.bpe_config.BpeConfig")
     def test_simple2(self, mocked_bpe_config, get_timestamp_mock, os_exists_mock):
@@ -59,7 +60,8 @@ class CreateTest(unittest.TestCase):
         get_timestamp_mock.return_value = "01_01_01"
         prep_config = PrepConfig({
             PrepParam.EN_ONLY: 'u',
-            PrepParam.COM_STR: '0',
+            PrepParam.COM: 'c',
+            PrepParam.STR: '1',
             PrepParam.SPLIT: '0',
             PrepParam.TABS_NEWLINES: 's',
             PrepParam.CASE: 'u'
@@ -78,7 +80,7 @@ class CreateTest(unittest.TestCase):
 
         self.assertEqual(SubDataset(actual, '/path/to/dataset', ''), actual._original)
         self.assertEqual(SubDataset(actual, '/parsed/dataset/dataset_01_01_01_-_c_java', '.parsed'), actual._parsed)
-        self.assertEqual(SubDataset(actual, '/path/overridden/dataset_01_01_01_-_c_java_-_u00su_id-1000_-_prep', '.prep'), actual._preprocessed)
+        self.assertEqual(SubDataset(actual, '/path/overridden/dataset_01_01_01_-_c_java_-_uc10su_id-1000_-_prep', '.prep'), actual._preprocessed)
 
 
 class NormalizeExtensionStringTest(unittest.TestCase):

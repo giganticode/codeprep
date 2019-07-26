@@ -1,10 +1,10 @@
 import unittest
 
 from dataprep.bpepkg.bpe_encode import BpeData
+from dataprep.parse.core import convert_text
 from dataprep.parse.model.containers import SplitContainer
 from dataprep.parse.model.numeric import Number
 from dataprep.parse.model.placeholders import placeholders
-from dataprep.parse.core import convert_text
 from dataprep.parse.model.word import Underscore, Word
 from dataprep.prepconfig import PrepConfig
 from dataprep.to_repr import to_repr
@@ -82,7 +82,7 @@ class SubwordSeparation(unittest.TestCase):
 
             self.assertEqual(output_tuple[0], parsed)
 
-            repred, metadata = to_repr(PrepConfig.from_encoded_string('U040l'), parsed, BpeData(merges_cache=bpe_merges_cache))
+            repred, metadata = to_repr(PrepConfig.from_encoded_string('Uc140l'), parsed, BpeData(merges_cache=bpe_merges_cache))
 
             self.assertEqual(output_tuple[1], repred)
 

@@ -3,7 +3,7 @@ import unittest
 from dataprep.parse.core import convert_text
 from dataprep.parse.model.containers import SplitContainer, StringLiteral, OneLineComment, MultilineComment
 from dataprep.parse.model.numeric import Number
-from dataprep.parse.model.whitespace import Tab, NewLine
+from dataprep.parse.model.whitespace import Tab, NewLine, SpaceInString
 from dataprep.parse.model.word import Word, Underscore
 
 
@@ -104,16 +104,60 @@ class ConvertTextTest(unittest.TestCase):
     def test_complex_identifiers(self):
         text = '''BigAWESOMEString[] a2y = "abc".doSplit("\\"");'''
         expected_result = [SplitContainer(
-            [Word.from_('Big'), Word.from_('AWESOME'), Word.from_('String')]),
+            [Word.from_('Big'), Word.from_('AWESOME'), Word.from_('String')], ),
             '[',
             ']',
             SplitContainer([Word.from_('a'), Word.from_('2'), Word.from_('y')]),
             '=',
-            StringLiteral(['"', SplitContainer.from_single_token('abc'), '"']),
+            StringLiteral(['"', SplitContainer.from_single_token('abc'), '"'], 5),
             '.',
             SplitContainer([Word.from_('do'), Word.from_('Split')]),
             '(',
-            StringLiteral(['"', '\\', '"', '"']),
+            StringLiteral(['"', '\\', '"', '"'], 4),
+            ')',
+            ';',
+            NewLine()]
+
+        actual = [t for t in convert_text(text, 'java')]
+
+        self.assertEqual(expected_result, actual)
+
+    def test_string_with_spaces(self):
+        text='''"hi   dear     world    !"'''
+        expected = [StringLiteral([
+            '"',
+            SplitContainer.from_single_token('hi'),
+            SpaceInString(3),
+            SplitContainer.from_single_token('dear'),
+            SpaceInString(5),
+            SplitContainer.from_single_token('world'),
+            SpaceInString(4),
+            '!',
+            '"',
+        ], 26), NewLine()]
+
+        actual = [t for t in convert_text(text, 'java')]
+
+        self.assertEqual(expected, actual)
+
+    def test_spaces_in_strings(self):
+        text = '''BigAWESOMEString[] a2y = "a    bc".doSplit("\\"");'''
+        expected_result = [SplitContainer(
+            [Word.from_('Big'), Word.from_('AWESOME'), Word.from_('String')], ),
+            '[',
+            ']',
+            SplitContainer([Word.from_('a'), Word.from_('2'), Word.from_('y')]),
+            '=',
+            StringLiteral(['"',
+                           SplitContainer.from_single_token('a'),
+                           SpaceInString(n_chars=4),
+                           SplitContainer.from_single_token('bc'),
+                           '"'],
+                          9),
+            '.',
+            SplitContainer([Word.from_('do'), Word.from_('Split')]),
+            '(',
+            StringLiteral(['"', '\\', '"', '"'], 4),
             ')',
             ';',
             NewLine()]
@@ -338,9 +382,9 @@ MyClass Class CONSTANT VAR_WITH_UNDERSCORES
 
         expected_result = [SplitContainer.from_single_token("a"),
                            '=',
-                           StringLiteral(["'"]),
-                           StringLiteral([SplitContainer([Word.from_("some"), Underscore(), Word.from_("text")])]),
-                           StringLiteral(["'"]),
+                           StringLiteral(["'"], 1),
+                           StringLiteral([SplitContainer([Word.from_("some"), Underscore(), Word.from_("text")])], 9),
+                           StringLiteral(["'"], 1),
                            '.',
                            SplitContainer.from_single_token("split"),
                            "(",
@@ -357,9 +401,9 @@ MyClass Class CONSTANT VAR_WITH_UNDERSCORES
 
         expected_result = [SplitContainer.from_single_token("a"),
                            '=',
-                           StringLiteral(['"']),
-                           StringLiteral([SplitContainer([Word.from_("some"), Underscore(), Word.from_("text")])]),
-                           StringLiteral(['"']),
+                           StringLiteral(['"'], 1),
+                           StringLiteral([SplitContainer([Word.from_("some"), Underscore(), Word.from_("text")])], 9),
+                           StringLiteral(['"'], 1),
                            '.',
                            SplitContainer.from_single_token("split"),
                            "(",

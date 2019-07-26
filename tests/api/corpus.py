@@ -1,6 +1,5 @@
 import unittest
 from unittest import mock
-
 from unittest.mock import Mock
 
 from dataprep.api.corpus import preprocess_corpus
@@ -18,10 +17,11 @@ class PreprocessCorpusTest(unittest.TestCase):
         dataset_mock.create = Mock(return_value=dataset_mock)
         prep_config = PrepConfig({
             PrepParam.EN_ONLY: 'u',
-            PrepParam.COM_STR: '0',
+            PrepParam.COM: 'c',
+            PrepParam.STR: '1',
             PrepParam.SPLIT: '0',
             PrepParam.TABS_NEWLINES: '0',
-            PrepParam.CASE: 'u'
+            PrepParam.CASE: 'u',
         })
 
         # when
@@ -39,10 +39,11 @@ class PreprocessCorpusTest(unittest.TestCase):
         dataset_mock.create = Mock(return_value=dataset_mock)
         prep_config = PrepConfig({
             PrepParam.EN_ONLY: 'u',
-            PrepParam.COM_STR: '0',
+            PrepParam.COM: 'c',
+            PrepParam.STR: '1',
             PrepParam.SPLIT: '0',
             PrepParam.TABS_NEWLINES: '0',
-            PrepParam.CASE: 'u'
+            PrepParam.CASE: 'u',
         })
 
         # when
@@ -58,10 +59,11 @@ class PreprocessCorpusTest(unittest.TestCase):
         dataset_mock.create = Mock(return_value=dataset_mock)
         prep_config = PrepConfig({
             PrepParam.EN_ONLY: 'u',
-            PrepParam.COM_STR: '0',
+            PrepParam.COM: 'c',
+            PrepParam.STR: '1',
             PrepParam.SPLIT: '0',
             PrepParam.TABS_NEWLINES: '0',
-            PrepParam.CASE: 'u'
+            PrepParam.CASE: 'u',
         })
 
         # when

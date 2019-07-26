@@ -1,11 +1,12 @@
 import logging
 import os
+import sys
 from typing import Dict, Optional, Any
 
 import dataprep
 import dataprep.api.corpus
 import dataprep.api.text
-from dataprep.api.common import create_split_value, create_com_str_value
+from dataprep.api.common import create_split_value, create_str_value
 from dataprep.bpepkg.bpe_config import BpeParam, BpeConfig
 from dataprep.installation import bpelearner
 from dataprep.installation.bperegistry import InvalidBpeCodesIdError, USER_PREDEFINED_BPE_CODES
@@ -21,11 +22,11 @@ def set_log_level(args: Dict[str, str]) -> None:
 
 
 def get_option(args: Dict, option: str) -> Optional[Any]:
-    return option in args and args[option]
+    return args[option] if option in args else None
 
 
 def is_option_true(args: Dict, option: str) -> bool:
-    return get_option(args, option)
+    return bool(get_option(args, option))
 
 
 def handle_learnbpe(args):
@@ -94,12 +95,15 @@ def create_bpe_config_from_args(run_options: Dict[str, str]) -> BpeConfig:
 
 
 def create_prep_config_from_args(arguments: Dict) -> PrepConfig:
+    max_str_length = get_option(arguments, '--max-str-length')
+    max_str_length = int(max_str_length) if max_str_length is not None else sys.maxsize
     return PrepConfig({
         PrepParam.EN_ONLY: 'U' if is_option_true(arguments, '--no-unicode') else 'u',
-        PrepParam.COM_STR: create_com_str_value_from_args(arguments),
+        PrepParam.COM: '0' if is_option_true(arguments, '--no-com') else 'c',
+        PrepParam.STR: create_str_value(is_option_true(arguments, '--no-str'), max_str_length),
         PrepParam.SPLIT: create_split_value_from_args(arguments),
-        PrepParam.TABS_NEWLINES: '0' if arguments['--no-spaces'] else 's',
-        PrepParam.CASE: 'l' if is_option_true(arguments, '--no-case') or is_option_true(arguments, '--stem') else 'u'
+        PrepParam.TABS_NEWLINES: '0' if is_option_true(arguments, '--no-spaces') else 's',
+        PrepParam.CASE: 'l' if is_option_true(arguments, '--no-case') or is_option_true(arguments, '--stem') else 'u',
     })
 
 
@@ -113,7 +117,7 @@ def get_predefined_bpe_codes_id(arguments: Dict) -> Optional[str]:
 
 def create_split_value_from_args(arguments: Dict) -> str:
     if is_option_true(arguments, 'nosplit'):
-        return create_split_value('nosplit')
+        return create_split_value('nosplit', full_strings=is_option_true(arguments, '--full-strings'))
     elif is_option_true(arguments, 'chars'):
         return create_split_value('chars')
     elif is_option_true(arguments, 'ronin'):
@@ -123,10 +127,6 @@ def create_split_value_from_args(arguments: Dict) -> str:
                                   stem=is_option_true(arguments, '--stem'),
                                   split_numbers=is_option_true(arguments, '--split-numbers'))
     elif is_option_true(arguments, 'bpe'):
-        return create_split_value('bpe', get_predefined_bpe_codes_id(arguments))
+        return create_split_value('bpe', bpe_codes_id=get_predefined_bpe_codes_id(arguments))
     else:
         raise AssertionError(f"Invalid split option: {arguments}")
-
-
-def create_com_str_value_from_args(arguments: Dict) -> str:
-    return create_com_str_value(no_com=arguments['--no-com'], no_str=arguments['--no-str'])

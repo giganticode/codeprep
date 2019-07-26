@@ -3,9 +3,9 @@ This module encapsulate all the tricky ilogic of encoding preprocessing options 
 """
 
 import logging
+import sys
 from enum import Enum
-
-from typing import Dict, List, Type, Callable, Optional
+from typing import Dict, List, Type, Optional
 
 from dataprep.bpepkg.bpe_encode import BpeData, get_bpe_subwords
 from dataprep.parse.model.containers import SplitContainer, StringLiteral, OneLineComment, MultilineComment
@@ -13,37 +13,53 @@ from dataprep.parse.model.noneng import NonEng
 from dataprep.parse.model.numeric import Number
 from dataprep.parse.model.whitespace import NewLine, Tab
 from dataprep.parse.model.word import Word
-
-from dataprep.preprocess.core import ReprConfig
+from dataprep.preprocess.core import ReprConfig, Splitter
 
 logger = logging.getLogger(__name__)
 
 
 class PrepParam(str, Enum):
     EN_ONLY: str = 'enonly'
-    COM_STR: str = 'comstr'
+    COM: str = 'com'
+    STR: str = 'str'
     SPLIT: str = 'split'
     TABS_NEWLINES: str = 'tabsnewlines'
     CASE: str = 'caps'
 
 
+def get_possible_str_values() -> List[str]:
+    RANGES = [(48, 58), (65, 91), (97, 123)]
+    return list(map(lambda x: chr(x), [e for r in RANGES for e in list(range(*r))]))
+
+
+def get_max_str_length(ch: str) -> Optional[int]:
+    num = get_possible_str_values().index(ch)
+    if num == 0:
+        return None
+    elif num == 1:
+        return sys.maxsize
+    else:
+        return num
+
+
 class PrepConfig(object):
     possible_param_values = {
         PrepParam.EN_ONLY: ['u', 'U'],
-        PrepParam.COM_STR: ['0', '1', '2', '3'],
-        PrepParam.SPLIT: ['0', '1', '2', '3', 's', '4', '5', '6', '7', '8', '9'],
+        PrepParam.COM: ['0', 'c'],
+        PrepParam.STR: get_possible_str_values(),
+        PrepParam.SPLIT: ['0', 'F', '1', '2', '3', 's', '4', '5', '6', '7', '8', '9'],
         PrepParam.TABS_NEWLINES: ['s', '0'],
-        PrepParam.CASE: ['u', 'l']
+        PrepParam.CASE: ['u', 'l'],
     }
 
     human_readable_values = {
         PrepParam.EN_ONLY: {'u': 'multilang',
                             'U': 'asci_only'},
-        PrepParam.COM_STR: {'0': 'strings+comments',
-                            '1': 'NO_strings+comments',
-                            '2': 'NO_strings+NO_comments',
-                            '3': 'strings+NO_comments'},
+        PrepParam.COM: {'0': 'NO_comments',
+                            'c': 'comments'},
+        PrepParam.STR: {k: k for k in get_possible_str_values()},
         PrepParam.SPLIT: {'0': 'NO_splitting',
+                          'F': 'No splitting + full strings',
                           '1': 'camel+underscore',
                           '2': 'camel+underscore+numbers',
                           '3': 'numbers+ronin',
@@ -64,7 +80,8 @@ class PrepConfig(object):
 
     base_bpe_mask = {
         PrepParam.EN_ONLY: 'u',
-        PrepParam.COM_STR: '0',
+        PrepParam.COM: 'c',
+        PrepParam.STR: '1',
         PrepParam.SPLIT: '1',
         PrepParam.TABS_NEWLINES: 's',
     }
@@ -92,7 +109,7 @@ class PrepConfig(object):
                 raise ValueError(f'Invalid value {params[pp]} for prep param {pp}, '
                                  f'possible values are: {PrepConfig.possible_param_values[pp]}')
 
-        if params[PrepParam.CASE] == 'l' and params[PrepParam.SPLIT] == '0':
+        if params[PrepParam.CASE] == 'l' and params[PrepParam.SPLIT] in ['0', 'F']:
             raise ValueError("Combination NOSPLIT and LOWERCASED is not supported: "
                              "basic splitting needs to be dont done to lowercase the subword.")
 
@@ -103,6 +120,7 @@ class PrepConfig(object):
         if params[PrepParam.CASE] == 'u' and params[PrepParam.SPLIT] == 's':
             raise ValueError("Combination STEMMING and UPPERCASE is not supported: "
                              "stemmer always lowercases words.")
+
 
     def __init__(self, params: Dict[PrepParam, str]):
         PrepConfig.__check_invariants(params)
@@ -118,7 +136,7 @@ class PrepConfig(object):
     def __repr__(self):
         return str(self.params)
 
-    def get_param_value(self, param: PrepParam) -> int:
+    def get_param_value(self, param: PrepParam) -> str:
         return self.params[param]
 
     def get_base_bpe_prep_config(self):
@@ -129,9 +147,9 @@ class PrepConfig(object):
     def __eq__(self, other):
         return self.params == other.params
 
-    def get_number_splitter(self) -> Callable[[str, BpeData], List[str]]:
+    def get_number_splitter(self) -> Splitter:
         split_param_value = self.get_param_value(PrepParam.SPLIT)
-        if split_param_value in ['0', '1']:
+        if split_param_value in ['0', 'F', '1']:
             return lambda s,c: [s]
         elif split_param_value in ['2', '3', 's']:
             return lambda s,c: [ch for ch in s]
@@ -140,7 +158,7 @@ class PrepConfig(object):
         else:
             raise ValueError(f"Invalid SPLIT param value: {split_param_value}")
 
-    def get_word_splitter(self) -> Optional[Callable[[str, BpeData], List[str]]]:
+    def get_word_splitter(self) -> Optional[Splitter]:
         split_param_value = self.get_param_value(PrepParam.SPLIT)
         if split_param_value in ['4', '5', '6', '7', '8', '9']:
             return lambda s, c: get_bpe_subwords(s, c)
@@ -149,7 +167,7 @@ class PrepConfig(object):
         elif split_param_value == 's':
             from dataprep.stemming import stem
             return lambda s,c: [stem(s)]
-        elif split_param_value in ['0', '3']:
+        elif split_param_value in ['0', 'F', '3']:
             return None
         else:
             raise ValueError(f"Invalid SPLIT param value: {split_param_value}")
@@ -163,8 +181,12 @@ class PrepConfig(object):
             res.extend([SplitContainer, Word])
         if self.get_param_value(PrepParam.SPLIT) in ['2', '3', '4', '5', '6', '7', '8', '9', 's']:
             res.append(Number)
-        res.extend(com_str_to_types_to_be_repr[self.get_param_value(PrepParam.COM_STR)])
-        res.extend(en_only_to_types_to_be_repr[self.get_param_value(PrepParam.EN_ONLY)])
+        if self.get_param_value(PrepParam.COM) == '0':
+            res.extend([OneLineComment, MultilineComment])
+        if self.get_param_value(PrepParam.STR) == '0':
+            res.append(StringLiteral)
+        if self.get_param_value(PrepParam.EN_ONLY) == 'U':
+            res.append(NonEng)
         if self.get_param_value(PrepParam.TABS_NEWLINES) == '0':
             res.extend([NewLine, Tab])
         return res
@@ -175,7 +197,9 @@ class PrepConfig(object):
                           self.get_param_value(PrepParam.CASE) == 'l',
                           self.get_number_splitter(),
                           self.get_word_splitter(),
-                          self.is_ronin())
+                          self.is_ronin(),
+                          self.get_param_value(PrepParam.SPLIT) == 'F',
+                          get_max_str_length(self.get_param_value(PrepParam.STR)))
 
     def is_bpe(self):
         """
@@ -188,19 +212,7 @@ class PrepConfig(object):
 
     #TODO make use of basic_bpe mask
     def is_base_bpe_config(self):
-        return self.get_param_value(PrepParam.COM_STR) == '0' \
+        return self.get_param_value(PrepParam.COM) == 'c' \
+               and self.get_param_value(PrepParam.STR) == '1' \
                and self.get_param_value(PrepParam.SPLIT) == '1' \
                and self.get_param_value(PrepParam.TABS_NEWLINES) == 's'
-
-
-com_str_to_types_to_be_repr = {
-    '0': [],
-    '1': [StringLiteral],
-    '2': [StringLiteral, OneLineComment, MultilineComment],
-    '3': [OneLineComment, MultilineComment]
-}
-
-en_only_to_types_to_be_repr = {
-    'u': [],
-    'U': [NonEng]
-}
