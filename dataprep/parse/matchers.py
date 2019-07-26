@@ -103,7 +103,7 @@ class NumberMatchers(object):
         return token in Token.Literal.Number
 
     def transform(self, value: str) -> List[Number]:
-        return [Number([ch for ch in value])]
+        return [Number(value)]
 
 
 class OperatorMatcher(object):

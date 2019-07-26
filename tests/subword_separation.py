@@ -23,7 +23,7 @@ test_cases = {
         [placeholders["word_start"], 'play', 'er', 's', placeholders["word_end"]]
     ),
     "0.345e+4": (
-        [Number(["0", '.', "3", "4", "5", 'e', "+", "4"])],
+        [Number("0.345e+4")],
         [placeholders["word_start"], "0.", "3", "4", "5", "e+", "4", placeholders["word_end"]]
     ),
     "bestPlayers": (

@@ -15,7 +15,7 @@ from dataprep.to_repr import to_repr
 pl = placeholders
 
 tokens = [
-    Number([1, '.', 1]),
+    Number('1.1'),
     "*",
     NonEng(SplitContainer([Word.from_("übersetzen")])),
     StringLiteral([
@@ -298,7 +298,7 @@ class ReprTest(unittest.TestCase):
         })
 
         tokens = [
-            Number([1, '.', 1]),
+            Number("1.1"),
             "*",
             NonEng(SplitContainer([Word.from_("dinero")])),
             StringLiteral([

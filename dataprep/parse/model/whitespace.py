@@ -6,6 +6,7 @@ from dataprep.preprocess.core import ReprConfig
 
 NBSP = '\xa0'
 
+
 class Whitespace(ParsedToken):
     def __eq__(self, other):
         return other.__class__ == self.__class__
@@ -44,3 +45,6 @@ class SpaceInString(Whitespace):
 
     def __repr__(self):
         return f'<{self.__class__.__name__}> (n_chars={self.n_chars})'
+
+    def __eq__(self, other):
+        return other.__class__ == self.__class__ and other.n_chars == self.n_chars
