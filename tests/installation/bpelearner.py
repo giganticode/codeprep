@@ -2,10 +2,10 @@ import unittest
 from unittest import mock
 
 from dataprep.bpepkg.bpe_config import BpeConfig, BpeParam, BpeConfigNotSupported
-from dataprep.installation.bpelearner import run
+from dataprep.infrastructure.bpelearner import run
 
 
-@mock.patch('dataprep.installation.bpelearner.Dataset')
+@mock.patch('dataprep.infrastructure.bpelearner.Dataset')
 class RunTest(unittest.TestCase):
     def test_prefix_case(self, mocked_dataset):
         bpe_config = BpeConfig({

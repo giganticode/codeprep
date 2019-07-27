@@ -10,18 +10,18 @@ from typing import List, Tuple, Union
 from typing import Optional
 
 from dataprep.bpepkg.bpe_encode import read_merges, BpeData
-from dataprep.installation.bperegistry import CustomBpeConfig
+from dataprep.infrastructure.bperegistry import CustomBpeConfig
 from dataprep.bpepkg.cache import read_bpe_cache
 from dataprep.config import DEFAULT_BPE_DIR, NO_CASE_DIR, CASE_DIR, DEFAULT_BPE_CACHE_DIR, REWRITE_PREPROCESSED_FILE, \
     CHUNKSIZE, LIMIT_FILES_SCANNING
-from dataprep.installation.dataset import Dataset, NOT_FINISHED_EXTENSION
+from dataprep.infrastructure.dataset import Dataset, NOT_FINISHED_EXTENSION
 from dataprep.parse.model.core import ParsedToken
 from dataprep.parse.model.metadata import PreprocessingMetadata
 from dataprep.parse.model.metadata import save_metadata
 from dataprep.parse.model.placeholders import placeholders
 from dataprep.prepconfig import PrepParam, PrepConfig
 from dataprep.preprocess.core import to_repr_list
-from dataprep.installation import vocabloader
+from dataprep.infrastructure import vocabloader
 
 logger = logging.getLogger(__name__)
 

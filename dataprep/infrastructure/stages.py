@@ -5,8 +5,8 @@ from typing import Optional
 
 from dataprep import parse_projects, to_repr
 from dataprep.vocab import calc_vocab
-from dataprep.installation.bperegistry import CustomBpeConfig
-from dataprep.installation.dataset import Dataset, is_path_ready, is_path_outdated, archive_path
+from dataprep.infrastructure.bperegistry import CustomBpeConfig
+from dataprep.infrastructure.dataset import Dataset, is_path_ready, is_path_outdated, archive_path
 
 
 logger = logging.getLogger(__name__)

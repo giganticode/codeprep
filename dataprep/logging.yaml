@@ -11,7 +11,7 @@ handlers:
     formatter: with_process_name
     stream: ext://sys.stdout
 loggers:
-  dataprep.installation:
+  dataprep.infrastructure:
     level: DEBUG
     propagate: True
   dataprep.api:

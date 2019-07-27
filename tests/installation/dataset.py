@@ -1,8 +1,8 @@
 import unittest
 from unittest import mock
 
-from dataprep.installation.bperegistry import CustomBpeConfig
-from dataprep.installation.dataset import Dataset, SubDataset, normalize_extension_string
+from dataprep.infrastructure.bperegistry import CustomBpeConfig
+from dataprep.infrastructure.dataset import Dataset, SubDataset, normalize_extension_string
 from dataprep.fileutils import has_one_of_extensions
 from dataprep.prepconfig import PrepConfig, PrepParam
 
@@ -25,9 +25,9 @@ class HasOneOfExtensionsTest(unittest.TestCase):
 
 
 @mock.patch('os.path.exists')
-@mock.patch('dataprep.installation.dataset.get_timestamp')
-@mock.patch('dataprep.installation.dataset.DEFAULT_PARSED_DATASETS_DIR', '/parsed/dataset')
-@mock.patch('dataprep.installation.dataset.DEFAULT_PREP_DATASETS_DIR', '/prep/dataset')
+@mock.patch('dataprep.infrastructure.dataset.get_timestamp')
+@mock.patch('dataprep.infrastructure.dataset.DEFAULT_PARSED_DATASETS_DIR', '/parsed/dataset')
+@mock.patch('dataprep.infrastructure.dataset.DEFAULT_PREP_DATASETS_DIR', '/prep/dataset')
 class CreateTest(unittest.TestCase):
     def test_simple(self, get_timestamp_mock, os_exists_mock):
         os_exists_mock.return_value = True

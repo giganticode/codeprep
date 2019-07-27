@@ -8,9 +8,9 @@ import dataprep.api.corpus
 import dataprep.api.text
 from dataprep.api.common import create_split_value, create_str_value
 from dataprep.bpepkg.bpe_config import BpeParam, BpeConfig
-from dataprep.installation import bpelearner
-from dataprep.installation.bperegistry import InvalidBpeCodesIdError, USER_PREDEFINED_BPE_CODES
-from dataprep.installation.dataset import Dataset, normalize_extension_string
+from dataprep.infrastructure import bpelearner
+from dataprep.infrastructure.bperegistry import InvalidBpeCodesIdError, USER_PREDEFINED_BPE_CODES
+from dataprep.infrastructure.dataset import Dataset, normalize_extension_string
 from dataprep.prepconfig import PrepConfig, PrepParam
 
 

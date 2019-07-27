@@ -10,7 +10,7 @@ from multiprocessing.pool import Pool
 from tqdm import tqdm
 
 from dataprep.fileutils import read_file_contents
-from dataprep.installation.dataset import Dataset, NOT_FINISHED_EXTENSION
+from dataprep.infrastructure.dataset import Dataset, NOT_FINISHED_EXTENSION
 from dataprep.parse.core import convert_text
 from dataprep.config import REWRITE_PARSED_FILE, CHUNKSIZE, LIMIT_FILES_SCANNING
 

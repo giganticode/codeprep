@@ -4,9 +4,9 @@ import sys
 from typing import Optional, Dict, Callable, Generator
 
 from dataprep.api.common import create_prep_config
-from dataprep.installation import stages
-from dataprep.installation.bperegistry import CustomBpeConfig, is_predefined_id
-from dataprep.installation.dataset import Dataset
+from dataprep.infrastructure import stages
+from dataprep.infrastructure.bperegistry import CustomBpeConfig, is_predefined_id
+from dataprep.infrastructure.dataset import Dataset
 from dataprep.prepconfig import PrepConfig
 from dataprep.vocab import _load_vocab_dict
 

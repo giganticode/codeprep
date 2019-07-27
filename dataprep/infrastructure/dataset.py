@@ -7,7 +7,7 @@ from dataprep.bpepkg.bpe_config import BpeConfig
 from dataprep.config import DEFAULT_PARSED_DATASETS_DIR, DEFAULT_PREP_DATASETS_DIR, USER_BPE_DIR, DEFAULT_FILE_LIST_DIR, \
     USER_VOCAB_DIR
 from dataprep.dirutils import walk_and_save, get_timestamp
-from dataprep.installation.bperegistry import get_codes_id_by_bpe_path, create_new_id_from, write_bpe_codes_id, \
+from dataprep.infrastructure.bperegistry import get_codes_id_by_bpe_path, create_new_id_from, write_bpe_codes_id, \
     CustomBpeConfig
 from dataprep.prepconfig import PrepConfig
 from dataprep.vocab import VOCAB_FILENAME

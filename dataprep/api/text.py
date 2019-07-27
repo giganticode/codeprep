@@ -2,7 +2,7 @@ import sys
 from typing import List, Optional, Union, Tuple
 
 from dataprep.api.common import create_prep_config
-from dataprep.installation.bperegistry import is_predefined_id, CustomBpeConfig
+from dataprep.infrastructure.bperegistry import is_predefined_id, CustomBpeConfig
 from dataprep.parse.core import convert_text
 from dataprep.parse.model.core import ParsedToken
 from dataprep.parse.model.metadata import PreprocessingMetadata
