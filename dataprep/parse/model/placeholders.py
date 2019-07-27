@@ -1,22 +1,12 @@
 placeholders = {
     'comment': '<comment>',
-    'string_literal': '<str_literal>',
-    'word_start': '`w',
-    'word_end': 'w`',
-    'capital': '`C',
-    'capitals': '`Cs',
-    'ect': '``',
-    'non_eng': '`E',
-    'olc_end': 'm`',
-}
-
-placeholders_beautiful = {
-    'comment': '<comment>',
-    'string_literal': '<str_literal>',
-    'ect': '\n\n',
+    'string_literal': '<str-literal>',
+    'word_start': '<w>',
+    'word_end': '</w>',
+    'capital': '<Cap>',
+    'capitals': '<CAPS>',
+    'ect': '<EOF>',
     'non_eng': '<non-en>',
-}
-
-separators_beautiful = {
-    'word_end': '',
+    'non_eng_content': '<non-en-content>',
+    'olc_end': '<EOL>'
 }
