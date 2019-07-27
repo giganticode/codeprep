@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 from typing import Optional, Dict, Callable, Generator
@@ -8,6 +9,8 @@ from dataprep.installation.bperegistry import CustomBpeConfig, is_predefined_id
 from dataprep.installation.dataset import Dataset
 from dataprep.prepconfig import PrepConfig
 from dataprep.vocab import _load_vocab_dict
+
+logger = logging.getLogger(__name__)
 
 
 class PreprocessedCorpus(object):
@@ -164,5 +167,5 @@ def preprocess_corpus(path: str, prep_config: PrepConfig, bpe_codes_id: Optional
     else:
         stages.run_until_preprocessing(dataset, custom_bpe_config)
         path_to_vocab = None
-    print(f"Preprocessed dataset is ready at {dataset.preprocessed.path}")
+    logger.info(f"Preprocessed dataset is ready at {dataset.preprocessed.path}")
     return PreprocessedCorpus(dataset.preprocessed.path, lambda : dataset.preprocessed.file_iterator(), path_to_vocab)

@@ -11,7 +11,6 @@ class ConvertTextTest(unittest.TestCase):
 
     def test_longs(self):
         text = '''long[] lovely_longs = {0x34a35EL,     0x88bc96fl           , -0x34L};'''
-        print(text)
         expected_result = ['long',
                            '[',
                            ']',

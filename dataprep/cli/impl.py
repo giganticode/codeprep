@@ -14,6 +14,9 @@ from dataprep.installation.dataset import Dataset, normalize_extension_string
 from dataprep.prepconfig import PrepConfig, PrepParam
 
 
+logger = logging.getLogger(__name__)
+
+
 def set_log_level(args: Dict[str, str]) -> None:
     if args['--verbose']:
         logging.root.setLevel(logging.DEBUG)
@@ -49,7 +52,7 @@ def handle_learnbpe(args):
     if not dataset.bpe_codes_id:
         dataset.assign_bpe_codes_id(bpe_config, predefined_bpe_codes_id=bpe_codes_id)
     elif bpe_codes_id:
-        print(f"Ignoring passed bpe codes id: {bpe_codes_id}. "
+        logger.warning(f"Ignoring passed bpe codes id: {bpe_codes_id}. "
               f"This dataset has already been assigned id: {dataset.bpe_codes_id}")
 
     bpelearner.run(dataset, n_merges, bpe_config)
@@ -69,7 +72,7 @@ def handle_splitting(args: Dict) -> None:
                                                   output_path=args['--output-path'],
                                                   calc_vocab=bool(args['--calc-vocab']))
     except InvalidBpeCodesIdError as err:
-        print(err)
+        logger.error(err)
         return
 
 

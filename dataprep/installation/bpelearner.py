@@ -52,7 +52,7 @@ def run(dataset: Dataset, n_merges: int, bpe_config: BpeConfig) -> None:
         logger.info("Using existing mexrges...")
 
     if starting_from_scratch:
-        logger.info("Starting the encoding from scratch...")
+        logger.info("Starting encoding from scratch...")
 
     if starting_from_scratch:
         base_bpe_vocab, other_vocab = get_base_vocab(dataset) #TODO extract this into stages
@@ -64,7 +64,7 @@ def run(dataset: Dataset, n_merges: int, bpe_config: BpeConfig) -> None:
         split_base_vocab, other_vocab = separate_vocabs(split_base_vocab, load_nonbpe_vocab(dataset))
         already_done_merges = read_merges(os.path.join(dir_with_most_merges, MERGES_FILE_NAME))
 
-    print("--- Learning bpe codes...")
+    logger.info("Learning bpe codes...")
     split_base_vocab, merges = do_merges(split_base_vocab, n_merges-len(already_done_merges))
     merges = already_done_merges + merges
 

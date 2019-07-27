@@ -11,7 +11,7 @@ import time
 from multiprocessing.pool import Pool
 from queue import Empty
 from tqdm import tqdm
-from typing import List, Tuple, Dict, Generator, Iterator
+from typing import List, Tuple, Dict, Iterator
 
 from dataprep.parse.model.placeholders import placeholders
 from dataprep.fileutils import read_file_contents
@@ -122,9 +122,9 @@ class VocabMerger(multiprocessing.Process):
                         f"Terminating process..., mergers left: {self.process_counter.value}")
                     break
                 else:
-                    logger.info("Leaving 1 process to finish the merges")
+                    logger.debug("Leaving 1 process to finish the merges")
                     self._finish_merges()
-                    logger.info(f'[{self.id}] Vocab files are saved. Terminating the process...')
+                    logger.debug(f'[{self.id}] Vocab files are saved. Terminating the process...')
                     break
 
             first = None
@@ -177,7 +177,7 @@ class VocabMerger(multiprocessing.Process):
 
     def _log_merge_results(self, new_words: List[str], resulting_vocab_size: int, time: float) -> None:
         logger.debug(f"[{self.id}] New words: {new_words[:10]} ..., total: {len(new_words)}")
-        logger.info(
+        logger.debug(
             f"[{self.id}] Merging took {time:.3f} s, current vocab size: {resulting_vocab_size}")
 
     def _merge(self, first: PartialVocab, second: PartialVocab) -> Tuple[PartialVocab, List[str]]:
@@ -338,7 +338,7 @@ def calc_vocab(path: str, file_iterator: Iterator[bytes], output_dir: str):
     vocab_file_path = os.path.join(output_dir, VOCAB_FILENAME)
     vocab_size_file_path = os.path.join(output_dir, VOCABSIZE_FILENAME)
     if os.path.exists(vocab_size_file_path) and os.path.exists(vocab_file_path):
-        print(f"Vocab files already exist at: {os.path.dirname(vocab_size_file_path)}/ . Doing nothing.")
+        logger.info(f"Vocab files already exist at: {os.path.dirname(vocab_size_file_path)}/ . Doing nothing.")
         return
 
     path_to_dump = os.path.join(output_dir, 'part_vocab')
@@ -346,15 +346,15 @@ def calc_vocab(path: str, file_iterator: Iterator[bytes], output_dir: str):
     if partial_vocabs_ready(path_to_dump):
         task_list = load_partial_vocabs(path_to_dump)
     else:
-        logger.info(f"Reading files from: {path}")
+        logger.debug(f"Reading files from: {path}")
         task_list = create_partial_vocabs(file_iterator, path_to_dump)
 
     n_processes = multiprocessing.cpu_count()
-    logger.info(f"Using {n_processes} mergers, number of partial vocabs: {len(task_list)}")
+    logger.debug(f"Using {n_processes} mergers, number of partial vocabs: {len(task_list)}")
     tasks_queues, chunk_sizes = mapify_tasks(task_list)
     chunk_queue, merges_to_be_done = create_chunk_queue(chunk_sizes, n_processes)
-    logger.info(f'==================    Starting merging    =================')
-    logger.info(f'Merges need to be done: {merges_to_be_done}')
+    logger.debug(f'==================    Starting merging    =================')
+    logger.debug(f'Merges need to be done: {merges_to_be_done}')
     process_counter = AtomicInteger(n_processes)
     merges_left_counter = AtomicInteger(merges_to_be_done)
     mergers = [VocabMerger(i + 1, tasks_queues, path_to_dump, process_counter, chunk_queue,
@@ -368,5 +368,5 @@ def calc_vocab(path: str, file_iterator: Iterator[bytes], output_dir: str):
     for merger in mergers:
         merger.join()
 
-    print(f"Vocab is available at {vocab_file_path}")
-    print(f"Vocab stats is available at {vocab_size_file_path}")
+    logger.info(f"Vocab is available at {vocab_file_path}")
+    logger.info(f"Vocab stats is available at {vocab_size_file_path}")

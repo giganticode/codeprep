@@ -1,15 +1,31 @@
 version: 1
 disable_existing_loggers: False
 formatters:
-  simple:
-    format: "[%(processName)s] %(levelname)s - %(asctime)s - %(name)s: %(message)s"
+  with_process_name:
+    format: "%(asctime)s [%(name)s] %(levelname)s: %(message)s"
 
 handlers:
   console:
     class: logging.StreamHandler
     level: DEBUG
-    formatter: simple
+    formatter: with_process_name
     stream: ext://sys.stdout
+loggers:
+  dataprep.installation:
+    level: DEBUG
+    propagate: True
+  dataprep.api:
+    level: DEBUG
+    propagate: True
+  dataprep.cli:
+    level: DEBUG
+    propagate: True
+  dataprep.vocab:
+    level: DEBUG
+    propagate: True
+  dataprep.parse_projects:
+    level: DEBUG
+    propagate: True
 root:
   level: DEBUG
   handlers: [console]
