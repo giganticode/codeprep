@@ -8,7 +8,7 @@ from dataprep.preprocess.core import ReprConfig
 
 class Number(ParsedToken):
     def __init__(self, val: str):
-        self.val = val
+        self.val = val.lower()
 
     def __str__(self):
         return self.non_preprocessed_repr()[0]
