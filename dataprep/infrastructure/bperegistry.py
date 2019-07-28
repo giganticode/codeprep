@@ -81,13 +81,17 @@ def create_new_id_from(path: str, bpe_config: BpeConfig, predefined_bpe_codes_id
     if predefined_bpe_codes_id:
         return predefined_bpe_codes_id
     else:
-        id_base = f'{os.path.basename(path)}{bpe_config.to_suffix()}'
+        name_parts = [os.path.basename(path)]
+        id_suffix = bpe_config.to_suffix()
+        if id_suffix:
+            name_parts.append(id_suffix)
+        id_base = '_'.join(name_parts)
         existing_ids = _get_all_custom_bpe_codes_and_max_merges().keys()
         if id_base not in existing_ids:
             return id_base
         else:
             def extract_number(full_id: str, id_base: str) -> int:
-                m = regex.match(f"{id_base}_([0-9]*)", full_id)
+                m = regex.fullmatch(f"{id_base}_([0-9]+)", full_id)
                 return int(m[1]) if m else 0
 
             numbers = list(map(lambda d: extract_number(d, id_base), existing_ids))
@@ -114,12 +118,12 @@ def get_base_vocab_dir(bpe_list_id: str) -> str:
     dataset_bpe_dir = get_dataset_bpe_dir(bpe_list_id)
     prep_config_str = os.path.basename(dataset_bpe_dir)
     #TODO do not hard code date and dir format in general
-    m = regex.fullmatch(r'(.*_\d\d-\d\d-\d\dT\d\d-\d\d-\d\d)(.*)', prep_config_str)
+    m = regex.fullmatch(r'(.*?)((?:_-_.*)?)', prep_config_str)
     if not m:
         raise ValueError(f'Invalid dir format: {prep_config_str}')
     bpe_config = BpeConfig.from_suffix(m[2])
     base_prep_config = bpe_config.to_prep_config()
-    return os.path.join(USER_VOCAB_DIR, f'{m[1]}_{base_prep_config}')
+    return os.path.join(USER_VOCAB_DIR, f'{m[1]}_-_{base_prep_config}')
 
 
 def get_dataset_bpe_dir(bpe_list_id: str) -> str:

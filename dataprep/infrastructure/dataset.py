@@ -160,7 +160,7 @@ class Dataset(object):
     def get_dataset_dir_name(self) -> str:
         name = f'{self.name}_{self.dataset_last_modified}'
         if self._normalized_extension_list:
-            name += ('_-_' + "_".join(self._normalized_extension_list))
+            name += ('_' + "_".join(self._normalized_extension_list))
         return name
 
     @property
@@ -175,7 +175,7 @@ class Dataset(object):
         return os.path.join(DEFAULT_PARSED_DATASETS_DIR, self.get_dataset_dir_name)
 
     def _get_prep_suffix(self) -> str:
-        suffix = f'_-_{self.prep_config}'
+        suffix = str(self.prep_config)
         if self._custom_bpe_config:
             suffix += f'_{self._custom_bpe_config.merge_list_id}-{self._custom_bpe_config.n_merges}'
         return suffix
@@ -183,7 +183,7 @@ class Dataset(object):
     def _get_path_to_prep_dataset(self, overriden_path_to_prep_dataset: Optional[str]) -> str:
         prefix = overriden_path_to_prep_dataset if overriden_path_to_prep_dataset else DEFAULT_PREP_DATASETS_DIR
 
-        basename = f'{self.get_dataset_dir_name}{self._get_prep_suffix()}'
+        basename = f'{self.get_dataset_dir_name}_-_{self._get_prep_suffix()}'
 
         if overriden_path_to_prep_dataset:
             basename += '_-_prep'
@@ -196,15 +196,21 @@ class Dataset(object):
 
     @property
     def bpe_path(self) -> str:
-        return os.path.join(USER_BPE_DIR, f'{self.get_dataset_dir_name}{self._bpe_config.to_suffix() if self._bpe_config else ""}')
+        name_parts = [self.get_dataset_dir_name]
+        if self._bpe_config:
+            suffix = self._bpe_config.to_suffix()
+            if suffix:
+                name_parts.append(suffix)
+
+        return os.path.join(USER_BPE_DIR, "_-_".join(name_parts))
 
     @property
     def base_bpe_vocab_path(self) -> str:
-        return os.path.join(USER_VOCAB_DIR, f'{self.get_dataset_dir_name}_{self._bpe_config.to_prep_config()}')
+        return os.path.join(USER_VOCAB_DIR, f'{self.get_dataset_dir_name}_-_{self._bpe_config.to_prep_config()}')
 
     @property
     def vocab_path(self) -> str:
-        return os.path.join(USER_VOCAB_DIR, f'{self.get_dataset_dir_name}{self._get_prep_suffix()}')
+        return os.path.join(USER_VOCAB_DIR, f'{self.get_dataset_dir_name}_-_{self._get_prep_suffix()}')
 
     @property
     def path_to_vocab_file(self) -> str:

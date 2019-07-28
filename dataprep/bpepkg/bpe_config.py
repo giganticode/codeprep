@@ -55,11 +55,11 @@ class BpeConfig(object):
             PrepParam.CASE: 'l' if self.get_param_value(BpeParam.CASE) == 'no' else 'u'
         })
 
-    UNICODE_NO = '_nounicode'
-    UNICODE_BYTES = '_bytes'
-    CASE_NO = '_nocase'
-    CASE_PREFIX = '_prefix'
-    WORD_END = '_we'
+    UNICODE_NO = 'nounicode'
+    UNICODE_BYTES = 'bytes'
+    CASE_NO = 'nocase'
+    CASE_PREFIX = 'prefix'
+    WORD_END = 'we'
 
     @staticmethod
     def from_suffix(suffix: str):
@@ -86,31 +86,29 @@ class BpeConfig(object):
         })
 
     def to_suffix(self):
-        suf = ''
+        suffix_parts = []
 
         if self.get_param_value(BpeParam.CASE) == 'no':
-            suf += BpeConfig.CASE_NO
+            suffix_parts.append(BpeConfig.CASE_NO)
         elif self.get_param_value(BpeParam.CASE) == 'prefix':
-            suf += BpeConfig.CASE_PREFIX
+            suffix_parts.append(BpeConfig.CASE_PREFIX)
 
         if self.get_param_value(BpeParam.WORD_END):
-            suf += BpeConfig.WORD_END
+            suffix_parts.append(BpeConfig.WORD_END)
 
         if self.get_param_value(BpeParam.UNICODE) == 'no':
-            suf += BpeConfig.UNICODE_NO
+            suffix_parts.append(BpeConfig.UNICODE_NO)
         elif self.get_param_value(BpeParam.UNICODE) == 'bytes':
-            suf += BpeConfig.UNICODE_BYTES
+            suffix_parts.append(BpeConfig.UNICODE_BYTES)
 
-        return suf
+        return "_".join(suffix_parts)
 
     def __eq__(self, other):
         return self.params == other.params
 
     def __str__(self) -> str:
-        res = ""
-        for k in BpeParam:
-            res += str(self.params[k])
-        return res
+        parts = [str(self.params[k]) for k in BpeParam]
+        return "_".join(parts)
 
     def __repr__(self):
         return str(self.params)

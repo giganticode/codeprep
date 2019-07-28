@@ -26,7 +26,7 @@ class BpeConfigToSuffixTest(unittest.TestCase):
 
         actual = bpe_config.to_suffix()
 
-        self.assertEqual("_nocase_we_nounicode", actual)
+        self.assertEqual("nocase_we_nounicode", actual)
 
     def test_prefix_bytes(self):
         bpe_config = BpeConfig({
@@ -38,7 +38,7 @@ class BpeConfigToSuffixTest(unittest.TestCase):
 
         actual = bpe_config.to_suffix()
 
-        self.assertEqual("_prefix_bytes", actual)
+        self.assertEqual("prefix_bytes", actual)
 
 
 if __name__ == '__main__':
