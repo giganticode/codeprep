@@ -1,12 +1,14 @@
 import logging
 import os
 import sys
-from typing import Optional, Dict, Callable, Generator
+from typing import Optional, Dict
+
+from tqdm import tqdm
 
 from dataprep.api.common import create_prep_config
 from dataprep.infrastructure import stages
 from dataprep.infrastructure.bperegistry import CustomBpeConfig, is_predefined_id
-from dataprep.infrastructure.dataset import Dataset
+from dataprep.infrastructure.dataset import Dataset, SubDataset
 from dataprep.prepconfig import PrepConfig
 from dataprep.vocab import _load_vocab_dict
 
@@ -14,18 +16,34 @@ logger = logging.getLogger(__name__)
 
 
 class PreprocessedCorpus(object):
-    def __init__(self, path_to_prep_dataset: str,
-                 get_file_iterator: Callable[[], Generator[bytes, None, None]],
-                 path_to_vocab:str):
-        self.path_to_prep_dataset = path_to_prep_dataset
-        self.get_file_iterator = get_file_iterator
+    def __init__(self, prep_dataset: SubDataset, path_to_vocab: str):
+        self.path_to_prep_dataset = prep_dataset.path
+        self.get_file_iterator = lambda: prep_dataset.file_iterator()
         self.path_to_vocab = path_to_vocab
+        self._path_to_corpus_size_file = prep_dataset._dataset.path_to_prep_corpus_size_file
 
     def load_vocab(self) -> Dict[str, int]:
         if not self.path_to_vocab:
             raise ValueError("Vocabulary has not been yet calculated. Set calc_vocab param to True when running preprocessing.")
 
         return _load_vocab_dict(self.path_to_vocab)
+
+    def get_corpus_size(self) -> int:
+        if not os.path.exists(self._path_to_corpus_size_file):
+            corpus_size = self._calc_corpus_size()
+            with open(self._path_to_corpus_size_file, 'w') as f:
+                f.write(f'{corpus_size}')
+        with open(self._path_to_corpus_size_file, 'r') as f:
+            return int(f.read())
+
+    def _calc_corpus_size(self):
+        total_files = len([f for f in self.get_file_iterator()])
+        total_words = 0
+        for file in tqdm(self.get_file_iterator(), total=total_files):
+            with open(file, 'r') as f:
+                for line in f:
+                    total_words += len(line.split(" "))
+        return total_words
 
 
 def nosplit(path: str, extensions: Optional[str] = None, no_spaces: bool = False, no_unicode: bool = False,
@@ -168,4 +186,4 @@ def preprocess_corpus(path: str, prep_config: PrepConfig, bpe_codes_id: Optional
         stages.run_until_preprocessing(dataset, custom_bpe_config)
         path_to_vocab = None
     logger.info(f"Preprocessed dataset is ready at {dataset.preprocessed.path}")
-    return PreprocessedCorpus(dataset.preprocessed.path, lambda : dataset.preprocessed.file_iterator(), path_to_vocab)
+    return PreprocessedCorpus(dataset.preprocessed, path_to_vocab)

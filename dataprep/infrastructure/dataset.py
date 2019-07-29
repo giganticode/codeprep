@@ -5,7 +5,7 @@ from typing import Type, Optional, Generator, List
 
 from dataprep.bpepkg.bpe_config import BpeConfig
 from dataprep.config import DEFAULT_PARSED_DATASETS_DIR, DEFAULT_PREP_DATASETS_DIR, USER_BPE_DIR, DEFAULT_FILE_LIST_DIR, \
-    USER_VOCAB_DIR
+    USER_VOCAB_DIR, DEFAULT_CORPUS_SIZES_DIR
 from dataprep.dirutils import walk_and_save, get_timestamp
 from dataprep.infrastructure.bperegistry import get_codes_id_by_bpe_path, create_new_id_from, write_bpe_codes_id, \
     CustomBpeConfig
@@ -32,6 +32,10 @@ class SubDataset(object):
         self._dataset = dataset
         self._path = path
         self._suffix = suffix
+
+    @property
+    def dataset(self):
+        return self._dataset
 
     @property
     def path(self) -> str:
@@ -132,6 +136,9 @@ class Dataset(object):
 
         if not os.path.exists(DEFAULT_FILE_LIST_DIR):
             os.makedirs(DEFAULT_FILE_LIST_DIR)
+
+        if not os.path.exists(DEFAULT_CORPUS_SIZES_DIR):
+            os.makedirs(DEFAULT_CORPUS_SIZES_DIR)
 
         if not os.path.exists(dataset.bpe_path):
             os.makedirs(dataset.bpe_path)
@@ -235,6 +242,10 @@ class Dataset(object):
     @property
     def path_to_file_list_folder(self) -> str:
         return os.path.join(DEFAULT_FILE_LIST_DIR, f'{self.get_dataset_dir_name}')
+
+    @property
+    def path_to_prep_corpus_size_file(self) -> str:
+        return os.path.join(DEFAULT_CORPUS_SIZES_DIR, f'{os.path.basename(self.preprocessed.path)}')
 
     def get_all_files(self, return_dirs_instead_of_regular_files: bool=False) -> Generator[bytes, None, None]:
         if self.files_need_to_be_saved():
