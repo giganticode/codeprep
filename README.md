@@ -237,6 +237,7 @@ Initial PyPI release
 - implement `--full-strings` and `--max-str-length` options
 - replace `ronin` method/command wit`--ronin` option and apply ronin algorithm on word level instead of full identifier level
 - if `split_numbers` option is set to `True`, split numbers not only in code but also in strings and comments
+- add `get_corpus_size()` method to `PreprocessedCorpus` class
 - change placeholder values to more human-readable
 - improve logging displaying
 - Bugfixes
