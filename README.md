@@ -108,7 +108,7 @@ The following code does **camelCase-** and **snake_case-** splitting and applies
 ...         printWord("     ...     Überraschung");
 ...     }
 ... }'''
->>> pp.bpe(input_code, bpe_codes_id='10k')
+>>> pp.bpe(input_code,bpe_codes_id='10k')
 ['void', '<w>', 'test', '_', 'Word', 'U', 'e', 'ber', 'r', 'as', 'ch', 'ung', 'Printer', '</w>', '(', ')', '{', '\n', 
 '\t', 'if', '(', '<w>', 'ep', 's', '</w>', '>', '=', '0', '.', '<w>', '34', '5', 'e', '</w>', '+', '4', ')', '{', '/', '/', 'FIXME', '\n', 
 '\t', '\t', '<w>', 'print', 'Word', '</w>', '(', '"', '\t', '.', '.', '.', '\t', '<w>', 'Ü', 'ber', 'r', 'as', 'ch', 'ung', '</w>', '"', ')', ';', '\n', 
@@ -119,13 +119,13 @@ The following code does **camelCase-** and **snake_case-** splitting and applies
 **Dataprep** by default does BPE using bpe codes leaned on [the Github Java Corpus](http://groups.inf.ed.ac.uk/cup/javaGithub/). The argument `bpe_codes_id='10k'` tells the **dataprep** tool to use 10,000 bpe merges. 
 Other possible values are `1k` and `5k` (1,000 and 5,000 merges respectively). Please refer to section [Learning custom BPE codes](#Learning-custom-BPE-codes) to train custom bpe codes.
 
-**For other commands like `ronin` and `chars`, options `--splt-numbers`, `--stem`, please refer to the [docs](dataprep/cli/spec.py)**.
+**For other commands and options like `chars`, `--split-numbers`, `--ronin`, `--stem`, please refer to the [docs](dataprep/cli/spec.py)**.
 
 ## Calculate vocabulary 
 Set `calc_vocab` param to `True` when calling a preprocessing method to calculate the vocabulary of the preprocessed corpus, e.g.:
 ```python
 >>> import dataprep.api.corpus as pp
->>> pp.basic('/path/to/train/on', calc_vocab=True)
+>>> pp.basic('/path/to/train/on',calc_vocab=True)
 ...
 Vocab is available at /path/to/vocab
 ```
@@ -162,7 +162,7 @@ You can pass the following parameters with a `True` value (default values for al
 ...         printWord("     ...     Überraschung");
 ...     }
 ... }'''
->>> pp.basic(input_code, no_str=True, no_com=True, no_spaces=True, no_unicode=True, no_case=True)
+>>> pp.basic(input_code,no_spaces=True,no_unicode=True,no_case=True,no_com=True,no_str=True)
 ['void', '<w>', 'test', '_', '<Cap>', 'word', '<Cap>', 'ueberraschung', '<Cap>', 'printer', '</w>', '(', ')', '{', 
 'if', '(', 'eps', '>', '=', '0', '.', '<w>', '345', 'e', '</w>', '+', '4', ')', '{', '/', '/', '<CAPS>', 'fixme', 
 '<w>', 'print', '<Cap>', 'word', '</w>', '(', '"', '.', '.', '.', '<Cap>', '<non-en>', '"', ')', ';', 
@@ -173,12 +173,12 @@ You can pass the following parameters with a `True` value (default values for al
 Similar params can be specified as switches `--no-str`, `--no-com`, `--no-spaces`, `--no-unicode`, `--no-case` in CLI commands.
 
 ### Specifying the language
-Unless explicitely specified, **dataprep** will try to guess the language of the code to be preprocessed. To make sure the input is preprocessed as intended, it is always a good idea to specify it:
+Unless explicitely specified, **dataprep** will try to guess the language of the code to be preprocessed. To make sure the input is preprocessed as intended, it is always **highly recommended** to specify it:
 ```python
 import dataprep.api.text as pp
->>> pp.bpe("volatile", '1k', extension="py")
+>>> pp.bpe("volatile",'1k',extension="py")
 ['<w>', 'vo', 'l', 'at', 'ile', '</w>']
->>> pp.bpe("volatile", '1k', extension="java")
+>>> pp.bpe("volatile",'1k',extension="java")
 ['volatile']
 # Since 'volatile' is a keyword in java, it is represented as one token unlike in python 
 # where it is pretty rare when used as an identifier and therefore represented as multiple subtokens.
@@ -224,3 +224,19 @@ To store the cache, **dataprep** uses a directory speecified by `$XDG_CACHE_HOME
 `$HOME/.cache/dataprep/<dataprep_version>` otherwise.
 
 Removing the cache will not change the final result, however, will result in slower pre-processing.
+
+# Releases
+
+## 1.0.0-alpha.6
+
+Initial PyPI release
+
+## 1.0.0-alpha.7 (NOT backward compatible with 1.0.0-alpha.6)
+
+- Store version in `dataprep.__version__`
+- implement `--full-strings` and `--max-str-length` options
+- replace `ronin` method/command wit`--ronin` option and apply ronin algorithm on word level instead of full identifier level
+- if `split_numbers` option is set to `True`, split numbers not only in code but also in strings and comments
+- change placeholder values to more human-readable
+- improve logging displaying
+- Bugfixes
