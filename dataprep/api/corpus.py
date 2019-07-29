@@ -1,11 +1,13 @@
 import logging
 import os
 import sys
-from typing import Optional, Dict
+from multiprocessing.pool import Pool
+from typing import Optional, Dict, Tuple
 
 from tqdm import tqdm
 
 from dataprep.api.common import create_prep_config
+from dataprep.config import CHUNKSIZE
 from dataprep.infrastructure import stages
 from dataprep.infrastructure.bperegistry import CustomBpeConfig, is_predefined_id
 from dataprep.infrastructure.dataset import Dataset, SubDataset
@@ -13,6 +15,15 @@ from dataprep.prepconfig import PrepConfig
 from dataprep.vocab import _load_vocab_dict
 
 logger = logging.getLogger(__name__)
+
+
+def _calc_n_tokens(params: Tuple[str,]) -> int:
+    file, = params
+    total_words = 0
+    with open(file, 'r') as f:
+        for line in f:
+            total_words += len(line.split(" "))
+    return total_words
 
 
 class PreprocessedCorpus(object):
@@ -37,12 +48,18 @@ class PreprocessedCorpus(object):
             return int(f.read())
 
     def _calc_corpus_size(self):
-        total_files = len([f for f in self.get_file_iterator()])
+        files_total = len([f for f in self.get_file_iterator()])
         total_words = 0
-        for file in tqdm(self.get_file_iterator(), total=total_files):
-            with open(file, 'r') as f:
-                for line in f:
-                    total_words += len(line.split(" "))
+
+        def param_gen():
+            for f in self.get_file_iterator():
+                yield (f,)
+
+        with Pool() as pool:
+            it = pool.imap_unordered(_calc_n_tokens, param_gen(), chunksize=CHUNKSIZE)
+            for res in tqdm(it, total=files_total):
+                total_words += res
+
         return total_words
 
 
