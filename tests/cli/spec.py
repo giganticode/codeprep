@@ -341,7 +341,7 @@ class ParseAndRunTest(unittest.TestCase):
             PrepParam.TABS_NEWLINES: '0',
             PrepParam.CASE: 'l'
         })
-        api_mock.text.preprocess.assert_called_with("str", prep_config, None)
+        api_mock.text.preprocess.assert_called_with("str", prep_config, '0')
 
     def test_xxA8xx(self, api_mock):
         argv = ['chars', 'str', '--no-str', '--max-str-length=10']

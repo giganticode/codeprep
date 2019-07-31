@@ -115,7 +115,7 @@ def get_predefined_bpe_codes_id(arguments: Dict) -> Optional[str]:
         if is_option_true(arguments, predefined_id):
             return predefined_id
 
-    return None
+    return '0' if is_option_true(arguments, 'chars') else None
 
 
 def create_split_value_from_args(arguments: Dict) -> str:
