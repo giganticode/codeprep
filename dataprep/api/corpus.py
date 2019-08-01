@@ -90,7 +90,7 @@ def nosplit(path: str, extensions: Optional[str] = None, no_spaces: bool = False
 
 
 def chars(path: str, extensions: Optional[str] = None, no_spaces: bool = False, no_unicode: bool = False,
-          no_case: bool = False, no_com: bool = False, no_str: bool = False, max_str_length=sys.maxsize,
+          no_com: bool = False, no_str: bool = False, max_str_length=sys.maxsize,
           output_path: Optional[str] = None, calc_vocab=False) -> PreprocessedCorpus:
     """
     Split corpus at `path` into characters (With the exception of operators that consist of 2 character: such operators will remain as a single token).
@@ -102,8 +102,6 @@ def chars(path: str, extensions: Optional[str] = None, no_spaces: bool = False, 
     The format is the following: "ext1|ext2|...|extN" If not specififed, all the files are read.
 
     :param no_spaces: set to True to remove tabs and newlines.
-    :param no_case: set to True to lowercase identifiers and encode information about their case in a separate token,
-    e.g. Identifier -> [<Cap>, identifier]; IDENTIFIER -> [<CAPS>, identifier]
     :param no_unicode: set to True to replace each word containing non-ascii characters to a special token,  e.g. <non-en>
     :param no_com: set to True to replace each comment with a special token, e.g. <comment>.
     :param no_str: set to True to replace each string literals with a special token, e.g <str_literal>.
@@ -112,7 +110,7 @@ def chars(path: str, extensions: Optional[str] = None, no_spaces: bool = False, 
 
     :return: `PreprocessedDataset` object which holds metadata of the preprocessed dataset
     """
-    prep_config= create_prep_config('chars', no_spaces=no_spaces, no_unicode=no_unicode, no_case=no_case, no_com=no_com,
+    prep_config= create_prep_config('chars', no_spaces=no_spaces, no_unicode=no_unicode, no_com=no_com,
                                     no_str=no_str, max_str_length=max_str_length)
     return preprocess_corpus(path, prep_config, '0', extensions=extensions, output_path=output_path, calc_vocab=calc_vocab)
 
@@ -153,7 +151,7 @@ def basic(path: str, extensions: Optional[str] = None, split_numbers: bool = Fal
 
 
 def bpe(path: str, bpe_codes_id: str, extensions: Optional[str] = None, no_spaces: bool = False,
-        no_unicode: bool = False, no_case: bool = False, no_com: bool = False, no_str: bool = False,
+        no_unicode: bool = False, no_com: bool = False, no_str: bool = False,
         max_str_length=sys.maxsize, output_path: Optional[str] = None, calc_vocab=False) -> PreprocessedCorpus:
     """
     Split corpus at `path` into tokens converting identifiers that follow CamelCase or snake_case into multiple subwords.
@@ -180,7 +178,7 @@ def bpe(path: str, bpe_codes_id: str, extensions: Optional[str] = None, no_space
     :return: `PreprocessedDataset` object which holds metadata of the preprocessed dataset
     """
     prep_config= create_prep_config('bpe', bpe_codes_id=bpe_codes_id, no_spaces=no_spaces, no_unicode=no_unicode,
-                                    no_case=no_case, no_com=no_com, no_str=no_str, max_str_length=max_str_length)
+                                    no_com=no_com, no_str=no_str, max_str_length=max_str_length)
     return preprocess_corpus(path, prep_config, bpe_codes_id,
                              extensions=extensions, output_path=output_path, calc_vocab=calc_vocab)
 

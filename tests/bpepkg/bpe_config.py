@@ -16,9 +16,9 @@ class BpeConfigToSuffixTest(unittest.TestCase):
 
         self.assertEqual("", actual)
 
-    def test_nocase_wordend_nounicode(self):
+    def test_wordend_nounicode(self):
         bpe_config = BpeConfig({
-            BpeParam.CASE: 'no',
+            BpeParam.CASE: 'yes',
             BpeParam.WORD_END: True,
             BpeParam.BASE: 'all',
             BpeParam.UNICODE: 'no'
@@ -26,11 +26,11 @@ class BpeConfigToSuffixTest(unittest.TestCase):
 
         actual = bpe_config.to_suffix()
 
-        self.assertEqual("nocase_we_nounicode", actual)
+        self.assertEqual("we_nounicode", actual)
 
-    def test_prefix_bytes(self):
+    def test_yes_bytes(self):
         bpe_config = BpeConfig({
-            BpeParam.CASE: 'prefix',
+            BpeParam.CASE: 'yes',
             BpeParam.WORD_END: False,
             BpeParam.BASE: 'all',
             BpeParam.UNICODE: 'bytes'
@@ -38,7 +38,7 @@ class BpeConfigToSuffixTest(unittest.TestCase):
 
         actual = bpe_config.to_suffix()
 
-        self.assertEqual("prefix_bytes", actual)
+        self.assertEqual("bytes", actual)
 
 
 if __name__ == '__main__':

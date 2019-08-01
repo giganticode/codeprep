@@ -7,22 +7,13 @@ from dataprep.infrastructure.bpelearner import run
 
 @mock.patch('dataprep.infrastructure.bpelearner.Dataset')
 class RunTest(unittest.TestCase):
-    def test_prefix_case(self, mocked_dataset):
-        bpe_config = BpeConfig({
-            BpeParam.BASE: 'code',
-            BpeParam.WORD_END: False,
-            BpeParam.UNICODE: 'yes',
-            BpeParam.CASE: 'prefix'
-        })
-        with self.assertRaises(BpeConfigNotSupported):
-            run(mocked_dataset, 1, bpe_config)
 
     def test_word_end(self, mocked_dataset):
         bpe_config = BpeConfig({
             BpeParam.BASE: 'code',
             BpeParam.WORD_END: True,
             BpeParam.UNICODE: 'yes',
-            BpeParam.CASE: 'no'
+            BpeParam.CASE: 'yes'
         })
         with self.assertRaises(BpeConfigNotSupported):
             run(mocked_dataset, 1, bpe_config)
@@ -32,7 +23,7 @@ class RunTest(unittest.TestCase):
             BpeParam.BASE: 'code',
             BpeParam.WORD_END: False,
             BpeParam.UNICODE: 'bytes',
-            BpeParam.CASE: 'no'
+            BpeParam.CASE: 'yes'
         })
         with self.assertRaises(BpeConfigNotSupported):
             run(mocked_dataset, 1, bpe_config)

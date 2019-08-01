@@ -7,7 +7,10 @@ import sys
 from enum import Enum
 from typing import Dict, List, Type, Optional
 
+from dataprep.parse.model.placeholders import placeholders
+
 from dataprep.bpepkg.bpe_encode import BpeData, get_bpe_subwords
+from dataprep.bpepkg.bpe_learn import ESCAPE_CHAR
 from dataprep.parse.model.containers import SplitContainer, StringLiteral, OneLineComment, MultilineComment
 from dataprep.parse.model.noneng import NonEng
 from dataprep.parse.model.numeric import Number
@@ -40,6 +43,15 @@ def get_max_str_length(ch: str) -> Optional[int]:
         return sys.maxsize
     else:
         return num
+
+
+def with_compound_word_end(parts: List[str]) -> List[str]:
+    if parts[-1][-1] != ESCAPE_CHAR:
+        raise ValueError(f"There should be {ESCAPE_CHAR} at the end, however this is what was passed: {parts}")
+
+    parts[-1] = parts[-1][:-1] + placeholders['compound_word_end']
+
+    return parts
 
 
 class PrepConfig(object):
@@ -78,12 +90,13 @@ class PrepConfig(object):
         }
     }
 
-    base_bpe_mask = {
+    BASE_BPE_CONFIG = {
         PrepParam.EN_ONLY: 'u',
         PrepParam.COM: 'c',
         PrepParam.STR: '1',
-        PrepParam.SPLIT: '1',
+        PrepParam.SPLIT: '0',
         PrepParam.TABS_NEWLINES: 's',
+        PrepParam.CASE: 'u'
     }
 
     @staticmethod
@@ -117,6 +130,8 @@ class PrepConfig(object):
             raise ValueError("Combination STEMMING and UPPERCASE is not supported: "
                              "stemmer always lowercases words.")
 
+        if params[PrepParam.CASE] == 'l' and params[PrepParam.SPLIT] in ['4', '5', '6', '7', '9']:
+            raise ValueError("Combination BPE and LOWERCASE is not supported:")
 
     def __init__(self, params: Dict[PrepParam, str]):
         PrepConfig.__check_invariants(params)
@@ -136,9 +151,7 @@ class PrepConfig(object):
         return self.params[param]
 
     def get_base_bpe_prep_config(self):
-        res = PrepConfig.base_bpe_mask
-        res[PrepParam.CASE] = self.params[PrepParam.CASE]
-        return str(PrepConfig(res))
+        return str(PrepConfig.BASE_BPE_CONFIG)
 
     def __eq__(self, other):
         return self.params == other.params
@@ -150,14 +163,14 @@ class PrepConfig(object):
         elif split_param_value in ['2', '3', 's']:
             return lambda s,c: [ch for ch in s]
         elif split_param_value in ['4', '5', '6', '7', '8', '9']:
-            return lambda s,c: get_bpe_subwords(s, c)
+            return lambda s,c: with_compound_word_end(get_bpe_subwords(s, c))
         else:
             raise ValueError(f"Invalid SPLIT param value: {split_param_value}")
 
     def get_word_splitter(self) -> Optional[Splitter]:
         split_param_value = self.get_param_value(PrepParam.SPLIT)
         if split_param_value in ['4', '5', '6', '7', '8', '9']:
-            return lambda s, c: get_bpe_subwords(s, c)
+            return lambda s, c: with_compound_word_end(get_bpe_subwords(s, c))
         elif split_param_value in ['1', '2']:
             return lambda s,c: [s]
         elif split_param_value == '3':
@@ -190,12 +203,14 @@ class PrepConfig(object):
 
     def get_repr_config(self, bpe_data: Optional[BpeData]):
         return ReprConfig(self.get_types_to_be_repr(),
-                          bpe_data,
+                          bpe_data if self.is_bpe() else None,
                           self.get_param_value(PrepParam.CASE) == 'l',
                           self.get_number_splitter(),
                           self.get_word_splitter(),
                           self.get_param_value(PrepParam.SPLIT) == 'F',
                           get_max_str_length(self.get_param_value(PrepParam.STR)))
+
+    BPE_SPLIT_VALUES = ['4', '5', '6', '7', '8', '9']
 
     def is_bpe(self):
         """
@@ -204,11 +219,12 @@ class PrepConfig(object):
 
         :return: True if this config corresponds to preprocessing with BPE, False otherwise.
         """
-        return self.get_param_value(PrepParam.SPLIT) in ['4', '5', '6', '7', '8', '9']
+        return self.get_param_value(PrepParam.SPLIT) in PrepConfig.BPE_SPLIT_VALUES
 
     #TODO make use of basic_bpe mask
     def is_base_bpe_config(self):
         return self.get_param_value(PrepParam.COM) == 'c' \
                and self.get_param_value(PrepParam.STR) == '1' \
-               and self.get_param_value(PrepParam.SPLIT) == '1' \
-               and self.get_param_value(PrepParam.TABS_NEWLINES) == 's'
+               and self.get_param_value(PrepParam.SPLIT) == '0' \
+               and self.get_param_value(PrepParam.TABS_NEWLINES) == 's' \
+               and self.get_param_value(PrepParam.CASE) == 'u'

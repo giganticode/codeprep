@@ -41,7 +41,7 @@ def nosplit_handler(args):
 @dsc.command()
 def chars_handler(args):
     """usage: {program} chars (-p <path> [-e <ext>] [-o <path-out>] | <text>)
-    [--no-spaces] [--no-unicode] [--no-case] [--no-com] [--no-str | -L=<max-str-length>]
+    [--no-spaces] [--no-unicode] [--no-com] [--no-str | -L=<max-str-length>]
     [--calc-vocab] [--verbose]
 
     Preprocesses the dataset by splitting identifiers into characters.
@@ -55,7 +55,6 @@ def chars_handler(args):
 
       --no-spaces, -0                               Preserve newlines and tabs.
       --no-unicode, -U                              Replace words containing non-ascii characters with <non-en> placeholders.
-      --no-case, -l                                 Lowercase words and encode information about case in <Cap> <CAP> tokens.
       --no-com, -C                                  Replace comments with <comment> placeholders.
       --no-str, -S                                  Replace strings with <string> placeholders.
       -L, --max-str-length=<max-str-length>         Replace string literal with `""` if its length including quotes exceeds `max_str_length`;
@@ -106,7 +105,7 @@ def basic_handler(args):
 @dsc.command()
 def bpe_handler(args):
     """usage: {program} bpe (1k | 5k | 10k | <bpe-codes-id>) (-p <path> [-e <ext>] [-o <path-out>] | <text>)
-    [--no-str | -L=<max-str-length>] [--no-com] [--no-spaces] [--no-unicode] [--no-case] [--calc-vocab] [--verbose]
+    [--no-str | -L=<max-str-length>] [--no-com] [--no-spaces] [--no-unicode] [--calc-vocab] [--verbose]
 
     Preprocesses the dataset by splitting compound identifiers according to CamelCase and snake_case conventions,
     and applies byte-pair encoding (BPE) on top.
@@ -123,7 +122,6 @@ def bpe_handler(args):
       --no-com, -C                                  Replace comments with <comment> placeholders.
       --no-spaces, -0                               Preserve newlines and tabs.
       --no-unicode, -U                              Replace words containing non-ascii characters with <non-en> placeholders.
-      --no-case, -l                                 Lowercase words and encode information about case in <Cap> <CAP> tokens.
 
       -L, --max-str-length=<max-str-length>         Replace string literal with `""` if its length including quotes exceeds `max_str_length`;
                                                     equals to `sys.maxsize` if not specified.
@@ -137,7 +135,7 @@ def bpe_handler(args):
 
 @dsc.command()
 def bpelearn_handler(args):
-    """usage: {program} learn-bpe <n-merges> -p <path> [-e <ext>] [--id <bpe-codes-id>] [--no-case | --case-prefix] [--no-unicode | --bytes] [--word-end] [--legacy] [--verbose]
+    """usage: {program} learn-bpe <n-merges> -p <path> [-e <ext>] [--id <bpe-codes-id>] [--no-unicode | --bytes] [--word-end] [--legacy] [--verbose]
 
     Trains bpe codes on a specified corpus.
 
@@ -147,8 +145,6 @@ def bpelearn_handler(args):
       -e --ext <ext>                               Limits the set of input files to the files with the specified extension(s).
                                                    The format is the following: "ext1|ext2|...|extN" If not specififed, all the files are read.
       --id <bpe-codes-id>                          Give an id to bpe-codes. If not specified, will be assigned automatically based on the name of the directory bpe codes were learned from
-      --no-case, -l                                Lowercase all the words before running bpe.
-      --case-prefix, -c                            Let bpe algorithm decide whether case should a part of the word or not.
       --no-unicode, -U                             Ignore words containing non-ascii characters.
       --bytes, -b                                  Treat non-ascii characters as 2 bytes and do real byte-pair encoding.
       --word-end, -z                               Add a special character to the end of each word.

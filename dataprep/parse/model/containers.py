@@ -53,6 +53,8 @@ class SplitContainer(ProcessableTokenContainer):
         return self.with_full_word_metadata(nospl_str)
 
     def preprocessed_repr(self, repr_config) -> Tuple[List[str], PreprocessingMetadata]:
+        if repr_config.bpe_data:
+            return self.with_full_word_metadata(repr_config.word_splitter(str(self), repr_config.bpe_data))
         res = []
         all_metadata = PreprocessingMetadata()
         for subtoken in self.subtokens:

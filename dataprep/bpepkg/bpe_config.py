@@ -17,7 +17,7 @@ class BpeParam(str, Enum):
 
 class BpeConfig(object):
     possible_param_values = {
-        BpeParam.CASE: ['yes', 'no', 'prefix'],
+        BpeParam.CASE: ['yes'],
         BpeParam.WORD_END: [True, False],
         BpeParam.BASE: ["all", "code", "java"],
         BpeParam.UNICODE: ['yes', 'no', 'bytes'],
@@ -50,9 +50,9 @@ class BpeConfig(object):
             PrepParam.EN_ONLY: 'U' if self.get_param_value(BpeParam.UNICODE) == 'no' else 'u',
             PrepParam.COM: 'c',
             PrepParam.STR: '1',
-            PrepParam.SPLIT: '1',
+            PrepParam.SPLIT: '0',
             PrepParam.TABS_NEWLINES: 's',
-            PrepParam.CASE: 'l' if self.get_param_value(BpeParam.CASE) == 'no' else 'u'
+            PrepParam.CASE: 'u'
         })
 
     UNICODE_NO = 'nounicode'

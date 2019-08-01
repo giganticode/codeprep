@@ -9,6 +9,7 @@ cap = placeholders['capital']
 caps = placeholders['capitals']
 ws = placeholders['word_start']
 we = placeholders['word_end']
+cwe = placeholders['compound_word_end']
 ce = placeholders['olc_end']
 ne = placeholders['non_eng']
 st = placeholders['string_literal']
@@ -329,11 +330,11 @@ class CliTest(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_create_prep_config_0c14xx(self):
-        actual = api.bpe(input_text, '5k', "java", no_spaces=True, no_case=True)
+        actual = api.bpe(input_text, '5k', "java", no_spaces=True)
 
-        expected = ['void', ws, 'test', '_', cap, 'word', cap, 'ue', 'b', 'err', 'as', 'ch', 'un', 'g', cap, 'printer', we, '(', ')', '{',
-                    'if', '(', ws, 'ep', 's', we, '>', '=', ws, '0.', '34', '5', 'e+', '4', we, ')', '{', '/', '/', ws, caps, 'fix', 'me', we, ws, '10', 'l', we, ce,
-                    ws, 'print', cap, 'word', we, '(', '"', '.', '.', '.', ws, cap, 'ü', 'b', 'err', 'as', 'ch', 'un', 'g', we, ws, '0x', '12', we, '"', ')', ';',
+        expected = ['void', 'test', '_', 'Word', 'U', 'e', 'ber', 'r', 'as', 'ch', 'un', 'g', 'Pr', 'inter', cwe, '(', ')', '{',
+                    'if', '(', 'ep', 's', cwe, '>', '=', '0.', '34', '5', 'e', '+', '4', cwe, ')', '{', '/', '/', 'FIX', 'ME', cwe, '10', 'l', cwe, ce,
+                    'print', 'Word', cwe, '(', '"', '.', '.', '.', 'Ü', 'ber', 'r', 'as', 'ch', 'un', 'g', cwe, '0x', '12', cwe, '"', ')', ';',
                     '}',
                     '}'
         ]
@@ -341,11 +342,11 @@ class CliTest(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_create_prep_config_0c15xx(self):
-        actual = api.bpe(input_text, '1k', "java", no_spaces=True, no_case=True)
+        actual = api.bpe(input_text, '1k', "java", no_spaces=True)
 
-        expected = ['void', ws, 'test', '_', cap, 'word', cap, 'ue', 'b', 'err', 'as', 'ch', 'un', 'g', cap, 'pr', 'inter', we, '(', ')', '{',
-                    'if', '(', ws, 'ep', 's', we, '>','=', ws, '0', '.', '3', '4', '5', 'e', '+', '4', we, ')', '{', '/', '/', ws, caps, 'fix', 'me', we, ws, '10', 'l', we, ce,
-                    ws, 'print', cap, 'word', we, '(', '"', '.', '.', '.', ws, cap, 'ü', 'b', 'err', 'as', 'ch', 'un', 'g', we, ws, '0x', '12', we, '"', ')', ';',
+        expected = ['void', 'test', '_', 'W', 'ord', 'U', 'e', 'ber', 'r', 'as', 'ch', 'un', 'g', 'P', 'r', 'inter', cwe, '(', ')', '{',
+                    'if', '(', 'ep', 's', cwe, '>', '=', '0', '.', '3', '4', '5', 'e', '+', '4', cwe, ')', '{', '/', '/', 'FI', 'X', 'M', 'E', cwe, '10', 'l', cwe, ce,
+                    'print', 'W', 'ord', cwe, '(', '"', '.', '.', '.', 'Ü', 'ber', 'r', 'as', 'ch', 'un', 'g', cwe, '0x', '12', cwe, '"', ')', ';',
                     '}',
                     '}'
         ]
@@ -353,11 +354,11 @@ class CliTest(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_create_prep_config_xxx6xx(self):
-        actual = api.bpe(input_text, '10k', "java", no_spaces=True, no_case=True)
+        actual = api.bpe(input_text, '10k', "java", no_spaces=True)
 
-        expected = ['void', ws, 'test', '_', cap, 'word', cap, 'ue', 'b', 'err', 'as', 'ch', 'ung', cap, 'printer', we, '(', ')', '{',
-                    'if', '(', 'eps', '>', '=', ws, '0.', '345', 'e+', '4', we, ')', '{', '/', '/', caps, 'fixme', '10l', ce,
-                    ws, 'print', cap, 'word', we, '(', '"', '.', '.', '.', ws, cap, 'ü', 'b', 'err', 'as', 'ch', 'ung', we, ws, '0x', '12', we, '"', ')', ';',
+        expected = ['void', 'test', '_', 'Word', 'U', 'e', 'ber', 'r', 'as', 'ch', 'ung', 'Printer', cwe, '(', ')', '{',
+                    'if', '(', 'ep', 's', cwe, '>', '=', '0.', '34', '5', 'e+', '4', cwe, ')', '{', '/', '/', 'FIXME', cwe, '10', 'l', cwe, ce,
+                    'print', 'Word', cwe, '(', '"', '.', '.', '.', 'Ü', 'ber', 'r', 'as', 'ch', 'ung', cwe, '0x', '12', cwe, '"', ')', ';',
                     '}',
                     '}'
         ]
@@ -365,18 +366,18 @@ class CliTest(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_create_prep_config_xxx8xx(self):
-        actual, metadata = api.chars(input_text, "java", no_spaces=True, no_case=True, return_metadata=True)
+        actual, metadata = api.chars(input_text, "java", no_spaces=True, return_metadata=True)
 
-        expected = ['void', ws, 't', 'e', 's', 't', '_', cap, 'w', 'o', 'r', 'd', cap, 'u', 'e', 'b', 'e', 'r', 'r', 'a', 's', 'c', 'h', 'u', 'n', 'g', cap, 'p', 'r', 'i', 'n', 't', 'e', 'r', we, '(', ')', '{',
-                    'if', '(', ws, 'e', 'p', 's', we, '>','=', ws, '0', '.', '3', '4', '5', 'e', '+', '4', we, ')', '{', '/', '/', ws, caps, 'f', 'i', 'x', 'm', 'e', we, ws, '1', '0', 'l', we, ce,
-                    ws, 'p', 'r', 'i', 'n', 't', cap, 'w', 'o', 'r', 'd', we, '(', '"', '.', '.', '.', ws, cap, 'ü', 'b', 'e', 'r', 'r', 'a', 's', 'c', 'h', 'u', 'n', 'g', we, ws, '0', 'x', '1', '2', we, '"', ')', ';',
+        expected = ['void', 't', 'e', 's', 't', '_', 'W', 'o', 'r', 'd', 'U', 'e', 'b', 'e', 'r', 'r', 'a', 's', 'c', 'h', 'u', 'n', 'g', 'P', 'r', 'i', 'n', 't', 'e', 'r', cwe, '(', ')', '{',
+                    'if', '(', 'e', 'p', 's', cwe, '>','=', '0', '.', '3', '4', '5', 'e', '+', '4', cwe, ')', '{', '/', '/', 'F', 'I', 'X', 'M', 'E', cwe, '1', '0', 'l', cwe, ce,
+                    'p', 'r', 'i', 'n', 't', 'W', 'o', 'r', 'd', cwe, '(', '"', '.', '.', '.', 'Ü', 'b', 'e', 'r', 'r', 'a', 's', 'c', 'h', 'u', 'n', 'g', cwe, '0', 'x', '1', '2', cwe, '"', ')', ';',
                     '}',
                     '}'
         ]
 
         expected_metadata = PreprocessingMetadata(
             nonprocessable_tokens={'void', '(', ')', '{', 'if', '>', '=', '/', '"', '.', '}', ';'},
-            word_boundaries=[0, 1, 35, 36, 37, 38, 39, 40, 45, 46, 47, 57, 58, 59, 60, 61, 69, 74, 75, 87, 88, 89, 90, 91, 92, 107, 113, 114, 115, 116, 117, 118])
+            word_boundaries=[0, 1, 31, 32, 33, 34, 35, 36, 40, 41, 42, 51, 52, 53, 54, 55, 61, 65, 66, 76, 77, 78, 79, 80, 81, 94, 99, 100, 101, 102, 103, 104])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, metadata)

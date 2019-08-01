@@ -26,6 +26,9 @@ loggers:
   dataprep.parse_projects:
     level: DEBUG
     propagate: True
+  dataprep.to_repr:
+    level: DEBUG
+    propagate: True
 root:
   level: DEBUG
   handlers: [console]

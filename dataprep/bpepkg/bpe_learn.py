@@ -51,14 +51,21 @@ def merge_vocab(pair: Tuple[str, str], input_vocab: Dict[str, int], pairs: Prior
     return output_vocab
 
 
+ESCAPE_CHAR = '@'
+
+
+def escape(word: str) -> str:
+    return word.replace(ESCAPE_CHAR, 2 * ESCAPE_CHAR) + f" {ESCAPE_CHAR}"
+
+
 def do_merges(vocab: Dict[str, int], n_merges: int) -> Tuple[Dict[str, int], MergeList]:
     """
     Do `n_merges` bpe merges starting from vocabulary splittings `vocab` which were formed after applying `already_done_merges` merges
 
     :param vocab: base vocab splittings formed after applying `already_done_merges` in a format
-    {"fix me": 3242, "a b c": 400}
+    {"fix me@": 3242, "a b c@": 400}
     :param n_merges: number of bpe merges to be applied
-    :param already_done_merges: merges which has already been applied in a format ["f i", "fi x", "m e"]
+    :param already_done_merges: merges which has already been applied in a format ["e @, f i", "fi x", "m e@"]
 
     :return: a tuple where the first elements is the resulting vocab splittings,
     the second one are all the merges done to reach those vocab splittings

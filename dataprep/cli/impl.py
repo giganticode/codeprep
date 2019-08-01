@@ -77,12 +77,6 @@ def handle_splitting(args: Dict) -> None:
 
 
 def create_bpe_config_from_args(run_options: Dict[str, str]) -> BpeConfig:
-    if run_options['--no-case']:
-        case = 'no'
-    elif run_options['--case-prefix']:
-        case = 'prefix'
-    else:
-        case = 'yes'
     if run_options['--no-unicode']:
         unicode = 'no'
     elif run_options['--bytes']:
@@ -90,7 +84,7 @@ def create_bpe_config_from_args(run_options: Dict[str, str]) -> BpeConfig:
     else:
         unicode = 'yes'
     return BpeConfig({
-        BpeParam.CASE: case,
+        BpeParam.CASE: 'yes',
         BpeParam.WORD_END: run_options["--word-end"],
         BpeParam.BASE: 'java' if run_options['--legacy'] else 'code',
         BpeParam.UNICODE: unicode

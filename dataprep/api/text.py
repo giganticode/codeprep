@@ -60,7 +60,7 @@ def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False,
 
 
 def chars(text: str, extension: Optional[str] = None, no_spaces: bool = False, no_unicode: bool = False,
-          no_case: bool = False, no_com: bool = False, no_str: bool = False, max_str_length=sys.maxsize,
+          no_com: bool = False, no_str: bool = False, max_str_length=sys.maxsize,
           return_metadata: bool = False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
     """
     Split `text` into characters (With the exception of operators that consist of 2 character: such operators will remain as a single token).
@@ -88,7 +88,7 @@ def chars(text: str, extension: Optional[str] = None, no_spaces: bool = False, n
     the tuple is returned with the list of preprocessed tokens as the first element
     and pre-processing metadata as the second element (object of :class:`dataprep.model.metadata.Preprocessing.PreprocessingMetadata`)
     """
-    prep_config = create_prep_config('chars', no_spaces=no_spaces, no_unicode=no_unicode, no_case=no_case,
+    prep_config = create_prep_config('chars', no_spaces=no_spaces, no_unicode=no_unicode,
                                      no_com=no_com, no_str=no_str, max_str_length=max_str_length)
     return preprocess(text, prep_config, '0', extension=extension, return_metadata=return_metadata)
 
@@ -132,7 +132,7 @@ def basic(text: str, extension: Optional[str] = None, split_numbers: bool = Fals
 
 
 def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces: bool = False,
-        no_unicode: bool = False, no_case: bool = False, no_com: bool = False, no_str: bool = False,
+        no_unicode: bool = False, no_com: bool = False, no_str: bool = False,
         max_str_length=sys.maxsize, return_metadata: bool = False, force_reinit_bpe_data: bool = True) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
     """
     Split `text` into tokens converting identifiers that follow CamelCase or snake_case into multiple subwords.
@@ -168,7 +168,7 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces
     and pre-processing metadata as the second element (object of :class:`dataprep.model.metadata.Preprocessing.PreprocessingMetadata`)
     """
     prep_config = create_prep_config('bpe', bpe_codes_id=bpe_codes_id, no_spaces=no_spaces, no_unicode=no_unicode,
-                                     no_case=no_case, no_com=no_com, no_str=no_str, max_str_length=max_str_length)
+                                     no_com=no_com, no_str=no_str, max_str_length=max_str_length)
     return preprocess(text, prep_config, bpe_codes_id, extension=extension,
                       return_metadata=return_metadata, force_reinit_bpe_data=force_reinit_bpe_data)
 

@@ -8,5 +8,6 @@ placeholders = {
     'ect': '<EOF>',
     'non_eng': '<non-en>',
     'non_eng_content': '<non-en-content>',
-    'olc_end': '<EOL>'
+    'olc_end': '<EOL>',
+    'compound_word_end': '</t>'
 }

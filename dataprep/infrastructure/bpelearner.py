@@ -3,7 +3,8 @@ import os
 from typing import Tuple, Dict, Set
 
 from dataprep.bpepkg.bpe_config import BpeConfig, BpeParam, BpeConfigNotSupported
-from dataprep.bpepkg.bpe_learn import separate_vocabs, logger, do_merges, create_resulting_vocab, create_bpe_cache
+from dataprep.bpepkg.bpe_learn import separate_vocabs, logger, do_merges, create_resulting_vocab, create_bpe_cache, \
+    escape
 from dataprep.bpepkg.cache import dump_bpe_cache
 from dataprep.bpepkg.merge import MergeList, read_merges, dump_merges
 from dataprep.infrastructure import stages
@@ -49,14 +50,14 @@ def run(dataset: Dataset, n_merges: int, bpe_config: BpeConfig) -> None:
     else:
         dir_with_most_merges = os.path.join(dataset.bpe_path, str(max_merges))
         starting_from_scratch = False
-        logger.info("Using existing mexrges...")
+        logger.info("Using existing merges...")
 
     if starting_from_scratch:
         logger.info("Starting encoding from scratch...")
 
     if starting_from_scratch:
         base_bpe_vocab, other_vocab = get_base_vocab(dataset) #TODO extract this into stages
-        split_base_vocab = {" ".join(k): v for k, v in base_bpe_vocab.items()}
+        split_base_vocab = {escape(" ".join(k)): v for k, v in base_bpe_vocab.items()}
         already_done_merges = MergeList()
     else:
         path_to_bpe_vocab_file = os.path.join(dir_with_most_merges, BPE_REASSEMBLED_VOCAB_FILE_NAME)

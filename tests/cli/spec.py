@@ -274,7 +274,7 @@ class ParseAndRunTest(unittest.TestCase):
         api_mock.text.preprocess.assert_called_with("str", prep_config, None)
 
     def test_uc14xx(self, api_mock):
-        argv = ['bpe', '5k', 'str', '--no-spaces', '--no-case']
+        argv = ['bpe', '5k', 'str', '--no-spaces']
         parse_and_run(argv)
         prep_config = PrepConfig({
             PrepParam.EN_ONLY: 'u',
@@ -282,7 +282,7 @@ class ParseAndRunTest(unittest.TestCase):
             PrepParam.STR: '1',
             PrepParam.SPLIT: '4',
             PrepParam.TABS_NEWLINES: '0',
-            PrepParam.CASE: 'l'
+            PrepParam.CASE: 'u'
         })
         api_mock.text.preprocess.assert_called_with("str", prep_config, '5k')
 
@@ -292,7 +292,7 @@ class ParseAndRunTest(unittest.TestCase):
             parse_and_run(argv)
 
     def test_uc15xx(self, api_mock):
-        argv = ['bpe', '1k', 'str', '--no-spaces', '--no-case']
+        argv = ['bpe', '1k', 'str', '--no-spaces']
         parse_and_run(argv)
         prep_config = PrepConfig({
             PrepParam.EN_ONLY: 'u',
@@ -300,12 +300,12 @@ class ParseAndRunTest(unittest.TestCase):
             PrepParam.STR: '1',
             PrepParam.SPLIT: '5',
             PrepParam.TABS_NEWLINES: '0',
-            PrepParam.CASE: 'l'
+            PrepParam.CASE: 'u'
         })
         api_mock.text.preprocess.assert_called_with("str", prep_config, '1k')
 
     def test_xxx6xx(self, api_mock):
-        argv = ['bpe', '10k', 'str', '--no-spaces', '--no-case']
+        argv = ['bpe', '10k', 'str', '--no-spaces']
         parse_and_run(argv)
         prep_config = PrepConfig({
             PrepParam.EN_ONLY: 'u',
@@ -313,12 +313,12 @@ class ParseAndRunTest(unittest.TestCase):
             PrepParam.STR: '1',
             PrepParam.SPLIT: '6',
             PrepParam.TABS_NEWLINES: '0',
-            PrepParam.CASE: 'l'
+            PrepParam.CASE: 'u'
         })
         api_mock.text.preprocess.assert_called_with("str", prep_config, '10k')
 
     def test_xxx9xx(self, api_mock):
-        argv = ['bpe', 'custom-id-5000', 'str', '--no-spaces', '--no-case']
+        argv = ['bpe', 'custom-id-5000', 'str', '--no-spaces']
         parse_and_run(argv)
         prep_config = PrepConfig({
             PrepParam.EN_ONLY: 'u',
@@ -326,12 +326,12 @@ class ParseAndRunTest(unittest.TestCase):
             PrepParam.STR: '1',
             PrepParam.SPLIT: '9',
             PrepParam.TABS_NEWLINES: '0',
-            PrepParam.CASE: 'l'
+            PrepParam.CASE: 'u'
         })
         api_mock.text.preprocess.assert_called_with("str", prep_config, 'custom-id-5000')
 
     def test_xxx8xx(self, api_mock):
-        argv = ['chars', 'str', '--no-spaces', '--no-case']
+        argv = ['chars', 'str', '--no-spaces']
         parse_and_run(argv)
         prep_config = PrepConfig({
             PrepParam.EN_ONLY: 'u',
@@ -339,7 +339,7 @@ class ParseAndRunTest(unittest.TestCase):
             PrepParam.STR: '1',
             PrepParam.SPLIT: '8',
             PrepParam.TABS_NEWLINES: '0',
-            PrepParam.CASE: 'l'
+            PrepParam.CASE: 'u'
         })
         api_mock.text.preprocess.assert_called_with("str", prep_config, '0')
 
@@ -466,7 +466,7 @@ class ParseAndRunLearnBpeTest(unittest.TestCase):
             PrepParam.EN_ONLY: 'u',
             PrepParam.COM: 'c',
             PrepParam.STR: '1',
-            PrepParam.SPLIT: '1',
+            PrepParam.SPLIT: '0',
             PrepParam.TABS_NEWLINES: 's',
             PrepParam.CASE: 'u'
         })
@@ -483,7 +483,7 @@ class ParseAndRunLearnBpeTest(unittest.TestCase):
 
         # given
         dataset_mock.create = Mock(return_value=dataset_mock)
-        argv = ['learn-bpe', '1000', '-p', '/path/to/dataset', '--no-case', '--no-unicode', '--word-end']
+        argv = ['learn-bpe', '1000', '-p', '/path/to/dataset', '--no-unicode', '--word-end']
 
         # when
         parse_and_run(argv)
@@ -493,12 +493,12 @@ class ParseAndRunLearnBpeTest(unittest.TestCase):
             PrepParam.EN_ONLY: 'U',
             PrepParam.COM: 'c',
             PrepParam.STR: '1',
-            PrepParam.SPLIT: '1',
+            PrepParam.SPLIT: '0',
             PrepParam.TABS_NEWLINES: 's',
-            PrepParam.CASE: 'l'
+            PrepParam.CASE: 'u'
         })
         bpe_config = BpeConfig({
-            BpeParam.CASE: 'no',
+            BpeParam.CASE: 'yes',
             BpeParam.WORD_END: True,
             BpeParam.BASE: 'code',
             BpeParam.UNICODE: 'no',
@@ -506,11 +506,11 @@ class ParseAndRunLearnBpeTest(unittest.TestCase):
         dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, None, None, bpe_config)
         bpe_learner_mock.run.assert_called_with(dataset_mock, 1000, bpe_config)
 
-    def test_prefix_true_code_bytes(self, bpe_learner_mock, dataset_mock):
+    def test_true_true_code_bytes(self, bpe_learner_mock, dataset_mock):
 
         # given
         dataset_mock.create = Mock(return_value=dataset_mock)
-        argv = ['learn-bpe', '1000', '-p', '/path/to/dataset', '--case-prefix', '--bytes', '--word-end']
+        argv = ['learn-bpe', '1000', '-p', '/path/to/dataset', '--bytes', '--word-end']
 
         # when
         parse_and_run(argv)
@@ -520,12 +520,12 @@ class ParseAndRunLearnBpeTest(unittest.TestCase):
             PrepParam.EN_ONLY: 'u',
             PrepParam.COM: 'c',
             PrepParam.STR: '1',
-            PrepParam.SPLIT: '1',
+            PrepParam.SPLIT: '0',
             PrepParam.TABS_NEWLINES: 's',
             PrepParam.CASE: 'u'
         })
         bpe_config = BpeConfig({
-            BpeParam.CASE: 'prefix',
+            BpeParam.CASE: 'yes',
             BpeParam.WORD_END: True,
             BpeParam.BASE: 'code',
             BpeParam.UNICODE: 'bytes',

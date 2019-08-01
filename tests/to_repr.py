@@ -518,10 +518,6 @@ class ReprTest(unittest.TestCase):
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
 
-    #
-    #     ############################################################################################
-    #     ############################################################################################
-    #
     def test_to_repr_no_no_sep_with_bpe_no_merges(self):
         prep_config = PrepConfig({
             PrepParam.EN_ONLY: 'U',
@@ -529,17 +525,16 @@ class ReprTest(unittest.TestCase):
             PrepParam.STR: '1',
             PrepParam.SPLIT: '4',
             PrepParam.TABS_NEWLINES: '0',
-            PrepParam.CASE: 'l'
+            PrepParam.CASE: 'u'
         })
 
         actual, actual_metadata = to_repr(prep_config, tokens, BpeData(merges_cache={}, merges=MergeList()))
 
         expected = [
-            pl['word_start'],
             '1',
             '.',
             '1',
-            pl['word_end'],
+            pl['compound_word_end'],
             "*",
             pl['non_eng'],
             '"', pl['non_eng'], '"',
@@ -548,8 +543,8 @@ class ReprTest(unittest.TestCase):
             pl['olc_end']
         ]
 
-        expected_metadata = PreprocessingMetadata({'*', '"', "/", "*"},
-                                                  word_boundaries=[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15])
+        expected_metadata = PreprocessingMetadata({'*', '"', "/"},
+                                                  word_boundaries=[0, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -598,16 +593,16 @@ class ReprTest(unittest.TestCase):
             PrepParam.STR: '1',
             PrepParam.SPLIT: '4',
             PrepParam.TABS_NEWLINES: 's',
-            PrepParam.CASE: 'l'
+            PrepParam.CASE: 'u'
         })
 
         tokens = [SplitContainer.from_single_token("While")]
 
-        actual, actual_metadata = to_repr(prep_config, tokens, BpeData(merges_cache={'while': ['while']}))
+        actual, actual_metadata = to_repr(prep_config, tokens, BpeData(merges_cache={'While@': ['While@']}))
 
-        expected = [pl['capital'], "while", ]
+        expected = ["While" + placeholders['compound_word_end']]
 
-        expected_metadata = PreprocessingMetadata(word_boundaries=[0, 2])
+        expected_metadata = PreprocessingMetadata(word_boundaries=[0, 1])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -619,17 +614,17 @@ class ReprTest(unittest.TestCase):
             PrepParam.STR: '1',
             PrepParam.SPLIT: '4',
             PrepParam.TABS_NEWLINES: 's',
-            PrepParam.CASE: 'l'
+            PrepParam.CASE: 'u'
         })
 
         tokens = [SplitContainer.from_single_token("While")]
 
-        actual, actual_metadata = to_repr(prep_config, tokens, BpeData(merges=MergeList().append(Merge(('w', 'h'), 10)),
+        actual, actual_metadata = to_repr(prep_config, tokens, BpeData(merges=MergeList().append(Merge(('W', 'h'), 10)),
                                                                         merges_cache={} ))
 
-        expected = [pl['word_start'], pl['capital'], "wh", "i", "l", "e", pl["word_end"]]
+        expected = ["Wh", "i", "l", "e", pl["compound_word_end"]]
 
-        expected_metadata = PreprocessingMetadata(word_boundaries=[0, 7])
+        expected_metadata = PreprocessingMetadata(word_boundaries=[0, 5])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
