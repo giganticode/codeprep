@@ -13,6 +13,7 @@ from dataprep.prepconfig import PrepParam, PrepConfig
 from dataprep.to_repr import to_repr
 
 pl = placeholders
+cwe = placeholders['compound_word_end']
 
 tokens = [
     Number('1.1'),
@@ -534,12 +535,12 @@ class ReprTest(unittest.TestCase):
             '1',
             '.',
             '1',
-            pl['compound_word_end'],
-            "*",
+            cwe,
+            "*" + cwe,
             pl['non_eng'],
-            '"', pl['non_eng'], '"',
-            '/', '*', pl['non_eng'], pl['non_eng'], '*', '/',
-            '/', '/', pl['non_eng'],
+            '"' + cwe, pl['non_eng'], '"' + cwe,
+            '/' + cwe, '*' + cwe, pl['non_eng'], pl['non_eng'], '*' + cwe, '/' + cwe,
+            '/' + cwe, '/' + cwe, pl['non_eng'],
             pl['olc_end']
         ]
 

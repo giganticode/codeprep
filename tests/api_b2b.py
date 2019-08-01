@@ -332,11 +332,11 @@ class CliTest(unittest.TestCase):
     def test_create_prep_config_0c14xx(self):
         actual = api.bpe(input_text, '5k', "java", no_spaces=True)
 
-        expected = ['void', 'test', '_', 'Word', 'U', 'e', 'ber', 'r', 'as', 'ch', 'un', 'g', 'Pr', 'inter', cwe, '(', ')', '{',
-                    'if', '(', 'ep', 's', cwe, '>', '=', '0.', '34', '5', 'e', '+', '4', cwe, ')', '{', '/', '/', 'FIX', 'ME', cwe, '10', 'l', cwe, ce,
-                    'print', 'Word', cwe, '(', '"', '.', '.', '.', 'Ü', 'ber', 'r', 'as', 'ch', 'un', 'g', cwe, '0x', '12', cwe, '"', ')', ';',
-                    '}',
-                    '}'
+        expected = ['void' + cwe, 'test', '_', 'Word', 'U', 'e', 'ber', 'r', 'as', 'ch', 'un', 'g', 'Pr', 'inter', cwe, '(' + cwe, ')' + cwe, '{' + cwe,
+                    'if' + cwe, '(' + cwe, 'ep', 's', cwe, '>' + cwe, '=' + cwe, '0.', '34', '5', 'e', '+', '4', cwe, ')' + cwe, '{' + cwe, '/' + cwe, '/' + cwe, 'FIX', 'ME', cwe, '10', 'l', cwe, ce,
+                    'print', 'Word', cwe, '(' + cwe, '"' + cwe, '.' + cwe, '.' + cwe, '.' + cwe, 'Ü', 'ber', 'r', 'as', 'ch', 'un', 'g', cwe, '0x', '12', cwe, '"' + cwe, ')' + cwe, ';' + cwe,
+                    '}' + cwe,
+                    '}' + cwe
         ]
 
         self.assertEqual(expected, actual)
@@ -344,11 +344,11 @@ class CliTest(unittest.TestCase):
     def test_create_prep_config_0c15xx(self):
         actual = api.bpe(input_text, '1k', "java", no_spaces=True)
 
-        expected = ['void', 'test', '_', 'W', 'ord', 'U', 'e', 'ber', 'r', 'as', 'ch', 'un', 'g', 'P', 'r', 'inter', cwe, '(', ')', '{',
-                    'if', '(', 'ep', 's', cwe, '>', '=', '0', '.', '3', '4', '5', 'e', '+', '4', cwe, ')', '{', '/', '/', 'FI', 'X', 'M', 'E', cwe, '10', 'l', cwe, ce,
-                    'print', 'W', 'ord', cwe, '(', '"', '.', '.', '.', 'Ü', 'ber', 'r', 'as', 'ch', 'un', 'g', cwe, '0x', '12', cwe, '"', ')', ';',
-                    '}',
-                    '}'
+        expected = ['void' + cwe, 'test', '_', 'W', 'ord', 'U', 'e', 'ber', 'r', 'as', 'ch', 'un', 'g', 'P', 'r', 'inter', cwe, '(' + cwe, ')' + cwe, '{' + cwe,
+                    'if' + cwe, '(' + cwe, 'ep', 's', cwe, '>' + cwe, '=' + cwe, '0', '.', '3', '4', '5', 'e', '+', '4', cwe, ')' + cwe, '{' + cwe, '/' + cwe, '/' + cwe, 'FI', 'X', 'M', 'E', cwe, '10', 'l', cwe, ce,
+                    'print', 'W', 'ord', cwe, '(' + cwe, '"' + cwe, '.' + cwe, '.' + cwe, '.' + cwe, 'Ü', 'ber', 'r', 'as', 'ch', 'un', 'g', cwe, '0x', '12', cwe, '"' + cwe, ')' + cwe, ';' + cwe,
+                    '}' + cwe,
+                    '}' + cwe
         ]
 
         self.assertEqual(expected, actual)
@@ -356,11 +356,11 @@ class CliTest(unittest.TestCase):
     def test_create_prep_config_xxx6xx(self):
         actual = api.bpe(input_text, '10k', "java", no_spaces=True)
 
-        expected = ['void', 'test', '_', 'Word', 'U', 'e', 'ber', 'r', 'as', 'ch', 'ung', 'Printer', cwe, '(', ')', '{',
-                    'if', '(', 'ep', 's', cwe, '>', '=', '0.', '34', '5', 'e+', '4', cwe, ')', '{', '/', '/', 'FIXME', cwe, '10', 'l', cwe, ce,
-                    'print', 'Word', cwe, '(', '"', '.', '.', '.', 'Ü', 'ber', 'r', 'as', 'ch', 'ung', cwe, '0x', '12', cwe, '"', ')', ';',
-                    '}',
-                    '}'
+        expected = ['void' + cwe, 'test', '_', 'Word', 'U', 'e', 'ber', 'r', 'as', 'ch', 'ung', 'Printer', cwe, '(' + cwe, ')' + cwe, '{' + cwe,
+                    'if' + cwe, '(' + cwe, 'ep', 's', cwe, '>' + cwe, '=' + cwe, '0.', '34', '5', 'e+', '4', cwe, ')' + cwe, '{' + cwe, '/' + cwe, '/' + cwe, 'FIXME', cwe, '10', 'l', cwe, ce,
+                    'print', 'Word', cwe, '(' + cwe, '"' + cwe, '.' + cwe, '.' + cwe, '.' + cwe, 'Ü', 'ber', 'r', 'as', 'ch', 'ung', cwe, '0x', '12', cwe, '"' + cwe, ')' + cwe, ';' + cwe,
+                    '}' + cwe,
+                    '}' + cwe
         ]
 
         self.assertEqual(expected, actual)
@@ -368,11 +368,11 @@ class CliTest(unittest.TestCase):
     def test_create_prep_config_xxx8xx(self):
         actual, metadata = api.chars(input_text, "java", no_spaces=True, return_metadata=True)
 
-        expected = ['void', 't', 'e', 's', 't', '_', 'W', 'o', 'r', 'd', 'U', 'e', 'b', 'e', 'r', 'r', 'a', 's', 'c', 'h', 'u', 'n', 'g', 'P', 'r', 'i', 'n', 't', 'e', 'r', cwe, '(', ')', '{',
-                    'if', '(', 'e', 'p', 's', cwe, '>','=', '0', '.', '3', '4', '5', 'e', '+', '4', cwe, ')', '{', '/', '/', 'F', 'I', 'X', 'M', 'E', cwe, '1', '0', 'l', cwe, ce,
-                    'p', 'r', 'i', 'n', 't', 'W', 'o', 'r', 'd', cwe, '(', '"', '.', '.', '.', 'Ü', 'b', 'e', 'r', 'r', 'a', 's', 'c', 'h', 'u', 'n', 'g', cwe, '0', 'x', '1', '2', cwe, '"', ')', ';',
-                    '}',
-                    '}'
+        expected = ['void' + cwe, 't', 'e', 's', 't', '_', 'W', 'o', 'r', 'd', 'U', 'e', 'b', 'e', 'r', 'r', 'a', 's', 'c', 'h', 'u', 'n', 'g', 'P', 'r', 'i', 'n', 't', 'e', 'r', cwe, '(' + cwe, ')' + cwe, '{' + cwe,
+                    'if' + cwe, '(' + cwe, 'e', 'p', 's', cwe, '>' + cwe,'=' + cwe, '0', '.', '3', '4', '5', 'e', '+', '4', cwe, ')' + cwe, '{' + cwe, '/' + cwe, '/' + cwe, 'F', 'I', 'X', 'M', 'E', cwe, '1', '0', 'l', cwe, ce,
+                    'p', 'r', 'i', 'n', 't', 'W', 'o', 'r', 'd', cwe, '(' + cwe, '"' + cwe, '.' + cwe, '.' + cwe, '.' + cwe, 'Ü', 'b', 'e', 'r', 'r', 'a', 's', 'c', 'h', 'u', 'n', 'g', cwe, '0', 'x', '1', '2', cwe, '"' + cwe, ')' + cwe, ';' + cwe,
+                    '}' + cwe,
+                    '}' + cwe
         ]
 
         expected_metadata = PreprocessingMetadata(

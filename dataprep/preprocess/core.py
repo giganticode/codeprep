@@ -1,5 +1,7 @@
 from typing import Generator, Union, Tuple, List, Optional, Callable
 
+from dataprep.parse.model.placeholders import placeholders
+
 from dataprep.bpepkg.bpe_encode import BpeData
 from dataprep.parse.model.core import ParsedToken
 from dataprep.parse.model.metadata import PreprocessingMetadata
@@ -42,7 +44,8 @@ def torepr(token, repr_config) -> Tuple[List[str], PreprocessingMetadata]:
     if clazz == list:
         return to_repr_list(token, repr_config)
     if clazz == str:
-        return [token], PreprocessingMetadata(nonprocessable_tokens={token}, word_boundaries=[0,1])
+        res = token + placeholders['compound_word_end'] if repr_config.bpe_data else token
+        return [res], PreprocessingMetadata(nonprocessable_tokens={token}, word_boundaries=[0,1])
 
     if repr_config and clazz in repr_config.types_to_be_repr:
         return token.preprocessed_repr(repr_config)
