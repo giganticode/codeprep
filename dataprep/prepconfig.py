@@ -93,8 +93,8 @@ class PrepConfig(object):
     BASE_BPE_CONFIG = {
         PrepParam.EN_ONLY: 'u',
         PrepParam.COM: 'c',
-        PrepParam.STR: '1',
-        PrepParam.SPLIT: '0',
+        PrepParam.STR: 'E',
+        PrepParam.SPLIT: 'F',
         PrepParam.TABS_NEWLINES: 's',
         PrepParam.CASE: 'u'
     }
@@ -224,7 +224,7 @@ class PrepConfig(object):
     #TODO make use of basic_bpe mask
     def is_base_bpe_config(self):
         return self.get_param_value(PrepParam.COM) == 'c' \
-               and self.get_param_value(PrepParam.STR) == '1' \
-               and self.get_param_value(PrepParam.SPLIT) == '0' \
+               and self.get_param_value(PrepParam.STR) == 'E' \
+               and self.get_param_value(PrepParam.SPLIT) == 'F' \
                and self.get_param_value(PrepParam.TABS_NEWLINES) == 's' \
                and self.get_param_value(PrepParam.CASE) == 'u'
