@@ -464,9 +464,9 @@ class ParseAndRunLearnBpeTest(unittest.TestCase):
         # then
         prep_config = PrepConfig({
             PrepParam.EN_ONLY: 'u',
-            PrepParam.COM: 'c',
-            PrepParam.STR: '1',
-            PrepParam.SPLIT: '0',
+            PrepParam.COM: '0',
+            PrepParam.STR: 'E',
+            PrepParam.SPLIT: 'F',
             PrepParam.TABS_NEWLINES: 's',
             PrepParam.CASE: 'u'
         })
@@ -491,9 +491,9 @@ class ParseAndRunLearnBpeTest(unittest.TestCase):
         # then
         prep_config = PrepConfig({
             PrepParam.EN_ONLY: 'U',
-            PrepParam.COM: 'c',
-            PrepParam.STR: '1',
-            PrepParam.SPLIT: '0',
+            PrepParam.COM: '0',
+            PrepParam.STR: 'E',
+            PrepParam.SPLIT: 'F',
             PrepParam.TABS_NEWLINES: 's',
             PrepParam.CASE: 'u'
         })
@@ -518,9 +518,9 @@ class ParseAndRunLearnBpeTest(unittest.TestCase):
         # then
         prep_config = PrepConfig({
             PrepParam.EN_ONLY: 'u',
-            PrepParam.COM: 'c',
-            PrepParam.STR: '1',
-            PrepParam.SPLIT: '0',
+            PrepParam.COM: '0',
+            PrepParam.STR: 'E',
+            PrepParam.SPLIT: 'F',
             PrepParam.TABS_NEWLINES: 's',
             PrepParam.CASE: 'u'
         })

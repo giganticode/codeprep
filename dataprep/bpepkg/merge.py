@@ -2,7 +2,7 @@ import copy
 
 from typing import List, Tuple, Union, Optional, Iterator, Dict
 
-from dataprep.util import is_python_3_6_and_higher
+from dataprep.util import is_python_3_6_and_higher, to_literal_str, to_non_literal_str
 
 
 class Merge(object):
@@ -14,7 +14,7 @@ class Merge(object):
     @classmethod
     def parse_file_entry(cls, line: str, priority: int) -> "Merge":
         try:
-            spl = line.split(" ")
+            spl = to_non_literal_str(line).split(" ")
             if len(spl) == 2:
                 return cls((spl[0], spl[1]), priority=priority)
             else:
@@ -107,4 +107,4 @@ def read_merges(file: str, n_merges: Optional[int] = None) -> MergeList:
 def dump_merges(merges: MergeList, file: str):
     with open(file, 'w') as f:
         for merge in merges:
-            f.write(f"{' '.join(merge.pair)} {merge.freq}\n")
+            f.write(f"{to_literal_str(' '.join(merge.pair))} {merge.freq}\n")

@@ -1,3 +1,5 @@
+
+
 from typing import List, Tuple, Optional
 
 from dataprep.parse.model.containers import SplitContainer
@@ -5,6 +7,7 @@ from dataprep.parse.model.core import ParsedToken, with_empty_metadata
 from dataprep.parse.model.metadata import PreprocessingMetadata
 from dataprep.parse.model.placeholders import placeholders
 from dataprep.preprocess.core import ReprConfig, torepr
+from dataprep.noneng import replace_non_ascii_seqs
 
 
 class NonEng(ParsedToken):
@@ -18,7 +21,11 @@ class NonEng(ParsedToken):
         return torepr(self.processable_token, repr_config)
 
     def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
-        return with_empty_metadata([placeholders['non_eng']])
+        if repr_config.bpe_data:
+            token = replace_non_ascii_seqs(str(self.processable_token), placeholders['non_ascii_seq'])
+            return torepr(token, repr_config)
+        else:
+            return with_empty_metadata([placeholders['non_eng']])
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.processable_token.__repr__()})'

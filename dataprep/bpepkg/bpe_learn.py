@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 def get_stats(split_base_vocab: Dict[str, int]) -> PriorityCounter:
     pairs = collections.defaultdict(int)
     for word, freq in split_base_vocab.items():
-        symbols = word.split()
+        symbols = word.split(' ')
         for i in range(len(symbols) - 1):
             pairs [symbols[i], symbols[i + 1]] += freq
     return PriorityCounter(pairs)
@@ -27,7 +27,7 @@ def merge_vocab(pair: Tuple[str, str], input_vocab: Dict[str, int], pairs: Prior
     concat_pair_with_space = ' '.join(pair)
     concat_pair_with_space_escaped = regex.escape(concat_pair_with_space)
     concat_pair = ''.join(pair)
-    reg = regex.compile('(^|\S+ )(' + concat_pair_with_space_escaped + ')( \S+|$)')
+    reg = regex.compile('(^|[^ ]+ )(' + concat_pair_with_space_escaped + ')( [^ ]+|$)')
     for word in input_vocab:
         word_occurences = input_vocab[word]
         match = reg.search(word)
@@ -44,7 +44,7 @@ def merge_vocab(pair: Tuple[str, str], input_vocab: Dict[str, int], pairs: Prior
                 if pair != (pair[1], subtoken_after):
                     pairs.add((pair[1], subtoken_after), -word_occurences)
             start, end = match.span(2)
-            replacement = repr(concat_pair)[1:-1]
+            replacement = concat_pair
             word = word[:start] + replacement + word[end:]
             match = reg.search(word)
         output_vocab[word] = word_occurences
@@ -54,8 +54,12 @@ def merge_vocab(pair: Tuple[str, str], input_vocab: Dict[str, int], pairs: Prior
 ESCAPE_CHAR = '@'
 
 
-def escape(word: str) -> str:
-    return word.replace(ESCAPE_CHAR, 2 * ESCAPE_CHAR) + f" {ESCAPE_CHAR}"
+def escape(word: str, merged: bool=False) -> str:
+    word = word.replace(ESCAPE_CHAR, 2 * ESCAPE_CHAR)
+    if merged:
+        return f"{word}{ESCAPE_CHAR}"
+    else:
+        return f"{word} {ESCAPE_CHAR}"
 
 
 def do_merges(vocab: Dict[str, int], n_merges: int) -> Tuple[Dict[str, int], MergeList]:

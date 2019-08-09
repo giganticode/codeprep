@@ -1,4 +1,5 @@
 import logging
+from dataprep.util import to_literal_str
 from typing import Set, Optional, List
 
 logger = logging.getLogger(__name__)
@@ -27,4 +28,4 @@ class PreprocessingMetadata():
 def save_metadata(metadata: PreprocessingMetadata, save_to: bytes):
     with open(save_to, 'w') as f:
         for token in metadata.nonprocessable_tokens:
-            f.write(f'{repr(token)[1:-1]}\n')
+            f.write(f'{to_literal_str(token)}\n')

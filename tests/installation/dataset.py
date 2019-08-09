@@ -116,7 +116,7 @@ class CreateTest(unittest.TestCase):
         self.assertEqual(SubDataset(actual, '/path/to/dataset', ''), actual.original)
         self.assertEqual(SubDataset(actual, '/parsed/dataset/dataset_01_01_01_c_java', '.parsed'), actual.parsed)
         self.assertEqual(SubDataset(actual, '/path/overridden/dataset_01_01_01_c_java_-_uc10su_id-1000_-_prep', '.prep'), actual.preprocessed)
-        self.assertEqual(os.path.join(USER_CONFIG_DIR, VOCAB_DIR , 'dataset_01_01_01_c_java_-_Uc10su'), actual.base_bpe_vocab_path)
+        self.assertEqual(os.path.join(USER_CONFIG_DIR, VOCAB_DIR , 'dataset_01_01_01_c_java_-_U0EFsu'), actual.base_bpe_vocab_path)
         self.assertEqual(os.path.join(USER_CONFIG_DIR, BPE_DIR , 'dataset_01_01_01_c_java_-_nounicode'), actual.bpe_path)
         self.assertEqual(os.path.join(USER_CACHE_DIR, 'file_lists' , 'dataset_01_01_01_c_java'), actual.path_to_file_list_folder)
         self.assertEqual(os.path.join(USER_CONFIG_DIR, VOCAB_DIR , 'dataset_01_01_01_c_java_-_uc10su_id-1000'), actual.vocab_path)

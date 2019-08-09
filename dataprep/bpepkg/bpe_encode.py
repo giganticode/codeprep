@@ -4,7 +4,7 @@ import sys
 import argparse
 from typing import List, Dict
 
-from dataprep.bpepkg.bpe_learn import ESCAPE_CHAR
+from dataprep.bpepkg.bpe_learn import escape
 from dataprep.bpepkg.merge import MergeList, read_merges
 
 logger = logging.getLogger(__name__)
@@ -42,6 +42,9 @@ def encode(words: Dict[str, int], merges: MergeList) -> Dict[str, int]:
 
 
 def encode_word(word: str, merges: MergeList) -> List[str]:
+    '''
+    :param word: token to be bpe encoded. Must terminate with @.
+    '''
     enc_word, _ = encode({word: 0}, merges).popitem()
     subwords = enc_word.split(" ")
     return subwords
@@ -50,7 +53,7 @@ def encode_word(word: str, merges: MergeList) -> List[str]:
 def get_bpe_subwords(word: str, bpe_data: BpeData) -> List[str]:
     merges = bpe_data.merges
     cache = bpe_data.merges_cache
-    word += ESCAPE_CHAR
+    word = escape(word, merged=True)
     if word in cache:
         return cache[word]
     else:

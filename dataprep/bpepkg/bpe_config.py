@@ -48,7 +48,7 @@ class BpeConfig(object):
     def to_prep_config(self):
         return PrepConfig({
             PrepParam.EN_ONLY: 'U' if self.get_param_value(BpeParam.UNICODE) == 'no' else 'u',
-            PrepParam.COM: 'c',
+            PrepParam.COM: '0',
             PrepParam.STR: 'E',
             PrepParam.SPLIT: 'F',
             PrepParam.TABS_NEWLINES: 's',

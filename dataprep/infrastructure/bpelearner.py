@@ -57,14 +57,15 @@ def run(dataset: Dataset, n_merges: int, bpe_config: BpeConfig) -> None:
 
     if starting_from_scratch:
         base_bpe_vocab, other_vocab = get_base_vocab(dataset) #TODO extract this into stages
+        other_vocab = {escape(k, merged=True): v for k,v in other_vocab.items()}
         split_base_vocab = {escape(" ".join(k)): v for k, v in base_bpe_vocab.items()}
         already_done_merges = MergeList()
     else:
         path_to_bpe_vocab_file = os.path.join(dir_with_most_merges, BPE_REASSEMBLED_VOCAB_FILE_NAME)
+        non_bpe_vocab = {escape(k, merged=True) for k in load_nonbpe_vocab(dataset)}
         split_base_vocab = _load_vocab_dict(path_to_bpe_vocab_file)
-        split_base_vocab, other_vocab = separate_vocabs(split_base_vocab, load_nonbpe_vocab(dataset))
+        split_base_vocab, other_vocab = separate_vocabs(split_base_vocab, non_bpe_vocab)
         already_done_merges = read_merges(os.path.join(dir_with_most_merges, MERGES_FILE_NAME))
-
     logger.info("Learning bpe codes...")
     split_base_vocab, merges = do_merges(split_base_vocab, n_merges-len(already_done_merges))
     merges = already_done_merges + merges
@@ -78,14 +79,13 @@ def run(dataset: Dataset, n_merges: int, bpe_config: BpeConfig) -> None:
 
     for k, v in other_vocab.items():
         split_base_vocab[k] = v
-
     resulting_vocab = create_resulting_vocab(split_base_vocab)
     resulting_vocab_sorted = sorted(resulting_vocab.items(), key=lambda x: x[1], reverse=True)
-    _dump_vocab_dict(resulting_vocab_sorted, os.path.join(new_bpe_dir, RESULTING_VOCAB_FILE_NAME))
+    _dump_vocab_dict(resulting_vocab_sorted, os.path.join(new_bpe_dir, RESULTING_VOCAB_FILE_NAME), to_literal=True)
 
     bpe_cache = create_bpe_cache(split_base_vocab)
     dump_bpe_cache(bpe_cache, os.path.join(new_bpe_dir, MERGES_CACHE_FILE_NAME))
 
     dump_merges(merges, os.path.join(new_bpe_dir, MERGES_FILE_NAME))
-    _dump_vocab_dict(split_base_vocab.items(), os.path.join(new_bpe_dir, BPE_REASSEMBLED_VOCAB_FILE_NAME))
+    _dump_vocab_dict(split_base_vocab.items(), os.path.join(new_bpe_dir, BPE_REASSEMBLED_VOCAB_FILE_NAME), to_literal=True)
     logger.info(f'Bpe output files are saved into {new_bpe_dir} folder')

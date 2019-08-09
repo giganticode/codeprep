@@ -5,8 +5,9 @@ from dataprep.parse.model.metadata import PreprocessingMetadata
 from dataprep.parse.model.placeholders import placeholders
 from dataprep.parse.model.whitespace import SpaceInString
 from dataprep.parse.model.word import Word
+#from dataprep.parse.model.noneng import NonEng
 from dataprep.preprocess.core import ReprConfig, torepr
-
+from dataprep.noneng import replace_non_ascii_seqs
 
 class ProcessableTokenContainer(ParsedToken):
     def __init__(self, subtokens: Union[List[ParsedSubtoken], List[Union[str, ParsedToken]]]):
@@ -119,13 +120,26 @@ class StringLiteral(TextContainer):
         super().__init__(tokens)
         self.length = length
 
+    def _replace_non_ascii_seqs_if_necessary(self,repr_config: ReprConfig) -> str:
+        s = str(self)
+        if 'NonEng' in list(map(lambda x: x.__name__, repr_config.types_to_be_repr)):
+            s = placeholders["space_in_str"].join(map(lambda t: replace_non_ascii_seqs(t, placeholders['non_ascii_seq']), s.split(placeholders["space_in_str"])))    
+        return s
+        
+
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[List[str], PreprocessingMetadata]:
-        if repr_config and self.length > repr_config.max_str_length:
+        if not repr_config: #called by str()
+            return self.with_each_word_metadata(["".join(map(lambda t: str(t), self.subtokens))])
+        elif self.length > repr_config.max_str_length:
             return self.with_each_word_metadata(['""'] if repr_config.full_strings else ['"', '"'],
                                                 metadata=PreprocessingMetadata(nonprocessable_tokens={'"'}))
-        elif not repr_config or repr_config.full_strings:
-            return self.with_each_word_metadata(["".join(map(lambda t: str(t), self.subtokens))])
-        else:
+        elif repr_config.bpe_data:
+            s = self._replace_non_ascii_seqs_if_necessary(repr_config)
+            return self.with_full_word_metadata(repr_config.word_splitter(s, repr_config.bpe_data))
+        elif repr_config.full_strings:
+            s = self._replace_non_ascii_seqs_if_necessary(repr_config)
+            return self.with_full_word_metadata(s)
+        else: # here we dont keep full strings
             return torepr(list(filter(lambda t: type(t) != SpaceInString, self.subtokens)), repr_config)
 
     def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:

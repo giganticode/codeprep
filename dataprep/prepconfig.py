@@ -76,12 +76,12 @@ class PrepConfig(object):
                           '2': 'camel+underscore+numbers',
                           '3': 'numbers+ronin',
                           's': 'camel+underscore+numbers+stemming',
-                          '4': 'camel+underscore+bpe_5k',
-                          '5': 'camel+underscore+bpe_1k',
-                          '6': 'camel+underscore+bpe_10k',
-                          '7': 'camel+underscore+bpe_20k',
-                          '8': 'camel+underscore+bpe_0',
-                          '9': 'camel+underscore+bpe_custom'},
+                          '4': 'No splitting+bpe_5k',
+                          '5': 'No splitting+bpe_1k',
+                          '6': 'No splitting+bpe_10k',
+                          '7': 'No splitting+bpe_20k',
+                          '8': 'No splitting+bpe_0',
+                          '9': 'No splitting+bpe_custom'},
         PrepParam.TABS_NEWLINES: {'s': 'tabs+newlines',
                                   '0': 'NO_tabs+NO_newlines'},
         PrepParam.CASE: {
@@ -90,14 +90,6 @@ class PrepConfig(object):
         }
     }
 
-    BASE_BPE_CONFIG = {
-        PrepParam.EN_ONLY: 'u',
-        PrepParam.COM: 'c',
-        PrepParam.STR: 'E',
-        PrepParam.SPLIT: 'F',
-        PrepParam.TABS_NEWLINES: 's',
-        PrepParam.CASE: 'u'
-    }
 
     @staticmethod
     def __check_param_number(n_passed_params: int):
@@ -149,9 +141,6 @@ class PrepConfig(object):
 
     def get_param_value(self, param: PrepParam) -> str:
         return self.params[param]
-
-    def get_base_bpe_prep_config(self):
-        return str(PrepConfig.BASE_BPE_CONFIG)
 
     def __eq__(self, other):
         return self.params == other.params
@@ -223,7 +212,7 @@ class PrepConfig(object):
 
     #TODO make use of basic_bpe mask
     def is_base_bpe_config(self):
-        return self.get_param_value(PrepParam.COM) == 'c' \
+        return self.get_param_value(PrepParam.COM) == '0' \
                and self.get_param_value(PrepParam.STR) == 'E' \
                and self.get_param_value(PrepParam.SPLIT) == 'F' \
                and self.get_param_value(PrepParam.TABS_NEWLINES) == 's' \

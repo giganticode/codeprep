@@ -3,6 +3,7 @@ import os
 import shutil
 from typing import Set, Dict
 
+from dataprep.util import to_literal_str
 from dataprep.infrastructure.bperegistry import get_bpe_dir, get_base_vocab_dir, RESULTING_VOCAB_FILE_NAME
 from dataprep.infrastructure.dataset import Dataset, NONBPE_VOCAB_FILENAME
 from dataprep.parse.model.placeholders import placeholders
@@ -47,5 +48,5 @@ def gather_non_bpe_vocab(dataset: Dataset):
     non_bpe_tokens.update(list(placeholders.values()))
     with open(dataset.path_to_nonbpe_vocab_file, 'w') as f:
         for token in non_bpe_tokens:
-            f.write(f'{token}\n')
+            f.write(f'{to_literal_str(token)}\n')
     shutil.rmtree(part_nonbpe_vocab_dir)

@@ -1,6 +1,7 @@
 import logging.config
 import multiprocessing
 import os
+import ast
 from collections import Counter, defaultdict
 from fnmatch import fnmatch
 from multiprocessing import Queue
@@ -15,7 +16,7 @@ from typing import List, Tuple, Dict, Iterator
 
 from dataprep.parse.model.placeholders import placeholders
 from dataprep.fileutils import read_file_contents
-from dataprep.util import AtomicInteger, merge_dicts_, groupify, create_chunk_generator
+from dataprep.util import to_literal_str, to_non_literal_str, AtomicInteger, merge_dicts_, groupify, create_chunk_generator
 
 logger = logging.getLogger(__name__)
 
@@ -87,7 +88,7 @@ class PartialVocab(object):
 
     def write_vocab(self, path_to_vocab_file: str) -> None:
         sorted_vocab = sorted(self.merged_word_counts.items(), key=lambda x: x[1], reverse=True)
-        _dump_vocab_dict(sorted_vocab, path_to_vocab_file)
+        _dump_vocab_dict(sorted_vocab, path_to_vocab_file, to_literal=False)
 
     def __generate_stats(self):
         d = defaultdict(list)
@@ -307,9 +308,11 @@ def partial_vocabs_ready(path_to_dump: str) -> bool:
     return os.path.exists(os.path.join(path_to_dump, PARTIAL_VOCABS_READY_FILENAME))
 
 
-def _dump_vocab_dict(lst: List[Tuple[str, int]], file: str) -> None:
+def _dump_vocab_dict(lst: List[Tuple[str, int]], file: str,to_literal: bool) -> None:
     with open(file, 'w') as f:
         for word, freq in lst:
+            if to_literal:
+                word = to_literal_str(word)
             f.write(f'{str(word)}{VOCAB_DICT_DELIM}{freq}\n')
 
 
@@ -322,7 +325,7 @@ def _load_vocab_dict(file) -> Dict[str, int]:
         for line in f:
             line = line.rstrip('\n')
             splits = line.split(VOCAB_DICT_DELIM)
-            words[splits[0]] = int(splits[1])
+            words[to_non_literal_str(splits[0])] = int(splits[1])
     return words
 
 
@@ -330,7 +333,7 @@ def _load_vocab_set(file: str):
     non_bpe_tokens = set()
     with open(file, 'r') as f:
         for line in f:
-            non_bpe_tokens.add(line.rstrip('\n'))
+            non_bpe_tokens.add(to_non_literal_str(line.rstrip('\n')))
     return non_bpe_tokens
 
 

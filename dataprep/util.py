@@ -161,3 +161,12 @@ def groupify(all: List, n_chunks: int) -> List[List]:
     for elm, label in zip(all, chunk_gen):
         groups[label].append(elm)
     return groups
+
+def to_non_literal_str(word:str) -> str:
+    return word.encode().decode("unicode-escape")
+        
+
+def to_literal_str(word: str) -> str:
+    return word.encode("unicode-escape").decode()
+
+

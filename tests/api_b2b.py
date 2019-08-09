@@ -332,9 +332,9 @@ class CliTest(unittest.TestCase):
     def test_create_prep_config_0c14xx(self):
         actual = api.bpe(input_text, '5k', "java", no_spaces=True)
 
-        expected = ['void' + cwe, 'test', '_', 'Word', 'U', 'e', 'ber', 'r', 'as', 'ch', 'un', 'g', 'Pr', 'inter', cwe, '(' + cwe, ')' + cwe, '{' + cwe,
-                    'if' + cwe, '(' + cwe, 'ep', 's', cwe, '>' + cwe, '=' + cwe, '0.', '34', '5', 'e', '+', '4', cwe, ')' + cwe, '{' + cwe, '/' + cwe, '/' + cwe, 'FIX', 'ME', cwe, '10', 'l', cwe, ce,
-                    'print', 'Word', cwe, '(' + cwe, '"' + cwe, '.' + cwe, '.' + cwe, '.' + cwe, 'Ü', 'ber', 'r', 'as', 'ch', 'un', 'g', cwe, '0x', '12', cwe, '"' + cwe, ')' + cwe, ';' + cwe,
+        expected = ['void' + cwe, 'test', '_', 'Wor', 'd', 'U', 'eb', 'err', 'as', 'ch', 'un', 'g', 'Print', 'er' + cwe, '(' + cwe, ')' + cwe, '{' + cwe,
+                    'if' + cwe, '(' + cwe, 'e', 'ps' + cwe, '>' + cwe, '=' + cwe, '0.', '34', '5', 'e+', '4' + cwe, ')' + cwe, '{' + cwe, '/' + cwe, '/' + cwe, 'FI', 'X', 'M', 'E' + cwe, '10', 'l' + cwe, ce,
+                    'print', 'Wor', 'd' + cwe, '(' + cwe, '"\xa0', '\xa0\xa0', '\xa0\xa0', '.', '.', '.', '\xa0\xa0', '\xa0\xa0', '\xa0', 'Ü', 'b', 'err', 'as', 'ch', 'un', 'g', '\xa0', '0x', '12', '"' + cwe, ')' + cwe, ';' + cwe,
                     '}' + cwe,
                     '}' + cwe
         ]
@@ -344,9 +344,9 @@ class CliTest(unittest.TestCase):
     def test_create_prep_config_0c15xx(self):
         actual = api.bpe(input_text, '1k', "java", no_spaces=True)
 
-        expected = ['void' + cwe, 'test', '_', 'W', 'ord', 'U', 'e', 'ber', 'r', 'as', 'ch', 'un', 'g', 'P', 'r', 'inter', cwe, '(' + cwe, ')' + cwe, '{' + cwe,
-                    'if' + cwe, '(' + cwe, 'ep', 's', cwe, '>' + cwe, '=' + cwe, '0', '.', '3', '4', '5', 'e', '+', '4', cwe, ')' + cwe, '{' + cwe, '/' + cwe, '/' + cwe, 'FI', 'X', 'M', 'E', cwe, '10', 'l', cwe, ce,
-                    'print', 'W', 'ord', cwe, '(' + cwe, '"' + cwe, '.' + cwe, '.' + cwe, '.' + cwe, 'Ü', 'ber', 'r', 'as', 'ch', 'un', 'g', cwe, '0x', '12', cwe, '"' + cwe, ')' + cwe, ';' + cwe,
+        expected = ['void' + cwe, 'test', '_', 'Wor', 'd', 'U', 'eb', 'err', 'as', 'ch', 'un', 'g', 'P', 'r', 'int', 'er' + cwe, '(' + cwe, ')' + cwe, '{' + cwe,
+                    'if' + cwe, '(' + cwe, 'e', 'p', 's' + cwe, '>' + cwe, '=' + cwe, '0.', '3', '4', '5', 'e', '+', '4' + cwe, ')' + cwe, '{' + cwe, '/' + cwe, '/' + cwe, 'FI', 'X', 'M', 'E' + cwe, '1', '0', 'l' + cwe, ce,
+                    'print', 'Wor', 'd' + cwe, '(' + cwe, '"\xa0', '\xa0', '\xa0', '\xa0', '\xa0', '.', '.', '.', '\xa0', '\xa0', '\xa0', '\xa0', '\xa0','Ü', 'b', 'err', 'as', 'ch', 'un', 'g', '\xa0', '0x', '1', '2', '"' + cwe, ')' + cwe, ';' + cwe,
                     '}' + cwe,
                     '}' + cwe
         ]
@@ -356,9 +356,9 @@ class CliTest(unittest.TestCase):
     def test_create_prep_config_xxx6xx(self):
         actual = api.bpe(input_text, '10k', "java", no_spaces=True)
 
-        expected = ['void' + cwe, 'test', '_', 'Word', 'U', 'e', 'ber', 'r', 'as', 'ch', 'ung', 'Printer', cwe, '(' + cwe, ')' + cwe, '{' + cwe,
-                    'if' + cwe, '(' + cwe, 'ep', 's', cwe, '>' + cwe, '=' + cwe, '0.', '34', '5', 'e+', '4', cwe, ')' + cwe, '{' + cwe, '/' + cwe, '/' + cwe, 'FIXME', cwe, '10', 'l', cwe, ce,
-                    'print', 'Word', cwe, '(' + cwe, '"' + cwe, '.' + cwe, '.' + cwe, '.' + cwe, 'Ü', 'ber', 'r', 'as', 'ch', 'ung', cwe, '0x', '12', cwe, '"' + cwe, ')' + cwe, ';' + cwe,
+        expected = ['void' + cwe, 'test_', 'Word', 'U', 'eb', 'err', 'as', 'ch', 'un', 'g', 'Print', 'er' + cwe, '(' + cwe, ')' + cwe, '{' + cwe,
+                    'if' + cwe, '(' + cwe, 'e', 'ps' + cwe, '>' + cwe, '=' + cwe, '0.', '34', '5', 'e+', '4' + cwe, ')' + cwe, '{' + cwe, '/' + cwe, '/' + cwe, 'FIX', 'M', 'E' + cwe, '10', 'l' + cwe, ce,
+                    'print', 'Word' + cwe, '(' + cwe, '"\xa0\xa0\xa0', '\xa0\xa0', '..', '.', '\xa0\xa0', '\xa0\xa0', '\xa0', 'Ü', 'b', 'err', 'as', 'ch', 'un', 'g', '\xa0', '0x', '12', '"' + cwe, ')' + cwe, ';' + cwe,
                     '}' + cwe,
                     '}' + cwe
         ]
@@ -370,16 +370,20 @@ class CliTest(unittest.TestCase):
 
         expected = ['void' + cwe, 't', 'e', 's', 't', '_', 'W', 'o', 'r', 'd', 'U', 'e', 'b', 'e', 'r', 'r', 'a', 's', 'c', 'h', 'u', 'n', 'g', 'P', 'r', 'i', 'n', 't', 'e', 'r', cwe, '(' + cwe, ')' + cwe, '{' + cwe,
                     'if' + cwe, '(' + cwe, 'e', 'p', 's', cwe, '>' + cwe,'=' + cwe, '0', '.', '3', '4', '5', 'e', '+', '4', cwe, ')' + cwe, '{' + cwe, '/' + cwe, '/' + cwe, 'F', 'I', 'X', 'M', 'E', cwe, '1', '0', 'l', cwe, ce,
-                    'p', 'r', 'i', 'n', 't', 'W', 'o', 'r', 'd', cwe, '(' + cwe, '"' + cwe, '.' + cwe, '.' + cwe, '.' + cwe, 'Ü', 'b', 'e', 'r', 'r', 'a', 's', 'c', 'h', 'u', 'n', 'g', cwe, '0', 'x', '1', '2', cwe, '"' + cwe, ')' + cwe, ';' + cwe,
+                    'p', 'r', 'i', 'n', 't', 'W', 'o', 'r', 'd', cwe, '(' + cwe, '"', 
+                    '\xa0', '\xa0', '\xa0', '\xa0', '\xa0', '.', '.', '.', 
+                    '\xa0', '\xa0', '\xa0', '\xa0', '\xa0', 'Ü', 'b', 'e', 'r', 'r', 'a', 's', 'c', 'h', 'u', 'n', 'g', '\xa0', '0', 'x', '1', '2', '"', cwe, ')' + cwe, ';' + cwe,
                     '}' + cwe,
                     '}' + cwe
         ]
 
         expected_metadata = PreprocessingMetadata(
-            nonprocessable_tokens={'void', '(', ')', '{', 'if', '>', '=', '/', '"', '.', '}', ';'},
-            word_boundaries=[0, 1, 31, 32, 33, 34, 35, 36, 40, 41, 42, 51, 52, 53, 54, 55, 61, 65, 66, 76, 77, 78, 79, 80, 81, 94, 99, 100, 101, 102, 103, 104])
+            nonprocessable_tokens={'void', '(', ')', '{', 'if', '>', '=', '/', '}', ';'},
+            word_boundaries=[0, 1, 31, 32, 33, 34, 35, 36, 40, 41, 42, 51, 52, 53, 54, 55, 61, 65, 66, 76, 77, 110, 111, 112, 113, 114])
 
         self.assertEqual(expected, actual)
+        print(expected_metadata)
+        print(metadata)
         self.assertEqual(expected_metadata, metadata)
 
     def test_create_prep_config_xxx10x(self):

@@ -7,7 +7,9 @@ placeholders = {
     'capitals': '<CAPS>',
     'ect': '<EOF>',
     'non_eng': '<non-en>',
+    'non_ascii_seq': '\xf7',
     'non_eng_content': '<non-en-content>',
     'olc_end': '<EOL>',
-    'compound_word_end': '</t>'
+    'compound_word_end': '</t>',
+    'space_in_str': '\xa0'
 }

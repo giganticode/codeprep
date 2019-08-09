@@ -2,6 +2,7 @@ from typing import List, Tuple, Optional
 
 from dataprep.parse.model.core import ParsedToken
 from dataprep.parse.model.metadata import PreprocessingMetadata
+from dataprep.parse.model.placeholders import placeholders
 from dataprep.preprocess.core import ReprConfig
 
 NBSP = '\xa0'
@@ -41,7 +42,7 @@ class SpaceInString(Whitespace):
         self.n_chars = n_chars
 
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[str, PreprocessingMetadata]:
-        return NBSP * self.n_chars, PreprocessingMetadata(word_boundaries=[0,1])
+        return placeholders['space_in_str'] * self.n_chars, PreprocessingMetadata(word_boundaries=[0,1])
 
     def __repr__(self):
         return f'<{self.__class__.__name__}> (n_chars={self.n_chars})'

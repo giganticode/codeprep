@@ -9,6 +9,7 @@ from tqdm import tqdm
 from typing import List, Tuple, Union
 from typing import Optional
 
+from dataprep.util import to_literal_str
 from dataprep.bpepkg.bpe_encode import read_merges, BpeData
 from dataprep.infrastructure.bperegistry import CustomBpeConfig
 from dataprep.bpepkg.cache import read_bpe_cache
@@ -38,7 +39,7 @@ def to_repr(prep_config: PrepConfig, token_list: List[Union[str, ParsedToken]],
 
 
 def to_token_str(tokens: List) -> str:
-    return repr(" ".join(map(lambda t : str(t),tokens)))[1:-1] + f" {placeholders['ect']}\n"
+    return to_literal_str(" ".join(map(lambda t : str(t),tokens))) + f" {placeholders['ect']}\n"
 
 
 def preprocess_and_write(params: Tuple[bytes, bytes, PrepConfig, str]):
