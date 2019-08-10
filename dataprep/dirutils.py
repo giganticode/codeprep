@@ -32,7 +32,7 @@ def walk_and_save(path: str, dir_list_path: str, file_list_path: str, return_dir
             if not return_dirs_instead_of_regular_files:
                 yield res
         else:
-            for root, dirs, files in os.walk(path_bin):
+            for root, dirs, files in os.walk(path_bin, followlinks=True):
                 # we pass bytes to os.walk -> the output are bytes as well
                 for dir in dirs:
                     bin_name = os.path.join(os.path.relpath(root, path_bin), dir)
