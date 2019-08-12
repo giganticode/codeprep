@@ -49,6 +49,7 @@ def run_until_base_bpe_vocab(dataset: Dataset, custom_bpe_config: Optional[Custo
 
 
 def run_until_vocab(dataset: Dataset, custom_bpe_config: Optional[CustomBpeConfig]=None) -> None:
+    logger.info(f'Checking first if vocabulary file exists: {dataset.path_to_vocab_file}')
     if os.path.exists(dataset.path_to_vocab_file):
         logger.info("Vocabulary is already computed and up-to-date")
         return
