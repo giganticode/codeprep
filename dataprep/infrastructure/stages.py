@@ -48,11 +48,13 @@ def run_until_base_bpe_vocab(dataset: Dataset, custom_bpe_config: Optional[Custo
 
 
 def run_until_vocab(dataset: Dataset, custom_bpe_config: Optional[CustomBpeConfig]=None) -> None:
-    run_until_preprocessing(dataset, custom_bpe_config)
-    logger.info("Computing vocab...")
     if not is_path_ready(dataset.path_to_vocab_file):
+        run_until_preprocessing(dataset, custom_bpe_config)
+        logger.info("Computing vocab...")
         calc_vocab(dataset.preprocessed.path, dataset.preprocessed.file_iterator(), dataset.vocab_path)
     elif is_path_outdated(dataset.path_to_vocab_file):
+        run_until_preprocessing(dataset, custom_bpe_config)
+        logger.info("Computing vocab...")
         archive_path(dataset.path_to_bpe_vocab_file)
         calc_vocab(dataset.preprocessed.path, dataset.preprocessed.file_iterator(), dataset.vocab_path)
     else:
