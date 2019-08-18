@@ -51,17 +51,6 @@ def merge_vocab(pair: Tuple[str, str], input_vocab: Dict[str, int], pairs: Prior
     return output_vocab
 
 
-ESCAPE_CHAR = '@'
-
-
-def escape(word: str, merged: bool=False) -> str:
-    word = word.replace(ESCAPE_CHAR, 2 * ESCAPE_CHAR)
-    if merged:
-        return f"{word}{ESCAPE_CHAR}"
-    else:
-        return f"{word} {ESCAPE_CHAR}"
-
-
 def do_merges(vocab: Dict[str, int], n_merges: int) -> Tuple[Dict[str, int], MergeList]:
     """
     Do `n_merges` bpe merges starting from vocabulary splittings `vocab` which were formed after applying `already_done_merges` merges

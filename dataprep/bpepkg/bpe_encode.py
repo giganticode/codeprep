@@ -4,7 +4,6 @@ import sys
 import argparse
 from typing import List, Dict
 
-from dataprep.bpepkg.bpe_learn import escape
 from dataprep.bpepkg.merge import MergeList, read_merges
 
 logger = logging.getLogger(__name__)
@@ -16,8 +15,44 @@ class BpeData(object):
         self.merges = merges
 
 
+ESCAPE_CHAR = '@'
+
+ESCAPABLE_CHAR_LIST = [] + [ESCAPE_CHAR]
+
+
+def escape(word: str, merged: bool=False) -> str:
+    word = word.replace(ESCAPE_CHAR, 2 * ESCAPE_CHAR)
+    if merged:
+        return f"{word}{ESCAPE_CHAR}"
+    else:
+        return f"{word} {ESCAPE_CHAR}"
+
+
+def unescape(parts: List[str]):
+    if parts[-1][-1] != ESCAPE_CHAR:
+        raise ValueError(f"There should be {ESCAPE_CHAR} at the end, however this is what was passed: {parts}")
+
+    parts[-1] = parts[-1][:-1]
+    return list(map(lambda p: p.replace(ESCAPE_CHAR + '@', ESCAPE_CHAR), parts))
+
+
+def to_char_list(word: str):
+    i = 0
+    res = []
+    while i < len(word):
+        if word[i] != ESCAPE_CHAR or i+1 == len(word):
+            res.append(word[i])
+            i += 1
+        elif word[i+1] in ESCAPABLE_CHAR_LIST:
+            res.append(word[i:i+2])
+            i += 2
+        else:
+            raise ValueError(f"Illegal escape sequence: {word[i:i+2]}")
+    return res
+
+
 def encode(words: Dict[str, int], merges: MergeList) -> Dict[str, int]:
-    letters_list = {" ".join(k): v for k, v in words.items()}
+    letters_list = {" ".join(to_char_list(k)): v for k, v in words.items()}
 
     new_letters_list = {}
     for letters, freq in letters_list.items():
@@ -55,9 +90,11 @@ def get_bpe_subwords(word: str, bpe_data: BpeData) -> List[str]:
     cache = bpe_data.merges_cache
     word = escape(word, merged=True)
     if word in cache:
-        return cache[word]
+        result = cache[word]
     else:
-        return encode_word(word, merges)
+        result = encode_word(word, merges)
+
+    return unescape(result)
 
 
 __all__ = [encode, encode_word]

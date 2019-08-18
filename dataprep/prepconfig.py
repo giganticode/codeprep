@@ -10,7 +10,6 @@ from typing import Dict, List, Type, Optional
 from dataprep.parse.model.placeholders import placeholders
 
 from dataprep.bpepkg.bpe_encode import BpeData, get_bpe_subwords
-from dataprep.bpepkg.bpe_learn import ESCAPE_CHAR
 from dataprep.parse.model.containers import SplitContainer, StringLiteral, OneLineComment, MultilineComment
 from dataprep.parse.model.noneng import NonEng
 from dataprep.parse.model.numeric import Number
@@ -46,10 +45,7 @@ def get_max_str_length(ch: str) -> Optional[int]:
 
 
 def with_compound_word_end(parts: List[str]) -> List[str]:
-    if parts[-1][-1] != ESCAPE_CHAR:
-        raise ValueError(f"There should be {ESCAPE_CHAR} at the end, however this is what was passed: {parts}")
-
-    parts[-1] = parts[-1][:-1] + placeholders['compound_word_end']
+    parts[-1] = parts[-1] + placeholders['compound_word_end']
 
     return parts
 

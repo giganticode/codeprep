@@ -596,11 +596,11 @@ class ReprTest(unittest.TestCase):
             PrepParam.CASE: 'u'
         })
 
-        tokens = [SplitContainer.from_single_token("While")]
+        tokens = [SplitContainer.from_single_token("Whi@le")]
 
-        actual, actual_metadata = to_repr(prep_config, tokens, BpeData(merges_cache={'While@': ['While@']}))
+        actual, actual_metadata = to_repr(prep_config, tokens, BpeData(merges_cache={'Whi@@le@': ['Whi@@le@']}))
 
-        expected = ["While" + placeholders['compound_word_end']]
+        expected = ["Whi@le" + placeholders['compound_word_end']]
 
         expected_metadata = PreprocessingMetadata(word_boundaries=[0, 1])
 
@@ -617,14 +617,14 @@ class ReprTest(unittest.TestCase):
             PrepParam.CASE: 'u'
         })
 
-        tokens = [SplitContainer.from_single_token("While")]
+        tokens = [SplitContainer.from_single_token("Whi@l@@e@")]
 
         actual, actual_metadata = to_repr(prep_config, tokens, BpeData(merges=MergeList().append(Merge(('W', 'h'), 10)),
                                                                         merges_cache={} ))
 
-        expected = ["Wh", "i", "l", "e", pl["compound_word_end"]]
+        expected = ["Wh", "i", '@', "l", '@', '@', "e", '@', pl["compound_word_end"]]
 
-        expected_metadata = PreprocessingMetadata(word_boundaries=[0, 5])
+        expected_metadata = PreprocessingMetadata(word_boundaries=[0, 9])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
