@@ -23,7 +23,7 @@ class NonEng(ParsedToken):
     def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
         if repr_config.bpe_data:
             token = replace_non_ascii_seqs(str(self.processable_token), placeholders['non_ascii_seq'])
-            return torepr(token, repr_config)
+            return torepr(SplitContainer.from_single_token(token), repr_config)
         else:
             return with_empty_metadata([placeholders['non_eng']])
 

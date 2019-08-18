@@ -537,10 +537,10 @@ class ReprTest(unittest.TestCase):
             '1',
             cwe,
             "*" + cwe,
-            '÷bersetzen</t>',
+            '÷', 'b', 'e', 'r', 's', 'e', 't', 'z', 'e', 'n', '</t>',
             '"', 'A', 'W', 'i', 'r', 'k', 'l', 'i', 'c', '\xf7', '\xa0', '"', cwe,
-            '/' + cwe, '*' + cwe, '\xf7' + cwe, 'blanco_english' + cwe, '*' + cwe, '/' + cwe,
-            '/' + cwe, '/' + cwe, 'DIESELBE8' + cwe,
+            '/' + cwe, '*' + cwe, '\xf7', cwe, 'b', 'l', 'a', 'n', 'c', 'o', '_', 'e', 'n', 'g', 'l', 'i', 's', 'h', cwe, '*' + cwe, '/' + cwe,
+            '/' + cwe, '/' + cwe, 'D', 'I', 'E', 'S', 'E', 'L', 'B', 'E', '8', cwe,
             pl['olc_end']
         ]
 
