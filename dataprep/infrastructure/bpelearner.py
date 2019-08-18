@@ -3,8 +3,8 @@ import os
 from typing import Tuple, Dict, Set
 
 from dataprep.bpepkg.bpe_config import BpeConfig, BpeParam, BpeConfigNotSupported
-from dataprep.bpepkg.bpe_learn import separate_vocabs, logger, do_merges, create_resulting_vocab, create_bpe_cache, \
-    escape
+from dataprep.bpepkg.bpe_encode import escape
+from dataprep.bpepkg.bpe_learn import separate_vocabs, logger, do_merges, create_resulting_vocab, create_bpe_cache
 from dataprep.bpepkg.cache import dump_bpe_cache
 from dataprep.bpepkg.merge import MergeList, read_merges, dump_merges
 from dataprep.infrastructure import stages
