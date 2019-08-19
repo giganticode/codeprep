@@ -1,4 +1,5 @@
 import unittest
+import time
 
 from dataprep.bpepkg.bpe_encode import BpeData
 from dataprep.bpepkg.merge import MergeList, Merge
@@ -628,6 +629,27 @@ class ReprTest(unittest.TestCase):
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
+
+    def test_bpe_string_literal_performance(self):
+        prep_config = PrepConfig({
+            PrepParam.EN_ONLY: 'u',
+            PrepParam.COM: 'c',
+            PrepParam.STR: '1',
+            PrepParam.SPLIT: '4',
+            PrepParam.TABS_NEWLINES: 's',
+            PrepParam.CASE: 'u'
+        })
+
+        n= 10000
+        tokens = [StringLiteral(['a' * n], n)]
+
+        merge_list = MergeList()
+        for i in range(1):
+            merge_list.append(Merge(('a', 'a'), 10))
+        start = time.perf_counter()
+        to_repr(prep_config, tokens, BpeData(merges=merge_list, merges_cache={'Whi@@le@': ['Whi@@le@']}))
+        print(time.perf_counter() - start)
+
 
 
 if __name__ == '__main__':
