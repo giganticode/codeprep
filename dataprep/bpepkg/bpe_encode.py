@@ -59,22 +59,48 @@ def encode(words: Dict[str, int], merges: MergeList) -> Dict[str, int]:
     new_letters_list = {}
     for letters, freq in letters_list.items():
         subwords = letters.split(" ")
+
+        show_bpe_progress_bar = False
         if len(subwords) > 5000:
             logger.warning(f'Encountered a string of length {len(subwords)}. It will take a while to bpe-encode it.')
-            merges = tqdm(merges)
-        for merge in merges:
+            show_bpe_progress_bar = True
+
+        if show_bpe_progress_bar:
+            bpe_progress = tqdm(total=len(merges))
+            last_value = 0
+        while True:
+            merge_indices = []
+            merge_candidate_priority = sys.maxsize
+            for i in range(len(subwords) - 1):
+                merge_candidate = (subwords[i], subwords[i + 1])
+                if merge_candidate in merges:
+                    current_merge_candidate_priority = merges.get_priority(merge_candidate)
+                    if current_merge_candidate_priority < merge_candidate_priority:
+                        merge_candidate_priority = current_merge_candidate_priority
+                        merge_indices = [i]
+                    elif current_merge_candidate_priority == merge_candidate_priority:
+                        if not merge_indices or merge_indices[-1] != i - 1:
+                            merge_indices.append(i)
+
+            if not merge_indices:
+                break
+
             subwords_after_this_merge_round = []
-            i = 0
-            while i < len(subwords) - 1:
-                if merge.pair == (subwords[i], subwords[i + 1]):
-                    subwords_after_this_merge_round.append(subwords[i] + subwords[i + 1])
-                    i += 2
-                else:
+            start_idx = 0
+            for merge_index in merge_indices:
+                for i in range(start_idx, merge_index):
                     subwords_after_this_merge_round.append(subwords[i])
-                    i += 1
-            if i == len(subwords) - 1:
-                subwords_after_this_merge_round.append(subwords[-1])
+                subwords_after_this_merge_round.append(subwords[merge_index] + subwords[merge_index + 1])
+                start_idx = merge_index + 2
+            for i in range(start_idx, len(subwords)):
+                subwords_after_this_merge_round.append(subwords[i])
             subwords = subwords_after_this_merge_round
+            if show_bpe_progress_bar:
+                bpe_progress.update(merge_candidate_priority - last_value)
+                last_value = merge_candidate_priority
+        if show_bpe_progress_bar:
+            bpe_progress.update(len(merges) - last_value)
+            bpe_progress.close()
 
         new_letters_list[" ".join(subwords)] = freq
     return new_letters_list
