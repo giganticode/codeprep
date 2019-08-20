@@ -4,6 +4,8 @@ import sys
 import argparse
 from typing import List, Dict
 
+from tqdm import tqdm
+
 from dataprep.bpepkg.merge import MergeList, read_merges
 
 logger = logging.getLogger(__name__)
@@ -57,21 +59,23 @@ def encode(words: Dict[str, int], merges: MergeList) -> Dict[str, int]:
     new_letters_list = {}
     for letters, freq in letters_list.items():
         subwords = letters.split(" ")
-        while True:
-            merge_index = None
-            merge_candidate_priority = sys.maxsize
-            for i in range(len(subwords) - 1):
-                merge_candidate = (subwords[i], subwords[i + 1])
-                if merge_candidate in merges:
-                    if merges.get_priority(merge_candidate) < merge_candidate_priority:
-                        merge_candidate_priority = merges.get_priority(merge_candidate)
-                        merge_index = i
-            if merge_index is None:
-                break
-            concat_pair = ''.join([subwords[merge_index], subwords[merge_index + 1]])
-            del subwords[merge_index]
-            del subwords[merge_index]
-            subwords = subwords[:merge_index] + [concat_pair] + subwords[merge_index:]
+        if len(subwords) > 5000:
+            logger.warning(f'Encountered a string of length {len(subwords)}. It will take a while to bpe-encode it.')
+            merges = tqdm(merges)
+        for merge in merges:
+            subwords_after_this_merge_round = []
+            i = 0
+            while i < len(subwords) - 1:
+                if merge.pair == (subwords[i], subwords[i + 1]):
+                    subwords_after_this_merge_round.append(subwords[i] + subwords[i + 1])
+                    i += 2
+                else:
+                    subwords_after_this_merge_round.append(subwords[i])
+                    i += 1
+            if i == len(subwords) - 1:
+                subwords_after_this_merge_round.append(subwords[-1])
+            subwords = subwords_after_this_merge_round
+
         new_letters_list[" ".join(subwords)] = freq
     return new_letters_list
 
