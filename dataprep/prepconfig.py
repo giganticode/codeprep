@@ -114,10 +114,6 @@ class PrepConfig(object):
             raise ValueError("Combination NOSPLIT and LOWERCASED is not supported: "
                              "basic splitting needs to be dont done to lowercase the subword.")
 
-        if params[PrepParam.CASE] == 'u' and params[PrepParam.SPLIT] == 's':
-            raise ValueError("Combination STEMMING and UPPERCASE is not supported: "
-                             "stemmer always lowercases words.")
-
         if params[PrepParam.CASE] == 'l' and params[PrepParam.SPLIT] in ['4', '5', '6', '7', '9']:
             raise ValueError("Combination BPE and LOWERCASE is not supported:")
 

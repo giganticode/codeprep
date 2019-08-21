@@ -332,7 +332,7 @@ class CliTest(unittest.TestCase):
     def test_create_prep_config_0c1sxl(self):
         actual = api.basic(input_text, "java", stem=True, no_case=True, no_spaces=True)
 
-        expected = ['void', ws, 'test', '_', cap, 'Word', cap, 'ueberraschung', cap, 'printer', we, '(', ')', '{',
+        expected = ['void', ws, 'test', '_', cap, 'word', cap, 'ueberraschung', cap, 'printer', we, '(', ')', '{',
                     'if', '(', 'ep', '>', '=', ws, '0',  '.', '3', '4', '5', 'e', '+', '4', we, ')', '{', '/', '/',
                     ws, caps, 'fix', 'me', we, ws, '1', '0', 'l', we, ce,
                     ws, 'print', cap, 'word', we, '(', '"', '.', '.', '.', cap,  'überraschung', ws, '0', 'x', '1', '2', we, '"', ')', ';',
