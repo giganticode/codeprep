@@ -100,7 +100,7 @@ def create_prep_config_from_args(arguments: Dict) -> PrepConfig:
         PrepParam.STR: create_str_value(is_option_true(arguments, '--no-str'), max_str_length),
         PrepParam.SPLIT: create_split_value_from_args(arguments),
         PrepParam.TABS_NEWLINES: '0' if is_option_true(arguments, '--no-spaces') else 's',
-        PrepParam.CASE: 'l' if is_option_true(arguments, '--no-case') or is_option_true(arguments, '--stem') else 'u',
+        PrepParam.CASE: 'l' if is_option_true(arguments, '--no-case') else 'u',
     })
 
 

@@ -269,7 +269,7 @@ class ParseAndRunTest(unittest.TestCase):
             PrepParam.STR: '1',
             PrepParam.SPLIT: 's',
             PrepParam.TABS_NEWLINES: '0',
-            PrepParam.CASE: 'l'
+            PrepParam.CASE: 'u'
         })
         api_mock.text.preprocess.assert_called_with("str", prep_config, None)
 

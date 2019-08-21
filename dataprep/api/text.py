@@ -108,7 +108,7 @@ def basic(text: str, extension: Optional[str] = None, split_numbers: bool = Fals
 
     :param split_numbers: set to True to split numbers into digits
     :param ronin: Split words into subwords with Ronin algorithm: http://joss.theoj.org/papers/10.21105/joss.00653.
-    :param stem: set to True to do stemming with Porter stemmer. Setting this param to True, sets `no_case` and `spit_numbers` to True
+    :param stem: set to True to do stemming with Porter stemmer. Setting this param to True, sets `spit_numbers` to True
 
     :param no_spaces: set to True to remove tabs and newlines.
     :param no_case: set to True to lowercase identifiers and encode information about their case in a separate token,
@@ -125,7 +125,7 @@ def basic(text: str, extension: Optional[str] = None, split_numbers: bool = Fals
     the tuple is returned with the list of preprocessed tokens as the first element
     and pre-processing metadata as the second element (object of :class:`dataprep.model.metadata.Preprocessing.PreprocessingMetadata`)
     """
-    prep_config = create_prep_config('basic', no_spaces=no_spaces, no_unicode=no_unicode, no_case=no_case or stem,
+    prep_config = create_prep_config('basic', no_spaces=no_spaces, no_unicode=no_unicode, no_case=no_case,
                                      no_com=no_com, no_str=no_str, max_str_length=max_str_length,
                                      split_numbers=split_numbers or ronin or stem, ronin=ronin or stem, stem=stem)
     return preprocess(text, prep_config, extension=extension, return_metadata=return_metadata)

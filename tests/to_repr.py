@@ -550,17 +550,6 @@ class ReprTest(unittest.TestCase):
         self.assertEqual(expected, actual)
         #self.assertEqual(expected_metadata, actual_metadata)
 
-    def test_to_repr_ronin(self):
-        prep_config = PrepConfig({
-            PrepParam.EN_ONLY: 'U',
-            PrepParam.COM: 'c',
-            PrepParam.STR: '1',
-            PrepParam.SPLIT: '3',
-            PrepParam.TABS_NEWLINES: '0',
-            PrepParam.CASE: 'u'
-        })
-
-        actual, actual_metadata = to_repr(prep_config, tokens, BpeData(merges_cache={}, merges=MergeList()))
 
         expected = [
             pl['word_start'],
