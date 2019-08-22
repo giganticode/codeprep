@@ -44,7 +44,7 @@ def torepr(token, repr_config) -> Tuple[List[str], PreprocessingMetadata]:
     if clazz == list:
         return to_repr_list(token, repr_config)
     if clazz == str:
-        res = token + placeholders['compound_word_end'] if repr_config.bpe_data else token
+        res = token + placeholders['compound_word_end']
         return [res], PreprocessingMetadata(nonprocessable_tokens={token}, word_boundaries=[0,1])
 
     if repr_config and clazz in repr_config.types_to_be_repr:

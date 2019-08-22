@@ -33,11 +33,7 @@ class ProcessableTokenContainer(ParsedToken):
 
 
 def wrap_in_word_boundaries_if_necessary(res: List[str]) -> List[str]:
-    if len(res) == 1 or (len(res) == 2 and res[0] in [placeholders['capitals'], placeholders['capital']]):
-        return res
-    else:
-        return [placeholders['word_start']] + res + [placeholders['word_end']]
-
+    return res
 
 class SplitContainer(ProcessableTokenContainer):
     def __init__(self, subtokens: List[ParsedSubtoken]):
