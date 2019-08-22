@@ -6,9 +6,13 @@ from dataprep.parse.model.placeholders import placeholders
 from dataprep.parse.model.whitespace import SpaceInString
 from dataprep.parse.model.word import Word
 #from dataprep.parse.model.noneng import NonEng
-from dataprep.prepconfig import with_compound_word_end
 from dataprep.preprocess.core import ReprConfig, torepr
 from dataprep.noneng import replace_non_ascii_seqs
+
+def with_compound_word_end(parts: List[str]) -> List[str]:
+    parts[-1] = parts[-1] + placeholders['compound_word_end']
+
+    return parts
 
 class ProcessableTokenContainer(ParsedToken):
     def __init__(self, subtokens: Union[List[ParsedSubtoken], List[Union[str, ParsedToken]]]):
