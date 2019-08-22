@@ -54,5 +54,5 @@ def create_prep_config(spl_type: str, bpe_codes_id: Optional[str] = None, no_spa
         PrepParam.SPLIT: create_split_value(spl_type, bpe_codes_id=bpe_codes_id, full_strings=full_strings,
                                             split_numbers=split_numbers, ronin=ronin, stem=stem),
         PrepParam.TABS_NEWLINES: '0' if no_spaces else 's',
-        PrepParam.CASE: 'l' if no_case or stem else 'u'
+        PrepParam.CASE: 'l' if no_case else 'u'
     })
