@@ -131,7 +131,7 @@ def basic(path: str, extensions: Optional[str] = None, split_numbers: bool = Fal
     :param ronin: Split words into subwords with Ronin algorithm: http://joss.theoj.org/papers/10.21105/joss.00653.
     Setting `ronin` to `True` implies `split_numbers`=`True`
     :param stem: set to True to do stemming with Porter stemmer.
-    Setting `stem` to `True` implies `no_case`=`True`, `ronin`= `True`, and `split_numbers`=`True`
+    Setting `stem` to `True` implies `ronin`= `True`, and `split_numbers`=`True`
 
     :param no_spaces: set to True to remove tabs and newlines.
     :param no_case: set to True to lowercase identifiers and encode information about their case in a separate token,
@@ -144,7 +144,7 @@ def basic(path: str, extensions: Optional[str] = None, split_numbers: bool = Fal
 
     :return: `PreprocessedDataset` object which holds metadata of the preprocessed dataset
     """
-    prep_config = create_prep_config('basic', no_spaces=no_spaces, no_unicode=no_unicode, no_case=no_case or stem,
+    prep_config = create_prep_config('basic', no_spaces=no_spaces, no_unicode=no_unicode, no_case=no_case,
                                      no_com=no_com, no_str=no_str, max_str_length=max_str_length,
                                      split_numbers=split_numbers or stem or ronin, ronin=ronin or stem, stem=stem)
     return preprocess_corpus(path, prep_config, extensions=extensions, output_path=output_path, calc_vocab=calc_vocab)
