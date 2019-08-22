@@ -6,6 +6,7 @@ from dataprep.parse.model.placeholders import placeholders
 from dataprep.parse.model.whitespace import SpaceInString
 from dataprep.parse.model.word import Word
 #from dataprep.parse.model.noneng import NonEng
+from dataprep.prepconfig import with_compound_word_end
 from dataprep.preprocess.core import ReprConfig, torepr
 from dataprep.noneng import replace_non_ascii_seqs
 
@@ -58,7 +59,7 @@ class SplitContainer(ProcessableTokenContainer):
             r, metadata = torepr(subtoken, repr_config)
             res.extend(r if isinstance(r, list) else [r])
             all_metadata.update(metadata)
-        return self.with_full_word_metadata(wrap_in_word_boundaries_if_necessary(res), all_metadata)
+        return self.with_full_word_metadata(with_compound_word_end(res), all_metadata)
 
     @classmethod
     def from_single_token(cls, token: str):

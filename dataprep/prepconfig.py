@@ -153,7 +153,7 @@ class PrepConfig(object):
         if split_param_value in ['4', '5', '6', '7', '8', '9']:
             return lambda s, c: with_compound_word_end(get_bpe_subwords(s, c))
         elif split_param_value in ['1', '2']:
-            return lambda s,c: with_compound_word_end([s])
+            return lambda s,c: [s]
         elif split_param_value == '3':
             from spiral import ronin
             return lambda s, c: with_compound_word_end(ronin.split(s))
