@@ -140,9 +140,9 @@ class PrepConfig(object):
     def get_number_splitter(self) -> Splitter:
         split_param_value = self.get_param_value(PrepParam.SPLIT)
         if split_param_value in ['0', 'F', '1']:
-            return lambda s,c: with_compound_word_end([s])
+            return lambda s,c: [s]
         elif split_param_value in ['2', '3', 's']:
-            return lambda s,c: with_compound_word_end([ch for ch in s])
+            return lambda s,c: [ch for ch in s]
         elif split_param_value in ['4', '5', '6', '7', '8', '9']:
             return lambda s,c: with_compound_word_end(get_bpe_subwords(s, c))
         else:
@@ -156,11 +156,11 @@ class PrepConfig(object):
             return lambda s,c: [s]
         elif split_param_value == '3':
             from spiral import ronin
-            return lambda s, c: with_compound_word_end(ronin.split(s))
+            return lambda s, c: ronin.split(s)
         elif split_param_value == 's':
             from dataprep.stemming import stem
             from spiral import ronin
-            return lambda s,c: with_compound_word_end(list(map(lambda ss: stem(ss), ronin.split(s))))
+            return lambda s,c: list(map(lambda ss: stem(ss), ronin.split(s)))
         elif split_param_value in ['0', 'F']:
             return None
         else:

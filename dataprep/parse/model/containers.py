@@ -9,11 +9,6 @@ from dataprep.parse.model.word import Word
 from dataprep.preprocess.core import ReprConfig, torepr
 from dataprep.noneng import replace_non_ascii_seqs
 
-def with_compound_word_end(parts: List[str]) -> List[str]:
-    parts[-1] = parts[-1] + placeholders['compound_word_end']
-
-    return parts
-
 class ProcessableTokenContainer(ParsedToken):
     def __init__(self, subtokens: Union[List[ParsedSubtoken], List[Union[str, ParsedToken]]]):
         if isinstance(subtokens, list):
@@ -38,7 +33,11 @@ class ProcessableTokenContainer(ParsedToken):
 
 
 def wrap_in_word_boundaries_if_necessary(res: List[str]) -> List[str]:
-    return res
+    if len(res) == 1 or (len(res) == 2 and res[0] in [placeholders['capitals'], placeholders['capital']]):
+        return res
+    else:
+        return [placeholders['word_start']] + res + [placeholders['word_end']]
+
 
 class SplitContainer(ProcessableTokenContainer):
     def __init__(self, subtokens: List[ParsedSubtoken]):
@@ -63,7 +62,7 @@ class SplitContainer(ProcessableTokenContainer):
             r, metadata = torepr(subtoken, repr_config)
             res.extend(r if isinstance(r, list) else [r])
             all_metadata.update(metadata)
-        return self.with_full_word_metadata(with_compound_word_end(res), all_metadata)
+        return self.with_full_word_metadata(wrap_in_word_boundaries_if_necessary(res), all_metadata)
 
     @classmethod
     def from_single_token(cls, token: str):
