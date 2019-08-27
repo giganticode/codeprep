@@ -551,25 +551,37 @@ class ReprTest(unittest.TestCase):
         #self.assertEqual(expected_metadata, actual_metadata)
 
 
-        expected = [
-            pl['word_start'],
-            '1',
-            '.',
-            '1',
-            pl['word_end'],
-            "*",
-            pl['non_eng'],
-            '"', pl['non_eng'], '"',
-            '/', '*', pl['non_eng'], pl['non_eng'], '*', '/',
-            '/', '/', pl['non_eng'],
-            pl['olc_end']
-        ]
-
-        expected_metadata = PreprocessingMetadata({'*', '"', "/", "*"},
-                                                  word_boundaries=[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15])
-
-        self.assertEqual(expected, actual)
-        self.assertEqual(expected_metadata, actual_metadata)
+    # def test_to_repr_ronin(self):
+    #     prep_config = PrepConfig({
+    #         PrepParam.EN_ONLY: 'U',
+    #         PrepParam.COM: 'c',
+    #         PrepParam.STR: '1',
+    #         PrepParam.SPLIT: '3',
+    #         PrepParam.TABS_NEWLINES: '0',
+    #         PrepParam.CASE: 'u'
+    #     })
+    #
+    #     actual, actual_metadata = to_repr(prep_config, tokens, BpeData(merges_cache={}, merges=MergeList()))
+    #
+    #     expected = [
+    #         pl['word_start'],
+    #         '1',
+    #         '.',
+    #         '1',
+    #         pl['word_end'],
+    #         "*",
+    #         pl['non_eng'],
+    #         '"', pl['non_eng'], '"',
+    #         '/', '*', pl['non_eng'], pl['non_eng'], '*', '/',
+    #         '/', '/', pl['non_eng'],
+    #         pl['olc_end']
+    #     ]
+    #
+    #     expected_metadata = PreprocessingMetadata({'*', '"', "/", "*"},
+    #                                               word_boundaries=[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15])
+    #
+    #     self.assertEqual(expected, actual)
+    #     self.assertEqual(expected_metadata, actual_metadata)
 
     #
     # #################################################
@@ -638,7 +650,6 @@ class ReprTest(unittest.TestCase):
         start = time.perf_counter()
         to_repr(prep_config, tokens, BpeData(merges=merge_list, merges_cache={'Whi@@le@': ['Whi@@le@']}))
         print(time.perf_counter() - start)
-
 
 
 if __name__ == '__main__':
