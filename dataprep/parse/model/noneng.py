@@ -25,7 +25,7 @@ class NonEng(ParsedToken):
             token = replace_non_ascii_seqs(str(self.processable_token), placeholders['non_ascii_seq'])
             return torepr(SplitContainer.from_single_token(token), repr_config)
         else:
-            return with_empty_metadata([placeholders['non_eng']])
+            return self.with_full_word_metadata([placeholders['non_eng']])
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.processable_token.__repr__()})'

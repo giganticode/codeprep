@@ -5,9 +5,9 @@ from dataprep.parse.model.metadata import PreprocessingMetadata
 from dataprep.parse.model.placeholders import placeholders
 from dataprep.parse.model.whitespace import SpaceInString
 from dataprep.parse.model.word import Word
-#from dataprep.parse.model.noneng import NonEng
 from dataprep.preprocess.core import ReprConfig, torepr
 from dataprep.noneng import replace_non_ascii_seqs
+
 
 class ProcessableTokenContainer(ParsedToken):
     def __init__(self, subtokens: Union[List[ParsedSubtoken], List[Union[str, ParsedToken]]]):
@@ -84,10 +84,14 @@ class TextContainer(ProcessableTokenContainer):
     def __eq__(self, other):
         return self.__class__ == other.__class__ and self.subtokens == other.subtokens
 
-    def with_each_word_metadata(self, tokens: List[str], metadata: Optional[PreprocessingMetadata] = None) -> Tuple[
+    def with_each_word_metadata(self, tokens: List[str],
+                                metadata: Optional[PreprocessingMetadata] = None,
+                                comments: List[Tuple[int, int]] = None) -> Tuple[
         Union[List[str], str], PreprocessingMetadata]:
         updated_metadata = metadata or PreprocessingMetadata()
         updated_metadata.word_boundaries = list(range(len(tokens) + 1))
+        if comments:
+            updated_metadata.comments = comments
         return tokens, updated_metadata
 
 
@@ -98,10 +102,11 @@ class OneLineComment(TextContainer):
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[List[str], PreprocessingMetadata]:
         prep_tokens, metadata = torepr(self.subtokens, repr_config)
         metadata.update(PreprocessingMetadata(word_boundaries=[0, 1]))
+        metadata.set_all_tokens_comment()
         return prep_tokens + [placeholders['olc_end']], metadata
 
     def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
-        return self.with_each_word_metadata([placeholders['comment']])
+        return self.with_each_word_metadata([placeholders['comment']], comments=[(0, 1)])
 
 
 class MultilineComment(TextContainer):
@@ -109,10 +114,12 @@ class MultilineComment(TextContainer):
         super().__init__(tokens)
 
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[List[str], PreprocessingMetadata]:
-        return torepr(self.subtokens, repr_config)
+        prep_tokens, metadata = torepr(self.subtokens, repr_config)
+        metadata.set_all_tokens_comment()
+        return prep_tokens, metadata
 
     def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
-        return self.with_each_word_metadata([placeholders['comment']])
+        return self.with_each_word_metadata([placeholders['comment']], comments=[(0, 1)])
 
 
 class StringLiteral(TextContainer):
@@ -125,7 +132,6 @@ class StringLiteral(TextContainer):
         if 'NonEng' in list(map(lambda x: x.__name__, repr_config.types_to_be_repr)):
             s = placeholders["space_in_str"].join(map(lambda t: replace_non_ascii_seqs(t, placeholders['non_ascii_seq']), s.split(placeholders["space_in_str"])))    
         return s
-        
 
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[List[str], PreprocessingMetadata]:
         if not repr_config: #called by str()

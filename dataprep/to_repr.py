@@ -17,7 +17,7 @@ from dataprep.config import DEFAULT_BPE_DIR, NO_CASE_DIR, CASE_DIR, DEFAULT_BPE_
     CHUNKSIZE, LIMIT_FILES_SCANNING
 from dataprep.infrastructure.dataset import Dataset, NOT_FINISHED_EXTENSION
 from dataprep.parse.model.core import ParsedToken
-from dataprep.parse.model.metadata import PreprocessingMetadata
+from dataprep.parse.model.metadata import PreprocessingMetadata, check_metadata_validity
 from dataprep.parse.model.metadata import save_metadata
 from dataprep.parse.model.placeholders import placeholders
 from dataprep.prepconfig import PrepParam, PrepConfig
@@ -35,6 +35,7 @@ def to_repr(prep_config: PrepConfig, token_list: List[Union[str, ParsedToken]],
             bpe_data: Optional[BpeData] = None) -> Tuple[List[str], PreprocessingMetadata]:
     bpe_data = bpe_data or get_global_bpe_data_if_available()
     repr_list, metadata = to_repr_list(token_list, prep_config.get_repr_config(bpe_data))
+    check_metadata_validity(repr_list, metadata)
     return repr_list, metadata
 
 

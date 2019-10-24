@@ -41,7 +41,8 @@ class CliTest(unittest.TestCase):
 
         expected_metadata = PreprocessingMetadata(
             nonprocessable_tokens={'void', '(', ')', '{', 'if', '>', '=', '/', '"', '.', '}', ';'},
-            word_boundaries=list(range(len(expected)+1)))
+            word_boundaries=list(range(len(expected)+1)),
+            comments=[(13, 18)])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, metadata)
@@ -58,7 +59,8 @@ class CliTest(unittest.TestCase):
 
         expected_metadata = PreprocessingMetadata(
             nonprocessable_tokens={'void', '(', ')', '{', 'if', '>', '=', '/', '"', '}', ';'},
-            word_boundaries=list(range(len(expected)+1)))
+            word_boundaries=list(range(len(expected)+1)),
+            comments=[(13, 18)])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, metadata)
@@ -75,7 +77,7 @@ class CliTest(unittest.TestCase):
 
         expected_metadata = PreprocessingMetadata(
             nonprocessable_tokens={'void', '(', ')', '{', 'if', '>', '=', '/', '"', '.', '}', ';'},
-            word_boundaries=list(range(len(expected)+1)))
+            word_boundaries=list(range(len(expected)+1)), comments=[(13, 18)])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, metadata)
@@ -92,7 +94,8 @@ class CliTest(unittest.TestCase):
 
         expected_metadata = PreprocessingMetadata(
             nonprocessable_tokens={'void', '(', ')', '{', 'if', '>', '=', '/', '"', '.', '}', ';'},
-            word_boundaries=list(range(len(expected)+1)))
+            word_boundaries=list(range(len(expected)+1)),
+            comments=[(13, 18)])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, metadata)
@@ -122,7 +125,8 @@ class CliTest(unittest.TestCase):
 
         expected_metadata = PreprocessingMetadata(
             nonprocessable_tokens={'void', '(', ')', '{', 'if', '>', '=', '}', ';'},
-            word_boundaries=list(range(len(expected)+1)))
+            word_boundaries=list(range(len(expected)+1)),
+            comments=[(13, 14)])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, metadata)
@@ -139,7 +143,7 @@ class CliTest(unittest.TestCase):
 
         expected_metadata = PreprocessingMetadata(
             nonprocessable_tokens={'void', '(', ')', '{', 'if', '>', '=', '/', '"', '.', '}', ';', '\n', '\t'},
-            word_boundaries=list(range(len(expected)+1)))
+            word_boundaries=list(range(len(expected)+1)), comments=[(15, 21)])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, metadata)
@@ -160,7 +164,8 @@ class CliTest(unittest.TestCase):
 
         expected_metadata = PreprocessingMetadata(
             nonprocessable_tokens={'void', '(', ')', '{', 'if', '>', '=', '/', '}', ';'},
-            word_boundaries=list(range(len(expected)+1)))
+            word_boundaries=list(range(len(expected)+1)),
+            comments=[(13, 18)])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, metadata)
@@ -177,7 +182,8 @@ class CliTest(unittest.TestCase):
 
         expected_metadata = PreprocessingMetadata(
             nonprocessable_tokens={'void', '(', ')', '{', 'if', '>', '=', '/', '}', ';'},
-            word_boundaries=list(range(len(expected)+1)))
+            word_boundaries=list(range(len(expected)+1)),
+            comments=[(13, 18)])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, metadata)
@@ -195,7 +201,8 @@ class CliTest(unittest.TestCase):
 
         expected_metadata = PreprocessingMetadata(
             nonprocessable_tokens={'void', '(', ')', '{', 'if', '>', '=', '/', '}', ';', '"'},
-            word_boundaries=list(range(len(expected)+1)))
+            word_boundaries=list(range(len(expected)+1)),
+            comments=[(13, 18)])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, metadata)
@@ -213,7 +220,8 @@ class CliTest(unittest.TestCase):
 
         expected_metadata = PreprocessingMetadata(
             nonprocessable_tokens={'void', '(', ')', '{', 'if', '>', '=', '/', '}', ';'},
-            word_boundaries=list(range(len(expected)+1)))
+            word_boundaries=list(range(len(expected)+1)),
+            comments=[(13, 18)])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, metadata)
@@ -231,7 +239,8 @@ class CliTest(unittest.TestCase):
 
         expected_metadata = PreprocessingMetadata(
             nonprocessable_tokens={'void', '(', ')', '{', 'if', '>', '=', '/', '}', ';'},
-            word_boundaries=list(range(len(expected)+1)))
+            word_boundaries=list(range(len(expected)+1)),
+            comments=[(13, 18)])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, metadata)
@@ -250,7 +259,8 @@ class CliTest(unittest.TestCase):
         expected_metadata = PreprocessingMetadata(
             nonprocessable_tokens={'void', '(', ')', '{', 'if', '>', '=', '/', '"', '.', '}', ';'},
             word_boundaries=[0, 1, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 26, 27,
-                             28, 33, 34, 35, 36, 37, 38, 40, 41, 42, 43, 44, 45, 46])
+                             28, 33, 34, 35, 36, 37, 38, 40, 41, 42, 43, 44, 45, 46],
+            comments=[(22, 28)])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, metadata)
@@ -392,7 +402,8 @@ class CliTest(unittest.TestCase):
 
         expected_metadata = PreprocessingMetadata(
             nonprocessable_tokens={'void', '(', ')', '{', 'if', '>', '=', '/', '}', ';'},
-            word_boundaries=[0, 1, 31, 32, 33, 34, 35, 36, 40, 41, 42, 51, 52, 53, 54, 55, 61, 65, 66, 76, 77, 110, 111, 112, 113, 114])
+            word_boundaries=[0, 1, 31, 32, 33, 34, 35, 36, 40, 41, 42, 51, 52, 53, 54, 55, 61, 65, 66, 76, 77,
+                             110, 111, 112, 113, 114], comments=[(53, 66)])
 
         self.assertEqual(expected, actual)
         print(expected_metadata)

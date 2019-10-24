@@ -92,7 +92,9 @@ class ReprTest(unittest.TestCase):
             '/', '*', 'ц', 'blanco_english', '*', '/',
             '/', '/', "DIESELBE8", pl['olc_end']
         ]
-        expected_metadata = PreprocessingMetadata({'"', "*", "/"}, word_boundaries=list(range(16+1)))
+        expected_metadata = PreprocessingMetadata({'"', "*", "/"},
+                                                  word_boundaries=list(range(16+1)),
+                                                  comments=[(6, 16)])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -117,7 +119,9 @@ class ReprTest(unittest.TestCase):
             '/', '*', 'ц', 'blanco_english', '*', '/',
             '/', '/', "DIESELBE8", pl['olc_end']
         ]
-        expected_metadata = PreprocessingMetadata({'"', "*", "/"}, word_boundaries=list(range(15+1)))
+        expected_metadata = PreprocessingMetadata({'"', "*", "/"},
+                                                  word_boundaries=list(range(15+1)),
+                                                  comments=[(5, 15)])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -142,7 +146,9 @@ class ReprTest(unittest.TestCase):
             '/', '*', 'ц', 'blanco_english', '*', '/',
             '/', '/', "DIESELBE8", pl['olc_end']
         ]
-        expected_metadata = PreprocessingMetadata({'"', "*", "/"}, word_boundaries=list(range(16+1)))
+        expected_metadata = PreprocessingMetadata({'"', "*", "/"},
+                                                  word_boundaries=list(range(16+1)),
+                                                  comments=[(6, 16)])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -167,7 +173,7 @@ class ReprTest(unittest.TestCase):
             '/', '*', 'ц', 'blanco_english', '*', '/',
             '/', '/', "DIESELBE8", pl['olc_end']
         ]
-        expected_metadata = PreprocessingMetadata({"*", "/"}, word_boundaries=list(range(14+1)))
+        expected_metadata = PreprocessingMetadata({"*", "/"}, word_boundaries=list(range(14+1)), comments=[(4, 14)])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -192,7 +198,9 @@ class ReprTest(unittest.TestCase):
             '/', '*', 'ц', 'blanco_english', '*', '/',
             '/', '/', "DIESELBE8", pl['olc_end']
         ]
-        expected_metadata = PreprocessingMetadata({'"', "*", "/"}, word_boundaries=list(range(14+1)))
+        expected_metadata = PreprocessingMetadata({'"', "*", "/"},
+                                                  word_boundaries=list(range(14+1)),
+                                                  comments=[(4, 14)])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -217,7 +225,7 @@ class ReprTest(unittest.TestCase):
             '/', '*', 'ц', 'blanco_english', '*', '/',
             '/', '/', "DIESELBE8", pl['olc_end']
         ]
-        expected_metadata = PreprocessingMetadata({"*", "/"}, word_boundaries=list(range(14+1)))
+        expected_metadata = PreprocessingMetadata({"*", "/"}, word_boundaries=list(range(14+1)), comments=[(4, 14)])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -248,7 +256,9 @@ class ReprTest(unittest.TestCase):
             pl['olc_end']
         ]
 
-        expected_metadata = PreprocessingMetadata({'*', '"', "/", "*"}, word_boundaries=list(range(12)))
+        expected_metadata = PreprocessingMetadata({'*', '"', "/", "*"},
+                                                  word_boundaries=list(range(16+1)),
+                                                  comments=[(6, 16)])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -281,7 +291,9 @@ class ReprTest(unittest.TestCase):
             '/', '/', pl['non_eng'], pl['olc_end']
         ]
 
-        expected_metadata = PreprocessingMetadata({'*', '"', "/", "*"}, word_boundaries=[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15])
+        expected_metadata = PreprocessingMetadata({'*', '"', "/", "*"},
+                                                  word_boundaries=[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+                                                  comments=[(10, 20)])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -373,7 +385,8 @@ class ReprTest(unittest.TestCase):
         ]
 
         expected_metadata = PreprocessingMetadata({'*', '"', "/", "*"},
-                                                  word_boundaries=[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15])
+                                                  word_boundaries=[0] + list(range(5, 32))
+                                                  , comments=[(21, 31)])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -407,7 +420,8 @@ class ReprTest(unittest.TestCase):
         ]
 
         expected_metadata = PreprocessingMetadata({'*', '"', "/"}, word_boundaries=[0, 5, 6, 7, 8, 14, 15, 16, 17, 18,
-                                                                                    23, 24, 25, 26, 27, 32, 33])
+                                                                                    23, 24, 25, 26, 27, 32, 33],
+                                                  comments=[(15, 33)])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -444,7 +458,8 @@ class ReprTest(unittest.TestCase):
         ]
 
         expected_metadata = PreprocessingMetadata({'*', '"', "/", '\n', '\t'},
-                                                  word_boundaries=[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
+                                                  word_boundaries=[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+                                                  comments=[(11, 17), (19, 23)])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -480,7 +495,7 @@ class ReprTest(unittest.TestCase):
             pl["comment"]
         ]
 
-        expected_metadata = PreprocessingMetadata({'*'}, word_boundaries=[0, 5, 6, 7, 8, 9, 10, 11])
+        expected_metadata = PreprocessingMetadata({'*'}, word_boundaries=[0, 5, 6, 7, 8, 9, 10, 11, 12], comments=[(8, 12)])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
@@ -515,7 +530,9 @@ class ReprTest(unittest.TestCase):
             pl['olc_end']
         ]
 
-        expected_metadata = PreprocessingMetadata({'*', '"', "/"}, word_boundaries=[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15])
+        expected_metadata = PreprocessingMetadata({'*', '"', "/"},
+                                                  word_boundaries=[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+                                                  comments=[(10, 20)])
 
         self.assertEqual(expected, actual)
         self.assertEqual(expected_metadata, actual_metadata)
