@@ -1,9 +1,14 @@
 import bisect
 import logging
+
 from dataprep.util import to_literal_str
 from typing import Set, Optional, List, Tuple, Any
 
 logger = logging.getLogger(__name__)
+
+
+class InvalidMetadataError(Exception):
+    pass
 
 
 class PreprocessingMetadata(object):
@@ -15,6 +20,23 @@ class PreprocessingMetadata(object):
         self.word_boundaries = word_boundaries or [0]
         self.comments = comments or []
 
+        self._check_invariants()
+
+    def _check_invariants(self) -> None:
+        self._assert_comments_not_break_full_token()
+
+    def _assert_comments_not_break_full_token(self):
+        i = 0
+        for comment in self.comments:
+            for start_or_end_index in comment:
+                while self.word_boundaries[i] < start_or_end_index:
+                    i += 1
+                if self.word_boundaries[i] != start_or_end_index:
+                    raise InvalidMetadataError(f'Comment cannot start or end in the middle of full token.\n'
+                                               f'However, it starts/ends at position {start_or_end_index} in the middle'
+                                               f' of full token at positions {self.word_boundaries[i-1]}-{self.word_boundaries[i]}\n')
+                i += 1
+
     def set_all_tokens_comment(self) -> None:
         self.comments = [(self.word_boundaries[0], self.word_boundaries[-1])]
 
@@ -23,8 +45,8 @@ class PreprocessingMetadata(object):
         >>> PreprocessingMetadata().update(PreprocessingMetadata())
         (set(), [0], [])
 
-        >>> PreprocessingMetadata({'<comment>'}, [0, 2], []).update(PreprocessingMetadata({'<comment>'}, [0, 3], [(1, 2)]))
-        ({'<comment>'}, [0, 2, 5], [(3, 4)])
+        >>> PreprocessingMetadata({'<comment>'}, [0, 2], []).update(PreprocessingMetadata({'<comment>'}, [0, 1, 2, 3], [(1, 2)]))
+        ({'<comment>'}, [0, 2, 3, 4, 5], [(3, 4)])
 
         >>> PreprocessingMetadata(set(), [0, 2], [(0, 2)]).update(PreprocessingMetadata(set(), [0, 3], [(0, 3)]))
         (set(), [0, 2, 5], [(0, 5)])
@@ -52,16 +74,16 @@ class PreprocessingMetadata(object):
         >>> PreprocessingMetadata(set(), [0, 1000], []).is_comment_at_index(5)
         False
 
-        >>> PreprocessingMetadata(set(), [0, 1000], [(0, 5), (6, 10)]).is_comment_at_index(5)
+        >>> PreprocessingMetadata(set(), [0, 5, 6, 10, 1000], [(0, 5), (6, 10)]).is_comment_at_index(5)
         False
 
-        >>> PreprocessingMetadata(set(), [0, 1000], [(5, 10)]).is_comment_at_index(5)
+        >>> PreprocessingMetadata(set(), [0, 5, 10, 1000], [(5, 10)]).is_comment_at_index(5)
         True
 
-        >>> PreprocessingMetadata(set(), [0, 1000], [(0, 6)]).is_comment_at_index(5)
+        >>> PreprocessingMetadata(set(), [0, 6, 1000], [(0, 6)]).is_comment_at_index(5)
         True
 
-        >>> PreprocessingMetadata(set(), [0, 1000], [(0, 1), (2, 3), (500, 600)]).is_comment_at_index(5)
+        >>> PreprocessingMetadata(set(), [0, 1, 2, 3, 500, 600, 1000], [(0, 1), (2, 3), (500, 600)]).is_comment_at_index(5)
         False
         """
         ind = bisect.bisect_right(list(map(lambda a: a[0], self.comments)), current_index) - 1
@@ -76,8 +98,25 @@ class PreprocessingMetadata(object):
                and self.word_boundaries == other.word_boundaries \
                and self.comments == other.comments
 
+    def n_full_tokens_in_comments(self) -> int:
+        """
+        >>> PreprocessingMetadata(set(), [0, 2, 5, 6, 10], [(0, 5), (6, 10)]).n_full_tokens_in_comments()
+        3
+        """
+        return sum(map(lambda i: self.word_boundaries.index(i[1]) - self.word_boundaries.index(i[0]), self.comments))
 
-def save_metadata(metadata: PreprocessingMetadata, save_to: bytes):
+    def n_subtokens_in_comments(self) -> int:
+        """
+        >>> PreprocessingMetadata(set(), [0, 5, 6, 10, 1000], [(0, 5), (6, 10)]).n_subtokens_in_comments()
+        9
+
+        >>> PreprocessingMetadata(set(), [0, 1000], []).n_subtokens_in_comments()
+        0
+        """
+        return sum(map(lambda c: c[1]-c[0], self.comments))
+
+
+def save_metadata(metadata: PreprocessingMetadata, save_to: bytes) -> None:
     with open(save_to, 'w') as f:
         for token in metadata.nonprocessable_tokens:
             f.write(f'{to_literal_str(token)}\n')
