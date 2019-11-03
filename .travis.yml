@@ -8,6 +8,6 @@ install:
 script:
   - cd $TRAVIS_BUILD_DIR
   - echo "Current directory is $(pwd)"
-  - coverage run -m unittest discover -v -s "tests" -p "*.py"
+  - coverage run -m pytest --doctest-modules
   - coverage report -m
   - coverage xml -i
