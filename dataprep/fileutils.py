@@ -6,6 +6,23 @@ logger = logging.getLogger(__name__)
 
 
 def has_one_of_extensions(name: bytes, extensions: List[bytes]) -> bool:
+    """
+    >>> has_one_of_extensions(b'/home/abc.java', [b'java', b'c'])
+    True
+
+    >>> has_one_of_extensions(b'/home/abc.py', [b'java', b'c'])
+    False
+
+    >>> has_one_of_extensions(b'/home/abc.dtc', [b'java', b'c'])
+    False
+
+    >>> has_one_of_extensions(b'/home/abc.f.java.prep', [b'java.prep', b'c'])
+    True
+
+    >>> has_one_of_extensions(b'/home/abc.f.java.prep', [b'a.prep', b'c'])
+    False
+
+    """
     for ext in extensions:
         if name.endswith(b'.' + ext):
             return True

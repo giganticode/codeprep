@@ -86,6 +86,35 @@ class BpeConfig(object):
         })
 
     def to_suffix(self):
+        """
+        >>> bpe_config = BpeConfig({
+        ...     BpeParam.CASE: 'yes',
+        ...     BpeParam.WORD_END: False,
+        ...     BpeParam.BASE: 'all',
+        ...     BpeParam.UNICODE: 'yes'
+        ... })
+        >>> bpe_config.to_suffix()
+        ''
+
+        >>> bpe_config = BpeConfig({
+        ...     BpeParam.CASE: 'yes',
+        ...     BpeParam.WORD_END: True,
+        ...     BpeParam.BASE: 'all',
+        ...     BpeParam.UNICODE: 'no'
+        ... })
+        >>> bpe_config.to_suffix()
+        'we_nounicode'
+
+        >>> bpe_config = BpeConfig({
+        ...     BpeParam.CASE: 'yes',
+        ...     BpeParam.WORD_END: False,
+        ...     BpeParam.BASE: 'all',
+        ...     BpeParam.UNICODE: 'bytes'
+        ... })
+        >>> bpe_config.to_suffix()
+        'bytes'
+
+        """
         suffix_parts = []
 
         if self.get_param_value(BpeParam.CASE) == 'no':

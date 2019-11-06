@@ -313,6 +313,20 @@ def archive_path(path: str) -> None:
 
 
 def normalize_extension_string(extensions: Optional[str]) -> Optional[List[str]]:
+    """
+    >>> normalize_extension_string("java|c|python")
+    ['c', 'java', 'python']
+
+    >>> normalize_extension_string("java")
+    ['java']
+
+    >>> normalize_extension_string("java|c|java")
+    ['c', 'java']
+
+    >>> res = normalize_extension_string(None)
+    >>> str(res)
+    'None'
+    """
     if not extensions:
         return extensions
 

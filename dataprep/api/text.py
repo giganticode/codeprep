@@ -53,8 +53,88 @@ def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False,
     :return: list of tokens `text` was split into. If `return_metadata` is set to True,
     the tuple is returned with the list of preprocessed tokens as the first element
     and pre-processing metadata as the second element (object of :class:`dataprep.model.metadata.Preprocessing.PreprocessingMetadata`)
+
+    >>> input_text='''void test_WordUeberraschungPrinter() {
+    ...     if (eps >= 0.345e+4) { // FIXME 10L
+    ...         printWord("     ...     Überraschung 0x12");
+    ...    }
+    ... }'''
+
+    >>> tokens, metadata = nosplit(input_text, "java", return_metadata=True)
+    >>> tokens
+    ['void', 'test_WordUeberraschungPrinter', '(', ')', '{', \
+'\\n', '\\t', 'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', 'FIXME', '10l', \
+'\\n', '<EOL>', '\\t', '\\t', 'printWord', '(', '"', '.', '.', '.', 'Überraschung', '0x12', '"', ')', ';', \
+'\\n', '}', \
+'\\n', '}']
+    >>> sorted(metadata.nonprocessable_tokens)
+    ['\\t', '\\n', '"', '(', ')', '.', '/', ';', '=', '>', 'if', 'void', '{', '}']
+    >>> metadata.word_boundaries
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, \
+21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38]
+    >>> metadata.comments
+    [(15, 21)]
+
+
+    >>> nosplit('')
+    []
+
+
+    >>> nosplit(input_text, "java", no_spaces=True)
+    ['void', 'test_WordUeberraschungPrinter', '(', ')', '{', \
+'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', 'FIXME', '10l', \
+'<EOL>', 'printWord', '(', '"', '.', '.', '.', 'Überraschung', '0x12', '"', ')', ';', \
+'}', \
+'}']
+
+    >>> nosplit(input_text, "java", no_spaces=True, no_unicode=True)
+    ['void', 'test_WordUeberraschungPrinter', '(', ')', '{', \
+'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', 'FIXME', '10l', \
+'<EOL>', 'printWord', '(', '"', '.', '.', '.', '<non-en>', '0x12', '"', ')', ';', \
+'}', \
+'}']
+
+    >>> nosplit('"     ...     Überraschung 0x12"', "java", no_spaces=True, max_str_length=32)
+    ['"', '.', '.', '.', 'Überraschung', '0x12', '"']
+
+    >>> nosplit('"     ...     Überraschung 0x12"', "java", no_spaces=True, max_str_length=26, return_metadata=True)
+    (['"', '"'], ({'"'}, [0, 1, 2], []))
+
+    >>> nosplit('"     ...     Überraschung 0x12"', "java", no_spaces=True, full_strings=True, max_str_length=31, \
+return_metadata=True)
+    (['""'], ({'"'}, [0, 1], []))
+
+    >>> nosplit('"     ...     Überraschung 0x12"', "java", full_strings=True, return_metadata=True)
+    (['"\xa0\xa0\xa0\xa0\xa0...\xa0\xa0\xa0\xa0\xa0Überraschung\xa00x12"'], (set(), [0, 1], []))
+
+    >>> nosplit('"     ...     Überraschung 0x12"', "java", no_spaces=True, full_strings=True, max_str_length=500)
+    ['"\xa0\xa0\xa0\xa0\xa0...\xa0\xa0\xa0\xa0\xa0Überraschung\xa00x12"']
+
+
+    >>> tokens, metadata = nosplit(input_text, "java", no_spaces=True, no_com=True, no_str=True, return_metadata=True)
+    >>> tokens
+    ['void', 'test_WordUeberraschungPrinter', '(', ')', '{', \
+'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '<comment>', \
+'printWord', '(', '<str-literal>', ')', ';', \
+'}', \
+'}']
+    >>> sorted(metadata.nonprocessable_tokens)
+    ['(', ')', ';', '=', '>', 'if', 'void', '{', '}']
+    >>> metadata.word_boundaries
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, \
+21]
+    >>> metadata.comments
+    [(13, 14)]
+
+
+    >>> nosplit(input_text, "java", no_spaces=True, no_case=True)
+    Traceback (most recent call last):
+    ...
+    TypeError: nosplit() got an unexpected keyword argument 'no_case'
+
+    >>>
     """
-    prep_config= create_prep_config('nosplit', no_spaces=no_spaces, no_unicode=no_unicode, no_com=no_com, no_str=no_str,
+    prep_config = create_prep_config('nosplit', no_spaces=no_spaces, no_unicode=no_unicode, no_com=no_com, no_str=no_str,
                                     full_strings=full_strings, max_str_length=max_str_length)
     return preprocess(text, prep_config, extension=extension, return_metadata=return_metadata)
 
@@ -87,6 +167,35 @@ def chars(text: str, extension: Optional[str] = None, no_spaces: bool = False, n
     :return: list of tokens `text` was split into. If `return_metadata` is set to True,
     the tuple is returned with the list of preprocessed tokens as the first element
     and pre-processing metadata as the second element (object of :class:`dataprep.model.metadata.Preprocessing.PreprocessingMetadata`)
+
+    >>> input_text='''void test_WordUeberraschungPrinter() {
+    ...     if (eps >= 0.345e+4) { // FIXME 10L
+    ...         printWord("     ...     Überraschung 0x12");
+    ...    }
+    ... }'''
+
+    >>> tokens, metadata = chars(input_text, "java", no_spaces=True, return_metadata=True)
+    >>> tokens
+    ['void</t>', 't', 'e', 's', 't', '_', 'W', 'o', 'r', 'd', 'U', 'e', 'b', 'e', 'r', 'r', 'a', 's', 'c', 'h', \
+'u', 'n', 'g', 'P', 'r', 'i', 'n', 't', 'e', 'r', '</t>', '(</t>', ')</t>', '{</t>', \
+'if</t>', '(</t>', 'e', 'p', 's', '</t>', '></t>', '=</t>', '0', '.', '3', '4', '5', 'e', '+', '4', '</t>', ')</t>', \
+'{</t>', '/</t>', '/</t>', 'F', 'I', 'X', 'M', 'E', '</t>', '1', '0', 'l', '</t>', '<EOL>', \
+'p', 'r', 'i', 'n', 't', 'W', 'o', 'r', 'd', '</t>', '(</t>', '"', \
+'\\xa0', '\\xa0', '\\xa0', '\\xa0', '\\xa0', '.', '.', '.', \
+'\\xa0', '\\xa0', '\\xa0', '\\xa0', '\\xa0', 'Ü', 'b', 'e', 'r', 'r', 'a', 's', 'c', 'h', 'u', 'n', 'g', '\\xa0', '0', 'x', \
+'1', '2', '"', '</t>', ')</t>', ';</t>', \
+'}</t>', \
+'}</t>']
+    >>> sorted(metadata.nonprocessable_tokens)
+    ['(', ')', '/', ';', '=', '>', 'if', 'void', '{', '}']
+    >>> metadata.word_boundaries
+    [0, 1, 31, 32, 33, 34, 35, 36, 40, 41, 42, 51, 52, 53, 54, 55, 61, 65, 66, 76, 77, 110, 111, 112, 113, 114]
+    >>> metadata.comments
+    [(53, 66)]
+
+
+    >>> chars('')
+    []
     """
     prep_config = create_prep_config('chars', no_spaces=no_spaces, no_unicode=no_unicode,
                                      no_com=no_com, no_str=no_str, max_str_length=max_str_length)
@@ -124,6 +233,74 @@ def basic(text: str, extension: Optional[str] = None, split_numbers: bool = Fals
     :return: list of tokens `text` was split into. If `return_metadata` is set to True,
     the tuple is returned with the list of preprocessed tokens as the first element
     and pre-processing metadata as the second element (object of :class:`dataprep.model.metadata.Preprocessing.PreprocessingMetadata`)
+
+
+    >>> input_text='''void test_WordUeberraschungPrinter() {
+    ...     if (eps >= 0.345e+4) { // FIXME 10L
+    ...         printWord("     ...     Überraschung 0x12");
+    ...    }
+    ... }'''
+
+    >>> tokens, metadata = basic(input_text, "java", no_spaces=True, return_metadata=True)
+    >>> tokens
+    ['void', '<w>', 'test', '_', 'Word', 'Ueberraschung', 'Printer', '</w>', '(', ')', '{', \
+'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', 'FIXME', '10l', '<EOL>', \
+'<w>', 'print', 'Word', '</w>', '(', '"', '.', '.', '.', 'Überraschung', '0x12', '"', ')', ';', \
+'}', \
+'}']
+
+    >>> sorted(metadata.nonprocessable_tokens)
+    ['"', '(', ')', '.', '/', ';', '=', '>', 'if', 'void', '{', '}']
+
+    >>> metadata.word_boundaries
+    [0, 1, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 28, 29, 30, 31, 32, 33, 34, 35, 36, \
+37, 38, 39, 40]
+
+    >>> metadata.comments
+    [(19, 24)]
+
+    >>> tokens, metadata = basic(input_text, "java", no_spaces=True, no_case=True, return_metadata=True)
+    >>> tokens
+    ['void', '<w>', 'test', '_', '<Cap>', 'word', '<Cap>', 'ueberraschung', '<Cap>', 'printer', '</w>', '(', ')', '{', \
+'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', '<CAPS>', 'fixme', '10l', '<EOL>', \
+'<w>', 'print', '<Cap>', 'word', '</w>', '(', '"', '.', '.', '.', '<Cap>', 'überraschung', '0x12', '"', ')', ';', \
+'}', \
+'}']
+    >>> sorted(metadata.nonprocessable_tokens)
+    ['"', '(', ')', '.', '/', ';', '=', '>', 'if', 'void', '{', '}']
+
+    >>> metadata.word_boundaries
+    [0, 1, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 26, 27, 28, 33, 34, 35, 36, 37, 38, 40, 41, 42, \
+43, 44, 45, 46]
+
+    >>> metadata.comments
+    [(22, 28)]
+
+    >>> basic(input_text, "java", no_spaces=True, no_case=True, no_com=True, no_str=True)
+    ['void', '<w>', 'test', '_', '<Cap>', 'word', '<Cap>', 'ueberraschung', '<Cap>', 'printer', '</w>', '(', ')', '{', \
+'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '<comment>', \
+'<w>', 'print', '<Cap>', 'word', '</w>', '(', '<str-literal>', ')', ';', \
+'}', \
+'}']
+
+    >>> basic('"     Überraschung 0x12"', "java", no_spaces=True, no_unicode=True, no_case=True, return_metadata=True)
+    (['"', '<non-en>', '0x12', '"'], ({'"'}, [0, 1, 2, 3, 4], []))
+
+    >>> basic('')
+    []
+
+    >>> basic("movingVehiclesspeed = 0.345e+4", "java", split_numbers=True, return_metadata=True)
+    (['<w>', 'moving', 'Vehiclesspeed', '</w>', '=', '<w>', '0', '.', '3', '4', '5', 'e', '+', '4', '</w>'], \
+({'='}, [0, 4, 5, 15], []))
+
+    >>> basic("movingVehiclesspeed = 0.345e+4", "java", ronin=True, return_metadata=True)
+    (['<w>', 'moving', 'Vehicles', 'speed', '</w>', '=', '<w>', '0', '.', '3', '4', '5', 'e', '+', '4', '</w>'], \
+({'='}, [0, 5, 6, 16], []))
+
+    >>> basic("movingVehiclesspeed = 0.345e+4", "java", stem=True, return_metadata=True)
+    (['<w>', 'move', 'Vehicl', 'speed', '</w>', '=', '<w>', '0', '.', '3', '4', '5', 'e', '+', '4', '</w>'], \
+({'='}, [0, 5, 6, 16], []))
+
     """
     prep_config = create_prep_config('basic', no_spaces=no_spaces, no_unicode=no_unicode, no_case=no_case,
                                      no_com=no_com, no_str=no_str, max_str_length=max_str_length,
@@ -137,7 +314,8 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces
     """
     Split `text` into tokens converting identifiers that follow CamelCase or snake_case into multiple subwords.
     On top of that Byte Pair Encoding (BPE) is applied with number of merges specified in `bpe_config`.
-    So that the information about original word boundaries is not lost, special tokens are inserted to denote original words beginnings and ends,
+    So that the information about original word boundaries is not lost, special tokens are inserted to denote original
+    words beginnings and ends,
     e.g. myClass -> [<w>, my, Class, </w>]
 
     :param text: text to be split.
@@ -166,6 +344,55 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces
     :return: list of tokens `text` was split into. If `return_metadata` is set to True,
     the tuple is returned with the list of preprocessed tokens as the first element
     and pre-processing metadata as the second element (object of :class:`dataprep.model.metadata.Preprocessing.PreprocessingMetadata`)
+
+    >>> input_text='''void test_WordUeberraschungPrinter() {
+    ...     if (eps >= 0.345e+4) { // FIXME 10L
+    ...         printWord("     ...     Überraschung 0x12");
+    ...    }
+    ... }'''
+
+        >>> tokens, metadata = bpe(input_text, '10k', "java", no_spaces=True, return_metadata=True)
+        >>> tokens
+        ['void</t>', 'test_', 'Word', 'U', 'eb', 'err', 'as', 'ch', 'un', 'g', 'Print', 'er</t>', \
+'(</t>', ')</t>', '{</t>', \
+'if</t>', '(</t>', 'e', 'ps</t>', '></t>', '=</t>', '0.', '34', '5', 'e+', '4</t>', ')</t>', \
+'{</t>', '/</t>', '/</t>', 'FIX', 'M', 'E</t>', '10', 'l</t>', '<EOL>', \
+'print', 'Word</t>', '(</t>', '"\\xa0\\xa0\\xa0', '\\xa0\\xa0', '..', '.', '\\xa0\\xa0', '\\xa0\\xa0', \
+'\\xa0', 'Ü', 'b', 'err', 'as', 'ch', 'un', 'g', '\\xa0', '0x', '12', '"</t>', ')</t>', ';</t>', \
+'}</t>', \
+'}</t>']
+
+        >>> sorted(metadata.nonprocessable_tokens)
+        ['(', ')', '/', ';', '=', '>', 'if', 'void', '{', '}']
+
+        >>> metadata.word_boundaries
+        [0, 1, 12, 13, 14, 15, 16, 17, 19, 20, 21, 26, 27, 28, 29, 30, 33, 35, 36, 38, 39, 57, 58, 59, 60, 61]
+
+        >>> metadata.comments
+        [(28, 36)]
+
+        >>> bpe(input_text, '1k', "java", no_spaces=True)
+        ['void</t>', 'test', '_', 'Wor', 'd', 'U', 'eb', 'err', 'as', 'ch', 'un', 'g', 'P', 'r', 'int', 'er</t>', \
+'(</t>', ')</t>', '{</t>', \
+'if</t>', '(</t>', 'e', 'p', 's</t>', '></t>', '=</t>', '0.', '3', '4', '5', 'e', '+', '4</t>', ')</t>', \
+'{</t>', '/</t>', '/</t>', 'FI', 'X', 'M', 'E</t>', '1', '0', 'l</t>', '<EOL>', \
+'print', 'Wor', 'd</t>', '(</t>', '"\\xa0', '\\xa0', '\\xa0', '\\xa0', '\\xa0', '.', '.', '.', '\\xa0', '\\xa0', \
+'\\xa0', '\\xa0', '\\xa0', 'Ü', 'b', 'err', 'as', 'ch', 'un', 'g', '\\xa0', '0x', '1', '2', '"</t>', ')</t>', ';</t>', \
+'}</t>', \
+'}</t>']
+
+    >>> bpe(input_text, '5k', "java", no_spaces=True)
+    ['void</t>', 'test', '_', 'Wor', 'd', 'U', 'eb', 'err', 'as', 'ch', 'un', 'g', 'Print', 'er</t>', \
+'(</t>', ')</t>', '{</t>', \
+'if</t>', '(</t>', 'e', 'ps</t>', '></t>', '=</t>', '0.', '34', '5', 'e+', '4</t>', ')</t>', \
+'{</t>', '/</t>', '/</t>', 'FI', 'X', 'M', 'E</t>', '10', 'l</t>', '<EOL>', \
+'print', 'Wor', 'd</t>', '(</t>', '"\\xa0', '\\xa0\\xa0', '\\xa0\\xa0', '.', '.', '.', '\\xa0\\xa0', '\\xa0\\xa0', \
+'\\xa0', 'Ü', 'b', 'err', 'as', 'ch', 'un', 'g', '\\xa0', '0x', '12', '"</t>', ')</t>', ';</t>', \
+'}</t>', \
+'}</t>']
+
+    >>> bpe('', '1k')
+    []
     """
     prep_config = create_prep_config('bpe', bpe_codes_id=bpe_codes_id, no_spaces=no_spaces, no_unicode=no_unicode,
                                      no_com=no_com, no_str=no_str, max_str_length=max_str_length)

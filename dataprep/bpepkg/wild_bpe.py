@@ -83,6 +83,17 @@ def swap_pair(pair: str) -> str:
 
 
 def are_symmetric(pair1: str, pair2: str):
+    """
+    >>> are_symmetric("abc dcba", "dcba abc")
+    True
+
+    >>> are_symmetric("abc dfe", "efd cba")
+    False
+
+    >>> are_symmetric("a c", "ac")
+    False
+
+    """
     if len(pair1) != len(pair2):
         return False
     # TODO make it faster
@@ -137,6 +148,16 @@ def self_merge(main_list, position_shift):
 
 
 def merge_lists_both(main_list: List[int], list2: List[int], position_shift: Tuple[int, int]) -> Tuple[List[int], List[int]]:
+    """
+    >>> merge_lists_both([0, 5, 7, 11, 16], [1, 9, 15], (2, -2))
+    ([1, 15], [7])
+
+    >>> merge_lists_both([2, 7, 10, 12, 15], [1, 3, 6, 11], (1, -1))
+    ([1, 3, 6], [10])
+
+    >>> merge_lists_both([0, 2, 4], [1, 3], (1, -1))
+    ([], [0, 2])
+    """
     # position shift should be one positive and one negative number
     if not (position_shift[0] >0 and position_shift[1] < 0):
         raise AssertionError()
@@ -184,6 +205,13 @@ def concat_pairs(main_pair: str, pair2: str, side: Side):
 
 
 def can_be_concat(main_pair: str, pair: str, side: Side):
+    """
+    >>> can_be_concat("ab cd", "1 ab", Side.LEFT)
+    True
+
+    >>> can_be_concat("ab cd", "1 ab", Side.RIGHT)
+    False
+    """
     if side.value == Side.LEFT.value:
         return main_pair.split(" ")[0] == pair.split(" ")[1]
     elif side.value == Side.RIGHT.value:
@@ -211,6 +239,13 @@ def add_pairs_to_neighbour_index(index, pair1, pair2, side, location_index):
 
 
 def choose_positions_to_merge(main_list, position_shift):
+    """
+    >>> choose_positions_to_merge([0 ,1, 2, 5, 8, 9, 10, 11, 12, 20, 33, 34], 1)
+    ([0, 2, 5, 8, 10, 12, 20, 33], [1, 9, 11, 34])
+
+    >>> choose_positions_to_merge([0], 1)
+    ([0], [])
+    """
     result_main = []
     result_disappearing = []
     i = 0
@@ -423,6 +458,45 @@ def run_from_dir(path_to_dir: str, n_merges: int=sys.maxsize) -> Tuple[str, int,
 
 
 def run_from_text(text: str, n_merges: int=sys.maxsize) -> Tuple[str, int, Optional[List[BpePerformanceStatsEntry]]]:
+    """
+    >>> def run_and_get_merges(text: str):
+    ...     return [(m, occ) for m, occ, _ in run_from_text(text)]
+
+    >>> run_and_get_merges("a")
+    []
+
+    >>> run_and_get_merges("ab")
+    [('a b', 1)]
+
+    >>> run_and_get_merges("abcdbc")
+    [('b c', 2), ('a bc', 1), ('abc d', 1), ('abcd bc', 1)]
+
+    >>> run_and_get_merges("aaa")
+    [('a a', 1), ('aa a', 1)]
+
+    >>> run_and_get_merges("aaaa")
+    [('a a', 2), ('aa aa', 1)]
+
+    >>> run_and_get_merges("aaaaa")
+    [('a a', 2), ('aa aa', 1), ('aaaa a', 1)]
+
+    >>> run_and_get_merges("aaaaaa")
+    [('a a', 3), ('aa aa', 1), ('aaaa aa', 1)]
+
+    >>> run_and_get_merges("aaaaaab")
+    [('a a', 3), ('aa aa', 1), ('aaaa aa', 1), ('aaaaaa b', 1)]
+
+    >>> run_and_get_merges("aaaaaaaa")
+    [('a a', 4), ('aa aa', 2), ('aaaa aaaa', 1)]
+
+    >>> run_and_get_merges("there|is|a|thin|tooth|in|the|tooth")
+    [('t h', 5), ('th e', 2), ('| i', 2), ('n |', 2), ('t o', 2), ('to o', 2), ('too th', 2), \
+('the r', 1), ('ther e', 1), ('there |i', 1), ('there|i s', 1), ('there|is |', 1), ('there|is| a', 1), \
+('there|is|a |', 1), ('there|is|a| th', 1), ('there|is|a|th i', 1), ('there|is|a|thi n|', 1), \
+('there|is|a|thin| tooth', 1), ('there|is|a|thin|tooth |i', 1), ('there|is|a|thin|tooth|i n|', 1), \
+('there|is|a|thin|tooth|in| the', 1), ('there|is|a|thin|tooth|in|the |', 1), \
+('there|is|a|thin|tooth|in|the| tooth', 1)]
+    """
     return run(iter(text), n_merges)
 
 

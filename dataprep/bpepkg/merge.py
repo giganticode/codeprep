@@ -5,6 +5,7 @@ from typing import List, Tuple, Union, Optional, Iterator, Dict
 from dataprep.util import is_python_3_6_and_higher, to_literal_str, to_non_literal_str
 
 
+# TODO this class should be frozen
 class Merge(object):
     def __init__(self, pair: Tuple[str, str], freq: int = None, priority: int = None):
         self.pair = pair
@@ -36,7 +37,62 @@ class Merge(object):
         return hash((self.pair, self.priority, self.freq))
 
 
-class MergeList():
+class MergeList(object):
+    """
+    >>> merges = MergeList()
+    >>> merges = merges.append(Merge(('a', 'b'), 34, 0)).append(Merge(('b', 'c'), 44, 1))
+    >>> [m for m in merges]
+    [('a', 'b'): (34, 0), ('b', 'c'): (44, 1)]
+    >>> len(merges)
+    2
+    >>> merges[0]
+    ('a', 'b'): (34, 0)
+    >>> merges[1]
+    ('b', 'c'): (44, 1)
+    >>> merges[-1]
+    ('b', 'c'): (44, 1)
+    >>> merges[0:-1]
+    [('a', 'b'): (34, 0)]
+    >>> type(merges[0:-1])
+    <class 'list'>
+
+    >>> merges[2]
+    Traceback (most recent call last):
+    ...
+    IndexError: list index out of range
+
+    >>> ('a', 'b') in merges
+    True
+    >>> ('a', 'x') in merges
+    False
+
+    >>> merge1 = Merge(('a', 'b'), 34, 0)
+    >>> merge2 = Merge(('a', 'b'), 34, 0)
+    >>> dct = {merge1: 3}
+    >>> dct[merge2]
+    3
+
+    >>> merges + [(('d', 'e'), 84, 1)]
+    Traceback (most recent call last):
+    ...
+    TypeError: Cannot add <class 'list'> to a MergeList
+
+    >>> merges + merges
+    Traceback (most recent call last):
+    ...
+    ValueError: It's only possible to add merges in priority order. The priority of the next merge should be 2 but is 3
+
+    >>> merges.append(Merge(('x', 'y'), 34, 0))
+    Traceback (most recent call last):
+    ...
+    ValueError: It's only possible to add merges in priority order. The priority of the next merge should be 2 but is 0
+
+    >>> merges = merges.append(Merge(('x', 'y'), 34))
+    >>> merges
+    [('a', 'b'): (34, 0), ('b', 'c'): (44, 1), ('x', 'y'): (34, 2)]
+    >>> merges.get_priority(('x', 'y'))
+    2
+    """
     def __init__(self):
         self.merges: Dict[Tuple[str, str], Merge] = {}
 
@@ -61,12 +117,13 @@ class MergeList():
             raise TypeError(f"Cannot add {other.__class__} to a MergeList")
 
         new_merge_list = copy.deepcopy(self)
+        other_copy = copy.deepcopy(other)
         first_list_len = len(new_merge_list)
-        for merge in other:
+        for merge in other_copy:
             merge.priority += first_list_len
             new_merge_list.append(merge)
 
-        return new_merge_list
+        return
 
     def append(self, merge: Merge) -> 'MergeList':
         # along with the pair we save its priority and the number of its occurrences

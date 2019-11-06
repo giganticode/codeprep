@@ -6,12 +6,17 @@ from typing import Dict, Tuple, List, Optional, Generator
 
 
 def merge_dicts_(dict1, dict2) -> Tuple[Dict, List]:
-    '''
-    this method returns modified dict1! and new words are added to the dictionary
-    :param dict1:
-    :param dict2:
-    :return:
-    '''
+    """
+    this method returns modified `dict1`! and new words are added to the dictionary
+
+    >>> dict1 = {"a": 3, "b": 4}
+    >>> dict2 = {"b": 5, "c": 6}
+    >>> merge_dicts_(dict1, dict2)
+    ({'a': 3, 'b': 9, 'c': 6}, ['c'])
+    >>> dict1
+    {'a': 3, 'b': 9, 'c': 6}
+
+    """
     new_words = []
     for k, v in dict2.items():
         if k not in dict1:
@@ -156,11 +161,28 @@ def create_chunk_generator(total: int, n_chunks: int) -> Generator[int, None, No
 
 
 def groupify(all: List, n_chunks: int) -> List[List]:
+    """
+    >>> groupify([0, 1, 2, 3, 4, 5, 6], 3)
+    [[0, 3, 6], [1, 4], [2, 5]]
+
+    >>> groupify([0, 1, 2, 3, 4, 5, 6], 300)
+    [[0], [1], [2], [3], [4], [5], [6]]
+
+    >>> groupify([], 300)
+    []
+
+    >>> result = groupify(list(range(100 * 1000 + 17)), 100)
+    >>> len(result[0])
+    1001
+    >>> len(result[17])
+    1000
+    """
     groups = [[] for _ in range(n_chunks if len(all) >= n_chunks else len(all))]
     chunk_gen = create_chunk_generator(len(all), n_chunks)
     for elm, label in zip(all, chunk_gen):
         groups[label].append(elm)
     return groups
+
 
 def to_non_literal_str(word:str) -> str:
     return word.encode().decode("unicode-escape")
@@ -169,4 +191,7 @@ def to_non_literal_str(word:str) -> str:
 def to_literal_str(word: str) -> str:
     return word.encode("unicode-escape").decode()
 
+
+START_ERROR_COLOR = '\033[31m'
+END_ERROR_COLOR = '\033[0m'
 

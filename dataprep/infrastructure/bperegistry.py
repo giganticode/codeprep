@@ -65,6 +65,22 @@ class CustomBpeConfig(object):
 
 
 def is_predefined_id(id: str):
+    """
+    >>> is_predefined_id('1k')
+    True
+
+    >>> is_predefined_id('5k')
+    True
+
+    >>> is_predefined_id('10k')
+    True
+
+    >>> is_predefined_id('abc')
+    False
+
+    >>> is_predefined_id('abc-10')
+    False
+    """
     return id in PREDEFINED_BPE_CODES
 
 
@@ -106,6 +122,22 @@ def write_bpe_codes_id(dataset_bpe_dir: str, bpe_codes_id: str) -> None:
 
 
 def parse_merge_list_id(s: str) -> Tuple[str, int]:
+    """
+    >>> parse_merge_list_id("python-no-case-1000")
+    ('python-no-case', 1000)
+
+    >>> parse_merge_list_id("python_1000")
+    Traceback (most recent call last):
+    ...
+    dataprep.infrastructure.bperegistry.InvalidBpeCodesIdError: Invalid id format: "python_1000". \
+Format should be: "(.*)-([1-9][0-9]*)$"
+
+    >>> parse_merge_list_id("python-")
+    Traceback (most recent call last):
+    ...
+    dataprep.infrastructure.bperegistry.InvalidBpeCodesIdError: Invalid id format: "python-". \
+Format should be: "(.*)-([1-9][0-9]*)$"
+    """
     REGEX = "(.*)-([1-9][0-9]*)$"
     m = regex.match(REGEX, s)
     if m:

@@ -34,6 +34,76 @@ NUMBER_PATTERN = f'({HEX_REGEX}|{BIN_REGEX}|{IR_REGEX}|{DBL_REGEXA}|{DBL_REGEXB}
 
 
 def is_number(word: str) -> bool:
+    """
+    >>> is_number("0")
+    True
+
+    >>> is_number("8")
+    True
+
+    >>> is_number("-5")
+    False
+
+    >>> is_number("23450012")
+    True
+
+    >>> is_number("283463L")
+    True
+
+    >>> is_number("342424242l")
+    True
+
+    >>> is_number("0.")
+    True
+
+    >>> is_number(".0")
+    True
+
+    >>> is_number(".0d")
+    True
+
+    >>> is_number("353535.")
+    True
+
+    >>> is_number("353535.D")
+    True
+
+    >>> is_number(".353535F")
+    True
+
+    >>> is_number(".353535f")
+    True
+
+    >>> is_number("0.2e+3D")
+    True
+
+    >>> is_number("23424.E-30F")
+    True
+
+    >>> is_number(".002e-0f")
+    True
+
+    >>> is_number("0b10101")
+    True
+
+    >>> is_number("0b0011L") # java -- not python
+    True
+
+    >>> is_number("0b0")
+    True
+
+    >>> is_number("0x8AbCc006EfBd")
+    True
+
+    >>> is_number("0xG12")
+    False
+
+    >>> is_number("0x56DL")
+    True
+
+    >>> is_number("0x56Dl")
+    True
+    """
     return regex.fullmatch(NUMBER_PATTERN, word) is not None
 
 

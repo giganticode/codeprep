@@ -1,4 +1,5 @@
 import logging
+import os
 import sys
 
 import argparse
@@ -7,6 +8,7 @@ from typing import List, Dict
 from tqdm import tqdm
 
 from dataprep.bpepkg.merge import MergeList, read_merges
+from dataprep.config import DEFAULT_BPE_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -107,9 +109,35 @@ def encode(words: Dict[str, int], merges: MergeList) -> Dict[str, int]:
 
 
 def encode_word(word: str, merges: MergeList) -> List[str]:
-    '''
-    :param word: token to be bpe encoded. Must terminate with @.
-    '''
+    """
+    >>> merge_file = os.path.join(DEFAULT_BPE_DIR, '10k', 'merges.txt')
+    >>> merges = read_merges(merge_file, 10000)
+
+    >>> encode_word('this@@is_all_one_String@', merges)
+    ['this', '@@', 'is_', 'all', '_', 'one', '_', 'String@']
+
+    >>> encode_word('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@', merges)
+    ['aaaaaaaa', 'aaaaaaaa', 'aaaaaaaa', 'aaaaaaaa', 'aaaa', 'a', 'a@']
+
+    >>> encode_word('erererererererererererer@', merges)
+    ['er', 'er', 'er', 'er', 'er', 'er', 'er', 'er', 'er', 'er', 'er', 'er@']
+
+    >>> encode_word('@', merges)
+    ['@']
+
+    >>> encode_word('', merges)
+    ['']
+
+    >>> encode_word('split@', merges)
+    ['split@']
+
+    >>> encode_word('aaa', merges)
+    ['aa', 'a']
+
+    >>> encode_word('this\xa0is@@a@@@@bit@@@@larger\xa0stringwith\xa0some@@unicode@@possibly\xf7@', merges)
+    ['this', '\\xa0', 'is', '@@', 'a', '@@', '@@', 'bit', '@@', '@@', 'l', 'arg', 'er', '\\xa0', 'string', \
+'with', '\\xa0', 's', 'ome', '@@', 'unic', 'ode', '@@', 'pos', 'si', 'b', 'ly', '÷', '@']
+    """
     enc_word, _ = encode({word: 0}, merges).popitem()
     subwords = enc_word.split(" ")
     return subwords
