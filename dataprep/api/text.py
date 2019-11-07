@@ -6,6 +6,7 @@ from dataprep.infrastructure.bperegistry import is_predefined_id, CustomBpeConfi
 from dataprep.parse.core import convert_text
 from dataprep.parse.model.core import ParsedToken
 from dataprep.parse.model.metadata import PreprocessingMetadata
+from dataprep.parse.model.placeholders import placeholders
 from dataprep.parse.model.whitespace import NewLine
 from dataprep.prepconfig import PrepConfig
 from dataprep.to_repr import init_bpe_data, to_repr
@@ -16,13 +17,17 @@ def remove_trailing_newline(prep_tokens: List[Union[ParsedToken, str]]) -> List[
 
 
 def preprocess(text: str, config: PrepConfig, bpe_codes_id: Optional[str] = None, extension: Optional[str] = None,
-               return_metadata: bool=False, force_reinit_bpe_data: bool=True) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
+               return_metadata: bool = False, force_reinit_bpe_data: bool = True, append_eof: bool = False) \
+        -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
     parsed = [parsed_token for parsed_token in convert_text(text, extension)]
+    parsed = remove_trailing_newline(parsed)
+    if append_eof:
+        parsed.append(placeholders['ect'])
     if config.is_bpe():
         assert bpe_codes_id
         custom_bpe_config = None if is_predefined_id(bpe_codes_id) else CustomBpeConfig.from_id(bpe_codes_id)
         init_bpe_data(config, custom_bpe_config, force_reinit_bpe_data)
-    prep_tokens, metadata = to_repr(config, remove_trailing_newline(parsed))
+    prep_tokens, metadata = to_repr(config, parsed)
     if return_metadata:
         return prep_tokens, metadata
     else:
@@ -31,7 +36,8 @@ def preprocess(text: str, config: PrepConfig, bpe_codes_id: Optional[str] = None
 
 def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False, no_unicode: bool = False,
             no_com: bool = False, no_str: bool = False, full_strings: bool = False, max_str_length: int = sys.maxsize,
-            return_metadata: bool = False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
+            return_metadata: bool = False, append_eof: bool = False) \
+        -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
     """
     Split `text` into tokens leaving compound identifiers as they are.
 
@@ -49,10 +55,12 @@ def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False,
     Does not have effect if `no_str` is set to `True`
 
     :param return_metadata: if set to True additionally pre-processing metadata is returned.
+    :param append_eof: set to True for <EOF> token to be added to the end of the string
 
     :return: list of tokens `text` was split into. If `return_metadata` is set to True,
     the tuple is returned with the list of preprocessed tokens as the first element
-    and pre-processing metadata as the second element (object of :class:`dataprep.model.metadata.Preprocessing.PreprocessingMetadata`)
+    and pre-processing metadata as the second element
+    (object of :class:`dataprep.model.metadata.Preprocessing.PreprocessingMetadata`)
 
     >>> input_text='''void test_WordUeberraschungPrinter() {
     ...     if (eps >= 0.345e+4) { // FIXME 10L
@@ -60,18 +68,18 @@ def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False,
     ...    }
     ... }'''
 
-    >>> tokens, metadata = nosplit(input_text, "java", return_metadata=True)
+    >>> tokens, metadata = nosplit(input_text, "java", return_metadata=True, append_eof=True)
     >>> tokens
     ['void', 'test_WordUeberraschungPrinter', '(', ')', '{', \
 '\\n', '\\t', 'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', 'FIXME', '10l', \
 '\\n', '<EOL>', '\\t', '\\t', 'printWord', '(', '"', '.', '.', '.', 'Überraschung', '0x12', '"', ')', ';', \
 '\\n', '}', \
-'\\n', '}']
+'\\n', '}', '<EOF>']
     >>> sorted(metadata.nonprocessable_tokens)
-    ['\\t', '\\n', '"', '(', ')', '.', '/', ';', '=', '>', 'if', 'void', '{', '}']
+    ['\\t', '\\n', '"', '(', ')', '.', '/', ';', '<EOF>', '=', '>', 'if', 'void', '{', '}']
     >>> metadata.word_boundaries
     [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, \
-21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38]
+21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
     >>> metadata.comments
     [(15, 21)]
 
@@ -136,15 +144,16 @@ return_metadata=True)
     """
     prep_config = create_prep_config('nosplit', no_spaces=no_spaces, no_unicode=no_unicode, no_com=no_com, no_str=no_str,
                                     full_strings=full_strings, max_str_length=max_str_length)
-    return preprocess(text, prep_config, extension=extension, return_metadata=return_metadata)
+    return preprocess(text, prep_config, extension=extension, return_metadata=return_metadata, append_eof=append_eof)
 
 
 def chars(text: str, extension: Optional[str] = None, no_spaces: bool = False, no_unicode: bool = False,
           no_com: bool = False, no_str: bool = False, max_str_length=sys.maxsize,
-          return_metadata: bool = False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
+          return_metadata: bool = False, append_eof: bool = False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
     """
-    Split `text` into characters (With the exception of operators that consist of 2 character: such operators will remain as a single token).
-    So that the information about original word boundaries is not lost, special tokens are inserted to denote original words beginnings and ends,
+    Split `text` into characters (With the exception of operators that consist of 2 character:
+    such operators will remain as a single token). So that the information about original word boundaries is not lost,
+    special tokens are inserted to denote original words beginnings and ends,
     e.g. myClass -> [<w>, m, y, C, l, a, s, s, </w>]
 
 
@@ -156,17 +165,20 @@ def chars(text: str, extension: Optional[str] = None, no_spaces: bool = False, n
     :param no_spaces: set to True to remove tabs and newlines.
     :param no_case: set to True to lowercase identifiers and encode information about their case in a separate token,
     e.g. Identifier -> [<Cap>, identifier]; IDENTIFIER -> [<CAPS>, identifier]
-    :param no_unicode: set to True to replace each word containing non-ascii characters to a special token,  e.g. <non-en>
+    :param no_unicode: set to True to replace each word containing non-ascii characters to a special token,
+    e.g. <non-en>
     :param no_com: set to True to replace each comment with a special token, e.g. <comment>.
     :param no_str: set to True to replace each string literals with a special token, e.g <str_literal>.
     :param max_str_length: replace string literal with `""` if its length including quotes exceeds `max_str_length`.
     Does not have effect if `no_str` is set to `True`
 
     :param return_metadata: if set to True additionally pre-processing metadata is returned.
+    :param append_eof: set to True for <EOF> token to be added to the end of the string
 
     :return: list of tokens `text` was split into. If `return_metadata` is set to True,
     the tuple is returned with the list of preprocessed tokens as the first element
-    and pre-processing metadata as the second element (object of :class:`dataprep.model.metadata.Preprocessing.PreprocessingMetadata`)
+    and pre-processing metadata as the second element
+    (object of :class:`dataprep.model.metadata.Preprocessing.PreprocessingMetadata`)
 
     >>> input_text='''void test_WordUeberraschungPrinter() {
     ...     if (eps >= 0.345e+4) { // FIXME 10L
@@ -174,7 +186,7 @@ def chars(text: str, extension: Optional[str] = None, no_spaces: bool = False, n
     ...    }
     ... }'''
 
-    >>> tokens, metadata = chars(input_text, "java", no_spaces=True, return_metadata=True)
+    >>> tokens, metadata = chars(input_text, "java", no_spaces=True, return_metadata=True, append_eof=True)
     >>> tokens
     ['void</t>', 't', 'e', 's', 't', '_', 'W', 'o', 'r', 'd', 'U', 'e', 'b', 'e', 'r', 'r', 'a', 's', 'c', 'h', \
 'u', 'n', 'g', 'P', 'r', 'i', 'n', 't', 'e', 'r', '</t>', '(</t>', ')</t>', '{</t>', \
@@ -182,14 +194,14 @@ def chars(text: str, extension: Optional[str] = None, no_spaces: bool = False, n
 '{</t>', '/</t>', '/</t>', 'F', 'I', 'X', 'M', 'E', '</t>', '1', '0', 'l', '</t>', '<EOL>', \
 'p', 'r', 'i', 'n', 't', 'W', 'o', 'r', 'd', '</t>', '(</t>', '"', \
 '\\xa0', '\\xa0', '\\xa0', '\\xa0', '\\xa0', '.', '.', '.', \
-'\\xa0', '\\xa0', '\\xa0', '\\xa0', '\\xa0', 'Ü', 'b', 'e', 'r', 'r', 'a', 's', 'c', 'h', 'u', 'n', 'g', '\\xa0', '0', 'x', \
-'1', '2', '"', '</t>', ')</t>', ';</t>', \
+'\\xa0', '\\xa0', '\\xa0', '\\xa0', '\\xa0', 'Ü', 'b', 'e', 'r', 'r', 'a', 's', 'c', 'h', 'u', 'n', 'g', \
+'\\xa0', '0', 'x', '1', '2', '"', '</t>', ')</t>', ';</t>', \
 '}</t>', \
-'}</t>']
+'}</t>', '<EOF></t>']
     >>> sorted(metadata.nonprocessable_tokens)
-    ['(', ')', '/', ';', '=', '>', 'if', 'void', '{', '}']
+    ['(', ')', '/', ';', '<EOF>', '=', '>', 'if', 'void', '{', '}']
     >>> metadata.word_boundaries
-    [0, 1, 31, 32, 33, 34, 35, 36, 40, 41, 42, 51, 52, 53, 54, 55, 61, 65, 66, 76, 77, 110, 111, 112, 113, 114]
+    [0, 1, 31, 32, 33, 34, 35, 36, 40, 41, 42, 51, 52, 53, 54, 55, 61, 65, 66, 76, 77, 110, 111, 112, 113, 114, 115]
     >>> metadata.comments
     [(53, 66)]
 
@@ -199,16 +211,19 @@ def chars(text: str, extension: Optional[str] = None, no_spaces: bool = False, n
     """
     prep_config = create_prep_config('chars', no_spaces=no_spaces, no_unicode=no_unicode,
                                      no_com=no_com, no_str=no_str, max_str_length=max_str_length)
-    return preprocess(text, prep_config, '0', extension=extension, return_metadata=return_metadata)
+    return preprocess(text, prep_config, '0', extension=extension, return_metadata=return_metadata,
+                      append_eof=append_eof)
 
 
-def basic(text: str, extension: Optional[str] = None, split_numbers: bool = False, ronin: bool = False, stem: bool = False,
+def basic(text: str, extension: Optional[str] = None,
+          split_numbers: bool = False, ronin: bool = False, stem: bool = False,
           no_spaces: bool = False, no_unicode: bool = False, no_case: bool = False, no_com: bool = False,
-          no_str: bool = False, max_str_length: int = sys.maxsize, return_metadata: bool = False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
+          no_str: bool = False, max_str_length: int = sys.maxsize, return_metadata: bool = False,
+          append_eof: bool = False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
     """
     Split `text` into tokens converting identifiers that follow CamelCase or snake_case into multiple subwords.
-    So that the information about original word boundaries is not lost, special tokens are inserted to denote original words beginnings and ends,
-    e.g. myClass -> [<w>, my, Class, </w>]
+    So that the information about original word boundaries is not lost, special tokens are inserted to denote original
+    words beginnings and ends, e.g. myClass -> [<w>, my, Class, </w>]
 
     :param text: text to be split.
     :param extension: extension which a file containing source code written in this programming language would have,
@@ -229,6 +244,7 @@ def basic(text: str, extension: Optional[str] = None, split_numbers: bool = Fals
     Does not have effect if `no_str` is set to `True`
 
     :param return_metadata: if set to True additionally pre-processing metadata is returned.
+    :param append_eof: set to True for <EOF> token to be added to the end of the string
 
     :return: list of tokens `text` was split into. If `return_metadata` is set to True,
     the tuple is returned with the list of preprocessed tokens as the first element
@@ -241,20 +257,20 @@ def basic(text: str, extension: Optional[str] = None, split_numbers: bool = Fals
     ...    }
     ... }'''
 
-    >>> tokens, metadata = basic(input_text, "java", no_spaces=True, return_metadata=True)
+    >>> tokens, metadata = basic(input_text, "java", no_spaces=True, return_metadata=True, append_eof=True)
     >>> tokens
     ['void', '<w>', 'test', '_', 'Word', 'Ueberraschung', 'Printer', '</w>', '(', ')', '{', \
 'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', 'FIXME', '10l', '<EOL>', \
 '<w>', 'print', 'Word', '</w>', '(', '"', '.', '.', '.', 'Überraschung', '0x12', '"', ')', ';', \
 '}', \
-'}']
+'}', '<EOF>']
 
     >>> sorted(metadata.nonprocessable_tokens)
-    ['"', '(', ')', '.', '/', ';', '=', '>', 'if', 'void', '{', '}']
+    ['"', '(', ')', '.', '/', ';', '<EOF>', '=', '>', 'if', 'void', '{', '}']
 
     >>> metadata.word_boundaries
     [0, 1, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 28, 29, 30, 31, 32, 33, 34, 35, 36, \
-37, 38, 39, 40]
+37, 38, 39, 40, 41]
 
     >>> metadata.comments
     [(19, 24)]
@@ -305,12 +321,13 @@ def basic(text: str, extension: Optional[str] = None, split_numbers: bool = Fals
     prep_config = create_prep_config('basic', no_spaces=no_spaces, no_unicode=no_unicode, no_case=no_case,
                                      no_com=no_com, no_str=no_str, max_str_length=max_str_length,
                                      split_numbers=split_numbers or ronin or stem, ronin=ronin or stem, stem=stem)
-    return preprocess(text, prep_config, extension=extension, return_metadata=return_metadata)
+    return preprocess(text, prep_config, extension=extension, return_metadata=return_metadata, append_eof=append_eof)
 
 
 def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces: bool = False,
         no_unicode: bool = False, no_com: bool = False, no_str: bool = False,
-        max_str_length=sys.maxsize, return_metadata: bool = False, force_reinit_bpe_data: bool = True) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
+        max_str_length=sys.maxsize, return_metadata: bool = False, force_reinit_bpe_data: bool = True,
+        append_eof: bool = False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
     """
     Split `text` into tokens converting identifiers that follow CamelCase or snake_case into multiple subwords.
     On top of that Byte Pair Encoding (BPE) is applied with number of merges specified in `bpe_config`.
@@ -340,10 +357,12 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces
     Note: if you want to call this method multiple times with different bpe code ids, bpe data has to be reloaded,
     so you must not set this param to False!
     :param return_metadata: if set to True additionally pre-processing metadata is returned.
+    :param append_eof: set to True for <EOF> token to be added to the end of the string
 
     :return: list of tokens `text` was split into. If `return_metadata` is set to True,
     the tuple is returned with the list of preprocessed tokens as the first element
-    and pre-processing metadata as the second element (object of :class:`dataprep.model.metadata.Preprocessing.PreprocessingMetadata`)
+    and pre-processing metadata as the second element
+    (object of :class:`dataprep.model.metadata.Preprocessing.PreprocessingMetadata`)
 
     >>> input_text='''void test_WordUeberraschungPrinter() {
     ...     if (eps >= 0.345e+4) { // FIXME 10L
@@ -351,7 +370,7 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces
     ...    }
     ... }'''
 
-        >>> tokens, metadata = bpe(input_text, '10k', "java", no_spaces=True, return_metadata=True)
+        >>> tokens, metadata = bpe(input_text, '10k', "java", no_spaces=True, return_metadata=True, append_eof=True)
         >>> tokens
         ['void</t>', 'test_', 'Word', 'U', 'eb', 'err', 'as', 'ch', 'un', 'g', 'Print', 'er</t>', \
 '(</t>', ')</t>', '{</t>', \
@@ -360,13 +379,13 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces
 'print', 'Word</t>', '(</t>', '"\\xa0\\xa0\\xa0', '\\xa0\\xa0', '..', '.', '\\xa0\\xa0', '\\xa0\\xa0', \
 '\\xa0', 'Ü', 'b', 'err', 'as', 'ch', 'un', 'g', '\\xa0', '0x', '12', '"</t>', ')</t>', ';</t>', \
 '}</t>', \
-'}</t>']
+'}</t>', '<EOF></t>']
 
         >>> sorted(metadata.nonprocessable_tokens)
-        ['(', ')', '/', ';', '=', '>', 'if', 'void', '{', '}']
+        ['(', ')', '/', ';', '<EOF>', '=', '>', 'if', 'void', '{', '}']
 
         >>> metadata.word_boundaries
-        [0, 1, 12, 13, 14, 15, 16, 17, 19, 20, 21, 26, 27, 28, 29, 30, 33, 35, 36, 38, 39, 57, 58, 59, 60, 61]
+        [0, 1, 12, 13, 14, 15, 16, 17, 19, 20, 21, 26, 27, 28, 29, 30, 33, 35, 36, 38, 39, 57, 58, 59, 60, 61, 62]
 
         >>> metadata.comments
         [(28, 36)]
@@ -396,7 +415,5 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces
     """
     prep_config = create_prep_config('bpe', bpe_codes_id=bpe_codes_id, no_spaces=no_spaces, no_unicode=no_unicode,
                                      no_com=no_com, no_str=no_str, max_str_length=max_str_length)
-    return preprocess(text, prep_config, bpe_codes_id, extension=extension,
-                      return_metadata=return_metadata, force_reinit_bpe_data=force_reinit_bpe_data)
-
-
+    return preprocess(text, prep_config, bpe_codes_id, extension=extension, return_metadata=return_metadata,
+                      force_reinit_bpe_data=force_reinit_bpe_data, append_eof=append_eof)
