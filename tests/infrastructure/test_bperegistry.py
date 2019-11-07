@@ -75,7 +75,7 @@ def test_none(mocked_walk):
     assert get_max_merges('.') is None
 
 
-@patch('dataprep.infrastructure.bperegistry', autospec=True, return_value={})
+@patch('dataprep.infrastructure.bperegistry._get_all_custom_bpe_codes_and_max_merges', autospec=True, return_value={})
 def test_no_available_merge_lists(bpe_registry_mock):
     assert format_available_merge_list_ids() == ""
 
