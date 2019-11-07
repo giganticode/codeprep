@@ -11,3 +11,5 @@ PyYAML==5.1
 regex==2019.3.12
 tqdm==4.31.1
 git+https://github.com/casics/spiral.git
+pytest==5.2.2
+pytest-mock==1.11.2
