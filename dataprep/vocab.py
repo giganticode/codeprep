@@ -33,6 +33,7 @@ BLOCKING_TIMEOUT_SECONDS_SHORT = 5
 BLOCKING_TIMEOUT_SECONDS_LONG = 300
 MAX_INIT_PARTIAL_VOCABS = 256 * 20
 
+
 class PartialVocab(object):
     CLASS_VERSION = '2.0.0'
 
@@ -88,7 +89,7 @@ class PartialVocab(object):
 
     def write_vocab(self, path_to_vocab_file: str) -> None:
         sorted_vocab = sorted(self.merged_word_counts.items(), key=lambda x: x[1], reverse=True)
-        _dump_vocab_dict(sorted_vocab, path_to_vocab_file, to_literal=False)
+        _dump_vocab_dict(sorted_vocab, path_to_vocab_file, to_literal=True)
 
     def __generate_stats(self):
         d = defaultdict(list)
@@ -325,7 +326,7 @@ def _load_vocab_dict(file) -> Dict[str, int]:
         for line in f:
             line = line.rstrip('\n')
             splits = line.split(VOCAB_DICT_DELIM)
-            words[to_non_literal_str(splits[0])] = int(splits[1])
+            words[splits[0]] = int(splits[1])
     return words
 
 
@@ -333,7 +334,7 @@ def _load_vocab_set(file: str):
     non_bpe_tokens = set()
     with open(file, 'r') as f:
         for line in f:
-            non_bpe_tokens.add(to_non_literal_str(line.rstrip('\n')))
+            non_bpe_tokens.add(line.rstrip('\n'))
     return non_bpe_tokens
 
 
