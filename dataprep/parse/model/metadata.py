@@ -1,6 +1,7 @@
 import bisect
 import logging
 
+from dataprep.subtokens import is_terminal_subtoken
 from dataprep.util import to_literal_str
 from typing import Set, Optional, List, Tuple, Any
 
@@ -122,7 +123,7 @@ def save_metadata(metadata: PreprocessingMetadata, save_to: bytes) -> None:
             f.write(f'{to_literal_str(token)}\n')
 
 
-def check_metadata_validity(subwords: List[Any], metadata: PreprocessingMetadata) -> None:
+def check_metadata_validity(subwords: List[str], metadata: PreprocessingMetadata, use_only_token_end_chars=True) -> None:
     word_boundaries = metadata.word_boundaries
     if len(word_boundaries) == 0:
         raise ValueError("Word boundaries list should contain at least 0!")
@@ -132,3 +133,13 @@ def check_metadata_validity(subwords: List[Any], metadata: PreprocessingMetadata
                          f"value {len(subwords)} is not found in word boundaries list: {word_boundaries}")
     if word_boundaries[0] != 0:
         raise ValueError('Word boundaries list must start with 0!')
+
+    if use_only_token_end_chars:
+        for idx, token in enumerate(subwords):
+            end_according_to_data = is_terminal_subtoken(token)
+            end_according_to_metadata = (idx + 1) in metadata.word_boundaries
+            if end_according_to_data != end_according_to_metadata:
+                error_context_start_index = idx - 20 if idx - 20 > 0 else 0
+                raise AssertionError(f'Token {token} according to metadata is'
+                                     f'{" " if end_according_to_metadata else " NOT"} end-token. '
+                                     f'Showing context: {subwords[error_context_start_index:idx + 1]}')

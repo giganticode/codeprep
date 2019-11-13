@@ -35,7 +35,7 @@ def to_repr(prep_config: PrepConfig, token_list: List[Union[str, ParsedToken]],
             bpe_data: Optional[BpeData] = None) -> Tuple[List[str], PreprocessingMetadata]:
     bpe_data = bpe_data or get_global_bpe_data_if_available()
     repr_list, metadata = to_repr_list(token_list, prep_config.get_repr_config(bpe_data))
-    check_metadata_validity(repr_list, metadata)
+    check_metadata_validity(repr_list, metadata, use_only_token_end_chars=False)
     return repr_list, metadata
 
 
