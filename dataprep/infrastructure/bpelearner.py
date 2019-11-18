@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Tuple, Dict, Set
+from typing import Tuple, Dict, Set, Optional
 
 from dataprep.bpepkg.bpe_config import BpeConfig, BpeParam, BpeConfigNotSupported
 from dataprep.bpepkg.bpe_encode import escape
@@ -40,52 +40,71 @@ def check_if_bpe_config_supported(bpe_config: BpeConfig):
         raise BpeConfigNotSupported('BPE with case encoded in prefix is not yet supported')
 
 
-def run(dataset: Dataset, n_merges: int, bpe_config: BpeConfig) -> None:
-
-    check_if_bpe_config_supported(bpe_config)
-
-    max_merges = get_max_merges(dataset.bpe_path, n_merges)
-    if not max_merges:
-        starting_from_scratch = True
-    else:
-        dir_with_most_merges = os.path.join(dataset.bpe_path, str(max_merges))
-        starting_from_scratch = False
-        logger.info("Using existing merges...")
-
+def prepare_vocabs(dataset: Dataset, dir_with_most_merges, starting_from_scratch):
     if starting_from_scratch:
-        logger.info("Starting encoding from scratch...")
-
-    if starting_from_scratch:
-        base_bpe_vocab, other_vocab = get_base_vocab(dataset) #TODO extract this into stages
-        other_vocab = {escape(k, merged=True): v for k,v in other_vocab.items()}
+        base_bpe_vocab, other_vocab = get_base_vocab(dataset)  # TODO extract this into stages
+        other_vocab = {escape(k, merged=True): v for k, v in other_vocab.items()}
         split_base_vocab = {escape(" ".join(k)): v for k, v in base_bpe_vocab.items()}
-        already_done_merges = MergeList()
     else:
         path_to_bpe_vocab_file = os.path.join(dir_with_most_merges, BPE_REASSEMBLED_VOCAB_FILE_NAME)
         non_bpe_vocab = {escape(k, merged=True) for k in load_nonbpe_vocab(dataset)}
         split_base_vocab = _load_vocab_dict(path_to_bpe_vocab_file)
         split_base_vocab, other_vocab = separate_vocabs(split_base_vocab, non_bpe_vocab)
-        already_done_merges = read_merges(os.path.join(dir_with_most_merges, MERGES_FILE_NAME))
-    logger.info("Learning bpe codes...")
-    split_base_vocab, merges = do_merges(split_base_vocab, n_merges-len(already_done_merges))
-    merges = already_done_merges + merges
 
-    new_bpe_dir = os.path.join(dataset.bpe_path, str(len(merges)))
-    if os.path.exists(new_bpe_dir):
-        logging.info("Merges already learned!")
-        return
+    return split_base_vocab, other_vocab
+
+
+def get_dir_with_most_merges(dataset_bpe_path, n_merges) -> Optional[str]:
+    max_merges = get_max_merges(dataset_bpe_path, n_merges)
+    if not max_merges:
+        return None
+
+    dir_with_most_merges = os.path.join(dataset_bpe_path, str(max_merges))
+    return dir_with_most_merges
+
+
+def save_results(split_base_vocab, merges, new_bpe_dir):
 
     os.makedirs(new_bpe_dir)
 
-    for k, v in other_vocab.items():
-        split_base_vocab[k] = v
     resulting_vocab = create_resulting_vocab(split_base_vocab)
     resulting_vocab_sorted = sorted(resulting_vocab.items(), key=lambda x: x[1], reverse=True)
-    _dump_vocab_dict(resulting_vocab_sorted, os.path.join(new_bpe_dir, RESULTING_VOCAB_FILE_NAME), to_literal=True)
+    _dump_vocab_dict(resulting_vocab_sorted, os.path.join(new_bpe_dir, RESULTING_VOCAB_FILE_NAME))
 
     bpe_cache = create_bpe_cache(split_base_vocab)
     dump_bpe_cache(bpe_cache, os.path.join(new_bpe_dir, MERGES_CACHE_FILE_NAME))
 
     dump_merges(merges, os.path.join(new_bpe_dir, MERGES_FILE_NAME))
-    _dump_vocab_dict(split_base_vocab.items(), os.path.join(new_bpe_dir, BPE_REASSEMBLED_VOCAB_FILE_NAME), to_literal=True)
+    _dump_vocab_dict(split_base_vocab.items(), os.path.join(new_bpe_dir, BPE_REASSEMBLED_VOCAB_FILE_NAME))
     logger.info(f'Bpe output files are saved into {new_bpe_dir} folder')
+
+
+def run(dataset: Dataset, n_merges: int, bpe_config: BpeConfig) -> None:
+
+    check_if_bpe_config_supported(bpe_config)
+    dataset_bpe_path = dataset.bpe_path
+
+    dir_with_most_merges = get_dir_with_most_merges(dataset_bpe_path, n_merges)
+
+    if dir_with_most_merges:
+        logger.info("Using existing merges...")
+        already_done_merges = read_merges(os.path.join(dir_with_most_merges, MERGES_FILE_NAME))
+    else:
+        logger.info("Starting encoding from scratch.    ..")
+        already_done_merges = MergeList()
+
+    split_base_vocab, other_vocab = prepare_vocabs(dataset, dir_with_most_merges,
+                                                   starting_from_scratch=not dir_with_most_merges)
+
+    logger.info("Learning bpe codes...")
+    split_base_vocab, merges = do_merges(split_base_vocab, n_merges - len(already_done_merges))
+    for k, v in other_vocab.items():
+        split_base_vocab[k] = v
+    merges = already_done_merges + merges
+
+    new_bpe_dir = os.path.join(dataset_bpe_path, str(len(merges)))
+    if os.path.exists(new_bpe_dir):
+        logging.info("Merges already learned!")
+        return
+
+    save_results(split_base_vocab, merges, new_bpe_dir)

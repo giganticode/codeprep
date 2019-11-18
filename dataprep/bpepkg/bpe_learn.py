@@ -22,12 +22,22 @@ def get_stats(split_base_vocab: Dict[str, int]) -> PriorityCounter:
     return PriorityCounter(pairs)
 
 
-def merge_vocab(pair: Tuple[str, str], input_vocab: Dict[str, int], pairs: PriorityCounter) -> Dict[str, int]:
+def merge_vocab(pair: Tuple[str, str], input_vocab: Dict[str, int]) -> Tuple[Dict[str, int], List]:
+    """
+    >>> pair = ('w', 'o')
+    >>> input_vocab = {'b i r d @': 3, 'w o r d @': 7, 'w o g @': 13}
+    >>> new_vocab, new_pairs = merge_vocab(pair, input_vocab)
+    >>> new_vocab
+    {'b i r d @': 3, 'wo r d @': 7, 'wo g @': 13}
+    >>> new_pairs
+    [(('wo', 'r'), 7), (('o', 'r'), -7), (('wo', 'g'), 13), (('o', 'g'), -13)]
+    """
     output_vocab = {}
     concat_pair_with_space = ' '.join(pair)
     concat_pair_with_space_escaped = regex.escape(concat_pair_with_space)
     concat_pair = ''.join(pair)
     reg = regex.compile('(^|[^ ]+ )(' + concat_pair_with_space_escaped + ')( [^ ]+|$)')
+    added_pairs = []
     for word in input_vocab:
         word_occurences = input_vocab[word]
         match = reg.search(word)
@@ -35,20 +45,20 @@ def merge_vocab(pair: Tuple[str, str], input_vocab: Dict[str, int], pairs: Prior
             # word changed
             if match.group(1) != '':
                 subtoken_before = match.group(1)[:-1]
-                pairs.add((subtoken_before, concat_pair), word_occurences)
+                added_pairs.append(((subtoken_before, concat_pair), word_occurences))
                 if pair != (subtoken_before, pair[0]):
-                    pairs.add((subtoken_before, pair[0]), -word_occurences)
+                    added_pairs.append(((subtoken_before, pair[0]), -word_occurences))
             if match.group(3) != '':
                 subtoken_after = match.group(3)[1:]
-                pairs.add((concat_pair, subtoken_after), word_occurences)
+                added_pairs.append(((concat_pair, subtoken_after), word_occurences))
                 if pair != (pair[1], subtoken_after):
-                    pairs.add((pair[1], subtoken_after), -word_occurences)
+                    added_pairs.append(((pair[1], subtoken_after), -word_occurences))
             start, end = match.span(2)
             replacement = concat_pair
             word = word[:start] + replacement + word[end:]
             match = reg.search(word)
         output_vocab[word] = word_occurences
-    return output_vocab
+    return output_vocab, added_pairs
 
 
 def do_merges(vocab: Dict[str, int], n_merges: int) -> Tuple[Dict[str, int], MergeList]:
@@ -95,7 +105,9 @@ def do_merges(vocab: Dict[str, int], n_merges: int) -> Tuple[Dict[str, int], Mer
             merges.append(Merge(best, freq=occurences, priority=i))
         except KeyError:
             break
-        vocab = merge_vocab(best, vocab, pairs)
+        vocab, added_pairs = merge_vocab(best, vocab)
+        for p in added_pairs:
+            pairs.add(*p)
     return vocab, merges
 
 # ======== Create auxiliary data structures.
