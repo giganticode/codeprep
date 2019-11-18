@@ -39,7 +39,7 @@ def bpe(merge_list_id: str, n_merges: int) -> Dict[str, int]:
 def gather_non_bpe_vocab(dataset: Dataset):
     logger.info("Gathering non-bpe vocab...")
     part_nonbpe_vocab_dir = f'{dataset.path_to_nonbpe_vocab_file}_part'
-    non_bpe_tokens = set()
+    non_bpe_tokens: Set[str] = set()
     for idx, file in enumerate(os.listdir(part_nonbpe_vocab_dir)):
         if idx % 569 == 0:
             print(f'Files processed: {idx}', end='\r')

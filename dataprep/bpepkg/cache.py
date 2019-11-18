@@ -10,8 +10,8 @@ def read_bpe_cache(file: str):
         for line in f:
             line = line.rstrip('\n')
             splits = line.split(KEY_VALUE_DELIM)
-            second_column = to_non_literal_string(splits[1]).split(VALUE_PARTS_DELIM)
-            words[to_non_litetal_str(splits[0])] = second_column
+            second_column = to_non_literal_str(splits[1]).split(VALUE_PARTS_DELIM)
+            words[to_non_literal_str(splits[0])] = second_column
     return words
 
 

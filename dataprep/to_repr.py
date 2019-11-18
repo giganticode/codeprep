@@ -40,7 +40,7 @@ def to_repr(prep_config: PrepConfig, token_list: List[Union[str, ParsedToken]],
 
 
 def to_token_str(tokens: List) -> str:
-    return to_literal_str(" ".join(map(lambda t: str(t), tokens))) + "\n"
+    return to_literal_str(" ".join(map(lambda t: str(t), tokens)))
 
 
 def preprocess_and_write(params: Tuple[bytes, bytes, PrepConfig, str]):
@@ -58,7 +58,7 @@ def preprocess_and_write(params: Tuple[bytes, bytes, PrepConfig, str]):
     with gzip.GzipFile(src_file_path, 'rb') as i, open(not_finished_dest_file_path, 'w') as o:
         token_list = pickle.load(i)
         repr, metadata = to_repr(prep_config, token_list + [placeholders['ect']], get_global_bpe_data_if_available())
-        o.write(to_token_str(repr))
+        o.write(to_token_str(repr).to_literal_str() + '\n')
 
     if part_nonbpe_vocab_folder:
         save_metadata(metadata, os.path.join(part_nonbpe_vocab_folder, f'{os.path.basename(dest_file_path)}_-_{time.time()}'))

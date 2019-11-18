@@ -11,6 +11,7 @@ from dataprep.infrastructure import stages
 from dataprep.infrastructure.bperegistry import get_max_merges, MERGES_FILE_NAME, MERGES_CACHE_FILE_NAME, \
     RESULTING_VOCAB_FILE_NAME, BPE_REASSEMBLED_VOCAB_FILE_NAME
 from dataprep.infrastructure.dataset import Dataset
+from dataprep.util import to_non_literal_str
 from dataprep.vocab import _dump_vocab_dict, _load_vocab_dict
 
 
@@ -25,7 +26,7 @@ def load_nonbpe_vocab(dataset: Dataset) -> Set[str]:
     non_bpe_vocab = set()
     with open(dataset.path_to_nonbpe_vocab_file, 'r') as f:
         for line in f:
-            non_bpe_vocab.add(line.rstrip('\n'))
+            non_bpe_vocab.add(to_non_literal_str(line.rstrip('\n')))
     return non_bpe_vocab
 
 
