@@ -40,7 +40,7 @@ def to_repr(prep_config: PrepConfig, token_list: List[Union[str, ParsedToken]],
 
 
 def to_token_str(tokens: List) -> str:
-    return to_literal_str(" ".join(map(lambda t: str(t), tokens)))
+    return " ".join(map(lambda t: str(t), tokens))
 
 
 def preprocess_and_write(params: Tuple[bytes, bytes, PrepConfig, str]):
