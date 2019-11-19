@@ -15,6 +15,10 @@ def version():
         return version_file.read().strip()
 
 
+with open('requirements.txt', 'r') as f:
+    requirements = f.read().splitlines()
+
+
 setup(name='giganticode-dataprep',
       version=version(),
       description='A toolkit for pre-processing large source code corpora',
@@ -38,20 +42,7 @@ setup(name='giganticode-dataprep',
       ],
       python_requires='>=3.6',
       keywords='big large data source code corpus machine learning pre-processing nlp',
-      install_requires=[
-          'appdirs==1.4.3',
-          'coverage==4.5.3',
-          'dill==0.2.9',
-          'docopt==0.6.2',
-          'docopt-subcommands==3.0.0',
-          'jsons==0.10.1',
-          'matplotlib==3.0.3',
-          'nltk==3.4.5',
-          'Pygments==2.3.1',
-          'PyYAML==5.1',
-          'regex==2019.3.12',
-          'tqdm==4.31.1',
-      ],
+      install_requires=requirements,
         entry_points={
           'console_scripts': [
               f'dataprep = {root_package_name}.__main__:main'

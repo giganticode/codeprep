@@ -1,0 +1,3 @@
+git+https://github.com/casics/spiral.git
+pytest==5.2.2
+pytest-mock==1.11.2
