@@ -89,7 +89,7 @@ class PartialVocab(object):
 
     def write_vocab(self, path_to_vocab_file: str) -> None:
         sorted_vocab = sorted(self.merged_word_counts.items(), key=lambda x: x[1], reverse=True)
-        _dump_vocab_dict(sorted_vocab, path_to_vocab_file)
+        _dump_vocab_dict(sorted_vocab, path_to_vocab_file, to_literal=False)
 
     def __generate_stats(self):
         d = defaultdict(list)
@@ -196,7 +196,8 @@ class VocabMerger(multiprocessing.Process):
         return first, new_words
 
 
-def get_vocab(file_paths: List[str]) -> Counter:
+def get_vocab(file_paths: List[str], represented_as_literal_str: bool = True) -> Counter:
+    # TODO implement non-default behavious (if not represented as literal str)
     vocab = Counter()
     for file in file_paths:
         lines, _ = read_file_contents(file)
@@ -309,10 +310,12 @@ def partial_vocabs_ready(path_to_dump: str) -> bool:
     return os.path.exists(os.path.join(path_to_dump, PARTIAL_VOCABS_READY_FILENAME))
 
 
-def _dump_vocab_dict(lst: List[Tuple[str, int]], file: str) -> None:
+def _dump_vocab_dict(lst: List[Tuple[str, int]], file: str, to_literal=True) -> None:
     with open(file, 'w') as f:
         for word, freq in lst:
-            f.write(f'{to_literal_str(word)}{VOCAB_DICT_DELIM}{freq}\n')
+            if to_literal:
+                word = to_literal_str(word)
+            f.write(f'{word}{VOCAB_DICT_DELIM}{freq}\n')
 
 
 VOCAB_DICT_DELIM = '\t'
