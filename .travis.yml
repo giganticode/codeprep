@@ -23,6 +23,7 @@ jobs:
         - python -m pip install --upgrade pip wheel
 install:
   - pip install -r requirements.txt
+  - pip install -r requirements-dev.txt
 script:
   - cd $TRAVIS_BUILD_DIR
   - echo "Current directory is $(pwd)"
