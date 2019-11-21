@@ -1,3 +1,4 @@
+import os
 from unittest import mock
 from unittest.mock import Mock
 
@@ -7,6 +8,10 @@ from docopt import DocoptExit
 from dataprep.bpepkg.bpe_config import BpeConfig, BpeParam
 from dataprep.cli.spec import parse_and_run
 from dataprep.prepconfig import PrepParam, PrepConfig
+
+
+PATH_TO_OUTPUT_STUB = os.path.join('/', 'path', 'to', 'output')
+PATH_TO_DATASET_STUB = os.path.join('/', 'path', 'to', 'dataset')
 
 
 @mock.patch('dataprep.cli.impl.dataprep.api', autospec=True)
@@ -428,7 +433,7 @@ def test_xxx1xu(api_mock):
 
 @mock.patch('dataprep.cli.impl.dataprep.api', autospec=True)
 def test_path(api_mock):
-    argv = ['nosplit', '--path', '/path/to/dataset', '--no-spaces']
+    argv = ['nosplit', '--path', PATH_TO_DATASET_STUB, '--no-spaces']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -438,12 +443,13 @@ def test_path(api_mock):
         PrepParam.TABS_NEWLINES: '0',
         PrepParam.CASE: 'u'
     })
-    api_mock.corpus.preprocess_corpus.assert_called_with('/path/to/dataset', prep_config, None, calc_vocab=False, extensions=None, output_path=None)
+    api_mock.corpus.preprocess_corpus.assert_called_with(PATH_TO_DATASET_STUB, prep_config, None, calc_vocab=False,
+                                                         extensions=None, output_path=None)
 
 
 @mock.patch('dataprep.cli.impl.dataprep.api', autospec=True)
 def test_path_short(api_mock):
-    argv = ['nosplit', '-p', '/path/to/dataset', '--no-spaces']
+    argv = ['nosplit', '-p', PATH_TO_DATASET_STUB, '--no-spaces']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -453,13 +459,13 @@ def test_path_short(api_mock):
         PrepParam.TABS_NEWLINES: '0',
         PrepParam.CASE: 'u'
     })
-    api_mock.corpus.preprocess_corpus.assert_called_with('/path/to/dataset', prep_config, None, calc_vocab=False,
+    api_mock.corpus.preprocess_corpus.assert_called_with(PATH_TO_DATASET_STUB, prep_config, None, calc_vocab=False,
                                                          extensions=None, output_path=None)
 
 
 @mock.patch('dataprep.cli.impl.dataprep.api', autospec=True)
 def test_output_and_vocab(api_mock):
-    argv = ['nosplit', '--path', '/path/to/dataset', '--output-path', '/path/to/output', '--no-spaces', '--calc-vocab']
+    argv = ['nosplit', '--path', PATH_TO_DATASET_STUB, '--output-path', PATH_TO_OUTPUT_STUB, '--no-spaces', '--calc-vocab']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -469,13 +475,14 @@ def test_output_and_vocab(api_mock):
         PrepParam.TABS_NEWLINES: '0',
         PrepParam.CASE: 'u'
     })
-    api_mock.corpus.preprocess_corpus.assert_called_with('/path/to/dataset', prep_config, None,
-                                                         calc_vocab=True, extensions=None, output_path='/path/to/output')
+    api_mock.corpus.preprocess_corpus.assert_called_with(PATH_TO_DATASET_STUB, prep_config, None,
+                                                         calc_vocab=True, extensions=None,
+                                                         output_path=PATH_TO_OUTPUT_STUB)
 
 
 @mock.patch('dataprep.cli.impl.dataprep.api', autospec=True)
 def test_output_and_vocab_short(api_mock):
-    argv = ['nosplit', '--path', '/path/to/dataset', '-o', '/path/to/output', '--no-spaces', '-V']
+    argv = ['nosplit', '--path', PATH_TO_DATASET_STUB, '-o', PATH_TO_OUTPUT_STUB, '--no-spaces', '-V']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -485,12 +492,13 @@ def test_output_and_vocab_short(api_mock):
         PrepParam.TABS_NEWLINES: '0',
         PrepParam.CASE: 'u'
     })
-    api_mock.corpus.preprocess_corpus.assert_called_with('/path/to/dataset', prep_config, None,
-                                                         calc_vocab=True, extensions=None, output_path='/path/to/output')
+    api_mock.corpus.preprocess_corpus.assert_called_with(PATH_TO_DATASET_STUB, prep_config, None,
+                                                         calc_vocab=True, extensions=None,
+                                                         output_path=PATH_TO_OUTPUT_STUB)
 
 
 def test_output_with_text():
-    argv = ['nosplit', 'str', '-o', '/path/to/output', '--no-spaces']
+    argv = ['nosplit', 'str', '-o', PATH_TO_OUTPUT_STUB, '--no-spaces']
     with pytest.raises(DocoptExit) as context:
         parse_and_run(argv)
 
@@ -516,7 +524,7 @@ def test_yes_false_java_yes(bpe_learner_mock, dataset_mock):
 
     # given
     dataset_mock.create = Mock(spec=dataset_mock, return_value=dataset_mock)
-    argv = ['learn-bpe', '1000', '-p', '/path/to/dataset', '--legacy']
+    argv = ['learn-bpe', '1000', '-p', PATH_TO_DATASET_STUB, '--legacy']
 
     # when
     parse_and_run(argv)
@@ -536,7 +544,7 @@ def test_yes_false_java_yes(bpe_learner_mock, dataset_mock):
         BpeParam.BASE: 'java',
         BpeParam.UNICODE: 'yes',
     })
-    dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, 'java', None, bpe_config)
+    dataset_mock.create.assert_called_with(PATH_TO_DATASET_STUB, prep_config, 'java', None, bpe_config)
     bpe_learner_mock.run.assert_called_with(dataset_mock, 1000, bpe_config)
 
 
@@ -546,7 +554,7 @@ def test_no_true_code_no(bpe_learner_mock, dataset_mock):
 
     # given
     dataset_mock.create = Mock(spec=dataset_mock, return_value=dataset_mock)
-    argv = ['learn-bpe', '1000', '-p', '/path/to/dataset', '--no-unicode', '--word-end']
+    argv = ['learn-bpe', '1000', '-p', PATH_TO_DATASET_STUB, '--no-unicode', '--word-end']
 
     # when
     parse_and_run(argv)
@@ -566,7 +574,7 @@ def test_no_true_code_no(bpe_learner_mock, dataset_mock):
         BpeParam.BASE: 'code',
         BpeParam.UNICODE: 'no',
     })
-    dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, None, None, bpe_config)
+    dataset_mock.create.assert_called_with(PATH_TO_DATASET_STUB, prep_config, None, None, bpe_config)
     bpe_learner_mock.run.assert_called_with(dataset_mock, 1000, bpe_config)
 
 
@@ -576,7 +584,7 @@ def test_true_true_code_bytes(bpe_learner_mock, dataset_mock):
 
     # given
     dataset_mock.create = Mock(spec=dataset_mock, return_value=dataset_mock)
-    argv = ['learn-bpe', '1000', '-p', '/path/to/dataset', '--bytes', '--word-end']
+    argv = ['learn-bpe', '1000', '-p', PATH_TO_DATASET_STUB, '--bytes', '--word-end']
 
     # when
     parse_and_run(argv)
@@ -596,5 +604,5 @@ def test_true_true_code_bytes(bpe_learner_mock, dataset_mock):
         BpeParam.BASE: 'code',
         BpeParam.UNICODE: 'bytes',
     })
-    dataset_mock.create.assert_called_with('/path/to/dataset', prep_config, None, None, bpe_config)
+    dataset_mock.create.assert_called_with(PATH_TO_DATASET_STUB, prep_config, None, None, bpe_config)
     bpe_learner_mock.run.assert_called_with(dataset_mock, 1000, bpe_config)
