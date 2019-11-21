@@ -520,9 +520,11 @@ def test_all_short_config_options(api_mock):
 
 @mock.patch('dataprep.cli.impl.Dataset', autospec=True)
 @mock.patch('dataprep.cli.impl.bpelearner', autospec=True)
-def test_yes_false_java_yes(bpe_learner_mock, dataset_mock):
+@mock.patch('dataprep.infrastructure.dataset.os.path.abspath', autospec=True)
+def test_yes_false_java_yes(abspath_mock, bpe_learner_mock, dataset_mock):
 
     # given
+    abspath_mock.return_value = PATH_TO_DATASET_STUB
     dataset_mock.create = Mock(spec=dataset_mock, return_value=dataset_mock)
     argv = ['learn-bpe', '1000', '-p', PATH_TO_DATASET_STUB, '--legacy']
 
@@ -550,9 +552,11 @@ def test_yes_false_java_yes(bpe_learner_mock, dataset_mock):
 
 @mock.patch('dataprep.cli.impl.Dataset', autospec=True)
 @mock.patch('dataprep.cli.impl.bpelearner', autospec=True)
-def test_no_true_code_no(bpe_learner_mock, dataset_mock):
+@mock.patch('dataprep.infrastructure.dataset.os.path.abspath', autospec=True)
+def test_no_true_code_no(abspath_mock, bpe_learner_mock, dataset_mock):
 
     # given
+    abspath_mock.return_value = PATH_TO_DATASET_STUB
     dataset_mock.create = Mock(spec=dataset_mock, return_value=dataset_mock)
     argv = ['learn-bpe', '1000', '-p', PATH_TO_DATASET_STUB, '--no-unicode', '--word-end']
 
@@ -580,9 +584,11 @@ def test_no_true_code_no(bpe_learner_mock, dataset_mock):
 
 @mock.patch('dataprep.cli.impl.Dataset', autospec=True)
 @mock.patch('dataprep.cli.impl.bpelearner', autospec=True)
-def test_true_true_code_bytes(bpe_learner_mock, dataset_mock):
+@mock.patch('dataprep.infrastructure.dataset.os.path.abspath', autospec=True)
+def test_true_true_code_bytes(abspath_mock, bpe_learner_mock, dataset_mock):
 
     # given
+    abspath_mock.return_value = PATH_TO_DATASET_STUB
     dataset_mock.create = Mock(spec=dataset_mock, return_value=dataset_mock)
     argv = ['learn-bpe', '1000', '-p', PATH_TO_DATASET_STUB, '--bytes', '--word-end']
 
