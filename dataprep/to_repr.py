@@ -44,7 +44,6 @@ def to_repr(prep_config: PrepConfig, token_list: List[Union[str, ParsedToken]],
     repr_list, metadata = to_repr_list(token_list, prep_config.get_repr_config(bpe_data))
     if prep_config.is_bpe():
         repr_list = insert_and_word_tokens(repr_list, metadata)
-    check_metadata_validity(repr_list, metadata, use_only_token_end_chars=False)
     return repr_list, metadata
 
 
