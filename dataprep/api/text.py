@@ -370,9 +370,9 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces
     ...    }
     ... }'''
 
-        >>> tokens, metadata = bpe(input_text, '10k', "java", no_spaces=True, return_metadata=True, append_eof=True)
-        >>> tokens
-        ['void</t>', 'test_', 'Word', 'U', 'eb', 'err', 'as', 'ch', 'un', 'g', 'Print', 'er</t>', \
+    >>> tokens, metadata = bpe(input_text, '10k', "java", no_spaces=True, return_metadata=True, append_eof=True)
+    >>> tokens
+    ['void</t>', 'test_', 'Word', 'U', 'eb', 'err', 'as', 'ch', 'un', 'g', 'Print', 'er</t>', \
 '(</t>', ')</t>', '{</t>', \
 'if</t>', '(</t>', 'e', 'ps</t>', '></t>', '=</t>', '0.', '34', '5', 'e+', '4</t>', ')</t>', \
 '{</t>', '/</t>', '/</t>', 'FIX', 'M', 'E</t>', '10', 'l</t>', '<EOL></t>', \
@@ -381,26 +381,26 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces
 '}</t>', \
 '}</t>', '<EOF></t>']
 
-        >>> sorted(metadata.nonprocessable_tokens)
-        ['(', ')', '/', ';', '<EOF>', '=', '>', 'if', 'void', '{', '}']
+    >>> sorted(metadata.nonprocessable_tokens)
+    ['(', ')', '/', ';', '<EOF>', '=', '>', 'if', 'void', '{', '}']
 
-        >>> metadata.word_boundaries
-        [0, 1, 12, 13, 14, 15, 16, 17, 19, 20, 21, 26, 27, 28, 29, 30, 33, 35, 36, 38, 39, 57, 58, 59, 60, 61, 62]
+    >>> metadata.word_boundaries
+    [0, 1, 12, 13, 14, 15, 16, 17, 19, 20, 21, 26, 27, 28, 29, 30, 33, 35, 36, 38, 39, 57, 58, 59, 60, 61, 62]
 
-        >>> metadata.comments
-        [(28, 36)]
+    >>> metadata.comments
+    [(28, 36)]
 
-        >>> tokens, metadata = bpe(input_text, '1k', "java", no_spaces=True, max_str_length=14, return_metadata=True)
-        >>> tokens
-        ['void</t>', 'test', '_', 'Wor', 'd', 'U', 'eb', 'err', 'as', 'ch', 'un', 'g', 'P', 'r', 'int', 'er</t>', \
+    >>> tokens, metadata = bpe(input_text, '1k', "java", no_spaces=True, max_str_length=14, return_metadata=True)
+    >>> tokens
+    ['void</t>', 'test', '_', 'Wor', 'd', 'U', 'eb', 'err', 'as', 'ch', 'un', 'g', 'P', 'r', 'int', 'er</t>', \
 '(</t>', ')</t>', '{</t>', \
 'if</t>', '(</t>', 'e', 'p', 's</t>', '></t>', '=</t>', '0.', '3', '4', '5', 'e', '+', '4</t>', ')</t>', \
 '{</t>', '/</t>', '/</t>', 'FI', 'X', 'M', 'E</t>', '1', '0', 'l</t>', '<EOL></t>', \
 'print', 'Wor', 'd</t>', '(</t>', '"', '"</t>', ')</t>', ';</t>', \
 '}</t>', \
 '}</t>']
-        >>> metadata.word_boundaries
-        [0, 1, 16, 17, 18, 19, 20, 21, 24, 25, 26, 33, 34, 35, 36, 37, 41, 44, 45, 48, 49, 51, 52, 53, 54, 55]
+    >>> metadata.word_boundaries
+    [0, 1, 16, 17, 18, 19, 20, 21, 24, 25, 26, 33, 34, 35, 36, 37, 41, 44, 45, 48, 49, 51, 52, 53, 54, 55]
 
 
     >>> bpe(input_text, '5k', "java", no_spaces=True)
