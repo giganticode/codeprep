@@ -145,9 +145,3 @@ def check_metadata_validity(subwords: List[str], metadata: PreprocessingMetadata
                 raise AssertionError(f'Token {token} according to metadata is'
                                      f'{" " if end_according_to_metadata else " NOT"} end-token. '
                                      f'Showing context: {subwords[error_context_start_index:error_context_end_index]}')
-
-
-def with_compound_word_end(parts: List[str]) -> List[str]:
-    parts[-1] = parts[-1] + placeholders['compound_word_end']
-
-    return parts

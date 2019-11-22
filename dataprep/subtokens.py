@@ -75,16 +75,4 @@ def is_terminal_subtoken(subtoken: str, use_token_end_chars: bool = True) -> boo
         raise NotImplemented("Finding out if a subtoken is terminal for tokens represented with <w> and </w> tokens "
                              "is not yet implemented.")
 
-    return subtoken.endswith(placeholders['compound_word_end']) or _ends_with_terminal_placeholder(subtoken)
-
-
-def _ends_with_terminal_placeholder(subtoken: str) -> bool:
-    for tp in _get_terminal_placeholders():
-        if subtoken.endswith(tp):
-            return True
-    return False
-
-
-def _get_terminal_placeholders() -> List[str]:
-    return [placeholders['comment'], placeholders['string_literal'],
-            placeholders['ect'], placeholders['non_eng'], placeholders['olc_end']]
+    return subtoken.endswith(placeholders['compound_word_end'])

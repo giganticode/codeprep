@@ -573,7 +573,7 @@ def test_to_repr_no_no_sep_with_bpe_no_merges():
         '"', 'A', 'W', 'i', 'r', 'k', 'l', 'i', 'c', '\xf7', '\xa0', '"', cwe,
         '/' + cwe, '*' + cwe, '\xf7', cwe, 'b', 'l', 'a', 'n', 'c', 'o', '_', 'e', 'n', 'g', 'l', 'i', 's', 'h', cwe, '*' + cwe, '/' + cwe,
         '/' + cwe, '/' + cwe, 'D', 'I', 'E', 'S', 'E', 'L', 'B', 'E', '8', cwe,
-        pl['olc_end']
+        pl['olc_end'] + cwe
     ]
 
     expected_metadata = PreprocessingMetadata({'*', '"', "/"},

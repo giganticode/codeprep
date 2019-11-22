@@ -7,7 +7,6 @@ import sys
 from enum import Enum
 from typing import Dict, List, Type, Optional
 
-from dataprep.parse.model.metadata import with_compound_word_end
 from dataprep.bpepkg.bpe_encode import BpeData, get_bpe_subwords
 from dataprep.parse.model.containers import SplitContainer, StringLiteral, OneLineComment, MultilineComment
 from dataprep.parse.model.noneng import NonEng
@@ -137,14 +136,14 @@ class PrepConfig(object):
         elif split_param_value in ['2', '3', 's']:
             return lambda s,c: [ch for ch in s]
         elif split_param_value in ['4', '5', '6', '7', '8', '9']:
-            return lambda s,c: with_compound_word_end(get_bpe_subwords(s, c))
+            return lambda s,c: get_bpe_subwords(s, c)
         else:
             raise ValueError(f"Invalid SPLIT param value: {split_param_value}")
 
     def get_word_splitter(self) -> Optional[Splitter]:
         split_param_value = self.get_param_value(PrepParam.SPLIT)
         if split_param_value in ['4', '5', '6', '7', '8', '9']:
-            return lambda s, c: with_compound_word_end(get_bpe_subwords(s, c))
+            return lambda s, c: get_bpe_subwords(s, c)
         elif split_param_value in ['1', '2']:
             return lambda s,c: [s]
         elif split_param_value == '3':

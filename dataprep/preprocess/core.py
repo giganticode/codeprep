@@ -1,6 +1,4 @@
-from typing import Generator, Union, Tuple, List, Optional, Callable
-
-from dataprep.parse.model.placeholders import placeholders
+from typing import Union, Tuple, List, Optional, Callable, Sequence
 
 from dataprep.bpepkg.bpe_encode import BpeData
 from dataprep.parse.model.core import ParsedToken
@@ -27,7 +25,8 @@ class ReprConfig(object):
         self.max_str_length = max_str_length
 
 
-def to_repr_list(token_list: Generator[Union[str, ParsedToken], None, None], repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
+def to_repr_list(token_list: Sequence[Union[str, ParsedToken]], repr_config: ReprConfig) \
+        -> Tuple[List[str], PreprocessingMetadata]:
     repr_res = []
     all_metadata = PreprocessingMetadata()
     for token in token_list:
@@ -44,9 +43,7 @@ def torepr(token, repr_config) -> Tuple[List[str], PreprocessingMetadata]:
     if clazz == list:
         return to_repr_list(token, repr_config)
     if clazz == str:
-        res = token + placeholders['compound_word_end'] if repr_config.bpe_data else token
-        return [res], PreprocessingMetadata(nonprocessable_tokens={token}, word_boundaries=[0,1])
-
+        return [token], PreprocessingMetadata(nonprocessable_tokens={token}, word_boundaries=[0, 1])
     if repr_config and clazz in repr_config.types_to_be_repr:
         return token.preprocessed_repr(repr_config)
     else:
