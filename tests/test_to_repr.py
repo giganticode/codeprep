@@ -121,7 +121,7 @@ def test_to_repr_0_max_str_length_7():
         '/', '/', "DIESELBE8", pl['olc_end']
     ]
     expected_metadata = PreprocessingMetadata({'"', "*", "/"},
-                                              word_boundaries=list(range(15+1)),
+                                              word_boundaries=[0, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
                                               comments=[(5, 15)])
 
     assert expected == actual
@@ -202,7 +202,7 @@ def test_to_repr_F_max_str_length_7():
         '/', '*', 'ц', 'blanco_english', '*', '/',
         '/', '/', "DIESELBE8", pl['olc_end']
     ]
-    expected_metadata = PreprocessingMetadata({'"', "*", "/"},
+    expected_metadata = PreprocessingMetadata({"*", "/"},
                                               word_boundaries=list(range(14+1)),
                                               comments=[(4, 14)])
 

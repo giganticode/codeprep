@@ -106,11 +106,11 @@ def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False,
     ['"', '.', '.', '.', 'Überraschung', '0x12', '"']
 
     >>> nosplit('"     ...     Überraschung 0x12"', "java", no_spaces=True, max_str_length=26, return_metadata=True)
-    (['"', '"'], ({'"'}, [0, 1, 2], []))
+    (['"', '"'], ({'"'}, [0, 2], []))
 
     >>> nosplit('"     ...     Überraschung 0x12"', "java", no_spaces=True, full_strings=True, max_str_length=31, \
 return_metadata=True)
-    (['""'], ({'"'}, [0, 1], []))
+    (['""'], (set(), [0, 1], []))
 
     >>> nosplit('"     ...     Überraschung 0x12"', "java", full_strings=True, return_metadata=True)
     (['"\xa0\xa0\xa0\xa0\xa0...\xa0\xa0\xa0\xa0\xa0Überraschung\xa00x12"'], (set(), [0, 1], []))
@@ -390,15 +390,17 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces
         >>> metadata.comments
         [(28, 36)]
 
-        >>> bpe(input_text, '1k', "java", no_spaces=True)
+        >>> tokens, metadata = bpe(input_text, '1k', "java", no_spaces=True, max_str_length=14, return_metadata=True)
+        >>> tokens
         ['void</t>', 'test', '_', 'Wor', 'd', 'U', 'eb', 'err', 'as', 'ch', 'un', 'g', 'P', 'r', 'int', 'er</t>', \
 '(</t>', ')</t>', '{</t>', \
 'if</t>', '(</t>', 'e', 'p', 's</t>', '></t>', '=</t>', '0.', '3', '4', '5', 'e', '+', '4</t>', ')</t>', \
 '{</t>', '/</t>', '/</t>', 'FI', 'X', 'M', 'E</t>', '1', '0', 'l</t>', '<EOL>', \
-'print', 'Wor', 'd</t>', '(</t>', '"\\xa0', '\\xa0', '\\xa0', '\\xa0', '\\xa0', '.', '.', '.', '\\xa0', '\\xa0', \
-'\\xa0', '\\xa0', '\\xa0', 'Ü', 'b', 'err', 'as', 'ch', 'un', 'g', '\\xa0', '0x', '1', '2', '"</t>', ')</t>', ';</t>', \
+'print', 'Wor', 'd</t>', '(</t>', '"', '"</t>', ')</t>', ';</t>', \
 '}</t>', \
 '}</t>']
+        >>> metadata.word_boundaries
+        [0, 1, 16, 17, 18, 19, 20, 21, 24, 25, 26, 33, 34, 35, 36, 37, 41, 44, 45, 48, 49, 51, 52, 53, 54, 55]
 
     >>> bpe(input_text, '5k', "java", no_spaces=True)
     ['void</t>', 'test', '_', 'Wor', 'd', 'U', 'eb', 'err', 'as', 'ch', 'un', 'g', 'Print', 'er</t>', \

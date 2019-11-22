@@ -1,7 +1,7 @@
 from typing import List, Tuple, Union, Optional
 
 from dataprep.parse.model.core import ParsedToken, ParsedSubtoken
-from dataprep.parse.model.metadata import PreprocessingMetadata
+from dataprep.parse.model.metadata import PreprocessingMetadata, with_compound_word_end
 from dataprep.parse.model.placeholders import placeholders
 from dataprep.parse.model.whitespace import SpaceInString
 from dataprep.parse.model.word import Word
@@ -135,10 +135,13 @@ class StringLiteral(TextContainer):
 
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[List[str], PreprocessingMetadata]:
         if not repr_config: #called by str()
-            return self.with_each_word_metadata(["".join(map(lambda t: str(t), self.subtokens))])
+            return self.with_full_word_metadata(["".join(map(lambda t: str(t), self.subtokens))])
         elif self.length > repr_config.max_str_length:
-            return self.with_each_word_metadata(['""'] if repr_config.full_strings else ['"', '"'],
-                                                metadata=PreprocessingMetadata(nonprocessable_tokens={'"'}))
+            s = ['""'] if repr_config.full_strings else ['"', '"']
+            npt = {} if repr_config.full_strings else {'"'}
+            if repr_config.bpe_data:
+                s = with_compound_word_end(s)
+            return self.with_full_word_metadata(s, metadata=PreprocessingMetadata(nonprocessable_tokens=npt))
         elif repr_config.bpe_data:
             s = self._replace_non_ascii_seqs_if_necessary(repr_config)
             return self.with_full_word_metadata(repr_config.word_splitter(s, repr_config.bpe_data))

@@ -7,8 +7,7 @@ import sys
 from enum import Enum
 from typing import Dict, List, Type, Optional
 
-from dataprep.parse.model.placeholders import placeholders
-
+from dataprep.parse.model.metadata import with_compound_word_end
 from dataprep.bpepkg.bpe_encode import BpeData, get_bpe_subwords
 from dataprep.parse.model.containers import SplitContainer, StringLiteral, OneLineComment, MultilineComment
 from dataprep.parse.model.noneng import NonEng
@@ -42,12 +41,6 @@ def get_max_str_length(ch: str) -> Optional[int]:
         return sys.maxsize
     else:
         return num
-
-
-def with_compound_word_end(parts: List[str]) -> List[str]:
-    parts[-1] = parts[-1] + placeholders['compound_word_end']
-
-    return parts
 
 
 class PrepConfig(object):

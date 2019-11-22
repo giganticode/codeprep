@@ -1,6 +1,7 @@
 import bisect
 import logging
 
+from dataprep.parse.model.placeholders import placeholders
 from dataprep.subtokens import is_terminal_subtoken
 from dataprep.util import to_literal_str
 from typing import Set, Optional, List, Tuple, Any
@@ -140,6 +141,13 @@ def check_metadata_validity(subwords: List[str], metadata: PreprocessingMetadata
             end_according_to_metadata = (idx + 1) in metadata.word_boundaries
             if end_according_to_data != end_according_to_metadata:
                 error_context_start_index = idx - 20 if idx - 20 > 0 else 0
+                error_context_end_index = idx + 20 if idx + 20 < len(subwords) else len(subwords) - 1
                 raise AssertionError(f'Token {token} according to metadata is'
                                      f'{" " if end_according_to_metadata else " NOT"} end-token. '
-                                     f'Showing context: {subwords[error_context_start_index:idx + 1]}')
+                                     f'Showing context: {subwords[error_context_start_index:error_context_end_index]}')
+
+
+def with_compound_word_end(parts: List[str]) -> List[str]:
+    parts[-1] = parts[-1] + placeholders['compound_word_end']
+
+    return parts
