@@ -237,7 +237,24 @@ Initial PyPI release
 - implement `--full-strings` and `--max-str-length` options
 - replace `ronin` method/command wit`--ronin` option and apply ronin algorithm on word level instead of full identifier level
 - if `split_numbers` option is set to `True`, split numbers not only in code but also in strings and comments
-- add `get_corpus_size()` method to `PreprocessedCorpus` class
 - change placeholder values to more human-readable
 - improve logging displaying
 - Bugfixes
+
+## 1.0.0-alpha.8 (NOT backward compatible with 1.0.0-alpha.7)
+
+- Add `get_corpus_size()` method to `PreprocessedCorpus` class
+- Do BPE splitting without splitting by convention first
+- Use </t> to mark the last sub-token of a token
+- Replacing non-ascii sequences with a special char
+- Follow symlinks when reading a dataset
+- make possible to preserve case when doing stemming
+- Bugfixes
+
+## 1.0.0-alpha.9 (NOT backward compatible with 1.0.0-alpha.8)
+
+- Add boundaries of comments to pre-processing metadata
+- Add Windows and OSx support
+- Switch from unittest to pytest+doctest
+- Bugfixes related to literal presentation of tokens on the disk
+- Bugfixes related to adding </t> to mark the end of a full token
