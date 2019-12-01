@@ -227,9 +227,23 @@ Removing the cache will not change the final result, however, will result in slo
 
 # Releases
 
-## 1.0.0-alpha.6
+## 1.0.0-alpha.10 (NOT backward compatible with 1.0.0-alpha.9)
 
-Initial PyPI release
+- Add boundaries of comments to pre-processing metadata
+- Add Windows and OSx support
+- Switch from unittest to pytest+doctest
+- Bugfixes related to literal presentation of tokens on the disk
+- Bugfixes related to adding </t> to mark the end of a full token
+
+## 1.0.0-alpha.9 (NOT backward compatible with 1.0.0-alpha.7)
+
+- Add `get_corpus_size()` method to `PreprocessedCorpus` class
+- Do BPE splitting without splitting by convention first
+- Use </t> to mark the last sub-token of a token
+- Replacing non-ascii sequences with a special char
+- Follow symlinks when reading a dataset
+- make possible to preserve case when doing stemming
+- Bugfixes
 
 ## 1.0.0-alpha.7 (NOT backward compatible with 1.0.0-alpha.6)
 
@@ -241,20 +255,6 @@ Initial PyPI release
 - improve logging displaying
 - Bugfixes
 
-## 1.0.0-alpha.8 (NOT backward compatible with 1.0.0-alpha.7)
+## 1.0.0-alpha.6
 
-- Add `get_corpus_size()` method to `PreprocessedCorpus` class
-- Do BPE splitting without splitting by convention first
-- Use </t> to mark the last sub-token of a token
-- Replacing non-ascii sequences with a special char
-- Follow symlinks when reading a dataset
-- make possible to preserve case when doing stemming
-- Bugfixes
-
-## 1.0.0-alpha.9 (NOT backward compatible with 1.0.0-alpha.8)
-
-- Add boundaries of comments to pre-processing metadata
-- Add Windows and OSx support
-- Switch from unittest to pytest+doctest
-- Bugfixes related to literal presentation of tokens on the disk
-- Bugfixes related to adding </t> to mark the end of a full token
+Initial PyPI release
