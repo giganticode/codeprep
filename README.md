@@ -227,7 +227,7 @@ Removing the cache will not change the final result, however, will result in slo
 
 # Releases
 
-## 1.0.0-alpha.8.1 (CURRENT, NOT backward compatible with 1.0.0-alpha.7)
+## 1.0.0-alpha.9 (CURRENT, NOT backward compatible with 1.0.0-alpha.7)
 
 - Add `get_corpus_size()` method to `PreprocessedCorpus` class
 - Do BPE splitting without splitting by convention first
