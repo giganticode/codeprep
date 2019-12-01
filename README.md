@@ -108,12 +108,12 @@ The following code does **camelCase-** and **snake_case-** splitting and applies
 ...         printWord("     ...     Überraschung");
 ...     }
 ... }'''
->>> pp.bpe(input_code,bpe_codes_id='10k')
-['void', '<w>', 'test', '_', 'Word', 'U', 'e', 'ber', 'r', 'as', 'ch', 'ung', 'Printer', '</w>', '(', ')', '{', '\n', 
-'\t', 'if', '(', '<w>', 'ep', 's', '</w>', '>', '=', '0', '.', '<w>', '34', '5', 'e', '</w>', '+', '4', ')', '{', '/', '/', 'FIXME', '\n', 
-'\t', '\t', '<w>', 'print', 'Word', '</w>', '(', '"', '\t', '.', '.', '.', '\t', '<w>', 'Ü', 'ber', 'r', 'as', 'ch', 'ung', '</w>', '"', ')', ';', '\n', 
-'\t', '}', '\n', 
-'}']
+>>> pp.bpe(input_code, bpe_codes_id='10k')
+['v', 'oid</t>', 'test_', 'Word', 'U', 'eb', 'err', 'as', 'ch', 'un', 'g', 'Print', 'er</t>', '(</t>', ')</t>', '{</t>', '\n', 
+'\t', 'i', 'f</t>', '(</t>', 'e', 'ps</t>', '></t>', '=</t>', '0</t>', '.</t>', '34', '5', 'e</t>', '+</t>', '4</t>', ')</t>', '{</t>', '/</t>', '/</t>', 'FIX', 'M', 'E</t>',  '\n', 
+'\t', '\t', 'print', 'Word</t>', '(</t>', '"</t>', '\t', '.</t>', '.</t>', '.</t>', '\t', 'Ü', 'b', 'err', 'as', 'ch', 'un', 'g</t>', '"</t>', ')</t>', ';</t>', '\n', 
+'\t', '}</t>', '\n', 
+'}</t>']
 ```
 
 **Dataprep** by default does BPE using bpe codes leaned on [the Github Java Corpus](http://groups.inf.ed.ac.uk/cup/javaGithub/). The argument `bpe_codes_id='10k'` tells the **dataprep** tool to use 10,000 bpe merges. 
@@ -125,7 +125,7 @@ Other possible values are `1k` and `5k` (1,000 and 5,000 merges respectively). P
 Set `calc_vocab` param to `True` when calling a preprocessing method to calculate the vocabulary of the preprocessed corpus, e.g.:
 ```python
 >>> import dataprep.api.corpus as pp
->>> pp.basic('/path/to/train/on',calc_vocab=True)
+>>> pp.basic('/path/to/train/on', calc_vocab=True)
 ...
 Vocab is available at /path/to/vocab
 ```
@@ -162,7 +162,7 @@ You can pass the following parameters with a `True` value (default values for al
 ...         printWord("     ...     Überraschung");
 ...     }
 ... }'''
->>> pp.basic(input_code,no_spaces=True,no_unicode=True,no_case=True,no_com=True,no_str=True)
+>>> pp.basic(input_code, no_spaces=True, no_unicode=True, no_case=True, no_com=True, no_str=True)
 ['void', '<w>', 'test', '_', '<Cap>', 'word', '<Cap>', 'ueberraschung', '<Cap>', 'printer', '</w>', '(', ')', '{', 
 'if', '(', 'eps', '>', '=', '0', '.', '<w>', '345', 'e', '</w>', '+', '4', ')', '{', '/', '/', '<CAPS>', 'fixme', 
 '<w>', 'print', '<Cap>', 'word', '</w>', '(', '"', '.', '.', '.', '<Cap>', '<non-en>', '"', ')', ';', 
@@ -176,9 +176,9 @@ Similar params can be specified as switches `--no-str`, `--no-com`, `--no-spaces
 Unless explicitely specified, **dataprep** will try to guess the language of the code to be preprocessed. To make sure the input is preprocessed as intended, it is always **highly recommended** to specify it:
 ```python
 import dataprep.api.text as pp
->>> pp.bpe("volatile",'1k',extension="py")
-['<w>', 'vo', 'l', 'at', 'ile', '</w>']
->>> pp.bpe("volatile",'1k',extension="java")
+>>> pp.bpe("volatile", '1k', extension="py")
+['v', 'ol', 'a', 'ti', 'le</t>']
+>>> pp.bpe("volatile", '1k', extension="java")
 ['volatile']
 # Since 'volatile' is a keyword in java, it is represented as one token unlike in python 
 # where it is pretty rare when used as an identifier and therefore represented as multiple subtokens.
