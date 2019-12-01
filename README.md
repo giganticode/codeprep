@@ -1,6 +1,6 @@
 # Dataprep
 
-[![Build Status](https://travis-ci.org/giganticode/dataprep.svg?branch=master)](https://travis-ci.org/giganticode/dataprep)
+[![Build Status](https://travis-ci.org/giganticode/dataprep.svg?branch=v1.0.0-alpha.8-release)](https://travis-ci.org/giganticode/dataprep)
 
 **This is a tool for preprocessing source code corpora according to a specified vocabulary modeling choice.**
 
@@ -227,9 +227,15 @@ Removing the cache will not change the final result, however, will result in slo
 
 # Releases
 
-## 1.0.0-alpha.6
+## 1.0.0-alpha.8 (CURRENT, NOT backward compatible with 1.0.0-alpha.7)
 
-Initial PyPI release
+- Add `get_corpus_size()` method to `PreprocessedCorpus` class
+- Do BPE splitting without splitting by convention first
+- Use </t> to mark the last sub-token of a token
+- Replacing non-ascii sequences with a special char
+- Follow symlinks when reading a dataset
+- make possible to preserve case when doing stemming
+- Bugfixes
 
 ## 1.0.0-alpha.7 (NOT backward compatible with 1.0.0-alpha.6)
 
@@ -241,3 +247,7 @@ Initial PyPI release
 - change placeholder values to more human-readable
 - improve logging displaying
 - Bugfixes
+
+## 1.0.0-alpha.6
+
+Initial PyPI release
