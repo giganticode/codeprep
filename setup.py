@@ -38,6 +38,8 @@ setup(name='giganticode-dataprep',
           'Programming Language :: Python :: 3.6',
           'Programming Language :: Python :: 3.7',
           'Operating System :: POSIX :: Linux',
+          'Operating System :: MacOS :: MacOS X',
+          'Operating System :: Microsoft :: Windows'
           'Topic :: Software Development :: Pre-processors'
       ],
       python_requires='>=3.6',
