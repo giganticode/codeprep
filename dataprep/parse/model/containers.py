@@ -95,7 +95,15 @@ class TextContainer(ProcessableTokenContainer):
         return tokens, updated_metadata
 
 
-class OneLineComment(TextContainer):
+class Comment(TextContainer):
+    def __init__(self, tokens: List[Union[str, ParsedToken]]):
+        super().__init__(tokens)
+
+    def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
+        return self.with_each_word_metadata([placeholders['comment']], comments=[(0, 1)])
+
+
+class OneLineComment(Comment):
     def __init__(self, tokens: List[Union[str, ParsedToken]]):
         super().__init__(tokens)
 
@@ -105,11 +113,8 @@ class OneLineComment(TextContainer):
         metadata.set_all_tokens_comment()
         return prep_tokens + [placeholders['olc_end']], metadata
 
-    def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
-        return self.with_each_word_metadata([placeholders['comment']], comments=[(0, 1)])
 
-
-class MultilineComment(TextContainer):
+class MultilineComment(Comment):
     def __init__(self, tokens: List[Union[str, ParsedToken]]):
         super().__init__(tokens)
 
@@ -117,9 +122,6 @@ class MultilineComment(TextContainer):
         prep_tokens, metadata = torepr(self.subtokens, repr_config)
         metadata.set_all_tokens_comment()
         return prep_tokens, metadata
-
-    def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
-        return self.with_each_word_metadata([placeholders['comment']], comments=[(0, 1)])
 
 
 class StringLiteral(TextContainer):
