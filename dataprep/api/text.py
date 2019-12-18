@@ -8,11 +8,12 @@ from dataprep.parse.model.core import ParsedToken
 from dataprep.parse.model.metadata import PreprocessingMetadata
 from dataprep.parse.model.placeholders import placeholders
 from dataprep.parse.model.whitespace import NewLine
+from dataprep.parse.model.word import SpecialToken
 from dataprep.prepconfig import PrepConfig
 from dataprep.to_repr import init_bpe_data, to_repr
 
 
-def remove_trailing_newline(prep_tokens: List[Union[ParsedToken, str]]) -> List[Union[ParsedToken, str]]:
+def remove_trailing_newline(prep_tokens: List[ParsedToken]) -> List[ParsedToken]:
     return prep_tokens[:-1] if len(prep_tokens) > 0 and prep_tokens[-1] == NewLine() else prep_tokens
 
 
@@ -22,7 +23,7 @@ def preprocess(text: str, config: PrepConfig, bpe_codes_id: Optional[str] = None
     parsed = [parsed_token for parsed_token in convert_text(text, extension)]
     parsed = remove_trailing_newline(parsed)
     if append_eof:
-        parsed.append(placeholders['ect'])
+        parsed.append(SpecialToken(placeholders['ect']))
     if config.is_bpe():
         assert bpe_codes_id
         custom_bpe_config = None if is_predefined_id(bpe_codes_id) else CustomBpeConfig.from_id(bpe_codes_id)

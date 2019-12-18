@@ -6,6 +6,7 @@ from dataprep.parse.model.containers import StringLiteral, OneLineComment, Multi
 from dataprep.parse.model.core import ParsedToken
 from dataprep.parse.model.numeric import Number
 from dataprep.parse.model.whitespace import NewLine, Tab
+from dataprep.parse.model.word import KeyWord, Operator
 from dataprep.parse.subtokens import split_into_words, split_string
 
 
@@ -13,7 +14,7 @@ class DefaultMatcher(object):
     def match(self, token, value: str) -> bool:
         return True
 
-    def transform(self, value: str) -> List[Union[str, ParsedToken]]:
+    def transform(self, value: str) -> List[ParsedToken]:
         return split_into_words(value)
 
 
@@ -21,7 +22,7 @@ class GenericTokenMatcher(object):
     def match(self, token, value: str) -> bool:
         return token in Token.Generic
 
-    def transform(self, value: str) -> List[Union[str, ParsedToken]]:
+    def transform(self, value: str) -> List[ParsedToken]:
         return split_into_words(value)
 
 
@@ -53,7 +54,7 @@ class WordMatcher(object):
     def match(self, token, value: str) -> bool:
         return token in Token.Name
 
-    def transform(self, value: str) -> List[Union[str, ParsedToken]]:
+    def transform(self, value: str) -> List[ParsedToken]:
         return split_into_words(value)
 
 
@@ -61,7 +62,7 @@ class GenericLiteralMatcher(object):
     def match(self, token, value: str) -> bool:
         return token is Token.Literal or token is Token.Literal.Date
 
-    def transform(self, value: str) -> List[Union[str, ParsedToken]]:
+    def transform(self, value: str) -> List[ParsedToken]:
         return split_into_words(value)
 
 
@@ -69,9 +70,8 @@ class KeywordMatcher(object):
     def match(self, token, value: str) -> bool:
         return token in Token.Keyword
 
-    def transform(self, value: str) -> List[Union[str, ParsedToken]]:
-        return [value]
-        # return [simple_split_token(ParseableToken(value))]
+    def transform(self, value: str) -> List[KeyWord]:
+        return [KeyWord(value)]
 
 
 class NewLineMatcher(object):
@@ -110,13 +110,13 @@ class OperatorMatcher(object):
     def match(self, token, value: str):
         return token is Token.Operator or token in Token.Punctuation
 
-    def transform(self, value: str) -> List[str]:
-        return [value]
+    def transform(self, value: str) -> List[Operator]:
+        return [Operator(value)]
 
 
 class WordOperatorMatcher(object):
     def match(self, token, value: str):
         return token is Token.Operator.Word
 
-    def transform(self, value: str) -> List[Union[str, ParsedToken]]:
+    def transform(self, value: str) -> List[ParsedToken]:
         return split_into_words(value)

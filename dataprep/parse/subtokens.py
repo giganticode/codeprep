@@ -1,12 +1,12 @@
 import regex
-from typing import Union, List
+from typing import List
 
 from dataprep.parse.model.containers import SplitContainer
 from dataprep.parse.model.core import ParsedToken
 from dataprep.parse.model.noneng import NonEng
 from dataprep.parse.model.numeric import Number
 from dataprep.parse.model.whitespace import NewLine, Tab, SpaceInString
-from dataprep.parse.model.word import Underscore, Word
+from dataprep.parse.model.word import Underscore, Word, NonCodeChar
 from dataprep.noneng import is_non_eng
 
 
@@ -107,44 +107,47 @@ def is_number(word: str) -> bool:
     return regex.fullmatch(NUMBER_PATTERN, word) is not None
 
 
-def to_parsed_token_if_needed(param: str) -> Union[str, ParsedToken]:
-    if param == '\n':
+def to_parsed_token(token: str) -> ParsedToken:
+    if token == '\n':
         return NewLine()
-    elif param == '\t' or param == ' ' * 4:
+    elif token == '\t':
         return Tab()
-    elif is_number(param):
-        return Number(param)
-    elif is_word(param):
-        return split_identifier(param)
+    elif is_number(token):
+        return Number(token)
+    elif regex.fullmatch("\\w+", token):
+        return split_identifier(token)
     else:
-        return param
+        return NonCodeChar(token)
 
 
-def to_parsed_string_token_if_needed(param: str) -> Union[str, ParsedToken]:
-    if param == '\n':
-        return NewLine()
-    elif param == '\t':
-        return Tab()
-    elif regex.fullmatch(" +", param):
-        return SpaceInString(n_chars=len(param))
-    elif is_number(param):
-        return Number(param)
-    elif is_word(param):
-        return split_identifier(param)
-    else:
-        return param
+def split_string(token: str) -> List[ParsedToken]:
+    """
+    >>> split_string("    var = 9.4\\t\\n")
+    [<SpaceInString> (n_chars=4), SplitContainer[Word(('var', <Capitalization.NONE: 2>))], \
+<SpaceInString> (n_chars=1), NonCodeChar(=), <SpaceInString> (n_chars=1), <Number>(9), \
+NonCodeChar(.), <Number>(4), <Tab>, <NewLine>]
+    """
+    res = []
+    arbitrary_whitespace = "( )+"
+    for m in regex.finditer(f"(\\w+|[^ ]|{arbitrary_whitespace})", token):
+        if regex.fullmatch(arbitrary_whitespace, m[0]):
+            res.append(SpaceInString(n_chars=len(m[0])))
+        else:
+            res.append(to_parsed_token(m[0]))
+    return res
 
 
-def split_string(s: str) -> List[Union[str, ParsedToken]]:
-    return [to_parsed_string_token_if_needed(m[0]) for m in regex.finditer("(\\w+|( )+|[^ ])", s)]
-
-
-def split_into_words(s: str) -> List[Union[str, ParsedToken]]:
-    return [to_parsed_token_if_needed(m[0]) for m in regex.finditer("(\\w+|[^ ]|    )", s)]
-
-
-def is_word(s: str) -> bool:
-    if not isinstance(s, str):
-        return False
-
-    return regex.fullmatch("\\w+", s)
+def split_into_words(token: str) -> List[ParsedToken]:
+    """
+    >>> split_into_words("    var = 9.4\\t\\n")
+    [<Tab>, SplitContainer[Word(('var', <Capitalization.NONE: 2>))], NonCodeChar(=), <Number>(9), \
+NonCodeChar(.), <Number>(4), <Tab>, <NewLine>]
+    """
+    res = []
+    four_char_whitespace = " " * 4
+    for m in regex.finditer(f"(\\w+|[^ ]|{four_char_whitespace})", token):
+        if m[0] == four_char_whitespace:
+            res.append(Tab())
+        else:
+            res.append(to_parsed_token(m[0]))
+    return res

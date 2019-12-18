@@ -25,7 +25,7 @@ class ReprConfig(object):
         self.max_str_length = max_str_length
 
 
-def to_repr_list(token_list: Sequence[Union[str, ParsedToken]], repr_config: ReprConfig) \
+def to_repr_list(token_list: Sequence[ParsedToken], repr_config: ReprConfig) \
         -> Tuple[List[str], PreprocessingMetadata]:
     repr_res = []
     all_metadata = PreprocessingMetadata()
@@ -38,12 +38,10 @@ def to_repr_list(token_list: Sequence[Union[str, ParsedToken]], repr_config: Rep
 
 def torepr(token, repr_config) -> Tuple[List[str], PreprocessingMetadata]:
     clazz = type(token)
-    if clazz.__name__ == 'ParseableToken':
-        raise AssertionError(f"Parseable token cannot be present in the final parsed model: {token}")
+    if clazz == str:
+        raise AssertionError('Strings are not allowed any more as a result of parsing')
     if clazz == list:
         return to_repr_list(token, repr_config)
-    if clazz == str:
-        return [token], PreprocessingMetadata(nonprocessable_tokens={token}, word_boundaries=[0, 1])
     if repr_config and clazz in repr_config.types_to_be_repr:
         return token.preprocessed_repr(repr_config)
     else:

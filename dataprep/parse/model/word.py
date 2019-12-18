@@ -1,7 +1,7 @@
 from enum import Enum, auto
 from typing import List, Tuple, Optional
 
-from dataprep.parse.model.core import ParsedSubtoken, with_empty_metadata
+from dataprep.parse.model.core import ParsedSubtoken, with_empty_metadata, ParsedToken
 from dataprep.parse.model.metadata import PreprocessingMetadata
 from dataprep.parse.model.placeholders import placeholders
 from dataprep.preprocess.core import ReprConfig
@@ -109,3 +109,40 @@ class Word(ParsedSubtoken):
             return cls(s[0].lower() + s[1:], Capitalization.FIRST_LETTER)
         else:
             return cls(s, Capitalization.UNDEFINED)
+
+
+class NonProcessibleToken(ParsedToken):
+    def __init__(self, token: str):
+        self.token = token
+
+    def __eq__(self, other):
+        return self.__class__ == other.__class__ and self.token == other.token
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self.token})'
+
+    def __str__(self):
+        return self.token
+
+    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[str, PreprocessingMetadata]:
+        return self.token, PreprocessingMetadata(nonprocessable_tokens={self.token}, word_boundaries=[0, 1])
+
+
+class KeyWord(NonProcessibleToken):
+    def __init__(self, token: str):
+        super().__init__(token)
+
+
+class Operator(NonProcessibleToken):
+    def __init__(self, token: str):
+        super().__init__(token)
+
+
+class NonCodeChar(NonProcessibleToken):
+    def __init__(self, token: str):
+        super().__init__(token)
+
+
+class SpecialToken(NonProcessibleToken):
+    def __init__(self, token: str):
+        super().__init__(token)

@@ -14,7 +14,7 @@ class Number(ParsedToken):
         return self.non_preprocessed_repr()[0]
 
     def __repr__(self):
-        return f'{self.__class__.__name__}{self.val}'
+        return f'<{self.__class__.__name__}>({self.val})'
 
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[str, PreprocessingMetadata]:
         return self.with_full_word_metadata(self.val)

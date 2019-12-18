@@ -1,9 +1,7 @@
-
-
 from typing import List, Tuple, Optional
 
 from dataprep.parse.model.containers import SplitContainer
-from dataprep.parse.model.core import ParsedToken, with_empty_metadata
+from dataprep.parse.model.core import ParsedToken
 from dataprep.parse.model.metadata import PreprocessingMetadata
 from dataprep.parse.model.placeholders import placeholders
 from dataprep.preprocess.core import ReprConfig, torepr
@@ -35,7 +33,3 @@ class NonEng(ParsedToken):
 
     def __eq__(self, other):
         return self.__class__ == other.__class__ and self.processable_token == other.processable_token
-
-
-class NonEngContent(ParsedToken):
-    pass

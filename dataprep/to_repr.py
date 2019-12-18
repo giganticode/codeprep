@@ -6,7 +6,7 @@ import pickle
 import time
 from multiprocessing.pool import Pool
 from tqdm import tqdm
-from typing import List, Tuple, Union
+from typing import List, Tuple
 from typing import Optional
 
 from dataprep.util import to_literal_str
@@ -38,7 +38,7 @@ def insert_and_word_tokens(prep_list: List[str], metadata: PreprocessingMetadata
     return list_copy
 
 
-def to_repr(prep_config: PrepConfig, token_list: List[Union[str, ParsedToken]],
+def to_repr(prep_config: PrepConfig, token_list: List[ParsedToken],
             bpe_data: Optional[BpeData] = None) -> Tuple[List[str], PreprocessingMetadata]:
     bpe_data = bpe_data or get_global_bpe_data_if_available()
     repr_list, metadata = to_repr_list(token_list, prep_config.get_repr_config(bpe_data))

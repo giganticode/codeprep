@@ -10,7 +10,7 @@ from dataprep.noneng import replace_non_ascii_seqs
 
 
 class ProcessableTokenContainer(ParsedToken):
-    def __init__(self, subtokens: Union[List[ParsedSubtoken], List[Union[str, ParsedToken]]]):
+    def __init__(self, subtokens: Union[List[ParsedSubtoken], List[ParsedToken]]):
         if isinstance(subtokens, list):
             self.subtokens = subtokens
         else:
@@ -71,7 +71,7 @@ class SplitContainer(ProcessableTokenContainer):
 
 class TextContainer(ProcessableTokenContainer):
 
-    def __init__(self, tokens: List[Union[str, ParsedToken]]):
+    def __init__(self, tokens: List[ParsedToken]):
         super().__init__(tokens)
         for token in tokens:
             if isinstance(token, ParsedSubtoken):
@@ -96,7 +96,7 @@ class TextContainer(ProcessableTokenContainer):
 
 
 class Comment(TextContainer):
-    def __init__(self, tokens: List[Union[str, ParsedToken]]):
+    def __init__(self, tokens: List[ParsedToken]):
         super().__init__(tokens)
 
     def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
@@ -104,7 +104,7 @@ class Comment(TextContainer):
 
 
 class OneLineComment(Comment):
-    def __init__(self, tokens: List[Union[str, ParsedToken]]):
+    def __init__(self, tokens: List[ParsedToken]):
         super().__init__(tokens)
 
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[List[str], PreprocessingMetadata]:
@@ -115,7 +115,7 @@ class OneLineComment(Comment):
 
 
 class MultilineComment(Comment):
-    def __init__(self, tokens: List[Union[str, ParsedToken]]):
+    def __init__(self, tokens: List[ParsedToken]):
         super().__init__(tokens)
 
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[List[str], PreprocessingMetadata]:
@@ -125,7 +125,7 @@ class MultilineComment(Comment):
 
 
 class StringLiteral(TextContainer):
-    def __init__(self, tokens: List[Union[str, ParsedToken]], length: int):
+    def __init__(self, tokens: List[ParsedToken], length: int):
         super().__init__(tokens)
         self.length = length
 

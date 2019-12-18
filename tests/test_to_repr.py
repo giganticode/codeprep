@@ -10,7 +10,7 @@ from dataprep.parse.model.noneng import NonEng
 from dataprep.parse.model.numeric import Number
 from dataprep.parse.model.placeholders import placeholders
 from dataprep.parse.model.whitespace import Tab, NewLine, SpaceInString
-from dataprep.parse.model.word import Word, Underscore
+from dataprep.parse.model.word import Word, Underscore, NonCodeChar, Operator
 from dataprep.prepconfig import PrepParam, PrepConfig
 from dataprep.to_repr import to_repr
 
@@ -19,10 +19,10 @@ cwe = placeholders['compound_word_end']
 
 tokens = [
     Number('1.1'),
-    "*",
+    Operator("*"),
     NonEng(SplitContainer([Word.from_("übersetzen")])),
     StringLiteral([
-        '"',
+        NonCodeChar('"'),
         NonEng(
             SplitContainer([
                 Word.from_("A"),
@@ -30,10 +30,10 @@ tokens = [
             ])
         ),
         SpaceInString(1),
-        '"'
+        NonCodeChar('"')
     ], 11),
     NewLine(),
-    MultilineComment(['/', '*']),
+    MultilineComment([NonCodeChar('/'), NonCodeChar('*')]),
     MultilineComment([
         NonEng(
             SplitContainer([Word.from_('ц')]),
@@ -46,9 +46,9 @@ tokens = [
             ])
         ),
     ]),
-    MultilineComment(['*', '/']),
+    MultilineComment([NonCodeChar('*'), NonCodeChar('/')]),
     NewLine(), Tab(),
-    OneLineComment(['/', '/',
+    OneLineComment([NonCodeChar('/'), NonCodeChar('/'),
         NonEng(
             SplitContainer([
                 Word.from_("DIESELBE"),
@@ -321,10 +321,10 @@ def test_to_repr_with_enonlycontents1():
 
     tokens = [
         Number("1.1"),
-        "*",
+        Operator("*"),
         NonEng(SplitContainer([Word.from_("dinero")])),
         StringLiteral([
-            '"',
+            NonCodeChar('"'),
             NonEng(SplitContainer([Word.from_("ich")])),
             SpaceInString(),
             NonEng(SplitContainer([Word.from_("weiss")])),
@@ -348,10 +348,10 @@ def test_to_repr_with_enonlycontents1():
             NonEng(SplitContainer([Word.from_("traurig")])),
             SpaceInString(),
             NonEng(SplitContainer([Word.from_("bin")])),
-            '"',
+            NonCodeChar('"'),
         ], 62),
         NewLine(),
-        MultilineComment(['/', '*']),
+        MultilineComment([NonCodeChar('/'), NonCodeChar('*')]),
         MultilineComment([
             NonEng(SplitContainer([Word.from_('ц')])),
             NonEng(
@@ -362,9 +362,9 @@ def test_to_repr_with_enonlycontents1():
                 ])
             ),
         ]),
-        MultilineComment(['*', '/']),
+        MultilineComment([NonCodeChar('*'), NonCodeChar('/')]),
         NewLine(), Tab(),
-        OneLineComment(['/', '/',
+        OneLineComment([NonCodeChar('/'), NonCodeChar('/'),
             NonEng(
                 SplitContainer([
                     Word.from_("DIESELBE"),
