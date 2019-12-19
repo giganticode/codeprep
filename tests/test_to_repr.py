@@ -723,5 +723,5 @@ def test_bpe_string_literal_performance():
         merge_list.append(Merge(('a', 'a'), 10))
     start = time.perf_counter()
     to_repr(prep_config, tokens, BpeData(merges=merge_list, merges_cache={'Whi@@le@': ['Whi@@le@']}))
-    assert (time.perf_counter() - start) < 0.05
+    assert (time.perf_counter() - start) < 1
 
