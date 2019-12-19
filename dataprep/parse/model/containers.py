@@ -51,18 +51,18 @@ class SplitContainer(ProcessableTokenContainer):
 
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[List[str], PreprocessingMetadata]:
         nospl_str = ["".join(map(lambda s: torepr(s, repr_config)[0][0], self.subtokens))]
-        return self.with_full_word_metadata(nospl_str)
+        return self.wrap_in_metadata_for_full_word(nospl_str)
 
     def preprocessed_repr(self, repr_config) -> Tuple[List[str], PreprocessingMetadata]:
         if repr_config.bpe_data:
-            return self.with_full_word_metadata(repr_config.word_splitter(str(self), repr_config.bpe_data))
+            return self.wrap_in_metadata_for_full_word(repr_config.word_splitter(str(self), repr_config.bpe_data))
         res = []
         all_metadata = PreprocessingMetadata()
         for subtoken in self.subtokens:
             r, metadata = torepr(subtoken, repr_config)
             res.extend(r if isinstance(r, list) else [r])
             all_metadata.update(metadata)
-        return self.with_full_word_metadata(wrap_in_word_boundaries_if_necessary(res), all_metadata)
+        return self.wrap_in_metadata_for_full_word(wrap_in_word_boundaries_if_necessary(res), all_metadata.nonprocessable_tokens)
 
     @classmethod
     def from_single_token(cls, token: str):
@@ -84,23 +84,13 @@ class TextContainer(ProcessableTokenContainer):
     def __eq__(self, other):
         return self.__class__ == other.__class__ and self.subtokens == other.subtokens
 
-    def with_each_word_metadata(self, tokens: List[str],
-                                metadata: Optional[PreprocessingMetadata] = None,
-                                comments: List[Tuple[int, int]] = None) -> Tuple[
-        Union[List[str], str], PreprocessingMetadata]:
-        updated_metadata = metadata or PreprocessingMetadata()
-        updated_metadata.word_boundaries = list(range(len(tokens) + 1))
-        if comments:
-            updated_metadata.comments = comments
-        return tokens, updated_metadata
-
 
 class Comment(TextContainer):
     def __init__(self, tokens: List[ParsedToken]):
         super().__init__(tokens)
 
     def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
-        return self.with_each_word_metadata([placeholders['comment']], comments=[(0, 1)])
+        return self.wrap_in_metadata_for_full_word([placeholders['comment']])
 
 
 class OneLineComment(Comment):
@@ -109,8 +99,8 @@ class OneLineComment(Comment):
 
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[List[str], PreprocessingMetadata]:
         prep_tokens, metadata = torepr(self.subtokens, repr_config)
-        metadata.update(PreprocessingMetadata(word_boundaries=[0, 1]))
-        metadata.set_all_tokens_comment()
+        metadata.update(PreprocessingMetadata(word_boundaries=[0, 1], token_types=[OneLineComment]))
+        metadata.set_all_tokens_type(OneLineComment)
         return prep_tokens + [placeholders['olc_end']], metadata
 
 
@@ -120,7 +110,7 @@ class MultilineComment(Comment):
 
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[List[str], PreprocessingMetadata]:
         prep_tokens, metadata = torepr(self.subtokens, repr_config)
-        metadata.set_all_tokens_comment()
+        metadata.set_all_tokens_type(MultilineComment)
         return prep_tokens, metadata
 
 
@@ -137,22 +127,24 @@ class StringLiteral(TextContainer):
 
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[List[str], PreprocessingMetadata]:
         if not repr_config: #called by str()
-            return self.with_full_word_metadata(["".join(map(lambda t: str(t), self.subtokens))])
+            return self.wrap_in_metadata_for_full_word(["".join(map(lambda t: str(t), self.subtokens))])
         elif self.length > repr_config.max_str_length:
             s = ['""'] if repr_config.full_strings else ['"', '"']
-            npt = {} if repr_config.full_strings else {'"'}
-            return self.with_full_word_metadata(s, metadata=PreprocessingMetadata(nonprocessable_tokens=npt))
+            non_processable_tokens = {} if repr_config.full_strings else {'"'}
+            return self.wrap_in_metadata_for_full_word(s, non_processable_tokens)
         elif repr_config.bpe_data:
             s = self._replace_non_ascii_seqs_if_necessary(repr_config)
-            return self.with_full_word_metadata(repr_config.word_splitter(s, repr_config.bpe_data))
+            return self.wrap_in_metadata_for_full_word(repr_config.word_splitter(s, repr_config.bpe_data))
         elif repr_config.full_strings:
             s = self._replace_non_ascii_seqs_if_necessary(repr_config)
-            return self.with_full_word_metadata(s)
+            return self.wrap_in_metadata_for_full_word([s])
         else: # here we dont keep full strings
-            return torepr(list(filter(lambda t: type(t) != SpaceInString, self.subtokens)), repr_config)
+            tokens, metadata = torepr(list(filter(lambda t: type(t) != SpaceInString, self.subtokens)), repr_config)
+            metadata.set_all_tokens_type(StringLiteral)
+            return tokens, metadata
 
     def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
-        return self.with_each_word_metadata([placeholders['string_literal']])
+        return self.wrap_in_metadata_for_full_word([placeholders['string_literal']])
 
     def __eq__(self, other):
         return super().__eq__(other) and self.length == other.length

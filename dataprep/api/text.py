@@ -71,18 +71,24 @@ def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False,
 
     >>> tokens, metadata = nosplit(input_text, "java", return_metadata=True, append_eof=True)
     >>> tokens
-    ['void', 'test_WordUeberraschungPrinter', '(', ')', '{', \
-'\\n', '\\t', 'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', 'FIXME', '10l', \
-'\\n', '<EOL>', '\\t', '\\t', 'printWord', '(', '"', '.', '.', '.', 'Überraschung', '0x12', '"', ')', ';', \
-'\\n', '}', \
-'\\n', '}', '<EOF>']
+    ['void', 'test_WordUeberraschungPrinter', '(', ')', '{', '\\n', \
+'\\t', 'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', 'FIXME', '10l', '\\n', '<EOL>', \
+'\\t', '\\t', 'printWord', '(', '"', '.', '.', '.', 'Überraschung', '0x12', '"', ')', ';', '\\n', \
+'}', '\\n', \
+'}', '<EOF>']
     >>> sorted(metadata.nonprocessable_tokens)
     ['\\t', '\\n', '"', '(', ')', '.', '/', ';', '<EOF>', '=', '>', 'if', 'void', '{', '}']
     >>> metadata.word_boundaries
     [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, \
 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
-    >>> metadata.comments
-    [(15, 21)]
+    >>> list(map(lambda x: x.__name__, metadata.token_types))
+    ['KeyWord', 'SplitContainer', 'Operator', 'Operator', 'Operator', 'NewLine', \
+'Tab', 'KeyWord', 'Operator', 'SplitContainer', 'Operator', 'Operator', 'Number', 'Operator', 'Operator', \
+'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', \
+'Tab', 'Tab', 'SplitContainer', 'Operator', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral', \
+'StringLiteral', 'StringLiteral', 'StringLiteral', 'Operator', 'Operator', 'NewLine', \
+'Operator', 'NewLine', \
+'Operator', 'SpecialToken']
 
 
     >>> nosplit('')
@@ -107,14 +113,14 @@ def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False,
     ['"', '.', '.', '.', 'Überraschung', '0x12', '"']
 
     >>> nosplit('"     ...     Überraschung 0x12"', "java", no_spaces=True, max_str_length=26, return_metadata=True)
-    (['"', '"'], ({'"'}, [0, 2], []))
+    (['"', '"'], ({'"'}, [0, 2], ['StringLiteral']))
 
     >>> nosplit('"     ...     Überraschung 0x12"', "java", no_spaces=True, full_strings=True, max_str_length=31, \
 return_metadata=True)
-    (['""'], (set(), [0, 1], []))
+    (['""'], (set(), [0, 1], ['StringLiteral']))
 
     >>> nosplit('"     ...     Überraschung 0x12"', "java", full_strings=True, return_metadata=True)
-    (['"\xa0\xa0\xa0\xa0\xa0...\xa0\xa0\xa0\xa0\xa0Überraschung\xa00x12"'], (set(), [0, 1], []))
+    (['"\xa0\xa0\xa0\xa0\xa0...\xa0\xa0\xa0\xa0\xa0Überraschung\xa00x12"'], (set(), [0, 1], ['StringLiteral']))
 
     >>> nosplit('"     ...     Überraschung 0x12"', "java", no_spaces=True, full_strings=True, max_str_length=500)
     ['"\xa0\xa0\xa0\xa0\xa0...\xa0\xa0\xa0\xa0\xa0Überraschung\xa00x12"']
@@ -132,8 +138,12 @@ return_metadata=True)
     >>> metadata.word_boundaries
     [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, \
 21]
-    >>> metadata.comments
-    [(13, 14)]
+    >>> list(map(lambda x: x.__name__, metadata.token_types))
+    ['KeyWord', 'SplitContainer', 'Operator', 'Operator', 'Operator', \
+'KeyWord', 'Operator', 'SplitContainer', 'Operator', 'Operator', 'Number', 'Operator', 'Operator', 'OneLineComment', \
+'SplitContainer', 'Operator', 'StringLiteral', 'Operator', 'Operator', \
+'Operator', \
+'Operator']
 
 
     >>> nosplit(input_text, "java", no_spaces=True, no_case=True)
@@ -203,8 +213,13 @@ def chars(text: str, extension: Optional[str] = None, no_spaces: bool = False, n
     ['(', ')', '/', ';', '<EOF>', '=', '>', 'if', 'void', '{', '}']
     >>> metadata.word_boundaries
     [0, 1, 31, 32, 33, 34, 35, 36, 40, 41, 42, 51, 52, 53, 54, 55, 61, 65, 66, 76, 77, 110, 111, 112, 113, 114, 115]
-    >>> metadata.comments
-    [(53, 66)]
+    >>> list(map(lambda x: x.__name__, metadata.token_types))
+    ['KeyWord', 'SplitContainer', 'Operator', 'Operator', 'Operator', \
+'KeyWord', 'Operator', 'SplitContainer', 'Operator', 'Operator', 'Number', 'Operator', 'Operator', \
+'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', \
+'SplitContainer', 'Operator', 'StringLiteral', 'Operator', 'Operator', \
+'Operator', \
+'Operator', 'SpecialToken']
 
 
     >>> chars('')
@@ -273,8 +288,12 @@ def basic(text: str, extension: Optional[str] = None,
     [0, 1, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 28, 29, 30, 31, 32, 33, 34, 35, 36, \
 37, 38, 39, 40, 41]
 
-    >>> metadata.comments
-    [(19, 24)]
+    >>> list(map(lambda x: x.__name__, metadata.token_types))
+    ['KeyWord', 'SplitContainer', 'Operator', 'Operator', 'Operator', \
+'KeyWord', 'Operator', 'SplitContainer', 'Operator', 'Operator', 'Number', 'Operator', 'Operator', 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', \
+'SplitContainer', 'Operator', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'Operator', 'Operator', \
+'Operator', \
+'Operator', 'SpecialToken']
 
     >>> tokens, metadata = basic(input_text, "java", no_spaces=True, no_case=True, return_metadata=True)
     >>> tokens
@@ -290,8 +309,12 @@ def basic(text: str, extension: Optional[str] = None,
     [0, 1, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 26, 27, 28, 33, 34, 35, 36, 37, 38, 40, 41, 42, \
 43, 44, 45, 46]
 
-    >>> metadata.comments
-    [(22, 28)]
+    >>> list(map(lambda x: x.__name__, metadata.token_types))
+    ['KeyWord', 'SplitContainer', 'Operator', 'Operator', 'Operator', \
+'KeyWord', 'Operator', 'SplitContainer', 'Operator', 'Operator', 'Number', 'Operator', 'Operator', 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', \
+'SplitContainer', 'Operator', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'Operator', 'Operator', \
+'Operator', \
+'Operator']
 
     >>> basic(input_text, "java", no_spaces=True, no_case=True, no_com=True, no_str=True)
     ['void', '<w>', 'test', '_', '<Cap>', 'word', '<Cap>', 'ueberraschung', '<Cap>', 'printer', '</w>', '(', ')', '{', \
@@ -301,22 +324,23 @@ def basic(text: str, extension: Optional[str] = None,
 '}']
 
     >>> basic('"     Überraschung 0x12"', "java", no_spaces=True, no_unicode=True, no_case=True, return_metadata=True)
-    (['"', '<non-en>', '0x12', '"'], ({'"'}, [0, 1, 2, 3, 4], []))
+    (['"', '<non-en>', '0x12', '"'], ({'"'}, [0, 1, 2, 3, 4], \
+['StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral']))
 
     >>> basic('')
     []
 
     >>> basic("movingVehiclesspeed = 0.345e+4", "java", split_numbers=True, return_metadata=True)
     (['<w>', 'moving', 'Vehiclesspeed', '</w>', '=', '<w>', '0', '.', '3', '4', '5', 'e', '+', '4', '</w>'], \
-({'='}, [0, 4, 5, 15], []))
+({'='}, [0, 4, 5, 15], ['SplitContainer', 'Operator', 'Number']))
 
     >>> basic("movingVehiclesspeed = 0.345e+4", "java", ronin=True, return_metadata=True)
     (['<w>', 'moving', 'Vehicles', 'speed', '</w>', '=', '<w>', '0', '.', '3', '4', '5', 'e', '+', '4', '</w>'], \
-({'='}, [0, 5, 6, 16], []))
+({'='}, [0, 5, 6, 16], ['SplitContainer', 'Operator', 'Number']))
 
     >>> basic("movingVehiclesspeed = 0.345e+4", "java", stem=True, return_metadata=True)
     (['<w>', 'move', 'Vehicl', 'speed', '</w>', '=', '<w>', '0', '.', '3', '4', '5', 'e', '+', '4', '</w>'], \
-({'='}, [0, 5, 6, 16], []))
+({'='}, [0, 5, 6, 16], ['SplitContainer', 'Operator', 'Number']))
 
     """
     prep_config = create_prep_config('basic', no_spaces=no_spaces, no_unicode=no_unicode, no_case=no_case,
@@ -388,8 +412,12 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces
     >>> metadata.word_boundaries
     [0, 1, 12, 13, 14, 15, 16, 17, 19, 20, 21, 26, 27, 28, 29, 30, 33, 35, 36, 38, 39, 57, 58, 59, 60, 61, 62]
 
-    >>> metadata.comments
-    [(28, 36)]
+    >>> list(map(lambda x: x.__name__, metadata.token_types))
+    ['KeyWord', 'SplitContainer', 'Operator', 'Operator', 'Operator', \
+'KeyWord', 'Operator', 'SplitContainer', 'Operator', 'Operator', 'Number', 'Operator', 'Operator', 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', \
+'SplitContainer', 'Operator', 'StringLiteral', 'Operator', 'Operator', \
+'Operator', \
+'Operator', 'SpecialToken']
 
     >>> tokens, metadata = bpe(input_text, '1k', "java", no_spaces=True, max_str_length=14, return_metadata=True)
     >>> tokens

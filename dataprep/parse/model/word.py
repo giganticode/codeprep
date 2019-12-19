@@ -1,7 +1,7 @@
 from enum import Enum, auto
 from typing import List, Tuple, Optional
 
-from dataprep.parse.model.core import ParsedSubtoken, with_empty_metadata, ParsedToken
+from dataprep.parse.model.core import ParsedSubtoken, with_empty_metadata, ParsedToken, unwrap_single_string
 from dataprep.parse.model.metadata import PreprocessingMetadata
 from dataprep.parse.model.placeholders import placeholders
 from dataprep.preprocess.core import ReprConfig
@@ -54,7 +54,7 @@ class Word(ParsedSubtoken):
             raise AssertionError(f"Bad canonic form: {canonic_form}")
 
     def __str__(self):
-        return self.non_preprocessed_repr(ReprConfig)[0]
+        return unwrap_single_string(self.non_preprocessed_repr())
 
     def __with_capitalization_prefixes(self, subwords: List[str]) -> List[str]:
         if self.capitalization == Capitalization.UNDEFINED or self.capitalization == Capitalization.NONE:
@@ -86,8 +86,8 @@ class Word(ParsedSubtoken):
         else:
             raise AssertionError(f"Unknown value: {self.capitalization}")
 
-    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> [Tuple[str, PreprocessingMetadata]]:
-        return self.__with_preserved_case(), PreprocessingMetadata()
+    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[List[str], PreprocessingMetadata]:
+        return with_empty_metadata([self.__with_preserved_case()])
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.canonic_form, self.capitalization})'
@@ -124,8 +124,8 @@ class NonProcessibleToken(ParsedToken):
     def __str__(self):
         return self.token
 
-    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[str, PreprocessingMetadata]:
-        return self.token, PreprocessingMetadata(nonprocessable_tokens={self.token}, word_boundaries=[0, 1])
+    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[List[str], PreprocessingMetadata]:
+        return self.wrap_in_metadata_for_full_word([self.token], non_proc={self.token})
 
 
 class KeyWord(NonProcessibleToken):

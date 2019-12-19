@@ -1,17 +1,28 @@
-from typing import List, Tuple, Union
+from typing import List, Tuple, Set, Optional
 
 from dataprep.parse.model.metadata import PreprocessingMetadata
 
 
-def with_empty_metadata(tokens: Union[List[str], str]) -> Tuple[Union[List[str], str], PreprocessingMetadata]:
+def with_empty_metadata(tokens: List[str]) -> Tuple[List[str], PreprocessingMetadata]:
     return tokens, PreprocessingMetadata()
 
 
+def unwrap_single_string(tokens_and_metadata: Tuple[List[str], PreprocessingMetadata]) -> str:
+    tokens = tokens_and_metadata[0]
+    if isinstance(tokens, list) and len(tokens) == 1:
+        return tokens[0]
+
+
 class ParsedToken(object):
-    def with_full_word_metadata(self, tokens: Union[List[str], str], metadata: PreprocessingMetadata=None) -> Tuple[Union[List[str], str], PreprocessingMetadata]:
-        updated_metadata = metadata or PreprocessingMetadata()
-        updated_metadata.word_boundaries = [0, len(tokens) if isinstance(tokens, list) else 1]
-        return tokens, updated_metadata
+    def wrap_in_metadata_for_full_word(self, tokens: List[str], non_proc: Optional[Set[str]] = None) \
+            -> Tuple[List[str], PreprocessingMetadata]:
+        assert type(tokens) == list
+
+        metadata = PreprocessingMetadata()
+        metadata.nonprocessable_tokens = non_proc or []
+        metadata.word_boundaries = [0, len(tokens)]
+        metadata.token_types = [type(self)]
+        return tokens, metadata
 
 
 class ParsedSubtoken(object):
