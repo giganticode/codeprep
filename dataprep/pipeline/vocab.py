@@ -1,22 +1,22 @@
 import logging.config
 import multiprocessing
 import os
-import ast
+import shutil
 from collections import Counter, defaultdict
 from fnmatch import fnmatch
 from multiprocessing import Queue
-
-import dill as pickle
-import shutil
-import time
 from multiprocessing.pool import Pool
 from queue import Empty
-from tqdm import tqdm
 from typing import List, Tuple, Dict, Iterator, Set
 
-from dataprep.parse.model.placeholders import placeholders
+import dill as pickle
+import time
+from tqdm import tqdm
+
 from dataprep.fileutils import read_file_contents
-from dataprep.util import to_literal_str, to_non_literal_str, AtomicInteger, merge_dicts_, groupify, create_chunk_generator
+from dataprep.preprocess.placeholders import placeholders
+from dataprep.util import to_literal_str, to_non_literal_str, AtomicInteger, merge_dicts_, groupify, \
+    create_chunk_generator
 
 logger = logging.getLogger(__name__)
 

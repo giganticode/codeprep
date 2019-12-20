@@ -1,9 +1,9 @@
 from typing import List, Tuple, Optional
 
-from dataprep.parse.model.core import ParsedToken, unwrap_single_string
-from dataprep.parse.model.metadata import PreprocessingMetadata
-from dataprep.parse.model.placeholders import placeholders
 from dataprep.preprocess.core import ReprConfig
+from dataprep.preprocess.metadata import PreprocessingMetadata, unwrap_single_string
+from dataprep.preprocess.placeholders import placeholders
+from dataprep.tokens.rootclasses import ParsedToken
 
 NBSP = '\xa0'
 

@@ -1,9 +1,9 @@
-from dataprep.parse.model.numeric import Number
+from dataprep.tokens.numeric import Number
 
 from dataprep.parse.matchers import split_into_words
-from dataprep.parse.model.containers import SplitContainer
-from dataprep.parse.model.whitespace import NewLine, SpaceInString
-from dataprep.parse.model.word import Word, Underscore
+from dataprep.tokens.containers import SplitContainer
+from dataprep.tokens.whitespace import NewLine, SpaceInString
+from dataprep.tokens.word import Word, Underscore
 from dataprep.parse.subtokens import split_string
 
 

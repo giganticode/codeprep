@@ -3,12 +3,11 @@ import os
 import shutil
 from typing import Set, Dict
 
+from dataprep.pipeline.bperegistry import get_bpe_dir, get_base_vocab_dir, RESULTING_VOCAB_FILE_NAME
+from dataprep.pipeline.dataset import Dataset, NONBPE_VOCAB_FILENAME
+from dataprep.preprocess.placeholders import placeholders
 from dataprep.util import to_literal_str
-from dataprep.infrastructure.bperegistry import get_bpe_dir, get_base_vocab_dir, RESULTING_VOCAB_FILE_NAME
-from dataprep.infrastructure.dataset import Dataset, NONBPE_VOCAB_FILENAME
-from dataprep.parse.model.placeholders import placeholders
-from dataprep.vocab import _load_vocab_dict, _load_vocab_set, VOCAB_FILENAME
-
+from dataprep.pipeline.vocab import _load_vocab_dict, _load_vocab_set, VOCAB_FILENAME
 
 logger = logging.getLogger(__name__)
 

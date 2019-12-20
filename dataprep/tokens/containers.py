@@ -1,12 +1,12 @@
 from typing import List, Tuple, Union, Optional
 
-from dataprep.parse.model.core import ParsedToken, ParsedSubtoken
-from dataprep.parse.model.metadata import PreprocessingMetadata
-from dataprep.parse.model.placeholders import placeholders
-from dataprep.parse.model.whitespace import SpaceInString
-from dataprep.parse.model.word import Word
-from dataprep.preprocess.core import ReprConfig, torepr
 from dataprep.noneng import replace_non_ascii_seqs
+from dataprep.preprocess.core import ReprConfig, torepr
+from dataprep.preprocess.metadata import PreprocessingMetadata
+from dataprep.preprocess.placeholders import placeholders
+from dataprep.tokens.rootclasses import ParsedToken, ParsedSubtoken
+from dataprep.tokens.whitespace import SpaceInString
+from dataprep.tokens.word import Word
 
 
 class ProcessableTokenContainer(ParsedToken):

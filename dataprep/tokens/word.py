@@ -1,17 +1,10 @@
-from enum import Enum, auto
+from enum import Enum
 from typing import List, Tuple, Optional
 
-from dataprep.parse.model.core import ParsedSubtoken, with_empty_metadata, ParsedToken, unwrap_single_string
-from dataprep.parse.model.metadata import PreprocessingMetadata
-from dataprep.parse.model.placeholders import placeholders
 from dataprep.preprocess.core import ReprConfig
-
-
-class Capitalization(Enum):
-    UNDEFINED = auto()
-    NONE = auto()
-    FIRST_LETTER = auto()
-    ALL = auto()
+from dataprep.preprocess.metadata import PreprocessingMetadata, with_empty_metadata, unwrap_single_string
+from dataprep.preprocess.placeholders import placeholders
+from dataprep.tokens.rootclasses import ParsedSubtoken, ParsedToken
 
 
 class Underscore(ParsedSubtoken):
@@ -33,6 +26,15 @@ class Word(ParsedSubtoken):
     Invariants:
     str === str(Word.of(str))
     """
+
+    class Capitalization(str, Enum):
+        UNDEFINED: str = 'undefined'
+        NONE = 'none'
+        FIRST_LETTER = 'first_letter'
+        ALL = 'all'
+
+        def __repr__(self):
+            return self.value
 
     def __init__(self, canonic_form: str, capitalization: Capitalization = Capitalization.UNDEFINED):
         Word._check_canonic_form_is_valid(canonic_form)
@@ -57,11 +59,11 @@ class Word(ParsedSubtoken):
         return unwrap_single_string(self.non_preprocessed_repr())
 
     def __with_capitalization_prefixes(self, subwords: List[str]) -> List[str]:
-        if self.capitalization == Capitalization.UNDEFINED or self.capitalization == Capitalization.NONE:
+        if self.capitalization == Word.Capitalization.UNDEFINED or self.capitalization == Word.Capitalization.NONE:
             res = subwords
-        elif self.capitalization == Capitalization.FIRST_LETTER:
+        elif self.capitalization == Word.Capitalization.FIRST_LETTER:
             res = [placeholders['capital']] + subwords
-        elif self.capitalization == Capitalization.ALL:
+        elif self.capitalization == Word.Capitalization.ALL:
             res = [placeholders['capitals']] + subwords
         else:
             raise AssertionError(f"Unknown value: {self.capitalization}")
@@ -77,11 +79,11 @@ class Word(ParsedSubtoken):
             return with_empty_metadata(subwords)
 
     def __with_preserved_case(self) -> str:
-        if self.capitalization == Capitalization.UNDEFINED or self.capitalization == Capitalization.NONE:
+        if self.capitalization == Word.Capitalization.UNDEFINED or self.capitalization == Word.Capitalization.NONE:
             return self.canonic_form
-        elif self.capitalization == Capitalization.FIRST_LETTER:
+        elif self.capitalization == Word.Capitalization.FIRST_LETTER:
             return self.canonic_form.capitalize()
-        elif self.capitalization == Capitalization.ALL:
+        elif self.capitalization == Word.Capitalization.ALL:
             return self.canonic_form.upper()
         else:
             raise AssertionError(f"Unknown value: {self.capitalization}")
@@ -102,13 +104,13 @@ class Word(ParsedSubtoken):
             raise ValueError(f'A subword can be neither None nor of length zero. Value of the subword is {s}')
 
         if s.islower() or not s:
-            return cls(s, Capitalization.NONE)
+            return cls(s, Word.Capitalization.NONE)
         elif s.isupper():
-            return cls(s.lower(), Capitalization.ALL)
+            return cls(s.lower(), Word.Capitalization.ALL)
         elif s[0].isupper():
-            return cls(s[0].lower() + s[1:], Capitalization.FIRST_LETTER)
+            return cls(s[0].lower() + s[1:], Word.Capitalization.FIRST_LETTER)
         else:
-            return cls(s, Capitalization.UNDEFINED)
+            return cls(s, Word.Capitalization.UNDEFINED)
 
 
 class NonProcessibleToken(ParsedToken):

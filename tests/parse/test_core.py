@@ -1,8 +1,8 @@
 from dataprep.parse.core import convert_text
-from dataprep.parse.model.containers import SplitContainer, StringLiteral, OneLineComment, MultilineComment
-from dataprep.parse.model.numeric import Number
-from dataprep.parse.model.whitespace import Tab, NewLine, SpaceInString
-from dataprep.parse.model.word import Word, Underscore, KeyWord, Operator, NonCodeChar
+from dataprep.tokens.containers import SplitContainer, StringLiteral, OneLineComment, MultilineComment
+from dataprep.tokens.numeric import Number
+from dataprep.tokens.whitespace import Tab, NewLine, SpaceInString
+from dataprep.tokens.word import Word, Underscore, KeyWord, Operator, NonCodeChar
 
 
 def test_longs():

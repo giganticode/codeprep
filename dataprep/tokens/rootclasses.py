@@ -1,16 +1,6 @@
 from typing import List, Tuple, Set, Optional
 
-from dataprep.parse.model.metadata import PreprocessingMetadata
-
-
-def with_empty_metadata(tokens: List[str]) -> Tuple[List[str], PreprocessingMetadata]:
-    return tokens, PreprocessingMetadata()
-
-
-def unwrap_single_string(tokens_and_metadata: Tuple[List[str], PreprocessingMetadata]) -> str:
-    tokens = tokens_and_metadata[0]
-    if isinstance(tokens, list) and len(tokens) == 1:
-        return tokens[0]
+from dataprep.preprocess.metadata import PreprocessingMetadata
 
 
 class ParsedToken(object):

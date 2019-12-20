@@ -520,7 +520,7 @@ def test_all_short_config_options(api_mock):
 
 @mock.patch('dataprep.cli.impl.Dataset', autospec=True)
 @mock.patch('dataprep.cli.impl.bpelearner', autospec=True)
-@mock.patch('dataprep.infrastructure.dataset.os.path.abspath', autospec=True)
+@mock.patch('dataprep.pipeline.dataset.os.path.abspath', autospec=True)
 def test_yes_false_java_yes(abspath_mock, bpe_learner_mock, dataset_mock):
 
     # given
@@ -552,7 +552,7 @@ def test_yes_false_java_yes(abspath_mock, bpe_learner_mock, dataset_mock):
 
 @mock.patch('dataprep.cli.impl.Dataset', autospec=True)
 @mock.patch('dataprep.cli.impl.bpelearner', autospec=True)
-@mock.patch('dataprep.infrastructure.dataset.os.path.abspath', autospec=True)
+@mock.patch('dataprep.pipeline.dataset.os.path.abspath', autospec=True)
 def test_no_true_code_no(abspath_mock, bpe_learner_mock, dataset_mock):
 
     # given
@@ -584,7 +584,7 @@ def test_no_true_code_no(abspath_mock, bpe_learner_mock, dataset_mock):
 
 @mock.patch('dataprep.cli.impl.Dataset', autospec=True)
 @mock.patch('dataprep.cli.impl.bpelearner', autospec=True)
-@mock.patch('dataprep.infrastructure.dataset.os.path.abspath', autospec=True)
+@mock.patch('dataprep.pipeline.dataset.os.path.abspath', autospec=True)
 def test_true_true_code_bytes(abspath_mock, bpe_learner_mock, dataset_mock):
 
     # given

@@ -1,18 +1,18 @@
 import logging
 import os
-import sys
 from typing import Dict, Optional, Any
+
+import sys
 
 import dataprep
 import dataprep.api.corpus
 import dataprep.api.text
 from dataprep.api.common import create_split_value, create_str_value
 from dataprep.bpepkg.bpe_config import BpeParam, BpeConfig
-from dataprep.infrastructure import bpelearner
-from dataprep.infrastructure.bperegistry import InvalidBpeCodesIdError, USER_PREDEFINED_BPE_CODES
-from dataprep.infrastructure.dataset import Dataset, normalize_extension_string
+from dataprep.pipeline import bpelearner
+from dataprep.pipeline.bperegistry import InvalidBpeCodesIdError, USER_PREDEFINED_BPE_CODES
+from dataprep.pipeline.dataset import Dataset, normalize_extension_string
 from dataprep.prepconfig import PrepConfig, PrepParam
-
 
 logger = logging.getLogger(__name__)
 

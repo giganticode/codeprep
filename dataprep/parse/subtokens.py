@@ -1,13 +1,14 @@
-import regex
 from typing import List
 
-from dataprep.parse.model.containers import SplitContainer
-from dataprep.parse.model.core import ParsedToken
-from dataprep.parse.model.noneng import NonEng
-from dataprep.parse.model.numeric import Number
-from dataprep.parse.model.whitespace import NewLine, Tab, SpaceInString
-from dataprep.parse.model.word import Underscore, Word, NonCodeChar
+import regex
+
 from dataprep.noneng import is_non_eng
+from dataprep.tokens.containers import SplitContainer
+from dataprep.tokens.noneng import NonEng
+from dataprep.tokens.numeric import Number
+from dataprep.tokens.rootclasses import ParsedToken
+from dataprep.tokens.whitespace import NewLine, Tab, SpaceInString
+from dataprep.tokens.word import Underscore, Word, NonCodeChar
 
 
 def split_identifier(token: str) -> SplitContainer:
@@ -123,7 +124,7 @@ def to_parsed_token(token: str) -> ParsedToken:
 def split_string(token: str) -> List[ParsedToken]:
     """
     >>> split_string("    var = 9.4\\t\\n")
-    [<SpaceInString> (n_chars=4), SplitContainer[Word(('var', <Capitalization.NONE: 2>))], \
+    [<SpaceInString> (n_chars=4), SplitContainer[Word(('var', none))], \
 <SpaceInString> (n_chars=1), NonCodeChar(=), <SpaceInString> (n_chars=1), <Number>(9), \
 NonCodeChar(.), <Number>(4), <Tab>, <NewLine>]
     """
@@ -140,7 +141,7 @@ NonCodeChar(.), <Number>(4), <Tab>, <NewLine>]
 def split_into_words(token: str) -> List[ParsedToken]:
     """
     >>> split_into_words("    var = 9.4\\t\\n")
-    [<Tab>, SplitContainer[Word(('var', <Capitalization.NONE: 2>))], NonCodeChar(=), <Number>(9), \
+    [<Tab>, SplitContainer[Word(('var', none))], NonCodeChar(=), <Number>(9), \
 NonCodeChar(.), <Number>(4), <Tab>, <NewLine>]
     """
     res = []

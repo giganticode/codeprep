@@ -1,14 +1,13 @@
 """This module runs different stages of preprocessing flow and makes sure not to rerun a stage if its results are already available.
 """
-import os
 import logging
+import os
 from typing import Optional
 
-from dataprep import parse_projects, to_repr
-from dataprep.vocab import calc_vocab
-from dataprep.infrastructure.bperegistry import CustomBpeConfig
-from dataprep.infrastructure.dataset import Dataset, is_path_ready, is_path_outdated, archive_path
-
+from dataprep.pipeline import parse_projects, to_repr
+from dataprep.pipeline.bperegistry import CustomBpeConfig
+from dataprep.pipeline.dataset import Dataset, is_path_ready, is_path_outdated, archive_path
+from dataprep.pipeline.vocab import calc_vocab
 
 logger = logging.getLogger(__name__)
 

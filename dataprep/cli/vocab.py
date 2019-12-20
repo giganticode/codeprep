@@ -1,9 +1,8 @@
+import argparse
 import logging
 
-import argparse
-
 from dataprep.dirutils import walk
-from dataprep.vocab import calc_vocab
+from dataprep.pipeline.vocab import calc_vocab
 
 logger = logging.getLogger(__name__)
 

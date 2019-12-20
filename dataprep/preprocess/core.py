@@ -1,9 +1,8 @@
-from typing import Union, Tuple, List, Optional, Callable, Sequence
+from typing import Tuple, List, Optional, Callable, Sequence
 
 from dataprep.bpepkg.bpe_encode import BpeData
-from dataprep.parse.model.core import ParsedToken
-from dataprep.parse.model.metadata import PreprocessingMetadata
-
+from dataprep.preprocess.metadata import PreprocessingMetadata
+from dataprep.tokens.rootclasses import ParsedToken
 
 Splitter = Callable[[str, BpeData], List[str]]
 

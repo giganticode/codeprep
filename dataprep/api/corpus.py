@@ -1,18 +1,18 @@
 import logging
 import os
-import sys
 from multiprocessing.pool import Pool
 from typing import Optional, Dict, Tuple
 
+import sys
 from tqdm import tqdm
 
 from dataprep.api.common import create_prep_config
 from dataprep.config import CHUNKSIZE
-from dataprep.infrastructure import stages
-from dataprep.infrastructure.bperegistry import CustomBpeConfig, is_predefined_id
-from dataprep.infrastructure.dataset import Dataset, SubDataset
+from dataprep.pipeline import stages
+from dataprep.pipeline.bperegistry import CustomBpeConfig, is_predefined_id
+from dataprep.pipeline.dataset import Dataset, SubDataset
+from dataprep.pipeline.vocab import _load_vocab_dict
 from dataprep.prepconfig import PrepConfig
-from dataprep.vocab import _load_vocab_dict
 
 logger = logging.getLogger(__name__)
 

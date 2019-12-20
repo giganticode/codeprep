@@ -1,6 +1,6 @@
 from typing import List, Callable, Any
 
-from dataprep.parse.model.placeholders import placeholders
+from dataprep.preprocess.placeholders import placeholders
 
 
 class SubtokenIterator(object):

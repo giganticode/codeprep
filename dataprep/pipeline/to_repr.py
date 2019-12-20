@@ -2,27 +2,27 @@ import gzip
 import logging
 import os
 import pickle
-
-import time
 from multiprocessing.pool import Pool
-from tqdm import tqdm
 from typing import List, Tuple
 from typing import Optional
 
-from dataprep.util import to_literal_str
+import time
+from tqdm import tqdm
+
 from dataprep.bpepkg.bpe_encode import read_merges, BpeData
-from dataprep.infrastructure.bperegistry import CustomBpeConfig
 from dataprep.bpepkg.cache import read_bpe_cache
 from dataprep.config import DEFAULT_BPE_DIR, NO_CASE_DIR, CASE_DIR, DEFAULT_BPE_CACHE_DIR, REWRITE_PREPROCESSED_FILE, \
     CHUNKSIZE, LIMIT_FILES_SCANNING
-from dataprep.infrastructure.dataset import Dataset, NOT_FINISHED_EXTENSION
-from dataprep.parse.model.core import ParsedToken
-from dataprep.parse.model.metadata import PreprocessingMetadata, check_metadata_validity
-from dataprep.parse.model.metadata import save_metadata
-from dataprep.parse.model.placeholders import placeholders
+from dataprep.pipeline import vocabloader
+from dataprep.pipeline.bperegistry import CustomBpeConfig
+from dataprep.pipeline.dataset import Dataset, NOT_FINISHED_EXTENSION
 from dataprep.prepconfig import PrepParam, PrepConfig
 from dataprep.preprocess.core import to_repr_list
-from dataprep.infrastructure import vocabloader
+from dataprep.preprocess.metadata import PreprocessingMetadata
+from dataprep.preprocess.metadata import save_metadata
+from dataprep.preprocess.placeholders import placeholders
+from dataprep.tokens.rootclasses import ParsedToken
+from dataprep.util import to_literal_str
 
 logger = logging.getLogger(__name__)
 

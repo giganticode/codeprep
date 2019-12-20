@@ -1,16 +1,17 @@
-import sys
 from typing import List, Optional, Union, Tuple
 
+import sys
+
 from dataprep.api.common import create_prep_config
-from dataprep.infrastructure.bperegistry import is_predefined_id, CustomBpeConfig
 from dataprep.parse.core import convert_text
-from dataprep.parse.model.core import ParsedToken
-from dataprep.parse.model.metadata import PreprocessingMetadata
-from dataprep.parse.model.placeholders import placeholders
-from dataprep.parse.model.whitespace import NewLine
-from dataprep.parse.model.word import SpecialToken
+from dataprep.pipeline.bperegistry import is_predefined_id, CustomBpeConfig
+from dataprep.pipeline.to_repr import init_bpe_data, to_repr
 from dataprep.prepconfig import PrepConfig
-from dataprep.to_repr import init_bpe_data, to_repr
+from dataprep.preprocess.metadata import PreprocessingMetadata
+from dataprep.preprocess.placeholders import placeholders
+from dataprep.tokens.rootclasses import ParsedToken
+from dataprep.tokens.whitespace import NewLine
+from dataprep.tokens.word import SpecialToken
 
 
 def remove_trailing_newline(prep_tokens: List[ParsedToken]) -> List[ParsedToken]:

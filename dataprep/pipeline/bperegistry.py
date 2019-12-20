@@ -1,10 +1,10 @@
 import logging
 import os
-import sys
-import time
 from typing import Optional, Dict, Callable, Tuple, List
 
 import regex
+import sys
+import time
 
 from dataprep.bpepkg.bpe_config import BpeConfig
 from dataprep.bpepkg.bpe_encode import read_merges
@@ -129,13 +129,13 @@ def parse_merge_list_id(s: str) -> Tuple[str, int]:
     >>> parse_merge_list_id("python_1000")
     Traceback (most recent call last):
     ...
-    dataprep.infrastructure.bperegistry.InvalidBpeCodesIdError: Invalid id format: "python_1000". \
+    dataprep.pipeline.bperegistry.InvalidBpeCodesIdError: Invalid id format: "python_1000". \
 Format should be: "(.*)-([1-9][0-9]*)$"
 
     >>> parse_merge_list_id("python-")
     Traceback (most recent call last):
     ...
-    dataprep.infrastructure.bperegistry.InvalidBpeCodesIdError: Invalid id format: "python-". \
+    dataprep.pipeline.bperegistry.InvalidBpeCodesIdError: Invalid id format: "python-". \
 Format should be: "(.*)-([1-9][0-9]*)$"
     """
     REGEX = "(.*)-([1-9][0-9]*)$"

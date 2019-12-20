@@ -7,12 +7,12 @@ from dataprep.bpepkg.bpe_encode import escape
 from dataprep.bpepkg.bpe_learn import separate_vocabs, logger, do_merges, create_resulting_vocab, create_bpe_cache
 from dataprep.bpepkg.cache import dump_bpe_cache
 from dataprep.bpepkg.merge import MergeList, read_merges, dump_merges
-from dataprep.infrastructure import stages
-from dataprep.infrastructure.bperegistry import get_max_merges, MERGES_FILE_NAME, MERGES_CACHE_FILE_NAME, \
+from dataprep.pipeline import stages
+from dataprep.pipeline.bperegistry import get_max_merges, MERGES_FILE_NAME, MERGES_CACHE_FILE_NAME, \
     RESULTING_VOCAB_FILE_NAME, BPE_REASSEMBLED_VOCAB_FILE_NAME
-from dataprep.infrastructure.dataset import Dataset
+from dataprep.pipeline.dataset import Dataset
+from dataprep.pipeline.vocab import _dump_vocab_dict, _load_vocab_dict
 from dataprep.util import to_non_literal_str
-from dataprep.vocab import _dump_vocab_dict, _load_vocab_dict
 
 
 def get_base_vocab(dataset: Dataset) -> Tuple[Dict[str, int], Dict[str, int]]:

@@ -1,8 +1,8 @@
 import logging
+from typing import Set, Optional, List, Type, Tuple
 
 from dataprep.subtokens import is_terminal_subtoken
 from dataprep.util import to_literal_str
-from typing import Set, Optional, List, Type
 
 logger = logging.getLogger(__name__)
 
@@ -88,3 +88,13 @@ def check_metadata_validity(subwords: List[str], metadata: PreprocessingMetadata
                 raise AssertionError(f'Token {token} according to metadata is'
                                      f'{" " if end_according_to_metadata else " NOT"} end-token. '
                                      f'Showing context: {subwords[error_context_start_index:error_context_end_index]}')
+
+
+def with_empty_metadata(tokens: List[str]) -> Tuple[List[str], PreprocessingMetadata]:
+    return tokens, PreprocessingMetadata()
+
+
+def unwrap_single_string(tokens_and_metadata: Tuple[List[str], PreprocessingMetadata]) -> str:
+    tokens = tokens_and_metadata[0]
+    if isinstance(tokens, list) and len(tokens) == 1:
+        return tokens[0]

@@ -1,11 +1,11 @@
 from typing import List, Tuple, Optional
 
-from dataprep.parse.model.containers import SplitContainer
-from dataprep.parse.model.core import ParsedToken
-from dataprep.parse.model.metadata import PreprocessingMetadata
-from dataprep.parse.model.placeholders import placeholders
-from dataprep.preprocess.core import ReprConfig, torepr
 from dataprep.noneng import replace_non_ascii_seqs
+from dataprep.preprocess.core import ReprConfig, torepr
+from dataprep.preprocess.metadata import PreprocessingMetadata
+from dataprep.preprocess.placeholders import placeholders
+from dataprep.tokens.containers import SplitContainer
+from dataprep.tokens.rootclasses import ParsedToken
 
 
 class NonEng(ParsedToken):
