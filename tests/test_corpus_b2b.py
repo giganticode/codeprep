@@ -1,17 +1,3 @@
-import os
-import unittest
-from unittest import mock
-
-import docopt_subcommands as dsc
-
-from dataprep.bpepkg.bpe_encode import BpeData
-from dataprep.bpepkg.merge import read_merges
-from dataprep.cli.spec import parse_and_run
-from dataprep.fileutils import read_file_contents
-from dataprep.parse.core import convert_text
-from dataprep.prepconfig import PrepConfig, PrepParam
-from dataprep.to_repr import to_repr
-
 #TODO use relative path
 TEST_FILE = b"C:\\Users\Home\dev\dataprep\\test-resources\AppXMark.java"
 

@@ -1,27 +1,8 @@
-from typing import Tuple, List, Optional, Callable, Sequence
+from typing import Tuple, List, Sequence
 
-from dataprep.bpepkg.bpe_encode import BpeData
 from dataprep.preprocess.metadata import PreprocessingMetadata
+from dataprep.preprocess.reprconfig import ReprConfig
 from dataprep.tokens.rootclasses import ParsedToken
-
-Splitter = Callable[[str, BpeData], List[str]]
-
-
-class ReprConfig(object):
-    def __init__(self, types_to_be_repr,
-                 bpe_data: Optional[BpeData],
-                 should_lowercase: bool,
-                 number_splitter: Splitter,
-                 word_splitter: Optional[Splitter],
-                 full_strings: bool,
-                 max_str_length: int):
-        self.types_to_be_repr = types_to_be_repr
-        self.bpe_data = bpe_data
-        self.should_lowercase = should_lowercase
-        self.number_splitter = number_splitter
-        self.word_splitter = word_splitter
-        self.full_strings = full_strings
-        self.max_str_length = max_str_length
 
 
 def to_repr_list(token_list: Sequence[ParsedToken], repr_config: ReprConfig) \

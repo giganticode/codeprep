@@ -9,7 +9,7 @@ from typing import Dict, List, Type, Optional
 import sys
 
 from dataprep.bpepkg.bpe_encode import BpeData, get_bpe_subwords
-from dataprep.preprocess.core import ReprConfig, Splitter
+from dataprep.preprocess.reprconfig import Splitter, ReprConfig
 from dataprep.tokens.containers import SplitContainer, StringLiteral, OneLineComment, MultilineComment
 from dataprep.tokens.noneng import NonEng
 from dataprep.tokens.numeric import Number
