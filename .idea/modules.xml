@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/dataprep.iml" filepath="$PROJECT_DIR$/.idea/dataprep.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../log-recommender/.idea/log-recommender.iml" filepath="$PROJECT_DIR$/../log-recommender/.idea/log-recommender.iml" />
     </modules>
   </component>
 </project>
