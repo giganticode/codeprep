@@ -2,7 +2,8 @@ from dataprep.parse.core import convert_text
 from dataprep.tokens.containers import SplitContainer, StringLiteral, OneLineComment, MultilineComment
 from dataprep.tokens.numeric import Number
 from dataprep.tokens.whitespace import Tab, NewLine, SpaceInString
-from dataprep.tokens.word import Word, Underscore, KeyWord, Operator, NonCodeChar
+from dataprep.tokens.word import Word, Underscore, KeyWord, Operator, NonCodeChar, OpeningCurlyBracket, \
+    ClosingCurlyBracket, Semicolon, OpeningBracket, ClosingBracket
 
 
 def test_longs():
@@ -14,7 +15,7 @@ def test_longs():
                                        Underscore(),
                                        Word.from_('longs')]),
                        Operator('='),
-                       Operator('{'),
+                       OpeningCurlyBracket(),
                        Number("0x34a35EL"),
                        Operator(','),
                        Tab(),
@@ -24,8 +25,8 @@ def test_longs():
                        Operator(','),
                        Operator('-'),
                        Number("0x34L"),
-                       Operator('}'),
-                       Operator(';'), NewLine()]
+                       ClosingCurlyBracket(),
+                       Semicolon(), NewLine()]
 
     actual = [t for t in convert_text(text, 'java')]
 
@@ -49,7 +50,7 @@ def test_ints():
                             Underscore()]
                        ),
                        Operator('='),
-                       Operator('{'),
+                       OpeningCurlyBracket(),
                        Number("0x12"),
                        Operator(','),
                        Number("0x1fE"),
@@ -61,8 +62,8 @@ def test_ints():
                        Operator(','),
                        Operator('-'),
                        Number("0xfFf"),
-                       Operator('}'),
-                       Operator(';'),
+                       ClosingCurlyBracket(),
+                       Semicolon(),
                        NewLine()]
 
     actual = [t for t in convert_text(text, 'java')]
@@ -77,7 +78,7 @@ def test_floats():
                        Operator(']'),
                        SplitContainer.from_single_token('floats'),
                        Operator('='),
-                       Operator('{'),
+                       OpeningCurlyBracket(),
                        Operator('-'),
                        Number("0.43E4f"),
                        Operator(','),
@@ -89,8 +90,8 @@ def test_floats():
                        Number('9.63e+2D'),
                        Operator(','),
                        Number('0.E-8'),
-                       Operator('}'),
-                       Operator(';'),
+                       ClosingCurlyBracket(),
+                       Semicolon(),
                        NewLine()]
 
     actual = [t for t in convert_text(text, 'java')]
@@ -109,10 +110,10 @@ def test_complex_identifiers():
         StringLiteral([NonCodeChar('"'), SplitContainer.from_single_token('abc'), NonCodeChar('"')], 5),
         Operator('.'),
         SplitContainer([Word.from_('do'), Word.from_('Split')]),
-        Operator('('),
+        OpeningBracket(),
         StringLiteral([NonCodeChar('"'), NonCodeChar('\\'), NonCodeChar('"'), NonCodeChar('"')], 4),
-        Operator(')'),
-        Operator(';'),
+        ClosingBracket(),
+        Semicolon(),
         NewLine()]
 
     actual = [t for t in convert_text(text, 'java')]
@@ -155,10 +156,10 @@ def test_spaces_in_strings():
                       9),
         Operator('.'),
         SplitContainer([Word.from_('do'), Word.from_('Split')]),
-        Operator('('),
+        OpeningBracket(),
         StringLiteral([NonCodeChar('"'), NonCodeChar('\\'), NonCodeChar('"'), NonCodeChar('"')], 4),
-        Operator(')'),
-        Operator(';'),
+        ClosingBracket(),
+        Semicolon(),
         NewLine()]
 
     actual = [t for t in convert_text(text, 'java')]
@@ -311,17 +312,17 @@ $
                        Tab(),
                        NewLine(),
                        NewLine(),
-                       Operator('{'),
-                       Operator('}'),
+                       OpeningCurlyBracket(),
+                       ClosingCurlyBracket(),
                        Operator('['),
                        Operator(']'),
                        Operator(','),
                        Operator('.'),
                        Operator('-'),
                        Operator(':'),
-                       Operator('('),
-                       Operator(')'),
-                       Operator(';'),
+                       OpeningBracket(),
+                       ClosingBracket(),
+                       Semicolon(),
                        Operator('&'),
                        Operator('|'),
                        NonCodeChar('\\'),
@@ -391,8 +392,8 @@ def test_string_literal_single():
                        StringLiteral([NonCodeChar("'")], 1),
                        Operator('.'),
                        SplitContainer.from_single_token("split"),
-                       Operator("("),
-                       Operator(")"),
+                       OpeningBracket(),
+                       ClosingBracket(),
                        NewLine()
                        ]
 
@@ -411,8 +412,8 @@ def test_string_literal_double():
                        StringLiteral([NonCodeChar('"')], 1),
                        Operator('.'),
                        SplitContainer.from_single_token("split"),
-                       Operator("("),
-                       Operator(")"),
+                       OpeningBracket(),
+                       ClosingBracket(),
                        NewLine()
                        ]
 

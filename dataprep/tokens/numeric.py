@@ -31,3 +31,13 @@ class Number(ParsedToken):
 
     def __eq__(self, other):
         return self.__class__ == other.__class__ and self.val == other.val
+
+
+class One(Number):
+    def __init__(self):
+        super().__init__('1')
+
+
+class Zero(Number):
+    def __init__(self):
+        super().__init__('0')

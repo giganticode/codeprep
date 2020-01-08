@@ -4,10 +4,11 @@ from pygments.token import Token
 
 from dataprep.parse.subtokens import split_into_words, split_string
 from dataprep.tokens.containers import StringLiteral, OneLineComment, MultilineComment
-from dataprep.tokens.numeric import Number
+from dataprep.tokens.numeric import Number, Zero, One
 from dataprep.tokens.rootclasses import ParsedToken
 from dataprep.tokens.whitespace import NewLine, Tab
-from dataprep.tokens.word import KeyWord, Operator
+from dataprep.tokens.word import KeyWord, Operator, Semicolon, OpeningCurlyBracket, ClosingCurlyBracket, OpeningBracket, \
+    ClosingBracket
 
 
 class DefaultMatcher(object):
@@ -103,7 +104,12 @@ class NumberMatchers(object):
         return token in Token.Literal.Number
 
     def transform(self, value: str) -> List[Number]:
-        return [Number(value)]
+        if value == '0':
+            return [Zero()]
+        elif value == '1':
+            return [One()]
+        else:
+            return [Number(value)]
 
 
 class OperatorMatcher(object):
@@ -111,7 +117,18 @@ class OperatorMatcher(object):
         return token is Token.Operator or token in Token.Punctuation
 
     def transform(self, value: str) -> List[Operator]:
-        return [Operator(value)]
+        if value == ';':
+            return [Semicolon()]
+        elif value == '{':
+            return [OpeningCurlyBracket()]
+        elif value == '}':
+            return [ClosingCurlyBracket()]
+        elif value == '(':
+            return [OpeningBracket()]
+        elif value == ')':
+            return [ClosingBracket()]
+        else:
+            return [Operator(value)]
 
 
 class WordOperatorMatcher(object):

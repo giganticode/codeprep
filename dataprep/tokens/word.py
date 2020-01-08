@@ -140,6 +140,31 @@ class Operator(NonProcessibleToken):
         super().__init__(token)
 
 
+class Semicolon(Operator):
+    def __init__(self):
+        super().__init__(';')
+
+
+class OpeningCurlyBracket(Operator):
+    def __init__(self):
+        super().__init__('{')
+
+
+class ClosingCurlyBracket(Operator):
+    def __init__(self):
+        super().__init__('}')
+
+
+class OpeningBracket(Operator):
+    def __init__(self):
+        super().__init__('(')
+
+
+class ClosingBracket(Operator):
+    def __init__(self):
+        super().__init__(')')
+
+
 class NonCodeChar(NonProcessibleToken):
     def __init__(self, token: str):
         super().__init__(token)
