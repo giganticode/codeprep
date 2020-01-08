@@ -83,13 +83,13 @@ def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False,
     [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, \
 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
     >>> list(map(lambda x: x.__name__, metadata.token_types))
-    ['KeyWord', 'SplitContainer', 'Operator', 'Operator', 'Operator', 'NewLine', \
-'Tab', 'KeyWord', 'Operator', 'SplitContainer', 'Operator', 'Operator', 'Number', 'Operator', 'Operator', \
+    ['KeyWord', 'SplitContainer', 'OpeningBracket', 'ClosingBracket', 'OpeningCurlyBracket', 'NewLine', \
+'Tab', 'KeyWord', 'OpeningBracket', 'SplitContainer', 'Operator', 'Operator', 'Number', 'ClosingBracket', 'OpeningCurlyBracket', \
 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', \
-'Tab', 'Tab', 'SplitContainer', 'Operator', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral', \
-'StringLiteral', 'StringLiteral', 'StringLiteral', 'Operator', 'Operator', 'NewLine', \
-'Operator', 'NewLine', \
-'Operator', 'SpecialToken']
+'Tab', 'Tab', 'SplitContainer', 'OpeningBracket', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral', \
+'StringLiteral', 'StringLiteral', 'StringLiteral', 'ClosingBracket', 'Semicolon', 'NewLine', \
+'ClosingCurlyBracket', 'NewLine', \
+'ClosingCurlyBracket', 'SpecialToken']
 
 
     >>> nosplit('')
@@ -140,11 +140,11 @@ return_metadata=True)
     [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, \
 21]
     >>> list(map(lambda x: x.__name__, metadata.token_types))
-    ['KeyWord', 'SplitContainer', 'Operator', 'Operator', 'Operator', \
-'KeyWord', 'Operator', 'SplitContainer', 'Operator', 'Operator', 'Number', 'Operator', 'Operator', 'OneLineComment', \
-'SplitContainer', 'Operator', 'StringLiteral', 'Operator', 'Operator', \
-'Operator', \
-'Operator']
+    ['KeyWord', 'SplitContainer', 'OpeningBracket', 'ClosingBracket', 'OpeningCurlyBracket', \
+'KeyWord', 'OpeningBracket', 'SplitContainer', 'Operator', 'Operator', 'Number', 'ClosingBracket', 'OpeningCurlyBracket', 'OneLineComment', \
+'SplitContainer', 'OpeningBracket', 'StringLiteral', 'ClosingBracket', 'Semicolon', \
+'ClosingCurlyBracket', \
+'ClosingCurlyBracket']
 
 
     >>> nosplit(input_text, "java", no_spaces=True, no_case=True)
@@ -215,12 +215,12 @@ def chars(text: str, extension: Optional[str] = None, no_spaces: bool = False, n
     >>> metadata.word_boundaries
     [0, 1, 31, 32, 33, 34, 35, 36, 40, 41, 42, 51, 52, 53, 54, 55, 61, 65, 66, 76, 77, 110, 111, 112, 113, 114, 115]
     >>> list(map(lambda x: x.__name__, metadata.token_types))
-    ['KeyWord', 'SplitContainer', 'Operator', 'Operator', 'Operator', \
-'KeyWord', 'Operator', 'SplitContainer', 'Operator', 'Operator', 'Number', 'Operator', 'Operator', \
+    ['KeyWord', 'SplitContainer', 'OpeningBracket', 'ClosingBracket', 'OpeningCurlyBracket', \
+'KeyWord', 'OpeningBracket', 'SplitContainer', 'Operator', 'Operator', 'Number', 'ClosingBracket', 'OpeningCurlyBracket', \
 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', \
-'SplitContainer', 'Operator', 'StringLiteral', 'Operator', 'Operator', \
-'Operator', \
-'Operator', 'SpecialToken']
+'SplitContainer', 'OpeningBracket', 'StringLiteral', 'ClosingBracket', 'Semicolon', \
+'ClosingCurlyBracket', \
+'ClosingCurlyBracket', 'SpecialToken']
 
 
     >>> chars('')
@@ -290,11 +290,11 @@ def basic(text: str, extension: Optional[str] = None,
 37, 38, 39, 40, 41]
 
     >>> list(map(lambda x: x.__name__, metadata.token_types))
-    ['KeyWord', 'SplitContainer', 'Operator', 'Operator', 'Operator', \
-'KeyWord', 'Operator', 'SplitContainer', 'Operator', 'Operator', 'Number', 'Operator', 'Operator', 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', \
-'SplitContainer', 'Operator', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'Operator', 'Operator', \
-'Operator', \
-'Operator', 'SpecialToken']
+    ['KeyWord', 'SplitContainer', 'OpeningBracket', 'ClosingBracket', 'OpeningCurlyBracket', \
+'KeyWord', 'OpeningBracket', 'SplitContainer', 'Operator', 'Operator', 'Number', 'ClosingBracket', 'OpeningCurlyBracket', 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', \
+'SplitContainer', 'OpeningBracket', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'ClosingBracket', 'Semicolon', \
+'ClosingCurlyBracket', \
+'ClosingCurlyBracket', 'SpecialToken']
 
     >>> tokens, metadata = basic(input_text, "java", no_spaces=True, no_case=True, return_metadata=True)
     >>> tokens
@@ -311,11 +311,11 @@ def basic(text: str, extension: Optional[str] = None,
 43, 44, 45, 46]
 
     >>> list(map(lambda x: x.__name__, metadata.token_types))
-    ['KeyWord', 'SplitContainer', 'Operator', 'Operator', 'Operator', \
-'KeyWord', 'Operator', 'SplitContainer', 'Operator', 'Operator', 'Number', 'Operator', 'Operator', 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', \
-'SplitContainer', 'Operator', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'Operator', 'Operator', \
-'Operator', \
-'Operator']
+    ['KeyWord', 'SplitContainer', 'OpeningBracket', 'ClosingBracket', 'OpeningCurlyBracket', \
+'KeyWord', 'OpeningBracket', 'SplitContainer', 'Operator', 'Operator', 'Number', 'ClosingBracket', 'OpeningCurlyBracket', 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', \
+'SplitContainer', 'OpeningBracket', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral', 'ClosingBracket', 'Semicolon', \
+'ClosingCurlyBracket', \
+'ClosingCurlyBracket']
 
     >>> basic(input_text, "java", no_spaces=True, no_case=True, no_com=True, no_str=True)
     ['void', '<w>', 'test', '_', '<Cap>', 'word', '<Cap>', 'ueberraschung', '<Cap>', 'printer', '</w>', '(', ')', '{', \
@@ -414,11 +414,11 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces
     [0, 1, 12, 13, 14, 15, 16, 17, 19, 20, 21, 26, 27, 28, 29, 30, 33, 35, 36, 38, 39, 57, 58, 59, 60, 61, 62]
 
     >>> list(map(lambda x: x.__name__, metadata.token_types))
-    ['KeyWord', 'SplitContainer', 'Operator', 'Operator', 'Operator', \
-'KeyWord', 'Operator', 'SplitContainer', 'Operator', 'Operator', 'Number', 'Operator', 'Operator', 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', \
-'SplitContainer', 'Operator', 'StringLiteral', 'Operator', 'Operator', \
-'Operator', \
-'Operator', 'SpecialToken']
+    ['KeyWord', 'SplitContainer', 'OpeningBracket', 'ClosingBracket', 'OpeningCurlyBracket', \
+'KeyWord', 'OpeningBracket', 'SplitContainer', 'Operator', 'Operator', 'Number', 'ClosingBracket', 'OpeningCurlyBracket', 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', \
+'SplitContainer', 'OpeningBracket', 'StringLiteral', 'ClosingBracket', 'Semicolon', \
+'ClosingCurlyBracket', \
+'ClosingCurlyBracket', 'SpecialToken']
 
     >>> tokens, metadata = bpe(input_text, '1k', "java", no_spaces=True, max_str_length=14, return_metadata=True)
     >>> tokens
