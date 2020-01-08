@@ -227,6 +227,12 @@ Removing the cache will not change the final result, however, will result in slo
 
 # Releases
 
+## 1.0.0-alpha.11 (NOT backward compatible with 1.0.0-alpha.10)
+
+- Include token types in the metadata
+- Expand on token type hierarchy
+- Make possible to return full token index in the iterator
+
 ## 1.0.0-alpha.10 (NOT backward compatible with 1.0.0-alpha.9)
 
 - Add boundaries of comments to pre-processing metadata
