@@ -22,6 +22,7 @@ from dataprep.preprocess.metadata import PreprocessingMetadata
 from dataprep.preprocess.metadata import save_metadata
 from dataprep.preprocess.placeholders import placeholders
 from dataprep.tokens.rootclasses import ParsedToken
+from dataprep.tokens.word import SpecialToken
 from dataprep.util import to_literal_str
 
 logger = logging.getLogger(__name__)
@@ -65,7 +66,7 @@ def preprocess_and_write(params: Tuple[bytes, bytes, PrepConfig, str]):
     not_finished_dest_file_path = dest_file_path + NOT_FINISHED_EXTENSION.encode()
     with gzip.GzipFile(src_file_path, 'rb') as i, open(not_finished_dest_file_path, 'w') as o:
         token_list = pickle.load(i)
-        repr, metadata = to_repr(prep_config, token_list + [placeholders['ect']], get_global_bpe_data_if_available())
+        repr, metadata = to_repr(prep_config, token_list + [SpecialToken(placeholders['ect'])], get_global_bpe_data_if_available())
         o.write(to_literal_str(to_token_str(repr)) + '\n')
 
     if part_nonbpe_vocab_folder:
