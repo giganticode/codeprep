@@ -33,7 +33,6 @@ def read_file_contents(file_path: bytes) -> Tuple[List[str], bytes]:
     try:
         return read_file_with_encoding(file_path, 'utf-8')
     except UnicodeDecodeError:
-        logger.warning(f"Encoding of {file_path} is not utf-8, trying ISO-8859-1")
         try:
             return read_file_with_encoding(file_path, 'ISO-8859-1')
         except UnicodeDecodeError:
