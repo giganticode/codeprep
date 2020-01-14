@@ -1,6 +1,7 @@
 import logging.config
 import multiprocessing
 import os
+import platform
 import shutil
 from collections import Counter, defaultdict
 from fnmatch import fnmatch
@@ -340,6 +341,8 @@ def _load_vocab_set(file: str) -> Set[str]:
 
 
 def calc_vocab(path: str, file_iterator: Iterator[bytes], output_dir: str):
+    if platform.system() == 'Darwin':
+        raise OSError("Calculation of vocabulary is not supported on OSX.")
     vocab_file_path = os.path.join(output_dir, VOCAB_FILENAME)
     vocab_size_file_path = os.path.join(output_dir, VOCABSIZE_FILENAME)
     if os.path.exists(vocab_size_file_path) and os.path.exists(vocab_file_path):
