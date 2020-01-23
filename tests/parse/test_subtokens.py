@@ -1,10 +1,10 @@
-from dataprep.tokens.numeric import Number
+from codeprep.tokens.numeric import Number
 
-from dataprep.parse.matchers import split_into_words
-from dataprep.tokens.containers import SplitContainer
-from dataprep.tokens.whitespace import NewLine, SpaceInString
-from dataprep.tokens.word import Word, Underscore
-from dataprep.parse.subtokens import split_string
+from codeprep.parse.matchers import split_into_words
+from codeprep.tokens.containers import SplitContainer
+from codeprep.tokens.whitespace import NewLine, SpaceInString
+from codeprep.tokens.word import Word, Underscore
+from codeprep.parse.subtokens import split_string
 
 
 def test_split_into_tokens():

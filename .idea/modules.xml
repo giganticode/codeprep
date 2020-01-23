@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/dataprep.iml" filepath="$PROJECT_DIR$/.idea/dataprep.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/codeprep.iml" filepath="$PROJECT_DIR$/.idea/codeprep.iml" />
     </modules>
   </component>
 </project>

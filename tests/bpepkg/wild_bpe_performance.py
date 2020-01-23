@@ -2,8 +2,8 @@ import random
 
 from typing import List
 
-from dataprep.bpepkg import wild_bpe
-from dataprep.bpepkg.wild_bpe import BpePerformanceStatsEntry, run
+from codeprep.bpepkg import wild_bpe
+from codeprep.bpepkg.wild_bpe import BpePerformanceStatsEntry, run
 
 
 def gen_performance_test_case(data_size_mb: float, entropy: int):

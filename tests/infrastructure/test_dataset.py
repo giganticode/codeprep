@@ -1,11 +1,11 @@
 import os
 from unittest import mock
 
-from dataprep.bpepkg.bpe_config import BpeConfig, BpeParam
-from dataprep.config import USER_CONFIG_DIR, VOCAB_DIR, BPE_DIR, USER_CACHE_DIR
-from dataprep.pipeline.bperegistry import CustomBpeConfig
-from dataprep.pipeline.dataset import Dataset, SubDataset
-from dataprep.prepconfig import PrepConfig, PrepParam
+from codeprep.bpepkg.bpe_config import BpeConfig, BpeParam
+from codeprep.config import USER_CONFIG_DIR, VOCAB_DIR, BPE_DIR, USER_CACHE_DIR
+from codeprep.pipeline.bperegistry import CustomBpeConfig
+from codeprep.pipeline.dataset import Dataset, SubDataset
+from codeprep.prepconfig import PrepConfig, PrepParam
 
 
 PATH_TO_DATASET_STUB = os.path.join('/', 'path', 'to', 'dataset')
@@ -15,9 +15,9 @@ OVERRIDDEN_PATH = os.path.join('/', 'overridden', 'path')
 
 
 @mock.patch('os.path.exists', autospec=True, return_value=True)
-@mock.patch('dataprep.pipeline.dataset.get_timestamp', autospec=True, return_value="01_01_01")
-@mock.patch('dataprep.pipeline.dataset.DEFAULT_PARSED_DATASETS_DIR', PARSED_DATASETS_DIR)
-@mock.patch('dataprep.pipeline.dataset.DEFAULT_PREP_DATASETS_DIR', PREP_DATASETS_DIR)
+@mock.patch('codeprep.pipeline.dataset.get_timestamp', autospec=True, return_value="01_01_01")
+@mock.patch('codeprep.pipeline.dataset.DEFAULT_PARSED_DATASETS_DIR', PARSED_DATASETS_DIR)
+@mock.patch('codeprep.pipeline.dataset.DEFAULT_PREP_DATASETS_DIR', PREP_DATASETS_DIR)
 def test_non_bpe_split(get_timestamp_mock, os_exists_mock):
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -43,9 +43,9 @@ def test_non_bpe_split(get_timestamp_mock, os_exists_mock):
 
 
 @mock.patch('os.path.exists', autospec=True, return_value=True)
-@mock.patch('dataprep.pipeline.dataset.get_timestamp', autospec=True, return_value="01_01_01")
-@mock.patch('dataprep.pipeline.dataset.DEFAULT_PARSED_DATASETS_DIR', PARSED_DATASETS_DIR)
-@mock.patch('dataprep.pipeline.dataset.DEFAULT_PREP_DATASETS_DIR', PREP_DATASETS_DIR)
+@mock.patch('codeprep.pipeline.dataset.get_timestamp', autospec=True, return_value="01_01_01")
+@mock.patch('codeprep.pipeline.dataset.DEFAULT_PARSED_DATASETS_DIR', PARSED_DATASETS_DIR)
+@mock.patch('codeprep.pipeline.dataset.DEFAULT_PREP_DATASETS_DIR', PREP_DATASETS_DIR)
 def test_non_bpe_split_with_one_extension(get_timestamp_mock, os_exists_mock):
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -71,9 +71,9 @@ def test_non_bpe_split_with_one_extension(get_timestamp_mock, os_exists_mock):
 
 
 @mock.patch('os.path.exists', autospec=True, return_value=True)
-@mock.patch('dataprep.pipeline.dataset.get_timestamp', autospec=True, return_value="01_01_01")
-@mock.patch('dataprep.pipeline.dataset.DEFAULT_PARSED_DATASETS_DIR', PARSED_DATASETS_DIR)
-@mock.patch('dataprep.pipeline.dataset.DEFAULT_PREP_DATASETS_DIR', PREP_DATASETS_DIR)
+@mock.patch('codeprep.pipeline.dataset.get_timestamp', autospec=True, return_value="01_01_01")
+@mock.patch('codeprep.pipeline.dataset.DEFAULT_PARSED_DATASETS_DIR', PARSED_DATASETS_DIR)
+@mock.patch('codeprep.pipeline.dataset.DEFAULT_PREP_DATASETS_DIR', PREP_DATASETS_DIR)
 def test_all_custom(get_timestamp_mock, os_exists_mock):
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',

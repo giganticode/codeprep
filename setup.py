@@ -2,7 +2,7 @@ import os
 
 from setuptools import setup, find_packages
 
-root_package_name = 'dataprep'
+root_package_name = 'codeprep'
 
 
 def readme():
@@ -19,12 +19,12 @@ with open('requirements.txt', 'r') as f:
     requirements = f.read().splitlines()
 
 
-setup(name='giganticode-dataprep',
+setup(name='giganticode-codeprep',
       version=version(),
       description='A toolkit for pre-processing large source code corpora',
       long_description=readme(),
       long_description_content_type="text/markdown",
-      url='http://github.com/giganticode/dataprep',
+      url='http://github.com/giganticode/codeprep',
       author='giganticode',
       author_email='hlibbabii@gmail.com',
       license='MIT',
@@ -47,7 +47,7 @@ setup(name='giganticode-dataprep',
       install_requires=requirements,
         entry_points={
           'console_scripts': [
-              f'dataprep = {root_package_name}.__main__:main'
+              f'codeprep = {root_package_name}.__main__:main'
           ]
       },
       include_package_data=True,

@@ -2,17 +2,17 @@ import time
 
 import pytest
 
-from dataprep.bpepkg.bpe_encode import BpeData
-from dataprep.bpepkg.merge import MergeList, Merge
-from dataprep.tokens.containers import SplitContainer, OneLineComment, MultilineComment, StringLiteral
-from dataprep.preprocess.metadata import PreprocessingMetadata
-from dataprep.tokens.noneng import NonEng
-from dataprep.tokens.numeric import Number
-from dataprep.preprocess.placeholders import placeholders
-from dataprep.tokens.whitespace import Tab, NewLine, SpaceInString
-from dataprep.tokens.word import Word, Underscore, NonCodeChar, Operator
-from dataprep.prepconfig import PrepParam, PrepConfig
-from dataprep.pipeline.to_repr import to_repr
+from codeprep.bpepkg.bpe_encode import BpeData
+from codeprep.bpepkg.merge import MergeList, Merge
+from codeprep.tokens.containers import SplitContainer, OneLineComment, MultilineComment, StringLiteral
+from codeprep.preprocess.metadata import PreprocessingMetadata
+from codeprep.tokens.noneng import NonEng
+from codeprep.tokens.numeric import Number
+from codeprep.preprocess.placeholders import placeholders
+from codeprep.tokens.whitespace import Tab, NewLine, SpaceInString
+from codeprep.tokens.word import Word, Underscore, NonCodeChar, Operator
+from codeprep.prepconfig import PrepParam, PrepConfig
+from codeprep.pipeline.to_repr import to_repr
 
 pl = placeholders
 cwe = placeholders['compound_word_end']

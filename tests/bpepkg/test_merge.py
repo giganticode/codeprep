@@ -5,16 +5,16 @@ from unittest.mock import MagicMock
 import pytest
 from pytest import fixture
 
-import dataprep
-from dataprep.bpepkg import merge
-from dataprep.bpepkg.merge import MergeList, Merge
+import codeprep
+from codeprep.bpepkg import merge
+from codeprep.bpepkg.merge import MergeList, Merge
 
 
 @fixture
 def file_handle_mock(mocker):
-    mocker.patch('dataprep.bpepkg.merge.open')
-    dataprep.bpepkg.merge.open.return_value = MagicMock(spec=['__enter__', '__exit__'])
-    handle = dataprep.bpepkg.merge.open.return_value.__enter__.return_value
+    mocker.patch('codeprep.bpepkg.merge.open')
+    codeprep.bpepkg.merge.open.return_value = MagicMock(spec=['__enter__', '__exit__'])
+    handle = codeprep.bpepkg.merge.open.return_value.__enter__.return_value
     return handle
 
 

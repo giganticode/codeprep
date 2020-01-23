@@ -1,13 +1,13 @@
 # import unittest
 #
-# from dataprep.bpepkg.bpe_encode import BpeData
-# from dataprep.parse.core import convert_text
-# from dataprep.parse.model.containers import SplitContainer
-# from dataprep.parse.model.numeric import Number
-# from dataprep.parse.model.placeholders import placeholders
-# from dataprep.parse.model.word import Underscore, Word
-# from dataprep.prepconfig import PrepConfig
-# from dataprep.to_repr import to_repr
+# from codeprep.bpepkg.bpe_encode import BpeData
+# from codeprep.parse.core import convert_text
+# from codeprep.parse.model.containers import SplitContainer
+# from codeprep.parse.model.numeric import Number
+# from codeprep.parse.model.placeholders import placeholders
+# from codeprep.parse.model.word import Underscore, Word
+# from codeprep.prepconfig import PrepConfig
+# from codeprep.to_repr import to_repr
 #
 # test_cases = {
 #     "create": (

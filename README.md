@@ -1,6 +1,6 @@
-# Dataprep
+# Codeprep
 
-[![Build Status](https://travis-ci.org/giganticode/dataprep.svg?branch=master)](https://travis-ci.org/giganticode/dataprep)
+[![Build Status](https://travis-ci.org/giganticode/codeprep.svg?branch=master)](https://travis-ci.org/giganticode/codeprep)
 
 **This is a tool for preprocessing source code corpora according to a specified vocabulary modeling choice.**
 
@@ -22,9 +22,9 @@ python --version
 python -m pip install --upgrade pip setuptools wheel
 ```
 
-Install **dataprep** lib:
+Install **codeprep** lib:
 ```bash
-pip install giganticode-dataprep
+pip install giganticode-codeprep
 ```
 
 In order to run the **ronin** algorithm, you will have to additionally install Spiral module (https://github.com/casics/spiral/):
@@ -34,31 +34,31 @@ pip install git+https://github.com/casics/spiral.git
 
 The tool can be used **as a python library** as well as a standalone module runnable with a **CLI**. 
 You can pass the path to the dataset or the text itself to be preprocessed. When using Python API for the former option 
-you need to import methods from `dataprep.api.text` module, for the latter - from `dataprep.api.corpus`.
+you need to import methods from `codeprep.api.text` module, for the latter - from `codeprep.api.corpus`.
 Below you can see the general patterns of usage.
 
 
 Python API
 ```python
->>> import dataprep.api.text as pp
->>> pp.<commmand>('Some code to be split')
+>>> import codeprep.api.text as cp
+>>> cp.<commmand>('Some code to be split')
 ```
 
 ```python
->>> import dataprep.api.corpus as pp
->>> pp.<commmand>('/path/to/the/dataset')
+>>> import codeprep.api.corpus as cp
+>>> cp.<commmand>('/path/to/the/dataset')
 ```
 
 CLI
 ```bash
-dataprep <commmand> "Some code to be split"
+codeprep <commmand> "Some code to be split"
 ```
 
 ```bash
-dataprep <commmand> --path /path/to/the/dataset
+codeprep <commmand> --path /path/to/the/dataset
 ```
 
-Hereafter we will demonstrate the usage as a python library. The CLI is analogous to the python API. You can find the documentation about how to use it [here](dataprep/cli/spec.py). 
+Hereafter we will demonstrate the usage as a python library. The CLI is analogous to the python API. You can find the documentation about how to use it [here](codeprep/cli/spec.py). 
 
 ## Usage examples
 
@@ -66,13 +66,13 @@ Hereafter we will demonstrate the usage as a python library. The CLI is analogou
 Tokenization + CamelCase- and snake_case- splitting:
 
 ```python
->>> import dataprep.api.text as pp
+>>> import codeprep.api.text as cp
 >>> input_code = '''void test_WordUeberraschungPrinter() {
 ...     if (eps >= 0.345e+4) { // FIXME
 ...         printWord("     ...     Überraschung");
 ...     }
 ... }'''
->>> pp.basic(input_code)
+>>> cp.basic(input_code)
 ['void', '<w>', 'test', '_', 'Word', 'Ueberraschung', 'Printer', '</w>', '(', ')', '{', '\n', 
 '\t', 'if', '(', 'eps', '>', '=', '0', '.', '<w>', '345', 'e', '</w>', '+', '4', ')', '{', '/', '/', 'FIXME', '\n', 
 '\t', '\t', '<w>', 'print', 'Word', '</w>', '(', '"', '\t', '.', '.', '.', '\t', 'Überraschung', '"', ')', ';', '\n', 
@@ -83,13 +83,13 @@ Tokenization + CamelCase- and snake_case- splitting:
 ### Tokenize but don't split identifiers
 
 ```python
->>> import dataprep.api.text as pp
+>>> import codeprep.api.text as cp
 >>> input_code = '''void test_WordUeberraschungPrinter() {
 ...     if (eps >= 0.345e+4) { // FIXME
 ...         printWord("     ...     Überraschung");
 ...     }
 ... }'''
->>> pp.nosplit(input_code)
+>>> cp.nosplit(input_code)
 ['void', 'test_WordUeberraschungPrinter', '(', ')', '{', '\n', 
 '\t', 'if', '(', 'eps', '>', '=', '0', '.', '345e', '+', '4', ')', '{', '/', '/', 'FIXME', '\n', 
 '\t', '\t', 'printWord', '(', '"', '\t', '.', '.', '.', '\t', 'Überraschung', '"', ')', ';', '\n', 
@@ -102,13 +102,13 @@ Tokenization + CamelCase- and snake_case- splitting:
 The following code does **camelCase-** and **snake_case-** splitting and applies **bpe with 10k merges** on top:
 
 ```python
->>> import dataprep.api.text as pp
+>>> import codeprep.api.text as cp
 >>> input_code = '''void test_WordUeberraschungPrinter() {
 ...     if (eps >= 0.345e+4) { // FIXME
 ...         printWord("     ...     Überraschung");
 ...     }
 ... }'''
->>> pp.bpe(input_code, bpe_codes_id='10k')
+>>> cp.bpe(input_code, bpe_codes_id='10k')
 ['v', 'oid</t>', 'test_', 'Word', 'U', 'eb', 'err', 'as', 'ch', 'un', 'g', 'Print', 'er</t>', '(</t>', ')</t>', '{</t>', '\n', 
 '\t', 'i', 'f</t>', '(</t>', 'e', 'ps</t>', '></t>', '=</t>', '0</t>', '.</t>', '34', '5', 'e</t>', '+</t>', '4</t>', ')</t>', '{</t>', '/</t>', '/</t>', 'FIX', 'M', 'E</t>',  '\n', 
 '\t', '\t', 'print', 'Word</t>', '(</t>', '"</t>', '\t', '.</t>', '.</t>', '.</t>', '\t', 'Ü', 'b', 'err', 'as', 'ch', 'un', 'g</t>', '"</t>', ')</t>', ';</t>', '\n', 
@@ -116,16 +116,16 @@ The following code does **camelCase-** and **snake_case-** splitting and applies
 '}</t>']
 ```
 
-**Dataprep** by default does BPE using bpe codes leaned on [the Github Java Corpus](http://groups.inf.ed.ac.uk/cup/javaGithub/). The argument `bpe_codes_id='10k'` tells the **dataprep** tool to use 10,000 bpe merges. 
+**codeprep** by default does BPE using bpe codes leaned on [the Github Java Corpus](http://groups.inf.ed.ac.uk/cup/javaGithub/). The argument `bpe_codes_id='10k'` tells the **codeprep** tool to use 10,000 bpe merges. 
 Other possible values are `1k` and `5k` (1,000 and 5,000 merges respectively). Please refer to section [Learning custom BPE codes](#Learning-custom-BPE-codes) to train custom bpe codes.
 
-**For other commands and options like `chars`, `--split-numbers`, `--ronin`, `--stem`, please refer to the [docs](dataprep/cli/spec.py)**.
+**For other commands and options like `chars`, `--split-numbers`, `--ronin`, `--stem`, please refer to the [docs](codeprep/cli/spec.py)**.
 
 ## Calculate vocabulary 
 Set `calc_vocab` param to `True` when calling a preprocessing method to calculate the vocabulary of the preprocessed corpus, e.g.:
 ```python
->>> import dataprep.api.corpus as pp
->>> pp.basic('/path/to/train/on', calc_vocab=True)
+>>> import codeprep.api.corpus as cp
+>>> cp.basic('/path/to/train/on', calc_vocab=True)
 ...
 Vocab is available at /path/to/vocab
 ```
@@ -134,13 +134,13 @@ Vocab is available at /path/to/vocab
 If you don't want to use, pre-trained BPE codes, it's possible to train custom ones. For example, to train 10,000 merges on the corpus located at the path `/path/to/train/on`, the following command should be run (only CLI):
 
 ```bash
-dataprep learn-bpe 10000 -p /path/to/train/on --id custom-bpe-codes 
+codeprep learn-bpe 10000 -p /path/to/train/on --id custom-bpe-codes 
 ```
 
 Now it is possible to do bpe splitting by running the bpe command with the number of merges from 0 to 10,000 (for example with 3500 merges):
 
 ```bash
-dataprep bpe custom-bpe-codes-3500 -p /path/to/preprocess 
+codeprep bpe custom-bpe-codes-3500 -p /path/to/preprocess 
 ```
 
 Before bpe codes are trained, the [basic preprocessing](#basic-splitting) is done, which can also be tuned with arguments described in section [Tweaking preprocessing](#tweaking-preprocessing).
@@ -156,13 +156,13 @@ You can pass the following parameters with a `True` value (default values for al
  * `no_unicode` - replace words containing non-ascii characters with <non-en> placeholders.
  * `no_case` - lowercase words and encode information about case in <Cap> <CAP> tokens.
 ```python
->>> import dataprep.api.text as pp
+>>> import codeprep.api.text as cp
 >>> input_code = '''void test_WordUeberraschungPrinter() {
 ...     if (eps >= 0.345e+4) { // FIXME
 ...         printWord("     ...     Überraschung");
 ...     }
 ... }'''
->>> pp.basic(input_code, no_spaces=True, no_unicode=True, no_case=True, no_com=True, no_str=True)
+>>> cp.basic(input_code, no_spaces=True, no_unicode=True, no_case=True, no_com=True, no_str=True)
 ['void', '<w>', 'test', '_', '<Cap>', 'word', '<Cap>', 'ueberraschung', '<Cap>', 'printer', '</w>', '(', ')', '{', 
 'if', '(', 'eps', '>', '=', '0', '.', '<w>', '345', 'e', '</w>', '+', '4', ')', '{', '/', '/', '<CAPS>', 'fixme', 
 '<w>', 'print', '<Cap>', 'word', '</w>', '(', '"', '.', '.', '.', '<Cap>', '<non-en>', '"', ')', ';', 
@@ -173,40 +173,40 @@ You can pass the following parameters with a `True` value (default values for al
 Similar params can be specified as switches `--no-str`, `--no-com`, `--no-spaces`, `--no-unicode`, `--no-case` in CLI commands.
 
 ### Specifying the language
-Unless explicitely specified, **dataprep** will try to guess the language of the code to be preprocessed. To make sure the input is preprocessed as intended, it is always **highly recommended** to specify it:
+Unless explicitely specified, **codeprep** will try to guess the language of the code to be preprocessed. To make sure the input is preprocessed as intended, it is always **highly recommended** to specify it:
 ```python
-import dataprep.api.text as pp
->>> pp.bpe("volatile", '1k', extension="py")
+import codeprep.api.text as cp
+>>> cp.bpe("volatile", '1k', extension="py")
 ['v', 'ol', 'a', 'ti', 'le</t>']
->>> pp.bpe("volatile", '1k', extension="java")
+>>> cp.bpe("volatile", '1k', extension="java")
 ['volatile']
 # Since 'volatile' is a keyword in java, it is represented as one token unlike in python 
 # where it is pretty rare when used as an identifier and therefore represented as multiple subtokens.
 ```
 
-When preprocessing a corpus, `dateprep` identifies the language based on the file extension. If you want only files with (a) certain extension(s) to be preprocessed, you can specify --ext param 
+When preprocessing a corpus, `codeprep` identifies the language based on the file extension. If you want only files with (a) certain extension(s) to be preprocessed, you can specify --ext param 
 ```bash
-dataprep basic --path /path/to/be/preprocessed --ext "java"
+codeprep basic --path /path/to/be/preprocessed --ext "java"
 
 # or if you want to pre-process multiple types of files: 
-dataprep basic --path /path/to/be/preprocessed --ext "java|c|py|js"
+codeprep basic --path /path/to/be/preprocessed --ext "java|c|py|js"
 ```
 ### Miscellaneous
 You can specify the path to where the preprocessed corpus will be written:
 ```bash
-dataprep basic --path /path/to/preprocess --output-path /path/to/output
+codeprep basic --path /path/to/preprocess --output-path /path/to/output
 ```
 
 To print logs with log level DEBUG and higher to stdout:
 ```bash
-dataprep basic --path /path/to/preprocess --verbose
+codeprep basic --path /path/to/preprocess --verbose
 ```
 
 ## Getting Help
 To get help on commands and options:
 
 ```bash
-dataprep --help
+codeprep --help
 ```
 
 
@@ -214,14 +214,14 @@ dataprep --help
 
 ### Caching
 
-When preprocessing a dataset, **dataprep** first parses source code and converts it into internal representation, 
+When preprocessing a dataset, **codeprep** first parses source code and converts it into internal representation, 
 which is after that converted to a preprocessed dataset depending on provided parameters. The intermediate 
 representation is cached, so that when the same dataset is pre-processed again with different parameters,
-**dataprep** (providing no changes have been made to the dataset) would use the cache rather than parsing 
+**codeprep** (providing no changes have been made to the dataset) would use the cache rather than parsing 
 the source code again.
 
-To store the cache, **dataprep** uses a directory speecified by `$XDG_CACHE_HOME/dataprep/<dataprep_version>` variable if its value is set, 
-`$HOME/.cache/dataprep/<dataprep_version>` otherwise.
+To store the cache, **codeprep** uses a directory speecified by `$XDG_CACHE_HOME/codeprep/<codeprep_version>` variable if its value is set, 
+`$HOME/.cache/codeprep/<codeprep_version>` otherwise.
 
 Removing the cache will not change the final result, however, will result in slower pre-processing.
 
@@ -256,7 +256,7 @@ Removing the cache will not change the final result, however, will result in slo
 
 ## 1.0.0-alpha.7 (NOT backward compatible with 1.0.0-alpha.6)
 
-- Store version in `dataprep.__version__`
+- Store version in `codeprep.__version__`
 - implement `--full-strings` and `--max-str-length` options
 - replace `ronin` method/command wit`--ronin` option and apply ronin algorithm on word level instead of full identifier level
 - if `split_numbers` option is set to `True`, split numbers not only in code but also in strings and comments

@@ -1,8 +1,8 @@
-from dataprep.parse.core import convert_text
-from dataprep.tokens.containers import SplitContainer, StringLiteral, OneLineComment, MultilineComment
-from dataprep.tokens.numeric import Number
-from dataprep.tokens.whitespace import Tab, NewLine, SpaceInString
-from dataprep.tokens.word import Word, Underscore, KeyWord, Operator, NonCodeChar, OpeningCurlyBracket, \
+from codeprep.parse.core import convert_text
+from codeprep.tokens.containers import SplitContainer, StringLiteral, OneLineComment, MultilineComment
+from codeprep.tokens.numeric import Number
+from codeprep.tokens.whitespace import Tab, NewLine, SpaceInString
+from codeprep.tokens.word import Word, Underscore, KeyWord, Operator, NonCodeChar, OpeningCurlyBracket, \
     ClosingCurlyBracket, Semicolon, OpeningBracket, ClosingBracket
 
 

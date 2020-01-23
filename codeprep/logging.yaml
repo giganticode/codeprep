@@ -1,0 +1,34 @@
+version: 1
+disable_existing_loggers: False
+formatters:
+  with_process_name:
+    format: "%(asctime)s [%(name)s] %(levelname)s: %(message)s"
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: with_process_name
+    stream: ext://sys.stdout
+loggers:
+  codeprep.infrastructure:
+    level: DEBUG
+    propagate: True
+  codeprep.api:
+    level: DEBUG
+    propagate: True
+  codeprep.cli:
+    level: DEBUG
+    propagate: True
+  codeprep.vocab:
+    level: DEBUG
+    propagate: True
+  codeprep.parse_projects:
+    level: DEBUG
+    propagate: True
+  codeprep.to_repr:
+    level: DEBUG
+    propagate: True
+root:
+  level: DEBUG
+  handlers: [console]

@@ -2,11 +2,11 @@ from unittest import mock
 
 import pytest
 
-from dataprep.bpepkg.bpe_config import BpeConfig, BpeParam, BpeConfigNotSupported
-from dataprep.pipeline.bpelearner import run
+from codeprep.bpepkg.bpe_config import BpeConfig, BpeParam, BpeConfigNotSupported
+from codeprep.pipeline.bpelearner import run
 
 
-@mock.patch('dataprep.pipeline.bpelearner.Dataset', autospec=True)
+@mock.patch('codeprep.pipeline.bpelearner.Dataset', autospec=True)
 def test_run_word_end(mocked_dataset):
     bpe_config = BpeConfig({
         BpeParam.BASE: 'code',
@@ -18,7 +18,7 @@ def test_run_word_end(mocked_dataset):
         run(mocked_dataset, 1, bpe_config)
 
 
-@mock.patch('dataprep.pipeline.bpelearner.Dataset', autospec=True)
+@mock.patch('codeprep.pipeline.bpelearner.Dataset', autospec=True)
 def test_run_bytes_bpe(mocked_dataset):
     bpe_config = BpeConfig({
         BpeParam.BASE: 'code',

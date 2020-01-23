@@ -1,5 +1,5 @@
 #TODO use relative path
-TEST_FILE = b"C:\\Users\Home\dev\dataprep\\test-resources\AppXMark.java"
+TEST_FILE = b"C:\\Users\Home\dev\codeprep\\test-resources\AppXMark.java"
 
 #TODO make test file small and measure time of excution
 
@@ -15,7 +15,7 @@ TEST_FILE = b"C:\\Users\Home\dev\dataprep\\test-resources\AppXMark.java"
 #         })
 #
 #         bpe_data = BpeData(merges_cache=[],
-#                            merges = read_merges('C:\\Users\Home\dev\dataprep\dataprep\data\\bpe\\10k\merges.txt', 1000))
+#                            merges = read_merges('C:\\Users\Home\dev\codeprep\codeprep\data\\bpe\\10k\merges.txt', 1000))
 #
 #         lines_from_file, path = read_file_contents(TEST_FILE)
 #         extension_bin = os.path.splitext(TEST_FILE)[1].decode()[1:]
