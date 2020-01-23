@@ -16,7 +16,7 @@ PATH_TO_DATASET_STUB = os.path.join('/', 'path', 'to', 'dataset')
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
 def test_uc100u(api_mock):
-    argv = ['nosplit', 'str', '--no-spaces']
+    argv = ['nosplit', 'str', '-e', 'java', '--no-spaces']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -26,12 +26,12 @@ def test_uc100u(api_mock):
         PrepParam.TABS_NEWLINES: '0',
         PrepParam.CASE: 'u'
     })
-    api_mock.text.preprocess.assert_called_with("str", prep_config, None)
+    api_mock.text.preprocess.assert_called_with("str", prep_config, None, extension="java")
 
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
 def test_Uc100u(api_mock):
-    argv = ['nosplit', 'str', '--no-spaces', '--no-unicode']
+    argv = ['nosplit', 'str', '-e', 'java', '--no-spaces', '--no-unicode']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'U',
@@ -41,23 +41,23 @@ def test_Uc100u(api_mock):
         PrepParam.TABS_NEWLINES: '0',
         PrepParam.CASE: 'u'
     })
-    api_mock.text.preprocess.assert_called_with("str", prep_config, None)
+    api_mock.text.preprocess.assert_called_with("str", prep_config, None, extension="java")
 
 
 def test_xx0xxx_max_str_length():
-    argv = ['nosplit', 'str', '--no-spaces', '--no-str', '--no-com', '--max-str-length=2']
+    argv = ['nosplit', 'str', '-e', 'java', '--no-spaces', '--no-str', '--no-com', '--max-str-length=2']
     with pytest.raises(DocoptExit):
         parse_and_run(argv)
 
 def test_xx0Fxx_max_str_length():
-    argv = ['nosplit', 'str', '--no-spaces', '--no-str', '--no-com', '--full-strings']
+    argv = ['nosplit', 'str', '-e', 'java', '--no-spaces', '--no-str', '--no-com', '--full-strings']
     with pytest.raises(DocoptExit):
         parse_and_run(argv)
 
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
 def test_xxx0sx(api_mock):
-    argv = ['nosplit', 'str']
+    argv = ['nosplit', 'str', '-e', 'java', ]
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -67,12 +67,12 @@ def test_xxx0sx(api_mock):
         PrepParam.TABS_NEWLINES: 's',
         PrepParam.CASE: 'u'
     })
-    api_mock.text.preprocess.assert_called_with("str", prep_config, None)
+    api_mock.text.preprocess.assert_called_with("str", prep_config, None, extension="java")
 
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
 def test_xxxFsx(api_mock):
-    argv = ['nosplit', 'str', '--full-strings']
+    argv = ['nosplit', 'str', '-e', 'java', '--full-strings']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -82,12 +82,12 @@ def test_xxxFsx(api_mock):
         PrepParam.TABS_NEWLINES: 's',
         PrepParam.CASE: 'u'
     })
-    api_mock.text.preprocess.assert_called_with("str", prep_config, None)
+    api_mock.text.preprocess.assert_called_with("str", prep_config, None, extension="java")
 
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
 def test_xx2xxx_max_str_length0(api_mock):
-    argv = ['nosplit', 'str', '--full-strings', '--max-str-length=0']
+    argv = ['nosplit', 'str', '-e', 'java', '--full-strings', '--max-str-length=0']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -97,12 +97,12 @@ def test_xx2xxx_max_str_length0(api_mock):
         PrepParam.TABS_NEWLINES: 's',
         PrepParam.CASE: 'u'
     })
-    api_mock.text.preprocess.assert_called_with("str", prep_config, None)
+    api_mock.text.preprocess.assert_called_with("str", prep_config, None, extension="java")
 
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
 def test_xx2xxx_max_str_length1(api_mock):
-    argv = ['nosplit', 'str', '--full-strings', '--max-str-length=1']
+    argv = ['nosplit', 'str', '-e', 'java', '--full-strings', '--max-str-length=1']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -112,12 +112,12 @@ def test_xx2xxx_max_str_length1(api_mock):
         PrepParam.TABS_NEWLINES: 's',
         PrepParam.CASE: 'u'
     })
-    api_mock.text.preprocess.assert_called_with("str", prep_config, None)
+    api_mock.text.preprocess.assert_called_with("str", prep_config, None, extension="java")
 
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
 def test_xx2xxx(api_mock):
-    argv = ['nosplit', 'str', '--full-strings', '--max-str-length=2']
+    argv = ['nosplit', 'str', '-e', 'java', '--full-strings', '--max-str-length=2']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -127,12 +127,12 @@ def test_xx2xxx(api_mock):
         PrepParam.TABS_NEWLINES: 's',
         PrepParam.CASE: 'u'
     })
-    api_mock.text.preprocess.assert_called_with("str", prep_config, None)
+    api_mock.text.preprocess.assert_called_with("str", prep_config, None, extension="java")
 
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
 def test_xxExxx(api_mock):
-    argv = ['nosplit', 'str', '--full-strings', '--max-str-length=14']
+    argv = ['nosplit', 'str', '-e', 'java', '--full-strings', '--max-str-length=14']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -142,12 +142,12 @@ def test_xxExxx(api_mock):
         PrepParam.TABS_NEWLINES: 's',
         PrepParam.CASE: 'u'
     })
-    api_mock.text.preprocess.assert_called_with("str", prep_config, None)
+    api_mock.text.preprocess.assert_called_with("str", prep_config, None, extension="java")
 
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
 def test_xx1xxx_max_str_length_large(api_mock):
-    argv = ['nosplit', 'str', '--full-strings', '--max-str-length=999']
+    argv = ['nosplit', 'str', '-e', 'java', '--full-strings', '--max-str-length=999']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -157,18 +157,18 @@ def test_xx1xxx_max_str_length_large(api_mock):
         PrepParam.TABS_NEWLINES: 's',
         PrepParam.CASE: 'u'
     })
-    api_mock.text.preprocess.assert_called_with("str", prep_config, None)
+    api_mock.text.preprocess.assert_called_with("str", prep_config, None, extension="java")
 
 
 def test_xxx0x1():
-    argv = ['nosplit', 'str', '--no-spaces', '--no-case']
+    argv = ['nosplit', 'str', '-e', 'java', '--no-spaces', '--no-case']
     with pytest.raises(DocoptExit) as context:
         parse_and_run(argv)
 
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
 def test_uc110l(api_mock):
-    argv = ['basic', 'str', '--no-spaces', '--no-case']
+    argv = ['basic', 'str', '-e', 'java', '--no-spaces', '--no-case']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -178,19 +178,19 @@ def test_uc110l(api_mock):
         PrepParam.TABS_NEWLINES: '0',
         PrepParam.CASE: 'l'
     })
-    api_mock.text.preprocess.assert_called_with("str", prep_config, None)
+    api_mock.text.preprocess.assert_called_with("str", prep_config, None, extension="java")
 
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
 def test_xxA1xx(api_mock):
-    argv = ['basic', 'str', '--no-str', '--max-str-length=10']
+    argv = ['basic', 'str', '-e', 'java', '--no-str', '--max-str-length=10']
     with pytest.raises(DocoptExit):
         parse_and_run(argv)
 
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
 def test_Uxx1xx(api_mock):
-    argv = ['basic', 'str', '--no-spaces', '--no-case', '--no-unicode']
+    argv = ['basic', 'str', '-e', 'java', '--no-spaces', '--no-case', '--no-unicode']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'U',
@@ -200,12 +200,12 @@ def test_Uxx1xx(api_mock):
         PrepParam.TABS_NEWLINES: '0',
         PrepParam.CASE: 'l'
     })
-    api_mock.text.preprocess.assert_called_with("str", prep_config, None)
+    api_mock.text.preprocess.assert_called_with("str", prep_config, None, extension="java")
 
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
 def test_xc01xx(api_mock):
-    argv = ['basic', 'str', '--no-spaces', '--no-case', '--no-str']
+    argv = ['basic', 'str', '-e', 'java', '--no-spaces', '--no-case', '--no-str']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -215,12 +215,12 @@ def test_xc01xx(api_mock):
         PrepParam.TABS_NEWLINES: '0',
         PrepParam.CASE: 'l'
     })
-    api_mock.text.preprocess.assert_called_with("str", prep_config, None)
+    api_mock.text.preprocess.assert_called_with("str", prep_config, None, extension="java")
 
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
 def test_x001xx(api_mock):
-    argv = ['basic', 'str', '--no-spaces', '--no-case', '--no-str', '--no-com']
+    argv = ['basic', 'str', '-e', 'java', '--no-spaces', '--no-case', '--no-str', '--no-com']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -230,12 +230,12 @@ def test_x001xx(api_mock):
         PrepParam.TABS_NEWLINES: '0',
         PrepParam.CASE: 'l'
     })
-    api_mock.text.preprocess.assert_called_with("str", prep_config, None)
+    api_mock.text.preprocess.assert_called_with("str", prep_config, None, extension="java")
 
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
 def test_x011xx(api_mock):
-    argv = ['basic', 'str', '--no-spaces', '--no-case', '--no-com']
+    argv = ['basic', 'str', '-e', 'java', '--no-spaces', '--no-case', '--no-com']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -245,12 +245,12 @@ def test_x011xx(api_mock):
         PrepParam.TABS_NEWLINES: '0',
         PrepParam.CASE: 'l'
     })
-    api_mock.text.preprocess.assert_called_with("str", prep_config, None)
+    api_mock.text.preprocess.assert_called_with("str", prep_config, None, extension="java")
 
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
 def test_uc12xx(api_mock):
-    argv = ['basic', 'str', '--no-spaces', '--no-case', '--split-numbers']
+    argv = ['basic', 'str', '-e', 'java', '--no-spaces', '--no-case', '--split-numbers']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -260,12 +260,12 @@ def test_uc12xx(api_mock):
         PrepParam.TABS_NEWLINES: '0',
         PrepParam.CASE: 'l'
     })
-    api_mock.text.preprocess.assert_called_with("str", prep_config, None)
+    api_mock.text.preprocess.assert_called_with("str", prep_config, None, extension="java")
 
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
 def test_uc13xx(api_mock):
-    argv = ['basic', 'str', '--no-spaces', '--ronin']
+    argv = ['basic', 'str', '-e', 'java', '--no-spaces', '--ronin']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -275,18 +275,18 @@ def test_uc13xx(api_mock):
         PrepParam.TABS_NEWLINES: '0',
         PrepParam.CASE: 'u'
     })
-    api_mock.text.preprocess.assert_called_with("str", prep_config, None)
+    api_mock.text.preprocess.assert_called_with("str", prep_config, None, extension="java")
 
 
 def test_xx0xxx_with_max_str_length():
-    argv = ['basic', 'str', '--no-str', '--max-str-length=10']
+    argv = ['basic', 'str', '-e', 'java', '--no-str', '--max-str-length=10']
     with pytest.raises(DocoptExit):
         parse_and_run(argv)
 
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
 def test_xxx3xl(api_mock):
-    argv = ['basic', 'str', '--no-spaces', '--no-case', '--ronin']
+    argv = ['basic', 'str', '-e', 'java', '--no-spaces', '--no-case', '--ronin']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -296,12 +296,12 @@ def test_xxx3xl(api_mock):
         PrepParam.TABS_NEWLINES: '0',
         PrepParam.CASE: 'l'
     })
-    api_mock.text.preprocess.assert_called_with("str", prep_config, None)
+    api_mock.text.preprocess.assert_called_with("str", prep_config, None, extension="java")
 
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
 def test_uc1sxx(api_mock):
-    argv = ['basic', 'str', '--no-spaces', '--stem']
+    argv = ['basic', 'str', '-e', 'java', '--no-spaces', '--stem']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -311,12 +311,12 @@ def test_uc1sxx(api_mock):
         PrepParam.TABS_NEWLINES: '0',
         PrepParam.CASE: 'u'
     })
-    api_mock.text.preprocess.assert_called_with("str", prep_config, None)
+    api_mock.text.preprocess.assert_called_with("str", prep_config, None, extension="java")
 
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
 def test_uc14xx(api_mock):
-    argv = ['bpe', '5k', 'str', '--no-spaces']
+    argv = ['bpe', '5k', 'str', '-e', 'java', '--no-spaces']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -326,18 +326,18 @@ def test_uc14xx(api_mock):
         PrepParam.TABS_NEWLINES: '0',
         PrepParam.CASE: 'u'
     })
-    api_mock.text.preprocess.assert_called_with("str", prep_config, '5k')
+    api_mock.text.preprocess.assert_called_with("str", prep_config, '5k', extension="java")
 
 
 def test_xxA4xx():
-    argv = ['bpe', '5k', 'str', '--no-str', '--max-str-length=10']
+    argv = ['bpe', '5k', 'str', '-e', 'java', '--no-str', '--max-str-length=10']
     with pytest.raises(DocoptExit):
         parse_and_run(argv)
 
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
 def test_uc15xx(api_mock):
-    argv = ['bpe', '1k', 'str', '--no-spaces']
+    argv = ['bpe', '1k', 'str', '-e', 'java', '--no-spaces']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -347,12 +347,12 @@ def test_uc15xx(api_mock):
         PrepParam.TABS_NEWLINES: '0',
         PrepParam.CASE: 'u'
     })
-    api_mock.text.preprocess.assert_called_with("str", prep_config, '1k')
+    api_mock.text.preprocess.assert_called_with("str", prep_config, '1k', extension="java")
 
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
 def test_xxx6xx(api_mock):
-    argv = ['bpe', '10k', 'str', '--no-spaces']
+    argv = ['bpe', '10k', 'str', '-e', 'java', '--no-spaces']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -362,12 +362,12 @@ def test_xxx6xx(api_mock):
         PrepParam.TABS_NEWLINES: '0',
         PrepParam.CASE: 'u'
     })
-    api_mock.text.preprocess.assert_called_with("str", prep_config, '10k')
+    api_mock.text.preprocess.assert_called_with("str", prep_config, '10k', extension="java")
 
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
 def test_xxx9xx(api_mock):
-    argv = ['bpe', 'custom-id-5000', 'str', '--no-spaces']
+    argv = ['bpe', 'custom-id-5000', 'str', '-e', 'java', '--no-spaces']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -377,12 +377,12 @@ def test_xxx9xx(api_mock):
         PrepParam.TABS_NEWLINES: '0',
         PrepParam.CASE: 'u'
     })
-    api_mock.text.preprocess.assert_called_with("str", prep_config, 'custom-id-5000')
+    api_mock.text.preprocess.assert_called_with("str", prep_config, 'custom-id-5000', extension="java")
 
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
 def test_xxx8xx(api_mock):
-    argv = ['chars', 'str', '--no-spaces']
+    argv = ['chars', 'str', '-e', 'java', '--no-spaces']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -392,18 +392,18 @@ def test_xxx8xx(api_mock):
         PrepParam.TABS_NEWLINES: '0',
         PrepParam.CASE: 'u'
     })
-    api_mock.text.preprocess.assert_called_with("str", prep_config, '0')
+    api_mock.text.preprocess.assert_called_with("str", prep_config, '0', extension="java")
 
 
 def test_xxA8xx():
-    argv = ['chars', 'str', '--no-str', '--max-str-length=10']
+    argv = ['chars', 'str', '-e', 'java', '--no-str', '--max-str-length=10']
     with pytest.raises(DocoptExit):
         parse_and_run(argv)
 
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
 def test_xxx1sx(api_mock):
-    argv = ['basic', 'str', '--no-case']
+    argv = ['basic', 'str', '-e', 'java', '--no-case']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -413,12 +413,12 @@ def test_xxx1sx(api_mock):
         PrepParam.TABS_NEWLINES: 's',
         PrepParam.CASE: 'l'
     })
-    api_mock.text.preprocess.assert_called_with("str", prep_config, None)
+    api_mock.text.preprocess.assert_called_with("str", prep_config, None, extension="java")
 
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
 def test_xxx1xu(api_mock):
-    argv = ['basic', 'str', '--no-spaces']
+    argv = ['basic', 'str', '-e', 'java', '--no-spaces']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'u',
@@ -428,7 +428,7 @@ def test_xxx1xu(api_mock):
         PrepParam.TABS_NEWLINES: '0',
         PrepParam.CASE: 'u'
     })
-    api_mock.text.preprocess.assert_called_with("str", prep_config, None)
+    api_mock.text.preprocess.assert_called_with("str", prep_config, None, extension="java")
 
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
@@ -505,7 +505,7 @@ def test_output_with_text():
 
 @mock.patch('codeprep.cli.impl.codeprep.api', autospec=True)
 def test_all_short_config_options(api_mock):
-    argv = ['basic', 'str', '-0lSCU']
+    argv = ['basic', 'str', '-e', 'java', '-0lSCU']
     parse_and_run(argv)
     prep_config = PrepConfig({
         PrepParam.EN_ONLY: 'U',
@@ -515,7 +515,7 @@ def test_all_short_config_options(api_mock):
         PrepParam.TABS_NEWLINES: '0',
         PrepParam.CASE: 'l'
     })
-    api_mock.text.preprocess.assert_called_with("str", prep_config, None)
+    api_mock.text.preprocess.assert_called_with("str", prep_config, None, extension="java")
 
 
 @mock.patch('codeprep.cli.impl.Dataset', autospec=True)

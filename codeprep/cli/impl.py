@@ -64,7 +64,8 @@ def handle_splitting(args: Dict) -> None:
         prep_config = create_prep_config_from_args(args)
         bpe_codes_id = get_option(args, '<bpe-codes-id>') or get_predefined_bpe_codes_id(args)
         if args['<text>']:
-            prep_text = codeprep.api.text.preprocess(args['<text>'], prep_config, bpe_codes_id)
+            prep_text = codeprep.api.text.preprocess(args['<text>'], prep_config, bpe_codes_id,
+                                                     extension=args['--ext'])
             print(prep_text)
         else:
             codeprep.api.corpus.preprocess_corpus(args['--path'], prep_config, bpe_codes_id,

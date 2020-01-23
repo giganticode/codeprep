@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 @dsc.command()
 def nosplit_handler(args):
-    """usage: {program} nosplit (-p <path> [-e <ext>] [-o <path-out>] | <text>)
+    """usage: {program} nosplit (-p <path> [-o <path-out>] | <text>) [-e <ext>]
     [--no-spaces] [--no-unicode] [--no-com] ( [--no-str] | [-L=<max-str-length>] [--full-strings] )
     [--calc-vocab] [--verbose]
 
@@ -18,10 +18,14 @@ def nosplit_handler(args):
 
     Options:
       -p, --path <path>                            Path to the dataset to be preprocessed.
-      -e --ext <ext>                               Limits the set of input files to the files with the specified extension(s).
-                                                   The format is the following: "ext1|ext2|...|extN" If not specififed, all the files are read.
       -o <path-out>, --output-path <path-out>      Directory to which the pre-preprocessed corpus is to be written. If not specified, equals to '<path>_preprocessed'.
       <text>                                       Text to be preprocessed.
+      -e --ext <ext>                               In case of using --path argument:
+                                                   Limits the set of input files to the files with the specified extension(s).
+                                                   The format is the following: "py|java|...|js" If not specififed, all the files are read.
+                                                   In case of passing text:
+                                                   extension which a file containing source code written in this programming language would have,
+                                                   e.g. 'java', 'py', 'js'.
 
       --no-spaces, -0                               Preserve newlines and tabs.
       --no-unicode, -U                              Replace words containing non-ascii characters with <non-en> placeholders.
@@ -40,7 +44,7 @@ def nosplit_handler(args):
 
 @dsc.command()
 def chars_handler(args):
-    """usage: {program} chars (-p <path> [-e <ext>] [-o <path-out>] | <text>)
+    """usage: {program} chars (-p <path> [-o <path-out>] | <text>) [-e <ext>]
     [--no-spaces] [--no-unicode] [--no-com] [--no-str | -L=<max-str-length>]
     [--calc-vocab] [--verbose]
 
@@ -48,10 +52,14 @@ def chars_handler(args):
 
     Options:
       -p, --path <path>                            Path to the dataset to be preprocessed.
-      -e --ext <ext>                               Limits the set of input files to the files with the specified extension(s).
-                                                   The format is the following: "ext1|ext2|...|extN" If not specififed, all the files are read.
       -o <path-out>, --output-path <path-out>      Directory to which the pre-preprocessed corpus is to be written. If not specified, equals to '<path>_preprocessed'.
       <text>                                       Text to be preprocessed.
+      -e --ext <ext>                               In case of using --path argument:
+                                                   Limits the set of input files to the files with the specified extension(s).
+                                                   The format is the following: "py|java|...|js" If not specififed, all the files are read.
+                                                   In case of passing text:
+                                                   extension which a file containing source code written in this programming language would have,
+                                                   e.g. 'java', 'py', 'js'.
 
       --no-spaces, -0                               Preserve newlines and tabs.
       --no-unicode, -U                              Replace words containing non-ascii characters with <non-en> placeholders.
@@ -69,7 +77,7 @@ def chars_handler(args):
 
 @dsc.command()
 def basic_handler(args):
-    """usage: {program} basic (-p <path> [-e <ext>] [-o <path-out>] | <text>) [-n [-r [-s]]]
+    """usage: {program} basic (-p <path> [-o <path-out>] | <text>) [-e <ext>] [-n [-r [-s]]]
     [--no-spaces] [--no-unicode] [--no-case] [--no-com] [--no-str | -L=<max-str-length>]
     [--calc-vocab] [--verbose]
 
@@ -78,10 +86,14 @@ def basic_handler(args):
 
     Options:
       -p, --path <path>                            Path to the dataset to be preprocessed.
-      -e --ext <ext>                               Limits the set of input files to the files with the specified extension(s).
-                                                   The format is the following: "ext1|ext2|...|extN" If not specififed, all the files are read.
       -o <path-out>, --output-path <path-out>      Directory to which the pre-preprocessed corpus is to be written. If not specified, equals to '<path>_preprocessed'.
       <text>                                       Text to be preprocessed.
+      -e --ext <ext>                               In case of using --path argument:
+                                                   Limits the set of input files to the files with the specified extension(s).
+                                                   The format is the following: "py|java|...|js" If not specififed, all the files are read.
+                                                   In case of passing text:
+                                                   extension which a file containing source code written in this programming language would have,
+                                                   e.g. 'java', 'py', 'js'.
 
       --split-numbers, -n                           Split numbers into digits
       --ronin, -r                                   Preprocesses the dataset splitting identifiers with Ronin algorithm: http://joss.theoj.org/papers/10.21105/joss.00653.
@@ -104,19 +116,22 @@ def basic_handler(args):
 
 @dsc.command()
 def bpe_handler(args):
-    """usage: {program} bpe (1k | 5k | 10k | <bpe-codes-id>) (-p <path> [-e <ext>] [-o <path-out>] | <text>)
+    """usage: {program} bpe (1k | 5k | 10k | <bpe-codes-id>) (-p <path> [-o <path-out>] | <text>) [-e <ext>]
     [--no-str | -L=<max-str-length>] [--no-com] [--no-spaces] [--no-unicode] [--calc-vocab] [--verbose]
 
     Preprocesses the dataset by splitting compound identifiers according to CamelCase and snake_case conventions,
     and applies byte-pair encoding (BPE) on top.
 
     Options:
-      <bpe-codes-id>                               Id which defines bpe codes to use (1k, 5k, 10k are predefined ids)
       -p, --path <path>                            Path to the dataset to be preprocessed.
-      -e --ext <ext>                               Limits the set of input files to the files with the specified extension(s).
-                                                   The format is the following: "ext1|ext2|...|extN" If not specififed, all the files are read.
       -o <path-out>, --output-path <path-out>      Directory to which the pre-preprocessed corpus is to be written. If not specified, equals to '<path>_preprocessed'.
       <text>                                       Text to be preprocessed.
+      -e --ext <ext>                               In case of using --path argument:
+                                                   Limits the set of input files to the files with the specified extension(s).
+                                                   The format is the following: "py|java|...|js" If not specififed, all the files are read.
+                                                   In case of passing text:
+                                                   extension which a file containing source code written in this programming language would have,
+                                                   e.g. 'java', 'py', 'js'.
 
       --no-str, -S                                  Replace strings with <string> placeholders.
       --no-com, -C                                  Replace comments with <comment> placeholders.
