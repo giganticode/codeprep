@@ -5,6 +5,10 @@ Source: https://github.com/giganticode/codeprep
 
 # Sample paragraph, commented out:
 #
-# Files: src/*
-# Copyright: $YEAR $NAME <$CONTACT>
-# License: ...
+Files: codeprep/data/**/*.txt  codeprep/logging.yaml
+Copyright: 2020 Hlib Babii <hlibbabii@gmail.com>
+License: Apache-2.0
+
+Files: .idea/**/*.* .idea/*.* .gitignore .travis.yml MANIFEST.in requirements.txt requirements-dev.txt tox.ini codeprep/VERSION
+Copyright: 2020 Hlib Babii <hlibbabii@gmail.com>
+License: CC0-1.0

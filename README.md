@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2020 Hlib Babii <hlibbabii@gmail.com>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # Codeprep
 
 [![Build Status](https://travis-ci.org/giganticode/codeprep.svg?branch=master)](https://travis-ci.org/giganticode/codeprep)
