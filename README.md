@@ -233,6 +233,9 @@ Removing the cache will not change the final result, however, will result in slo
 
 # Releases
 
+## 1.0.0
+- DOI assigned
+
 ## 1.0.0-alpha.12
 - Bugfixes and minor improvements
 
