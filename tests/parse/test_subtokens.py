@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2020 Hlib Babii <hlibbabii@gmail.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 from codeprep.tokens.numeric import Number
 
 from codeprep.parse.matchers import split_into_words

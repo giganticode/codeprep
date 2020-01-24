@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2020 Hlib Babii <hlibbabii@gmail.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 import logging
 import os
 from datetime import datetime
@@ -76,5 +80,3 @@ def get_dir_last_modification(path: str, limit: int = LIMIT_FILES_ON_LAST_MODIFI
 def get_timestamp(path: str) -> str:
     last_modif_time = get_dir_last_modification(path)
     return last_modif_time.strftime("%y-%m-%dT%H-%M-%S")
-
-

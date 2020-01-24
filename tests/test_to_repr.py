@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2020 Hlib Babii <hlibbabii@gmail.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 import time
 
 import pytest
@@ -724,4 +728,3 @@ def test_bpe_string_literal_performance():
     start = time.perf_counter()
     to_repr(prep_config, tokens, BpeData(merges=merge_list, merges_cache={'Whi@@le@': ['Whi@@le@']}))
     assert (time.perf_counter() - start) < 1
-

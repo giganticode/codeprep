@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2020 Hlib Babii <hlibbabii@gmail.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 import copy
 
 from typing import List, Tuple, Union, Optional, Iterator, Dict

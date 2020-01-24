@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2020 Hlib Babii <hlibbabii@gmail.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 import multiprocessing
 from heapq import heappush, heappop, heapify
 
@@ -194,4 +198,3 @@ def to_literal_str(word: str) -> str:
 
 START_ERROR_COLOR = '\033[31m'
 END_ERROR_COLOR = '\033[0m'
-

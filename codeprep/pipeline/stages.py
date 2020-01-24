@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2020 Hlib Babii <hlibbabii@gmail.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 """This module runs different stages of preprocessing flow and makes sure not to rerun a stage if its results are already available.
 """
 import logging

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2020 Hlib Babii <hlibbabii@gmail.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 from typing import List, Tuple, Union, Optional
 
 from codeprep.noneng import replace_non_ascii_seqs

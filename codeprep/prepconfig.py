@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2020 Hlib Babii <hlibbabii@gmail.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 """
 This module encapsulate all the tricky ilogic of encoding preprocessing options into e.g. 30100
 """
