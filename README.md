@@ -173,13 +173,13 @@ You can pass the following parameters with a `True` value (default values for al
 Similar params can be specified as switches `--no-str`, `--no-com`, `--no-spaces`, `--no-unicode`, `--no-case` in CLI commands.
 
 ### Specifying the language
-Unless explicitely specified, **codeprep** will try to guess the language of the code to be preprocessed. To make sure the input is preprocessed as intended, it is always **highly recommended** to specify it:
+Unless explicitely specified, **codeprep** will assume the language is java. To make sure the input is preprocessed as intended, it is always **highly recommended** to specify it:
 ```python
 import codeprep.api.text as cp
+>>> cp.bpe("volatile", '1k')
+['volatile']
 >>> cp.bpe("volatile", '1k', extension="py")
 ['v', 'ol', 'a', 'ti', 'le</t>']
->>> cp.bpe("volatile", '1k', extension="java")
-['volatile']
 # Since 'volatile' is a keyword in java, it is represented as one token unlike in python 
 # where it is pretty rare when used as an identifier and therefore represented as multiple subtokens.
 ```
