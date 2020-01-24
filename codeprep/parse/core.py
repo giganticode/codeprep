@@ -42,7 +42,8 @@ def _convert(token, value: str) -> List[ParsedToken]:
     assert False
 
 
-def convert_text(text: str, extension: str = 'java') -> List[ParsedToken]:
+def convert_text(text: str, extension: str) -> List[ParsedToken]:
+    extension = extension or 'java'
     if extension:
         try:
             lexer = get_lexer_by_name(extension)

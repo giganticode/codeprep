@@ -12,4 +12,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    import codeprep.api.text as api
+    print(api.basic("hxwdwefwfwi"))
