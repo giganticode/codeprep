@@ -23,7 +23,7 @@ with open('requirements.txt', 'r') as f:
     requirements = f.read().splitlines()
 
 
-setup(name='giganticode-codeprep',
+setup(name='codeprep',
       version=version(),
       description='A toolkit for pre-processing large source code corpora',
       long_description=readme(),
