@@ -30,7 +30,7 @@ python -m pip install --upgrade pip setuptools wheel
 
 Install **codeprep** lib:
 ```bash
-pip install giganticode-codeprep
+pip install codeprep
 ```
 
 In order to run the **ronin** algorithm, you will have to additionally install Spiral module (https://github.com/casics/spiral/):
