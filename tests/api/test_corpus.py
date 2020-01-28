@@ -13,6 +13,15 @@ PATH_TO_CUR_DIR_STUB = os.path.join('path', 'to', 'curdir')
 PATH_TO_DATASET_STUB = os.path.join('path', 'to', 'dataset')
 PATH_TO_OUTPUT_STUB = os.path.join('path', 'to', 'output')
 
+DEFAULT_PREP_CONFIG = PrepConfig({
+    PrepParam.EN_ONLY: 'u',
+    PrepParam.COM: 'c',
+    PrepParam.STR: '1',
+    PrepParam.SPLIT: '0',
+    PrepParam.TABS_NEWLINES: '0',
+    PrepParam.CASE: 'u',
+})
+
 
 @mock.patch('codeprep.api.corpus.Dataset', autospec=True)
 @mock.patch('codeprep.api.corpus.stages', autospec=True)
@@ -20,20 +29,13 @@ PATH_TO_OUTPUT_STUB = os.path.join('path', 'to', 'output')
 def test_simple(os_mock, stages_mock, dataset_mock):
     # given
     dataset_mock.create = Mock(spec=dataset_mock, return_value=dataset_mock)
-    prep_config = PrepConfig({
-        PrepParam.EN_ONLY: 'u',
-        PrepParam.COM: 'c',
-        PrepParam.STR: '1',
-        PrepParam.SPLIT: '0',
-        PrepParam.TABS_NEWLINES: '0',
-        PrepParam.CASE: 'u',
-    })
+
 
     # when
-    preprocess_corpus(PATH_TO_DATASET_STUB, prep_config)
+    preprocess_corpus(PATH_TO_DATASET_STUB, DEFAULT_PREP_CONFIG)
 
     # then
-    dataset_mock.create.assert_called_with(PATH_TO_DATASET_STUB, prep_config, None, None,
+    dataset_mock.create.assert_called_with(PATH_TO_DATASET_STUB, DEFAULT_PREP_CONFIG, None, None,
                                            overriden_path_to_prep_dataset=PATH_TO_CUR_DIR_STUB)
     stages_mock.run_until_preprocessing.assert_called_with(dataset_mock, None)
 
@@ -44,20 +46,12 @@ def test_simple(os_mock, stages_mock, dataset_mock):
 def test_calc_vocab(os_mock, stages_mock, dataset_mock):
     # given
     dataset_mock.create = Mock(spec=dataset_mock, return_value=dataset_mock)
-    prep_config = PrepConfig({
-        PrepParam.EN_ONLY: 'u',
-        PrepParam.COM: 'c',
-        PrepParam.STR: '1',
-        PrepParam.SPLIT: '0',
-        PrepParam.TABS_NEWLINES: '0',
-        PrepParam.CASE: 'u',
-    })
 
     # when
-    preprocess_corpus(PATH_TO_DATASET_STUB, prep_config, calc_vocab=True)
+    preprocess_corpus(PATH_TO_DATASET_STUB, DEFAULT_PREP_CONFIG, calc_vocab=True)
 
     # then
-    dataset_mock.create.assert_called_with(PATH_TO_DATASET_STUB, prep_config, None, None,
+    dataset_mock.create.assert_called_with(PATH_TO_DATASET_STUB, DEFAULT_PREP_CONFIG, None, None,
                                            overriden_path_to_prep_dataset=PATH_TO_CUR_DIR_STUB)
     stages_mock.run_until_vocab.assert_called_with(dataset_mock, None)
 
@@ -67,19 +61,11 @@ def test_calc_vocab(os_mock, stages_mock, dataset_mock):
 def test_output(stages_mock, dataset_mock):
     # given
     dataset_mock.create = Mock(spec=dataset_mock, return_value=dataset_mock)
-    prep_config = PrepConfig({
-        PrepParam.EN_ONLY: 'u',
-        PrepParam.COM: 'c',
-        PrepParam.STR: '1',
-        PrepParam.SPLIT: '0',
-        PrepParam.TABS_NEWLINES: '0',
-        PrepParam.CASE: 'u',
-    })
 
     # when
-    preprocess_corpus(PATH_TO_DATASET_STUB, prep_config, output_path=PATH_TO_OUTPUT_STUB)
+    preprocess_corpus(PATH_TO_DATASET_STUB, DEFAULT_PREP_CONFIG, output_path=PATH_TO_OUTPUT_STUB)
 
     # then
-    dataset_mock.create.assert_called_with(PATH_TO_DATASET_STUB, prep_config, None, None,
+    dataset_mock.create.assert_called_with(PATH_TO_DATASET_STUB, DEFAULT_PREP_CONFIG, None, None,
                                            overriden_path_to_prep_dataset=PATH_TO_OUTPUT_STUB)
     stages_mock.run_until_preprocessing.assert_called_with(dataset_mock, None)
