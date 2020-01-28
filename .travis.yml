@@ -1,7 +1,7 @@
 dist: xenial   # required for Python >= 3.7
 env:
   global:
-    - CC_TEST_REPORTER_ID=9560b7dd7e2c2d06b13070d3664d77e47e103632148ce3ce8946939edd6db33f
+    - CC_TEST_REPORTER_ID=$CODE_CLIMATE_REPORTER_ID
 language: python
 python:
   - "3.6"
