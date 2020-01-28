@@ -4,7 +4,6 @@ env:
     - CC_TEST_REPORTER_ID=$CODE_CLIMATE_REPORTER_ID
 language: python
 python:
-  - "3.6"
   - "3.7"
 jobs:
   include:
@@ -41,4 +40,5 @@ script:
   - coverage report -m
   - coverage xml -i
 after_script:
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
   - if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
