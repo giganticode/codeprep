@@ -16,6 +16,8 @@ jobs:
         - python3 -m pip install virtualenv
         - virtualenv .venv -p python3
         - source .venv/bin/activate
+      before_script: echo "Not sending code coverage to code climate on OSx"
+      after_script: echo "Not sending code coverage to code climate on OSx"
     - os: windows
       language: sh
       python: "3.7"
@@ -23,6 +25,8 @@ jobs:
         - choco install python3 --params "/InstallDir:C:\\Python"
         - export PATH="/c/Python:/c/Python/Scripts:$PATH"
         - python -m pip install --upgrade pip wheel
+      before_script: echo "Not sending code coverage to code climate on Windows"
+      after_script: echo "Not sending code coverage to code climate on Windows"
 install:
   - pip install -r requirements.txt
   - pip install -r requirements-dev.txt
@@ -37,4 +41,4 @@ script:
   - coverage report -m
   - coverage xml -i
 after_script:
-  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+  - if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
