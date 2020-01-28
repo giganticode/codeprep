@@ -38,7 +38,7 @@ script:
   - cd $TRAVIS_BUILD_DIR
   - echo "Current directory is $(pwd)"
   - coverage run -m pytest --doctest-modules
-  - coverage report -m --include=./\*\*
-  - coverage xml -i --include=./\*\*
+  - coverage report -m --include=./\*\* --omit=tests/\*\*
+  - coverage xml -i --include=./\*\* --omit=tests/\*\*
 after_script:
   - if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then echo "Reporting coverage to Code Climate" && ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
