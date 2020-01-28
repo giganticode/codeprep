@@ -7,6 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 # Codeprep
 
 [![Build Status](https://travis-ci.org/giganticode/codeprep.svg?branch=master)](https://travis-ci.org/giganticode/codeprep)
+[![Maintainability](https://api.codeclimate.com/v1/badges/64c9b107bc09fdb1b3b1/maintainability)](https://codeclimate.com/github/giganticode/codeprep/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/64c9b107bc09fdb1b3b1/test_coverage)](https://codeclimate.com/github/giganticode/codeprep/test_coverage)
 
 **This is a tool for preprocessing source code corpora according to a specified vocabulary modeling choice.**
 
