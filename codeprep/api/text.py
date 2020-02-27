@@ -81,9 +81,8 @@ def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False,
 '\\t', '\\t', 'printWord', '(', '"', '.', '.', '.', 'Überraschung', '0x12', '"', ')', ';', '\\n', \
 '}', '\\n', \
 '}', '<EOF>']
-    >>> metadata.word_boundaries
-    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, \
-21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+    >>> metadata.n_subtokens_per_token
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
     >>> list(map(lambda x: x.__name__, metadata.token_types))
     ['KeyWord', 'SplitContainer', 'OpeningBracket', 'ClosingBracket', 'OpeningCurlyBracket', 'NewLine', \
 'Tab', 'KeyWord', 'OpeningBracket', 'SplitContainer', 'Operator', 'Operator', 'Number', 'ClosingBracket', 'OpeningCurlyBracket', \
@@ -115,14 +114,14 @@ def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False,
     ['"', '.', '.', '.', 'Überraschung', '0x12', '"']
 
     >>> nosplit('"     ...     Überraschung 0x12"', "java", no_spaces=True, max_str_length=26, return_metadata=True)
-    (['"', '"'], ([0, 2], ['StringLiteral']))
+    (['"', '"'], ([2], ['StringLiteral']))
 
     >>> nosplit('"     ...     Überraschung 0x12"', "java", no_spaces=True, full_strings=True, max_str_length=31, \
 return_metadata=True)
-    (['""'], ([0, 1], ['StringLiteral']))
+    (['""'], ([1], ['StringLiteral']))
 
     >>> nosplit('"     ...     Überraschung 0x12"', "java", full_strings=True, return_metadata=True)
-    (['"\xa0\xa0\xa0\xa0\xa0...\xa0\xa0\xa0\xa0\xa0Überraschung\xa00x12"'], ([0, 1], ['StringLiteral']))
+    (['"\xa0\xa0\xa0\xa0\xa0...\xa0\xa0\xa0\xa0\xa0Überraschung\xa00x12"'], ([1], ['StringLiteral']))
 
     >>> nosplit('"     ...     Überraschung 0x12"', "java", no_spaces=True, full_strings=True, max_str_length=500)
     ['"\xa0\xa0\xa0\xa0\xa0...\xa0\xa0\xa0\xa0\xa0Überraschung\xa00x12"']
@@ -135,9 +134,8 @@ return_metadata=True)
 'printWord', '(', '<str-literal>', ')', ';', \
 '}', \
 '}']
-    >>> metadata.word_boundaries
-    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, \
-21]
+    >>> metadata.n_subtokens_per_token
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
     >>> list(map(lambda x: x.__name__, metadata.token_types))
     ['KeyWord', 'SplitContainer', 'OpeningBracket', 'ClosingBracket', 'OpeningCurlyBracket', \
 'KeyWord', 'OpeningBracket', 'SplitContainer', 'Operator', 'Operator', 'Number', 'ClosingBracket', 'OpeningCurlyBracket', 'OneLineComment', \
@@ -209,15 +207,14 @@ def chars(text: str, extension: Optional[str] = None, no_spaces: bool = False, n
 '\\xa0', '0', 'x', '1', '2', '"', '</t>', ')</t>', ';</t>', \
 '}</t>', \
 '}</t>', '<EOF></t>']
-    >>> metadata.word_boundaries
-    [0, 1, 31, 32, 33, 34, 35, 36, 40, 41, 42, 51, 52, 53, 54, 55, 61, 65, 66, 76, 77, 110, 111, 112, 113, 114, 115]
+    >>> metadata.n_subtokens_per_token
+    [1, 30, 1, 1, 1, 1, 1, 4, 1, 1, 9, 1, 1, 1, 1, 6, 4, 1, 10, 1, 33, 1, 1, 1, 1, 1]
     >>> list(map(lambda x: x.__name__, metadata.token_types))
     ['KeyWord', 'SplitContainer', 'OpeningBracket', 'ClosingBracket', 'OpeningCurlyBracket', \
 'KeyWord', 'OpeningBracket', 'SplitContainer', 'Operator', 'Operator', 'Number', 'ClosingBracket', 'OpeningCurlyBracket', \
 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', 'OneLineComment', \
 'SplitContainer', 'OpeningBracket', 'StringLiteral', 'ClosingBracket', 'Semicolon', \
-'ClosingCurlyBracket', \
-'ClosingCurlyBracket', 'SpecialToken']
+'ClosingCurlyBracket', 'ClosingCurlyBracket', 'SpecialToken']
 
 
     >>> chars('')
@@ -279,9 +276,8 @@ def basic(text: str, extension: Optional[str] = None,
 '}', \
 '}', '<EOF>']
 
-    >>> metadata.word_boundaries
-    [0, 1, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 28, 29, 30, 31, 32, 33, 34, 35, 36, \
-37, 38, 39, 40, 41]
+    >>> metadata.n_subtokens_per_token
+    [1, 7, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
     >>> list(map(lambda x: x.__name__, metadata.token_types))
     ['KeyWord', 'SplitContainer', 'OpeningBracket', 'ClosingBracket', 'OpeningCurlyBracket', \
@@ -298,9 +294,8 @@ def basic(text: str, extension: Optional[str] = None,
 '}', \
 '}']
 
-    >>> metadata.word_boundaries
-    [0, 1, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 26, 27, 28, 33, 34, 35, 36, 37, 38, 40, 41, 42, \
-43, 44, 45, 46]
+    >>> metadata.n_subtokens_per_token
+    [1, 10, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 5, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1]
 
     >>> list(map(lambda x: x.__name__, metadata.token_types))
     ['KeyWord', 'SplitContainer', 'OpeningBracket', 'ClosingBracket', 'OpeningCurlyBracket', \
@@ -317,7 +312,7 @@ def basic(text: str, extension: Optional[str] = None,
 '}']
 
     >>> basic('"     Überraschung 0x12"', "java", no_spaces=True, no_unicode=True, no_case=True, return_metadata=True)
-    (['"', '<non-en>', '0x12', '"'], ([0, 1, 2, 3, 4], \
+    (['"', '<non-en>', '0x12', '"'], ([1, 1, 1, 1], \
 ['StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral']))
 
     >>> basic('')
@@ -325,15 +320,15 @@ def basic(text: str, extension: Optional[str] = None,
 
     >>> basic("movingVehiclesspeed = 0.345e+4", "java", split_numbers=True, return_metadata=True)
     (['<w>', 'moving', 'Vehiclesspeed', '</w>', '=', '<w>', '0', '.', '3', '4', '5', 'e', '+', '4', '</w>'], \
-([0, 4, 5, 15], ['SplitContainer', 'Operator', 'Number']))
+([4, 1, 10], ['SplitContainer', 'Operator', 'Number']))
 
     >>> basic("movingVehiclesspeed = 0.345e+4", "java", ronin=True, return_metadata=True)
     (['<w>', 'moving', 'Vehicles', 'speed', '</w>', '=', '<w>', '0', '.', '3', '4', '5', 'e', '+', '4', '</w>'], \
-([0, 5, 6, 16], ['SplitContainer', 'Operator', 'Number']))
+([5, 1, 10], ['SplitContainer', 'Operator', 'Number']))
 
     >>> basic("movingVehiclesspeed = 0.345e+4", "java", stem=True, return_metadata=True)
     (['<w>', 'move', 'Vehicl', 'speed', '</w>', '=', '<w>', '0', '.', '3', '4', '5', 'e', '+', '4', '</w>'], \
-([0, 5, 6, 16], ['SplitContainer', 'Operator', 'Number']))
+([5, 1, 10], ['SplitContainer', 'Operator', 'Number']))
 
     """
     prep_config = create_prep_config('basic', no_spaces=no_spaces, no_unicode=no_unicode, no_case=no_case,
@@ -399,8 +394,8 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces
 '}</t>', \
 '}</t>', '<EOF></t>']
 
-    >>> metadata.word_boundaries
-    [0, 1, 12, 13, 14, 15, 16, 17, 19, 20, 21, 26, 27, 28, 29, 30, 33, 35, 36, 38, 39, 57, 58, 59, 60, 61, 62]
+    >>> metadata.n_subtokens_per_token
+    [1, 11, 1, 1, 1, 1, 1, 2, 1, 1, 5, 1, 1, 1, 1, 3, 2, 1, 2, 1, 18, 1, 1, 1, 1, 1]
 
     >>> list(map(lambda x: x.__name__, metadata.token_types))
     ['KeyWord', 'SplitContainer', 'OpeningBracket', 'ClosingBracket', 'OpeningCurlyBracket', \
@@ -418,8 +413,8 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces
 'print', 'Wor', 'd</t>', '(</t>', '"', '"</t>', ')</t>', ';</t>', \
 '}</t>', \
 '}</t>']
-    >>> metadata.word_boundaries
-    [0, 1, 16, 17, 18, 19, 20, 21, 24, 25, 26, 33, 34, 35, 36, 37, 41, 44, 45, 48, 49, 51, 52, 53, 54, 55]
+    >>> metadata.n_subtokens_per_token
+    [1, 15, 1, 1, 1, 1, 1, 3, 1, 1, 7, 1, 1, 1, 1, 4, 3, 1, 3, 1, 2, 1, 1, 1, 1]
 
 
     >>> bpe(input_text, '5k', "java", no_spaces=True)

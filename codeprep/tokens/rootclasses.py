@@ -13,7 +13,7 @@ class ParsedToken(object):
         assert type(tokens) == list
 
         metadata = PreppedTokenMetadata(
-            word_boundaries=[0, len(tokens)],
+            n_subtokens_per_token=[len(tokens)],
             token_types=[type(self)]
         )
         non_processable_tokens = non_proc or []

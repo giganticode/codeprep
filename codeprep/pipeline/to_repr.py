@@ -40,8 +40,10 @@ def get_global_bpe_data_if_available() -> Optional[BpeData]:
 
 def insert_and_word_tokens(prep_list: List[str], metadata: PreppedTokenMetadata) -> List[str]:
     list_copy = [elm for elm in prep_list]
-    for index in metadata.word_boundaries[1:]:
-        list_copy[index-1] += placeholders['compound_word_end']
+    last_subtoken_index = -1
+    for n_subtokens in metadata.n_subtokens_per_token:
+        last_subtoken_index += n_subtokens
+        list_copy[last_subtoken_index] += placeholders['compound_word_end']
     return list_copy
 
 
