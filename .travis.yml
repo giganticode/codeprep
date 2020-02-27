@@ -4,7 +4,6 @@ env:
     - CC_TEST_REPORTER_ID=$CODE_CLIMATE_REPORTER_ID
 language: python
 python:
-  - "3.6"
   - "3.7"
 jobs:
   include:
