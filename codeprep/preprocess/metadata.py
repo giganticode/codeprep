@@ -3,7 +3,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from typing import Set, Optional, List, Type
+from typing import Set, List, Type
+
+from dataclasses import dataclass, field
 
 from codeprep.subtokens import is_terminal_subtoken
 from codeprep.util import to_literal_str
@@ -15,16 +17,12 @@ class InvalidMetadataError(Exception):
     pass
 
 
+@dataclass
 class PreppedTokenMetadata(object):
-    def __init__(self,
-                 n_subtokens_per_token: Optional[List[int]] = None,
-                 token_types: List[Type] = None):
-        self.n_subtokens_per_token = n_subtokens_per_token or []
-        self.token_types = token_types or []
+    n_subtokens_per_token: List[int] = field(default_factory=list)
+    token_types: List[Type] = field(default_factory=list)
 
-        self._check_invariants()
-
-    def _check_invariants(self) -> None:
+    def __post__init__(self) -> None:
         assert len(self.n_subtokens_per_token) == len(self.token_types)
 
     def set_all_tokens_type(self, t: Type) -> None:
@@ -51,11 +49,6 @@ class PreppedTokenMetadata(object):
 
     def __repr__(self):
         return str((self.n_subtokens_per_token, list(map(lambda x: x.__name__, self.token_types))))
-
-    def __eq__(self, other):
-        return self.__class__ == other.__class__ \
-               and self.n_subtokens_per_token == other.n_subtokens_per_token \
-               and self.token_types == other.token_types
 
 
 def save_non_processable_tokens(non_processable_tokens: Set[str], save_to: bytes) -> None:
