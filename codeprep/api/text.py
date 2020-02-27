@@ -11,7 +11,7 @@ from codeprep.parse.core import convert_text
 from codeprep.pipeline.bperegistry import is_predefined_id, CustomBpeConfig
 from codeprep.pipeline.to_repr import init_bpe_data, to_repr
 from codeprep.prepconfig import PrepConfig
-from codeprep.preprocess.metadata import PreprocessingMetadata
+from codeprep.preprocess.metadata import PreppedTokenMetadata
 from codeprep.preprocess.placeholders import placeholders
 from codeprep.tokens.rootclasses import ParsedToken
 from codeprep.tokens.whitespace import NewLine
@@ -24,7 +24,7 @@ def remove_trailing_newline(prep_tokens: List[ParsedToken]) -> List[ParsedToken]
 
 def preprocess(text: str, config: PrepConfig, bpe_codes_id: Optional[str] = None, extension: Optional[str] = None,
                return_metadata: bool = False, force_reinit_bpe_data: bool = True, append_eof: bool = False) \
-        -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
+        -> Union[List[str], Tuple[List[str], PreppedTokenMetadata]]:
     parsed = [parsed_token for parsed_token in convert_text(text, extension)]
     parsed = remove_trailing_newline(parsed)
     if append_eof:
@@ -43,7 +43,7 @@ def preprocess(text: str, config: PrepConfig, bpe_codes_id: Optional[str] = None
 def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False, no_unicode: bool = False,
             no_com: bool = False, no_str: bool = False, full_strings: bool = False, max_str_length: int = sys.maxsize,
             return_metadata: bool = False, append_eof: bool = False) \
-        -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
+        -> Union[List[str], Tuple[List[str], PreppedTokenMetadata]]:
     """
     Split `text` into tokens leaving compound identifiers as they are.
 
@@ -66,7 +66,7 @@ def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False,
     :return: list of tokens `text` was split into. If `return_metadata` is set to True,
     the tuple is returned with the list of preprocessed tokens as the first element
     and pre-processing metadata as the second element
-    (object of :class:`codeprep.model.metadata.Preprocessing.PreprocessingMetadata`)
+    (object of :class:`codeprep.model.metadata.Preprocessing.PreppedTokenMetadata`)
 
     >>> input_text='''void test_WordUeberraschungPrinter() {
     ...     if (eps >= 0.345e+4) { // FIXME 10L
@@ -160,7 +160,7 @@ return_metadata=True)
 
 def chars(text: str, extension: Optional[str] = None, no_spaces: bool = False, no_unicode: bool = False,
           no_com: bool = False, no_str: bool = False, max_str_length=sys.maxsize,
-          return_metadata: bool = False, append_eof: bool = False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
+          return_metadata: bool = False, append_eof: bool = False) -> Union[List[str], Tuple[List[str], PreppedTokenMetadata]]:
     """
     Split `text` into characters (With the exception of operators that consist of 2 character:
     such operators will remain as a single token). So that the information about original word boundaries is not lost,
@@ -189,7 +189,7 @@ def chars(text: str, extension: Optional[str] = None, no_spaces: bool = False, n
     :return: list of tokens `text` was split into. If `return_metadata` is set to True,
     the tuple is returned with the list of preprocessed tokens as the first element
     and pre-processing metadata as the second element
-    (object of :class:`codeprep.model.metadata.Preprocessing.PreprocessingMetadata`)
+    (object of :class:`codeprep.model.metadata.Preprocessing.PreppedTokenMetadata`)
 
     >>> input_text='''void test_WordUeberraschungPrinter() {
     ...     if (eps >= 0.345e+4) { // FIXME 10L
@@ -233,7 +233,7 @@ def basic(text: str, extension: Optional[str] = None,
           split_numbers: bool = False, ronin: bool = False, stem: bool = False,
           no_spaces: bool = False, no_unicode: bool = False, no_case: bool = False, no_com: bool = False,
           no_str: bool = False, max_str_length: int = sys.maxsize, return_metadata: bool = False,
-          append_eof: bool = False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
+          append_eof: bool = False) -> Union[List[str], Tuple[List[str], PreppedTokenMetadata]]:
     """
     Split `text` into tokens converting identifiers that follow CamelCase or snake_case into multiple subwords.
     So that the information about original word boundaries is not lost, special tokens are inserted to denote original
@@ -262,7 +262,7 @@ def basic(text: str, extension: Optional[str] = None,
 
     :return: list of tokens `text` was split into. If `return_metadata` is set to True,
     the tuple is returned with the list of preprocessed tokens as the first element
-    and pre-processing metadata as the second element (object of :class:`codeprep.model.metadata.Preprocessing.PreprocessingMetadata`)
+    and pre-processing metadata as the second element (object of :class:`codeprep.model.metadata.Preprocessing.PreppedTokenMetadata`)
 
 
     >>> input_text='''void test_WordUeberraschungPrinter() {
@@ -345,7 +345,7 @@ def basic(text: str, extension: Optional[str] = None,
 def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces: bool = False,
         no_unicode: bool = False, no_com: bool = False, no_str: bool = False,
         max_str_length=sys.maxsize, return_metadata: bool = False, force_reinit_bpe_data: bool = True,
-        append_eof: bool = False) -> Union[List[str], Tuple[List[str], PreprocessingMetadata]]:
+        append_eof: bool = False) -> Union[List[str], Tuple[List[str], PreppedTokenMetadata]]:
     """
     Split `text` into tokens converting identifiers that follow CamelCase or snake_case into multiple subwords.
     On top of that Byte Pair Encoding (BPE) is applied with number of merges specified in `bpe_config`.
@@ -380,7 +380,7 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces
     :return: list of tokens `text` was split into. If `return_metadata` is set to True,
     the tuple is returned with the list of preprocessed tokens as the first element
     and pre-processing metadata as the second element
-    (object of :class:`codeprep.model.metadata.Preprocessing.PreprocessingMetadata`)
+    (object of :class:`codeprep.model.metadata.Preprocessing.PreppedTokenMetadata`)
 
     >>> input_text='''void test_WordUeberraschungPrinter() {
     ...     if (eps >= 0.345e+4) { // FIXME 10L

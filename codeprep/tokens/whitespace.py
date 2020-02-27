@@ -6,7 +6,7 @@ from typing import List, Tuple, Optional
 
 from codeprep.preprocess.core import ReprConfig
 from codeprep.preprocess.result import PreprocessingResult, unwrap_single_string
-from codeprep.preprocess.metadata import PreprocessingMetadata
+from codeprep.preprocess.metadata import PreppedTokenMetadata
 from codeprep.preprocess.placeholders import placeholders
 from codeprep.tokens.rootclasses import ParsedToken
 

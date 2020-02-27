@@ -23,7 +23,7 @@ from codeprep.pipeline.dataset import Dataset, NOT_FINISHED_EXTENSION
 from codeprep.prepconfig import PrepParam, PrepConfig
 from codeprep.preprocess.core import to_repr_list
 from codeprep.preprocess.result import PreprocessingResult
-from codeprep.preprocess.metadata import PreprocessingMetadata
+from codeprep.preprocess.metadata import PreppedTokenMetadata
 from codeprep.preprocess.metadata import save_non_processable_tokens
 from codeprep.preprocess.placeholders import placeholders
 from codeprep.tokens.rootclasses import ParsedToken
@@ -38,7 +38,7 @@ def get_global_bpe_data_if_available() -> Optional[BpeData]:
     return global_bpe_data if 'global_bpe_data' in globals() else None
 
 
-def insert_and_word_tokens(prep_list: List[str], metadata: PreprocessingMetadata) -> List[str]:
+def insert_and_word_tokens(prep_list: List[str], metadata: PreppedTokenMetadata) -> List[str]:
     list_copy = [elm for elm in prep_list]
     for index in metadata.word_boundaries[1:]:
         list_copy[index-1] += placeholders['compound_word_end']

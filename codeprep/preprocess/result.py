@@ -2,13 +2,13 @@ from typing import List, Set
 
 from dataclasses import dataclass, field
 
-from codeprep.preprocess.metadata import PreprocessingMetadata
+from codeprep.preprocess.metadata import PreppedTokenMetadata
 
 
 @dataclass
 class PreprocessingResult(object):
     tokens: List[str] = field(default_factory=list)
-    metadata: PreprocessingMetadata = field(default_factory=PreprocessingMetadata)
+    metadata: PreppedTokenMetadata = field(default_factory=PreppedTokenMetadata)
     non_processable_tokens: Set[str] = field(default_factory=set)
 
     def __post_init__(self):

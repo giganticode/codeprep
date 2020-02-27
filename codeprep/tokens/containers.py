@@ -7,7 +7,7 @@ from typing import List, Union, Optional
 from codeprep.noneng import replace_non_ascii_seqs
 from codeprep.preprocess.core import ReprConfig, torepr
 from codeprep.preprocess.result import PreprocessingResult
-from codeprep.preprocess.metadata import PreprocessingMetadata
+from codeprep.preprocess.metadata import PreppedTokenMetadata
 from codeprep.preprocess.placeholders import placeholders
 from codeprep.tokens.rootclasses import ParsedToken, ParsedSubtoken
 from codeprep.tokens.whitespace import SpaceInString
@@ -102,7 +102,7 @@ class OneLineComment(Comment):
 
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> PreprocessingResult:
         preprocessing_result = torepr(self.subtokens, repr_config)
-        preprocessing_result.metadata.update(PreprocessingMetadata(word_boundaries=[0, 1], token_types=[OneLineComment]))
+        preprocessing_result.metadata.update(PreppedTokenMetadata(word_boundaries=[0, 1], token_types=[OneLineComment]))
         preprocessing_result.metadata.set_all_tokens_type(OneLineComment)
         preprocessing_result.tokens.append(placeholders['olc_end'])
         return preprocessing_result

@@ -15,7 +15,7 @@ class InvalidMetadataError(Exception):
     pass
 
 
-class PreprocessingMetadata(object):
+class PreppedTokenMetadata(object):
     def __init__(self,
                  word_boundaries: Optional[List[int]] = None,
                  token_types: List[Type] = None):
@@ -30,17 +30,17 @@ class PreprocessingMetadata(object):
     def set_all_tokens_type(self, t: Type) -> None:
         self.token_types = [t] * (len(self.word_boundaries) -1)
 
-    def update(self, preprocessing_metadata: 'PreprocessingMetadata') -> 'PreprocessingMetadata':
+    def update(self, preprocessing_metadata: 'PreppedTokenMetadata') -> 'PreppedTokenMetadata':
         """
         >>> class TypeA: pass
         >>> class TypeB: pass
-        >>> PreprocessingMetadata().update(PreprocessingMetadata())
+        >>> PreppedTokenMetadata().update(PreppedTokenMetadata())
         ([0], [])
 
-        >>> PreprocessingMetadata([0, 2], [TypeA]).update(PreprocessingMetadata([0, 1, 2, 3], [TypeA, TypeA, TypeB]))
+        >>> PreppedTokenMetadata([0, 2], [TypeA]).update(PreppedTokenMetadata([0, 1, 2, 3], [TypeA, TypeA, TypeB]))
         ([0, 2, 3, 4, 5], ['TypeA', 'TypeA', 'TypeA', 'TypeB'])
 
-        >>> PreprocessingMetadata([0, 2], [TypeA]).update(PreprocessingMetadata([0, 3], [TypeB]))
+        >>> PreppedTokenMetadata([0, 2], [TypeA]).update(PreppedTokenMetadata([0, 3], [TypeB]))
         ([0, 2, 5], ['TypeA', 'TypeB'])
         """
 
@@ -67,7 +67,7 @@ def save_non_processable_tokens(non_processable_tokens: Set[str], save_to: bytes
             f.write(f'{to_literal_str(token)}\n')
 
 
-def check_metadata_validity(subwords: List[str], metadata: PreprocessingMetadata, use_only_token_end_chars=True) -> None:
+def check_metadata_validity(subwords: List[str], metadata: PreppedTokenMetadata, use_only_token_end_chars=True) -> None:
     word_boundaries = metadata.word_boundaries
     if len(word_boundaries) == 0:
         raise ValueError("Word boundaries list should contain at least 0!")
