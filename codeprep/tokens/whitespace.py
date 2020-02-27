@@ -5,7 +5,8 @@
 from typing import List, Tuple, Optional
 
 from codeprep.preprocess.core import ReprConfig
-from codeprep.preprocess.metadata import PreprocessingMetadata, unwrap_single_string
+from codeprep.preprocess.result import PreprocessingResult, unwrap_single_string
+from codeprep.preprocess.metadata import PreprocessingMetadata
 from codeprep.preprocess.placeholders import placeholders
 from codeprep.tokens.rootclasses import ParsedToken
 
@@ -24,19 +25,19 @@ class Whitespace(ParsedToken):
 
 
 class NewLine(Whitespace):
-    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[List[str], PreprocessingMetadata]:
+    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> PreprocessingResult:
         return self.wrap_in_metadata_for_full_word(["\n"], non_proc={"\n"})
 
-    def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
-        return [], PreprocessingMetadata()
+    def preprocessed_repr(self, repr_config: ReprConfig) -> PreprocessingResult:
+        return PreprocessingResult()
 
 
 class Tab(Whitespace):
-    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[List[str], PreprocessingMetadata]:
+    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> PreprocessingResult:
         return self.wrap_in_metadata_for_full_word(["\t"], non_proc={"\t"})
 
-    def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
-        return [], PreprocessingMetadata()
+    def preprocessed_repr(self, repr_config: ReprConfig) -> PreprocessingResult:
+        return PreprocessingResult()
 
 
 class SpaceInString(Whitespace):
@@ -45,7 +46,7 @@ class SpaceInString(Whitespace):
         super().__init__()
         self.n_chars = n_chars
 
-    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[List[str], PreprocessingMetadata]:
+    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> PreprocessingResult:
         return self.wrap_in_metadata_for_full_word([placeholders['space_in_str'] * self.n_chars])
 
     def __repr__(self):

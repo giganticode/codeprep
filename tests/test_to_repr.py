@@ -8,6 +8,7 @@ import pytest
 
 from codeprep.bpepkg.bpe_encode import BpeData
 from codeprep.bpepkg.merge import MergeList, Merge
+from codeprep.preprocess.result import PreprocessingResult
 from codeprep.tokens.containers import SplitContainer, OneLineComment, MultilineComment, StringLiteral
 from codeprep.preprocess.metadata import PreprocessingMetadata
 from codeprep.tokens.noneng import NonEng
@@ -86,26 +87,24 @@ def test_to_repr_0():
         PrepParam.CASE: 'u'
     })
 
-    actual, actual_metadata = to_repr(prep_config, tokens)
+    result = to_repr(prep_config, tokens)
 
-    expected = [
+    expected_result = PreprocessingResult([
         '1.1',
         "*",
         'übersetzen',
         '"', 'AWirklicä', '"',
         '/', '*', 'ц', 'blanco_english', '*', '/',
         '/', '/', "DIESELBE8", pl['olc_end']
-    ]
-    expected_metadata = PreprocessingMetadata({'"', "*", "/"},
-                                              word_boundaries=list(range(16+1)),
+    ], PreprocessingMetadata(word_boundaries=list(range(16+1)),
                                               token_types=[Number, Operator, SplitContainer,
                                                            StringLiteral, StringLiteral, StringLiteral,
                                                            MultilineComment, MultilineComment, MultilineComment,
                                                            MultilineComment, MultilineComment, MultilineComment,
-                                                           OneLineComment, OneLineComment, OneLineComment, OneLineComment])
+                                                           OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
+        {'"', "*", "/"})
 
-    assert expected == actual
-    assert expected_metadata == actual_metadata
+    assert result == expected_result
 
 
 def test_to_repr_0_max_str_length_7():
@@ -118,25 +117,23 @@ def test_to_repr_0_max_str_length_7():
         PrepParam.CASE: 'u'
     })
 
-    actual, actual_metadata = to_repr(prep_config, tokens)
+    result = to_repr(prep_config, tokens)
 
-    expected = [
+    expected_result = PreprocessingResult([
         '1.1',
         "*",
         'übersetzen',
         '"', '"',
         '/', '*', 'ц', 'blanco_english', '*', '/',
         '/', '/', "DIESELBE8", pl['olc_end']
-    ]
-    expected_metadata = PreprocessingMetadata({'"', "*", "/"},
-                                              word_boundaries=[0, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+    ], PreprocessingMetadata(word_boundaries=[0, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
                                               token_types=[Number, Operator, SplitContainer, StringLiteral,
                                                            MultilineComment, MultilineComment, MultilineComment,
                                                            MultilineComment, MultilineComment, MultilineComment,
-                                                           OneLineComment, OneLineComment, OneLineComment, OneLineComment])
+                                                           OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
+                       {'"', "*", "/"})
 
-    assert expected == actual
-    assert expected_metadata == actual_metadata
+    assert result == expected_result
 
 
 def test_to_repr_0_max_str_length_B():
@@ -149,26 +146,24 @@ def test_to_repr_0_max_str_length_B():
         PrepParam.CASE: 'u'
     })
 
-    actual, actual_metadata = to_repr(prep_config, tokens)
+    result = to_repr(prep_config, tokens)
 
-    expected = [
+    expected_result = PreprocessingResult([
         '1.1',
         "*",
         'übersetzen',
         '"', "AWirklicä", '"',
         '/', '*', 'ц', 'blanco_english', '*', '/',
         '/', '/', "DIESELBE8", pl['olc_end']
-    ]
-    expected_metadata = PreprocessingMetadata({'"', "*", "/"},
-                                              word_boundaries=list(range(16+1)),
+    ], PreprocessingMetadata(word_boundaries=list(range(16+1)),
                                               token_types=[Number, Operator, SplitContainer,
                                                            StringLiteral, StringLiteral, StringLiteral,
                                                            MultilineComment, MultilineComment, MultilineComment,
                                                            MultilineComment, MultilineComment, MultilineComment,
-                                                           OneLineComment, OneLineComment, OneLineComment, OneLineComment])
+                                                           OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
+        {'"', "*", "/"})
 
-    assert expected == actual
-    assert expected_metadata == actual_metadata
+    assert result == expected_result
 
 
 def test_to_repr_F():
@@ -181,24 +176,23 @@ def test_to_repr_F():
         PrepParam.CASE: 'u'
     })
 
-    actual, actual_metadata = to_repr(prep_config, tokens)
+    result = to_repr(prep_config, tokens)
 
-    expected = [
+    expected_result = PreprocessingResult([
         '1.1',
         "*",
         'übersetzen',
         '"AWirklicä\xa0"',
         '/', '*', 'ц', 'blanco_english', '*', '/',
         '/', '/', "DIESELBE8", pl['olc_end']
-    ]
-    expected_metadata = PreprocessingMetadata({"*", "/"}, word_boundaries=list(range(14+1)),
+    ], PreprocessingMetadata(word_boundaries=list(range(14+1)),
                                               token_types=[Number, Operator, SplitContainer, StringLiteral,
                                                            MultilineComment, MultilineComment, MultilineComment,
                                                            MultilineComment, MultilineComment, MultilineComment,
-                                                           OneLineComment, OneLineComment, OneLineComment, OneLineComment])
+                                                           OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
+        {"*", "/"})
 
-    assert expected == actual
-    assert expected_metadata == actual_metadata
+    assert result == expected_result
 
 
 def test_to_repr_F_max_str_length_7():
@@ -211,25 +205,23 @@ def test_to_repr_F_max_str_length_7():
         PrepParam.CASE: 'u'
     })
 
-    actual, actual_metadata = to_repr(prep_config, tokens)
+    result = to_repr(prep_config, tokens)
 
-    expected = [
+    expected_result = PreprocessingResult([
         '1.1',
         "*",
         'übersetzen',
         '""',
         '/', '*', 'ц', 'blanco_english', '*', '/',
         '/', '/', "DIESELBE8", pl['olc_end']
-    ]
-    expected_metadata = PreprocessingMetadata({"*", "/"},
-                                              word_boundaries=list(range(14+1)),
+    ], PreprocessingMetadata(word_boundaries=list(range(14+1)),
                                               token_types=[Number, Operator, SplitContainer, StringLiteral,
                                                            MultilineComment, MultilineComment, MultilineComment,
                                                            MultilineComment, MultilineComment, MultilineComment,
-                                                           OneLineComment, OneLineComment, OneLineComment, OneLineComment])
+                                                           OneLineComment, OneLineComment, OneLineComment, OneLineComment]), {"*", "/"})
 
-    assert expected == actual
-    assert expected_metadata == actual_metadata
+
+    assert result == expected_result
 
 
 def test_to_repr_F_max_str_length_B():
@@ -242,24 +234,23 @@ def test_to_repr_F_max_str_length_B():
         PrepParam.CASE: 'u'
     })
 
-    actual, actual_metadata = to_repr(prep_config, tokens)
+    result = to_repr(prep_config, tokens)
 
-    expected = [
+    expected_result = PreprocessingResult([
         '1.1',
         "*",
         'übersetzen',
         '"AWirklicä\xa0"',
         '/', '*', 'ц', 'blanco_english', '*', '/',
         '/', '/', "DIESELBE8", pl['olc_end']
-    ]
-    expected_metadata = PreprocessingMetadata({"*", "/"}, word_boundaries=list(range(14+1)),
+    ], PreprocessingMetadata(word_boundaries=list(range(14+1)),
                                               token_types=[Number, Operator, SplitContainer, StringLiteral,
                                                            MultilineComment, MultilineComment, MultilineComment,
                                                            MultilineComment, MultilineComment, MultilineComment,
-                                                           OneLineComment, OneLineComment, OneLineComment, OneLineComment])
+                                                           OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
+    {"*", "/"})
 
-    assert expected == actual
-    assert expected_metadata == actual_metadata
+    assert result == expected_result
 
 ############################################################################################
 ############################################################################################
@@ -275,9 +266,9 @@ def test_to_repr_1_nosep():
         PrepParam.CASE: 'l'
     })
 
-    actual, actual_metadata = to_repr(prep_config, tokens)
+    result = to_repr(prep_config, tokens)
 
-    expected = [
+    expected_result = PreprocessingResult([
         '1.1',
         "*",
         pl['non_eng'],
@@ -286,18 +277,15 @@ def test_to_repr_1_nosep():
         '/', '*', pl['non_eng'], pl['non_eng'], '*', '/',
         '/', '/', pl['non_eng'],
         pl['olc_end']
-    ]
-
-    expected_metadata = PreprocessingMetadata({'*', '"', "/", "*"},
-                                              word_boundaries=list(range(16+1)),
+    ], PreprocessingMetadata(word_boundaries=list(range(16+1)),
                                               token_types=[Number, Operator, NonEng,
                                                            StringLiteral, StringLiteral, StringLiteral,
                                                            MultilineComment, MultilineComment, MultilineComment,
                                                            MultilineComment, MultilineComment, MultilineComment,
-                                                           OneLineComment, OneLineComment, OneLineComment, OneLineComment])
+                                                           OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
+        {'*', '"', "/", "*"})
 
-    assert expected == actual
-    assert expected_metadata == actual_metadata
+    assert result == expected_result
 
 ############################################################################################
 ############################################################################################
@@ -313,9 +301,9 @@ def test_to_repr_2_nosep():
         PrepParam.CASE: 'l'
     })
 
-    actual, actual_metadata = to_repr(prep_config, tokens)
+    result = to_repr(prep_config, tokens)
 
-    expected = [
+    expected_result = PreprocessingResult([
         pl["word_start"],
         '1',
         '.',
@@ -326,18 +314,15 @@ def test_to_repr_2_nosep():
         '"', pl['non_eng'], '"',
         '/', '*', pl['non_eng'], pl['non_eng'], '*', '/',
         '/', '/', pl['non_eng'], pl['olc_end']
-    ]
-
-    expected_metadata = PreprocessingMetadata({'*', '"', "/", "*"},
-                                              word_boundaries=[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+    ], PreprocessingMetadata(word_boundaries=[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
                                               token_types=[Number, Operator, NonEng,
                                                            StringLiteral, StringLiteral, StringLiteral,
                                                            MultilineComment, MultilineComment, MultilineComment,
                                                            MultilineComment, MultilineComment, MultilineComment,
-                                                           OneLineComment, OneLineComment, OneLineComment, OneLineComment])
+                                                           OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
+        {'*', '"', "/", "*"})
 
-    assert expected == actual
-    assert expected_metadata == actual_metadata
+    assert result == expected_result
 
 ############################################################################################
 ############################################################################################
@@ -408,9 +393,9 @@ def test_to_repr_with_enonlycontents1():
         ])
     ]
 
-    actual, actual_metadata = to_repr(prep_config, tokens)
+    result = to_repr(prep_config, tokens)
 
-    expected = [
+    expected_result = PreprocessingResult([
         pl['word_start'],
         '1',
         '.',
@@ -424,17 +409,14 @@ def test_to_repr_with_enonlycontents1():
         '*', '/',
         '/', '/',  pl['non_eng'],
         pl['olc_end']
-    ]
-
-    expected_metadata = PreprocessingMetadata({'*', '"', "/", "*"},
-                                              word_boundaries=[0] + list(range(5, 32)),
+    ], PreprocessingMetadata(word_boundaries=[0] + list(range(5, 32)),
                                               token_types=[Number, Operator, NonEng]
                                                           + [StringLiteral] * 14
                                                           + [MultilineComment] * 6
-                                                          + [OneLineComment] * 4)
+                                                          + [OneLineComment] * 4),
+        {'*', '"', "/", "*"})
 
-    assert expected == actual
-    assert expected_metadata == actual_metadata
+    assert result == expected_result
 
 ############################################################################################
 ############################################################################################
@@ -450,9 +432,9 @@ def test_to_repr_with_non_eng():
         PrepParam.CASE: 'l'
     })
 
-    actual, actual_metadata = to_repr(prep_config, tokens)
+    result = to_repr(prep_config, tokens)
 
-    expected = [
+    expected_result = PreprocessingResult([
         pl['word_start'],
         '1',
         '.',
@@ -463,17 +445,15 @@ def test_to_repr_with_non_eng():
         '"', pl['word_start'], pl['capitals'], 'a', pl['capital'], 'wirklicä', pl['word_end'], '"',
         '/', '*', 'ц', pl['word_start'], 'blanco', '_', 'english', pl['word_end'], '*', '/',
         '/', '/', pl['word_start'], pl['capitals'], 'dieselbe', "8", pl['word_end'], pl['olc_end']
-    ]
-
-    expected_metadata = PreprocessingMetadata({'*', '"', "/"}, word_boundaries=[0, 5, 6, 7, 8, 14, 15, 16, 17, 18,
+    ], PreprocessingMetadata(word_boundaries=[0, 5, 6, 7, 8, 14, 15, 16, 17, 18,
                                                                                 23, 24, 25, 26, 27, 32, 33],
                                               token_types=[Number, Operator, SplitContainer]
                                                           + [StringLiteral] * 3
                                                           + [MultilineComment] * 6
-                                                          + [OneLineComment] * 4)
+                                                          + [OneLineComment] * 4),
+    {'*', '"', "/"})
 
-    assert expected == actual
-    assert expected_metadata == actual_metadata
+    assert result == expected_result
 
 #
 #     ############################################################################################
@@ -491,9 +471,9 @@ def test_to_repr_with_newlines_and_tabs():
         PrepParam.CASE: 'l'
     })
 
-    actual, actual_metadata = to_repr(prep_config, tokens)
+    result = to_repr(prep_config, tokens)
 
-    expected = [
+    expected_result = PreprocessingResult([
         pl['word_start'],
         '1',
         '.',
@@ -506,17 +486,14 @@ def test_to_repr_with_newlines_and_tabs():
         '/', '*', pl['non_eng'], pl['non_eng'], '*', '/',
         '\n', '\t',
         '/', '/', pl['non_eng'], pl['olc_end']
-    ]
-
-    expected_metadata = PreprocessingMetadata({'*', '"', "/", '\n', '\t'},
-                                              word_boundaries=[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+    ], PreprocessingMetadata(word_boundaries=[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
                                               token_types=[Number, Operator, NonEng]
                                                           + [StringLiteral] * 3 + [NewLine]
                                                           + [MultilineComment] * 6 + [NewLine, Tab]
-                                                          + [OneLineComment] * 4)
+                                                          + [OneLineComment] * 4),
+        {'*', '"', "/", '\n', '\t'})
 
-    assert expected == actual
-    assert expected_metadata == actual_metadata
+    assert result == expected_result
 
 #
 #     ############################################################################################
@@ -533,9 +510,9 @@ def test_to_repr_no_str_no_com():
         PrepParam.CASE: 'l'
     })
 
-    actual, actual_metadata = to_repr(prep_config, tokens)
+    result = to_repr(prep_config, tokens)
 
-    expected = [
+    expected_result = PreprocessingResult([
         pl['word_start'],
         '1',
         '.',
@@ -548,14 +525,13 @@ def test_to_repr_no_str_no_com():
         pl["comment"],
         pl["comment"],
         pl["comment"]
-    ]
-
-    expected_metadata = PreprocessingMetadata({'*'}, word_boundaries=[0, 5, 6, 7, 8, 9, 10, 11, 12],
+    ], PreprocessingMetadata(word_boundaries=[0, 5, 6, 7, 8, 9, 10, 11, 12],
                                               token_types=[Number, Operator, NonEng, StringLiteral,
-                                                           MultilineComment, MultilineComment, MultilineComment, OneLineComment])
+                                                           MultilineComment, MultilineComment, MultilineComment, OneLineComment]),
 
-    assert expected == actual
-    assert expected_metadata == actual_metadata
+        {'*'})
+
+    assert result == expected_result
 
 #
 #     ############################################################################################
@@ -572,9 +548,9 @@ def test_to_repr_no_nosep():
         PrepParam.CASE: 'l'
     })
 
-    actual, actual_metadata = to_repr(prep_config, tokens)
+    result = to_repr(prep_config, tokens)
 
-    expected = [
+    expected_result = PreprocessingResult([
         pl['word_start'],
         '1',
         '.',
@@ -586,17 +562,14 @@ def test_to_repr_no_nosep():
         '/', '*', pl['non_eng'], pl['non_eng'], '*', '/',
         '/', '/', pl['non_eng'],
         pl['olc_end']
-    ]
-
-    expected_metadata = PreprocessingMetadata({'*', '"', "/"},
-                                              word_boundaries=[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+    ], PreprocessingMetadata(word_boundaries=[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
                                               token_types=[Number, Operator, NonEng]
                                                           + [StringLiteral] * 3
                                                           + [MultilineComment] * 6
-                                                          + [OneLineComment] * 4)
+                                                          + [OneLineComment] * 4),
+        {'*', '"', "/"})
 
-    assert expected == actual
-    assert expected_metadata == actual_metadata
+    assert result == expected_result
 
 
 def test_to_repr_no_no_sep_with_bpe_no_merges():
@@ -609,7 +582,7 @@ def test_to_repr_no_no_sep_with_bpe_no_merges():
         PrepParam.CASE: 'u'
     })
 
-    actual, actual_metadata = to_repr(prep_config, tokens, BpeData(merges_cache={}, merges=MergeList()))
+    result = to_repr(prep_config, tokens, BpeData(merges_cache={}, merges=MergeList()))
 
     expected = [
         '1',
@@ -624,7 +597,7 @@ def test_to_repr_no_no_sep_with_bpe_no_merges():
         pl['olc_end'] + cwe
     ]
 
-    assert expected == actual
+    assert result.tokens == expected
 
 
 # def test_to_repr_ronin():
@@ -676,14 +649,13 @@ def test_1():
 
     tokens = [SplitContainer.from_single_token("Whi@le")]
 
-    actual, actual_metadata = to_repr(prep_config, tokens, BpeData(merges_cache={'Whi@@le@': ['Whi@@le@']}))
+    result = to_repr(prep_config, tokens, BpeData(merges_cache={'Whi@@le@': ['Whi@@le@']}))
 
-    expected = ["Whi@le" + placeholders['compound_word_end']]
+    expected_result = PreprocessingResult(["Whi@le" + placeholders['compound_word_end']],
+                                   PreprocessingMetadata(word_boundaries=[0, 1], token_types=[SplitContainer]),
+                                   set())
 
-    expected_metadata = PreprocessingMetadata(word_boundaries=[0, 1], token_types=[SplitContainer])
-
-    assert expected == actual
-    assert expected_metadata == actual_metadata
+    assert result == expected_result
 
 
 def test_merges_no_cache():
@@ -698,15 +670,15 @@ def test_merges_no_cache():
 
     tokens = [SplitContainer.from_single_token("Whi@l@@e@")]
 
-    actual, actual_metadata = to_repr(prep_config, tokens, BpeData(merges=MergeList().append(Merge(('W', 'h'), 10)),
+    result = to_repr(prep_config, tokens, BpeData(merges=MergeList().append(Merge(('W', 'h'), 10)),
                                                                     merges_cache={} ))
 
-    expected = ["Wh", "i", '@', "l", '@', '@', "e", '@', pl["compound_word_end"]]
+    expected_result = PreprocessingResult(
+        ["Wh", "i", '@', "l", '@', '@', "e", '@', pl["compound_word_end"]],
+        PreprocessingMetadata(word_boundaries=[0, 9], token_types=[SplitContainer]),
+        set())
 
-    expected_metadata = PreprocessingMetadata(word_boundaries=[0, 9], token_types=[SplitContainer])
-
-    assert expected == actual
-    assert expected_metadata == actual_metadata
+    assert result == expected_result
 
 
 def test_bpe_string_literal_performance():

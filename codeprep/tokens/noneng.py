@@ -2,11 +2,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import List, Tuple, Optional
+from typing import Optional
 
 from codeprep.noneng import replace_non_ascii_seqs
 from codeprep.preprocess.core import ReprConfig, torepr
-from codeprep.preprocess.metadata import PreprocessingMetadata
+from codeprep.preprocess.result import PreprocessingResult
 from codeprep.preprocess.placeholders import placeholders
 from codeprep.tokens.containers import SplitContainer
 from codeprep.tokens.rootclasses import ParsedToken
@@ -19,10 +19,10 @@ class NonEng(ParsedToken):
 
         self.processable_token = processable_token
 
-    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[List[str], PreprocessingMetadata]:
+    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> PreprocessingResult:
         return torepr(self.processable_token, repr_config)
 
-    def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
+    def preprocessed_repr(self, repr_config: ReprConfig) -> PreprocessingResult:
         if repr_config.bpe_data:
             token = replace_non_ascii_seqs(str(self.processable_token), placeholders['non_ascii_seq'])
             return torepr(SplitContainer.from_single_token(token), repr_config)

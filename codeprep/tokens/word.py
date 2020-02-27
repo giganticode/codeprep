@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from enum import Enum
-from typing import List, Tuple, Optional
+from typing import List, Optional
 
 from codeprep.preprocess.core import ReprConfig
-from codeprep.preprocess.metadata import PreprocessingMetadata, with_empty_metadata, unwrap_single_string
+from codeprep.preprocess.result import PreprocessingResult, with_empty_metadata, unwrap_single_string
 from codeprep.preprocess.placeholders import placeholders
 from codeprep.tokens.rootclasses import ParsedSubtoken, ParsedToken
 
@@ -21,8 +21,8 @@ class Underscore(ParsedSubtoken):
     def __str__(self):
         return self.non_preprocessed_repr()[0]
 
-    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> [Tuple[str, PreprocessingMetadata]]:
-        return with_empty_metadata("_")
+    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> PreprocessingResult:
+        return with_empty_metadata(["_"])
 
 
 class Word(ParsedSubtoken):
@@ -73,7 +73,7 @@ class Word(ParsedSubtoken):
             raise AssertionError(f"Unknown value: {self.capitalization}")
         return res
 
-    def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
+    def preprocessed_repr(self, repr_config: ReprConfig) -> PreprocessingResult:
         if repr_config.should_lowercase:
             subwords = repr_config.word_splitter(self.canonic_form, repr_config.bpe_data)
             subwords_with_prefix = self.__with_capitalization_prefixes(subwords)
@@ -92,7 +92,7 @@ class Word(ParsedSubtoken):
         else:
             raise AssertionError(f"Unknown value: {self.capitalization}")
 
-    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[List[str], PreprocessingMetadata]:
+    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> PreprocessingResult:
         return with_empty_metadata([self.__with_preserved_case()])
 
     def __repr__(self):
@@ -130,7 +130,7 @@ class NonProcessibleToken(ParsedToken):
     def __str__(self):
         return self.token
 
-    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[List[str], PreprocessingMetadata]:
+    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> PreprocessingResult:
         return self.wrap_in_metadata_for_full_word([self.token], non_proc={self.token})
 
 

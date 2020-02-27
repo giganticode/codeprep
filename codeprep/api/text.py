@@ -33,11 +33,11 @@ def preprocess(text: str, config: PrepConfig, bpe_codes_id: Optional[str] = None
         assert bpe_codes_id
         custom_bpe_config = None if is_predefined_id(bpe_codes_id) else CustomBpeConfig.from_id(bpe_codes_id)
         init_bpe_data(config, custom_bpe_config, force_reinit_bpe_data)
-    prep_tokens, metadata = to_repr(config, parsed)
+    preprocessing_results = to_repr(config, parsed)
     if return_metadata:
-        return prep_tokens, metadata
+        return preprocessing_results.tokens, preprocessing_results.metadata
     else:
-        return prep_tokens
+        return preprocessing_results.tokens
 
 
 def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False, no_unicode: bool = False,
@@ -81,8 +81,6 @@ def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False,
 '\\t', '\\t', 'printWord', '(', '"', '.', '.', '.', 'Überraschung', '0x12', '"', ')', ';', '\\n', \
 '}', '\\n', \
 '}', '<EOF>']
-    >>> sorted(metadata.nonprocessable_tokens)
-    ['\\t', '\\n', '"', '(', ')', '.', '/', ';', '<EOF>', '=', '>', 'if', 'void', '{', '}']
     >>> metadata.word_boundaries
     [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, \
 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
@@ -98,7 +96,6 @@ def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False,
 
     >>> nosplit('')
     []
-
 
     >>> nosplit(input_text, "java", no_spaces=True)
     ['void', 'test_WordUeberraschungPrinter', '(', ')', '{', \
@@ -118,14 +115,14 @@ def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False,
     ['"', '.', '.', '.', 'Überraschung', '0x12', '"']
 
     >>> nosplit('"     ...     Überraschung 0x12"', "java", no_spaces=True, max_str_length=26, return_metadata=True)
-    (['"', '"'], ({'"'}, [0, 2], ['StringLiteral']))
+    (['"', '"'], ([0, 2], ['StringLiteral']))
 
     >>> nosplit('"     ...     Überraschung 0x12"', "java", no_spaces=True, full_strings=True, max_str_length=31, \
 return_metadata=True)
-    (['""'], (set(), [0, 1], ['StringLiteral']))
+    (['""'], ([0, 1], ['StringLiteral']))
 
     >>> nosplit('"     ...     Überraschung 0x12"', "java", full_strings=True, return_metadata=True)
-    (['"\xa0\xa0\xa0\xa0\xa0...\xa0\xa0\xa0\xa0\xa0Überraschung\xa00x12"'], (set(), [0, 1], ['StringLiteral']))
+    (['"\xa0\xa0\xa0\xa0\xa0...\xa0\xa0\xa0\xa0\xa0Überraschung\xa00x12"'], ([0, 1], ['StringLiteral']))
 
     >>> nosplit('"     ...     Überraschung 0x12"', "java", no_spaces=True, full_strings=True, max_str_length=500)
     ['"\xa0\xa0\xa0\xa0\xa0...\xa0\xa0\xa0\xa0\xa0Überraschung\xa00x12"']
@@ -138,8 +135,6 @@ return_metadata=True)
 'printWord', '(', '<str-literal>', ')', ';', \
 '}', \
 '}']
-    >>> sorted(metadata.nonprocessable_tokens)
-    ['(', ')', ';', '=', '>', 'if', 'void', '{', '}']
     >>> metadata.word_boundaries
     [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, \
 21]
@@ -214,8 +209,6 @@ def chars(text: str, extension: Optional[str] = None, no_spaces: bool = False, n
 '\\xa0', '0', 'x', '1', '2', '"', '</t>', ')</t>', ';</t>', \
 '}</t>', \
 '}</t>', '<EOF></t>']
-    >>> sorted(metadata.nonprocessable_tokens)
-    ['(', ')', '/', ';', '<EOF>', '=', '>', 'if', 'void', '{', '}']
     >>> metadata.word_boundaries
     [0, 1, 31, 32, 33, 34, 35, 36, 40, 41, 42, 51, 52, 53, 54, 55, 61, 65, 66, 76, 77, 110, 111, 112, 113, 114, 115]
     >>> list(map(lambda x: x.__name__, metadata.token_types))
@@ -286,9 +279,6 @@ def basic(text: str, extension: Optional[str] = None,
 '}', \
 '}', '<EOF>']
 
-    >>> sorted(metadata.nonprocessable_tokens)
-    ['"', '(', ')', '.', '/', ';', '<EOF>', '=', '>', 'if', 'void', '{', '}']
-
     >>> metadata.word_boundaries
     [0, 1, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 28, 29, 30, 31, 32, 33, 34, 35, 36, \
 37, 38, 39, 40, 41]
@@ -307,8 +297,6 @@ def basic(text: str, extension: Optional[str] = None,
 '<w>', 'print', '<Cap>', 'word', '</w>', '(', '"', '.', '.', '.', '<Cap>', 'überraschung', '0x12', '"', ')', ';', \
 '}', \
 '}']
-    >>> sorted(metadata.nonprocessable_tokens)
-    ['"', '(', ')', '.', '/', ';', '=', '>', 'if', 'void', '{', '}']
 
     >>> metadata.word_boundaries
     [0, 1, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 26, 27, 28, 33, 34, 35, 36, 37, 38, 40, 41, 42, \
@@ -329,7 +317,7 @@ def basic(text: str, extension: Optional[str] = None,
 '}']
 
     >>> basic('"     Überraschung 0x12"', "java", no_spaces=True, no_unicode=True, no_case=True, return_metadata=True)
-    (['"', '<non-en>', '0x12', '"'], ({'"'}, [0, 1, 2, 3, 4], \
+    (['"', '<non-en>', '0x12', '"'], ([0, 1, 2, 3, 4], \
 ['StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral']))
 
     >>> basic('')
@@ -337,15 +325,15 @@ def basic(text: str, extension: Optional[str] = None,
 
     >>> basic("movingVehiclesspeed = 0.345e+4", "java", split_numbers=True, return_metadata=True)
     (['<w>', 'moving', 'Vehiclesspeed', '</w>', '=', '<w>', '0', '.', '3', '4', '5', 'e', '+', '4', '</w>'], \
-({'='}, [0, 4, 5, 15], ['SplitContainer', 'Operator', 'Number']))
+([0, 4, 5, 15], ['SplitContainer', 'Operator', 'Number']))
 
     >>> basic("movingVehiclesspeed = 0.345e+4", "java", ronin=True, return_metadata=True)
     (['<w>', 'moving', 'Vehicles', 'speed', '</w>', '=', '<w>', '0', '.', '3', '4', '5', 'e', '+', '4', '</w>'], \
-({'='}, [0, 5, 6, 16], ['SplitContainer', 'Operator', 'Number']))
+([0, 5, 6, 16], ['SplitContainer', 'Operator', 'Number']))
 
     >>> basic("movingVehiclesspeed = 0.345e+4", "java", stem=True, return_metadata=True)
     (['<w>', 'move', 'Vehicl', 'speed', '</w>', '=', '<w>', '0', '.', '3', '4', '5', 'e', '+', '4', '</w>'], \
-({'='}, [0, 5, 6, 16], ['SplitContainer', 'Operator', 'Number']))
+([0, 5, 6, 16], ['SplitContainer', 'Operator', 'Number']))
 
     """
     prep_config = create_prep_config('basic', no_spaces=no_spaces, no_unicode=no_unicode, no_case=no_case,
@@ -410,9 +398,6 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces
 '\\xa0', 'Ü', 'b', 'err', 'as', 'ch', 'un', 'g', '\\xa0', '0x', '12', '"</t>', ')</t>', ';</t>', \
 '}</t>', \
 '}</t>', '<EOF></t>']
-
-    >>> sorted(metadata.nonprocessable_tokens)
-    ['(', ')', '/', ';', '<EOF>', '=', '>', 'if', 'void', '{', '}']
 
     >>> metadata.word_boundaries
     [0, 1, 12, 13, 14, 15, 16, 17, 19, 20, 21, 26, 27, 28, 29, 30, 33, 35, 36, 38, 39, 57, 58, 59, 60, 61, 62]

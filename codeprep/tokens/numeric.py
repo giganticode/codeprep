@@ -2,10 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import List, Tuple, Optional
+from typing import Optional
 
 from codeprep.preprocess.core import ReprConfig
-from codeprep.preprocess.metadata import PreprocessingMetadata, unwrap_single_string
+from codeprep.preprocess.result import PreprocessingResult, unwrap_single_string
 from codeprep.preprocess.placeholders import placeholders
 from codeprep.tokens.rootclasses import ParsedToken
 
@@ -20,11 +20,11 @@ class Number(ParsedToken):
     def __repr__(self):
         return f'<{self.__class__.__name__}>({self.val})'
 
-    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> Tuple[List[str], PreprocessingMetadata]:
+    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> PreprocessingResult:
         return self.wrap_in_metadata_for_full_word([self.val])
 
-    def preprocessed_repr(self, repr_config: ReprConfig) -> Tuple[List[str], PreprocessingMetadata]:
-        subwords = repr_config.number_splitter(self.non_preprocessed_repr()[0][0], repr_config.bpe_data)
+    def preprocessed_repr(self, repr_config: ReprConfig) -> PreprocessingResult:
+        subwords = repr_config.number_splitter(self.non_preprocessed_repr().tokens[0], repr_config.bpe_data)
 
         if len(subwords) > 1 and not repr_config.bpe_data:
             prep_number = [placeholders['word_start']] + subwords + [placeholders['word_end']]

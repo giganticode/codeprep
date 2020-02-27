@@ -7,7 +7,7 @@ import logging
 import os
 import pickle
 from multiprocessing.pool import Pool
-from typing import List, Tuple
+from typing import List, Tuple, Set
 from typing import Optional
 
 import time
@@ -22,12 +22,14 @@ from codeprep.pipeline.bperegistry import CustomBpeConfig
 from codeprep.pipeline.dataset import Dataset, NOT_FINISHED_EXTENSION
 from codeprep.prepconfig import PrepParam, PrepConfig
 from codeprep.preprocess.core import to_repr_list
+from codeprep.preprocess.result import PreprocessingResult
 from codeprep.preprocess.metadata import PreprocessingMetadata
-from codeprep.preprocess.metadata import save_metadata
+from codeprep.preprocess.metadata import save_non_processable_tokens
 from codeprep.preprocess.placeholders import placeholders
 from codeprep.tokens.rootclasses import ParsedToken
 from codeprep.tokens.word import SpecialToken
 from codeprep.util import to_literal_str
+
 
 logger = logging.getLogger(__name__)
 
@@ -43,13 +45,12 @@ def insert_and_word_tokens(prep_list: List[str], metadata: PreprocessingMetadata
     return list_copy
 
 
-def to_repr(prep_config: PrepConfig, token_list: List[ParsedToken],
-            bpe_data: Optional[BpeData] = None) -> Tuple[List[str], PreprocessingMetadata]:
+def to_repr(prep_config: PrepConfig, token_list: List[ParsedToken], bpe_data: Optional[BpeData] = None) -> PreprocessingResult:
     bpe_data = bpe_data or get_global_bpe_data_if_available()
-    repr_list, metadata = to_repr_list(token_list, prep_config.get_repr_config(bpe_data))
+    preprocessing_result = to_repr_list(token_list, prep_config.get_repr_config(bpe_data))
     if prep_config.is_bpe():
-        repr_list = insert_and_word_tokens(repr_list, metadata)
-    return repr_list, metadata
+        preprocessing_result.tokens = insert_and_word_tokens(preprocessing_result.tokens, preprocessing_result.metadata)
+    return preprocessing_result
 
 
 def to_token_str(tokens: List) -> str:
@@ -70,11 +71,11 @@ def preprocess_and_write(params: Tuple[bytes, bytes, PrepConfig, str]):
     not_finished_dest_file_path = dest_file_path + NOT_FINISHED_EXTENSION.encode()
     with gzip.GzipFile(src_file_path, 'rb') as i, open(not_finished_dest_file_path, 'w') as o:
         token_list = pickle.load(i)
-        repr, metadata = to_repr(prep_config, token_list + [SpecialToken(placeholders['ect'])], get_global_bpe_data_if_available())
-        o.write(to_literal_str(to_token_str(repr)) + '\n')
+        preprocessing_result = to_repr(prep_config, token_list + [SpecialToken(placeholders['ect'])], get_global_bpe_data_if_available())
+        o.write(to_literal_str(to_token_str(preprocessing_result.tokens)) + '\n')
 
     if part_nonbpe_vocab_folder:
-        save_metadata(metadata, os.path.join(part_nonbpe_vocab_folder, f'{os.path.basename(dest_file_path)}_-_{time.time()}'))
+        save_non_processable_tokens(preprocessing_result.non_processable_tokens, os.path.join(part_nonbpe_vocab_folder, f'{os.path.basename(dest_file_path)}_-_{time.time()}'))
 
     os.rename(not_finished_dest_file_path, dest_file_path)
 

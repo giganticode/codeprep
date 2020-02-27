@@ -2,25 +2,22 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Tuple, List, Sequence
+from typing import Sequence
 
-from codeprep.preprocess.metadata import PreprocessingMetadata
 from codeprep.preprocess.reprconfig import ReprConfig
+from codeprep.preprocess.result import PreprocessingResult
 from codeprep.tokens.rootclasses import ParsedToken
 
 
-def to_repr_list(token_list: Sequence[ParsedToken], repr_config: ReprConfig) \
-        -> Tuple[List[str], PreprocessingMetadata]:
-    repr_res = []
-    all_metadata = PreprocessingMetadata()
+def to_repr_list(token_list: Sequence[ParsedToken], repr_config: ReprConfig) -> PreprocessingResult:
+    total_preprocessing_result = PreprocessingResult()
     for token in token_list:
-        repr_token, metadata = torepr(token, repr_config)
-        repr_res.extend(repr_token)
-        all_metadata.update(metadata)
-    return repr_res, all_metadata
+        preprocessing_result = torepr(token, repr_config)
+        total_preprocessing_result.update_(preprocessing_result)
+    return total_preprocessing_result
 
 
-def torepr(token, repr_config) -> Tuple[List[str], PreprocessingMetadata]:
+def torepr(token, repr_config) -> PreprocessingResult:
     clazz = type(token)
     if clazz == str:
         raise AssertionError('Strings are not allowed any more as a result of parsing')
@@ -29,5 +26,4 @@ def torepr(token, repr_config) -> Tuple[List[str], PreprocessingMetadata]:
     if repr_config and clazz in repr_config.types_to_be_repr:
         return token.preprocessed_repr(repr_config)
     else:
-        non_prep, metadata = token.non_preprocessed_repr(repr_config)
-        return (non_prep if isinstance(non_prep, list) else [non_prep]), metadata
+        return token.non_preprocessed_repr(repr_config)
