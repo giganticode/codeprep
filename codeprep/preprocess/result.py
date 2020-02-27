@@ -16,7 +16,7 @@ class PreprocessingResult(object):
 
     def update_(self, preprocessing_result: 'PreprocessingResult') -> 'PreprocessingResult':
         self.tokens.extend(preprocessing_result.tokens)
-        self.metadata.update(preprocessing_result.metadata)
+        self.metadata.update_(preprocessing_result.metadata)
         self.non_processable_tokens.update(preprocessing_result.non_processable_tokens)
 
         return self

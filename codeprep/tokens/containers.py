@@ -102,7 +102,7 @@ class OneLineComment(Comment):
 
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> PreprocessingResult:
         preprocessing_result = torepr(self.subtokens, repr_config)
-        preprocessing_result.metadata.update(PreppedTokenMetadata(n_subtokens_per_token=[1], token_types=[OneLineComment]))
+        preprocessing_result.metadata.update_(PreppedTokenMetadata(n_subtokens_per_token=[1], token_types=[OneLineComment]))
         preprocessing_result.metadata.set_all_tokens_type(OneLineComment)
         preprocessing_result.tokens.append(placeholders['olc_end'])
         return preprocessing_result

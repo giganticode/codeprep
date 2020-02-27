@@ -28,24 +28,55 @@ class PreppedTokenMetadata(object):
     def set_all_tokens_type(self, t: Type) -> None:
         self.token_types = [t] * len(self.n_subtokens_per_token)
 
-    def update(self, preprocessing_metadata: 'PreppedTokenMetadata') -> 'PreppedTokenMetadata':
+    def update_(self, preprocessing_metadata: 'PreppedTokenMetadata') -> 'PreppedTokenMetadata':
         """
         >>> class TypeA: pass
         >>> class TypeB: pass
-        >>> PreppedTokenMetadata().update(PreppedTokenMetadata())
+        >>> PreppedTokenMetadata().update_(PreppedTokenMetadata())
+        ([], [])
+        >>> PreppedTokenMetadata().remove_older_metadata_(100)
         ([], [])
 
-        >>> PreppedTokenMetadata([2], [TypeA]).update(PreppedTokenMetadata([1, 2, 3], [TypeA, TypeA, TypeB]))
+        >>> PreppedTokenMetadata([2], [TypeA]).update_(PreppedTokenMetadata([1, 2, 3], [TypeA, TypeA, TypeB]))
         ([2, 1, 2, 3], ['TypeA', 'TypeA', 'TypeA', 'TypeB'])
 
-        >>> PreppedTokenMetadata([2], [TypeA]).update(PreppedTokenMetadata([3], [TypeB]))
+        >>> metadata = PreppedTokenMetadata([2], [TypeA]).update_(PreppedTokenMetadata([3], [TypeB]))
+        >>> metadata
         ([2, 3], ['TypeA', 'TypeB'])
+        >>> metadata.remove_older_metadata_(10)
+        ([2, 3], ['TypeA', 'TypeB'])
+        >>> metadata.remove_older_metadata_(5)
+        ([2, 3], ['TypeA', 'TypeB'])
+        >>> metadata.remove_older_metadata_(4)
+        ([3], ['TypeB'])
+        >>> metadata.remove_older_metadata_(3)
+        ([3], ['TypeB'])
+        >>> metadata.remove_older_metadata_(0)
+        ([], [])
+        >>> PreppedTokenMetadata([2, 5], [TypeA, TypeB]).remove_older_metadata_(4)
+        ([], [])
         """
 
         self.n_subtokens_per_token.extend(preprocessing_metadata.n_subtokens_per_token)
         self.token_types.extend(preprocessing_metadata.token_types)
 
         return self
+
+    def remove_older_metadata_(self, n_subtokens_to_keep: int):
+        index = len(self.n_subtokens_per_token)
+        sum = 0
+        while index > 0 and sum < n_subtokens_to_keep:
+            index -= 1
+            sum += self.n_subtokens_per_token[index]
+
+        if sum > n_subtokens_to_keep:
+            index += 1
+
+        self.n_subtokens_per_token = self.n_subtokens_per_token[index:]
+        self.token_types = self.token_types[index:]
+
+        return self
+
 
     def __repr__(self):
         return str((self.n_subtokens_per_token, list(map(lambda x: x.__name__, self.token_types))))
