@@ -70,21 +70,28 @@ class SubtokenIterator(TokenIterator):
 
 class FullTokenIterator(TokenIterator):
     """
-    >>> [token for token in FullTokenIterator(['hi', 'the', 're'], PreppedTokenMetadata([1, 2], [SplitContainer, SplitContainer]))]
+    >>> [token for token in FullTokenIterator(['hi', 'the', 're'], \
+PreppedTokenMetadata([1, 2], [SplitContainer, SplitContainer]), \
+format=lambda x:''.join(x))]
     ['hi', 'there']
 
-    >>> [token for token in FullTokenIterator(['hel', 'l', 'o'], PreppedTokenMetadata([3], [SplitContainer]))]
+    >>> [token for token in FullTokenIterator(['hel', 'l', 'o'], \
+PreppedTokenMetadata([3], [SplitContainer]), \
+format=lambda x:''.join(x))]
     ['hello']
 
-    >>> [token for token in FullTokenIterator([1, 2, 4], PreppedTokenMetadata([2, 1], [SplitContainer, SplitContainer]), format=sum)]
+    >>> [token for token in FullTokenIterator([1, 2, 4], \
+PreppedTokenMetadata([2, 1], [SplitContainer, SplitContainer]), format=sum)]
     [3, 4]
 
-    >>> [token for token in FullTokenIterator(['hi', 'the', 're'], PreppedTokenMetadata([1, 2], [SplitContainer, SplitContainer]), return_full_token_index=True)]
+    >>> [token for token in FullTokenIterator(['hi', 'the', 're'], \
+PreppedTokenMetadata([1, 2], [SplitContainer, SplitContainer]), \
+format=lambda x:''.join(x), return_full_token_index=True)]
     [(0, 'hi'), (1, 'there')]
     """
     def __init__(self, subwords: List[Any],
                  metadata: PreppedTokenMetadata,
-                 format: Callable[[List[str]], Any] = lambda s: ''.join(s),
+                 format: Callable[[List[Any]], Any] = lambda x: x,
                  return_full_token_index: bool = False):
         super().__init__(subwords, metadata, format, return_full_token_index)
 
