@@ -3,14 +3,22 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from typing import Set, List, Type
+from typing import Set, List, Type, Any
 
 from dataclasses import dataclass, field
 
-from codeprep.subtokens import is_terminal_subtoken
+from codeprep.preprocess.placeholders import placeholders
 from codeprep.util import to_literal_str
 
 logger = logging.getLogger(__name__)
+
+
+def is_terminal_subtoken(subtoken: str, use_token_end_chars: bool = True) -> bool:
+    if not use_token_end_chars:
+        raise NotImplemented("Finding out if a subtoken is terminal for tokens represented with <w> and </w> tokens "
+                             "is not yet implemented.")
+
+    return subtoken.endswith(placeholders['compound_word_end'])
 
 
 class InvalidMetadataError(Exception):
@@ -88,7 +96,7 @@ def save_non_processable_tokens(non_processable_tokens: Set[str], save_to: bytes
             f.write(f'{to_literal_str(token)}\n')
 
 
-def check_metadata_validity(subwords: List[str], metadata: PreppedTokenMetadata, use_only_token_end_chars=True) -> None:
+def check_metadata_validity(subwords: List[Any], metadata: PreppedTokenMetadata, use_only_token_end_chars=True) -> None:
     """
     >>> check_metadata_validity(['h', 'i</t>'], PreppedTokenMetadata([1], [object]))
     Traceback (most recent call last):
