@@ -22,9 +22,7 @@ from codeprep.pipeline.bperegistry import CustomBpeConfig
 from codeprep.pipeline.dataset import Dataset, NOT_FINISHED_EXTENSION
 from codeprep.prepconfig import PrepParam, PrepConfig
 from codeprep.preprocess.core import to_repr_list
-from codeprep.preprocess.result import PreprocessingResult
-from codeprep.preprocess.metadata import PreppedTokenMetadata
-from codeprep.preprocess.metadata import save_non_processable_tokens
+from codeprep.preprocess.result import PreprocessingResult, insert_word_end_tokens_
 from codeprep.preprocess.placeholders import placeholders
 from codeprep.tokens.rootclasses import ParsedToken
 from codeprep.tokens.word import SpecialToken
@@ -38,20 +36,11 @@ def get_global_bpe_data_if_available() -> Optional[BpeData]:
     return global_bpe_data if 'global_bpe_data' in globals() else None
 
 
-def insert_and_word_tokens(prep_list: List[str], metadata: PreppedTokenMetadata) -> List[str]:
-    list_copy = [elm for elm in prep_list]
-    last_subtoken_index = -1
-    for n_subtokens in metadata.n_subtokens_per_token:
-        last_subtoken_index += n_subtokens
-        list_copy[last_subtoken_index] += placeholders['compound_word_end']
-    return list_copy
-
-
 def to_repr(prep_config: PrepConfig, token_list: List[ParsedToken], bpe_data: Optional[BpeData] = None) -> PreprocessingResult:
     bpe_data = bpe_data or get_global_bpe_data_if_available()
     preprocessing_result = to_repr_list(token_list, prep_config.get_repr_config(bpe_data))
     if prep_config.is_bpe():
-        preprocessing_result.tokens = insert_and_word_tokens(preprocessing_result.tokens, preprocessing_result.metadata)
+        preprocessing_result.prepped_tokens = insert_word_end_tokens_(preprocessing_result.prepped_tokens)
     return preprocessing_result
 
 
@@ -162,3 +151,9 @@ def run(dataset: Dataset, custom_bpe_config: Optional[CustomBpeConfig]) -> None:
         vocabloader.gather_non_bpe_vocab(dataset)
 
     dataset.preprocessed.set_ready()
+
+
+def save_non_processable_tokens(non_processable_tokens: Set[str], save_to: bytes) -> None:
+    with open(save_to, 'w') as f:
+        for token in non_processable_tokens:
+            f.write(f'{to_literal_str(token)}\n')

@@ -2,11 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import List, Tuple, Optional
+from typing import Optional
 
 from codeprep.preprocess.core import ReprConfig
-from codeprep.preprocess.result import PreprocessingResult, unwrap_single_string
-from codeprep.preprocess.metadata import PreppedTokenMetadata
+from codeprep.preprocess.result import PreprocessingResult
 from codeprep.preprocess.placeholders import placeholders
 from codeprep.tokens.rootclasses import ParsedToken
 
@@ -21,12 +20,12 @@ class Whitespace(ParsedToken):
         return f'<{self.__class__.__name__}>'
 
     def __str__(self):
-        return unwrap_single_string(self.non_preprocessed_repr())
+        return self.non_preprocessed_repr().get_single_token()
 
 
 class NewLine(Whitespace):
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> PreprocessingResult:
-        return self.wrap_in_metadata_for_full_word(["\n"], non_proc={"\n"})
+        return self._wrap_in_metadata_for_full_word(["\n"], non_proc={"\n"})
 
     def preprocessed_repr(self, repr_config: ReprConfig) -> PreprocessingResult:
         return PreprocessingResult()
@@ -34,7 +33,7 @@ class NewLine(Whitespace):
 
 class Tab(Whitespace):
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> PreprocessingResult:
-        return self.wrap_in_metadata_for_full_word(["\t"], non_proc={"\t"})
+        return self._wrap_in_metadata_for_full_word(["\t"], non_proc={"\t"})
 
     def preprocessed_repr(self, repr_config: ReprConfig) -> PreprocessingResult:
         return PreprocessingResult()
@@ -47,7 +46,7 @@ class SpaceInString(Whitespace):
         self.n_chars = n_chars
 
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> PreprocessingResult:
-        return self.wrap_in_metadata_for_full_word([placeholders['space_in_str'] * self.n_chars])
+        return self._wrap_in_metadata_for_full_word([placeholders['space_in_str'] * self.n_chars])
 
     def __repr__(self):
         return f'<{self.__class__.__name__}> (n_chars={self.n_chars})'
