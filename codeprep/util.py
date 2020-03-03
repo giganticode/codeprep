@@ -6,7 +6,7 @@ import multiprocessing
 from heapq import heappush, heappop, heapify
 
 import itertools
-from typing import Dict, Tuple, List, Optional, Generator
+from typing import Dict, Tuple, List, Optional, Generator, TypeVar, Sequence
 
 
 def merge_dicts_(dict1, dict2) -> Tuple[Dict, List]:
@@ -198,3 +198,20 @@ def to_literal_str(word: str) -> str:
 
 START_ERROR_COLOR = '\033[31m'
 END_ERROR_COLOR = '\033[0m'
+
+IntOrFloat = TypeVar('IntOrFloat', int, float)
+
+
+def cum_sum(sequence: Sequence[IntOrFloat]) -> Sequence[IntOrFloat]:
+    """
+    >>> cum_sum([])
+    []
+    >>> cum_sum([1, 4, 5])
+    [1, 5, 10]
+    """
+    output = []
+    sum = 0
+    for element in sequence:
+        sum += element
+        output.append(sum)
+    return output

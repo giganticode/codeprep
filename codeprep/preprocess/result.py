@@ -1,10 +1,10 @@
 from typing import List, Set, Iterator, Any, Callable, Union, Type, Optional, Iterable
 
-import numpy as np
 from dataclasses import dataclass, field
 
 from codeprep.preprocess.metadata import PreppedTokenMetadata
 from codeprep.preprocess.placeholders import placeholders
+from codeprep.util import cum_sum
 
 
 class _SubOverFullTokenIterator(Iterator):
@@ -124,7 +124,7 @@ class PreppedTokenSequence(object):
                     raise AssertionError(f'Token {full_token} according to metadata is end-token, however it doesn\'t contain </t>. '
                                          f'Showing context: {full_tokens[(ind-20) if ind > 20 else 0:ind]}')
 
-        self._full_to_sub_token_indices = [0] + list(np.cumsum(self.metadata.n_subtokens_per_token))
+        self._full_to_sub_token_indices = [0] + list(cum_sum(self.metadata.n_subtokens_per_token))
         self._sub_to_full_token_indices = {n: i for i, n in enumerate(self._full_to_sub_token_indices)}
 
     def _convert_index(self, index: Optional[int], conversion_func: Callable[[int], int]) -> Optional[int]:
