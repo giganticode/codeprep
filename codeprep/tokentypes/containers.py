@@ -9,9 +9,9 @@ from codeprep.preprocess.core import ReprConfig, torepr
 from codeprep.preprocess.result import PreprocessingResult, PreppedSubTokenSequence
 from codeprep.preprocess.metadata import PreppedTokenMetadata
 from codeprep.preprocess.placeholders import placeholders
-from codeprep.tokens.rootclasses import ParsedToken, ParsedSubtoken
-from codeprep.tokens.whitespace import SpaceInString
-from codeprep.tokens.word import Word
+from codeprep.tokentypes.rootclasses import ParsedToken, ParsedSubtoken
+from codeprep.tokentypes.whitespace import SpaceInString
+from codeprep.tokentypes.word import Word
 
 
 class ProcessableTokenContainer(ParsedToken):

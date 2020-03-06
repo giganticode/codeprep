@@ -2,12 +2,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from codeprep.tokens.numeric import Number
+from codeprep.tokentypes.numeric import Number
 
 from codeprep.parse.matchers import split_into_words
-from codeprep.tokens.containers import SplitContainer
-from codeprep.tokens.whitespace import NewLine, SpaceInString
-from codeprep.tokens.word import Word, Underscore
+from codeprep.tokentypes.containers import SplitContainer
+from codeprep.tokentypes.whitespace import NewLine, SpaceInString
+from codeprep.tokentypes.word import Word, Underscore
 from codeprep.parse.subtokens import split_string
 
 

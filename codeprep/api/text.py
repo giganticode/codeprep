@@ -13,9 +13,9 @@ from codeprep.pipeline.to_repr import init_bpe_data, to_repr
 from codeprep.prepconfig import PrepConfig
 from codeprep.preprocess.placeholders import placeholders
 from codeprep.preprocess.result import PreppedSubTokenSequence
-from codeprep.tokens.rootclasses import ParsedToken
-from codeprep.tokens.whitespace import NewLine
-from codeprep.tokens.word import SpecialToken
+from codeprep.tokentypes.rootclasses import ParsedToken
+from codeprep.tokentypes.whitespace import NewLine
+from codeprep.tokentypes.word import SpecialToken
 
 
 def remove_trailing_newline(prep_tokens: List[ParsedToken]) -> List[ParsedToken]:

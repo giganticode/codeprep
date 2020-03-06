@@ -11,7 +11,7 @@ from pygments.util import ClassNotFound
 
 from codeprep.parse import matchers
 from codeprep.parse.matchers import DefaultMatcher
-from codeprep.tokens.rootclasses import ParsedToken
+from codeprep.tokentypes.rootclasses import ParsedToken
 
 logger = logging.getLogger(__name__)
 

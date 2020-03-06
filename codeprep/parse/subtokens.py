@@ -7,12 +7,12 @@ from typing import List
 import regex
 
 from codeprep.noneng import is_non_eng
-from codeprep.tokens.containers import SplitContainer
-from codeprep.tokens.noneng import NonEng
-from codeprep.tokens.numeric import Number
-from codeprep.tokens.rootclasses import ParsedToken
-from codeprep.tokens.whitespace import NewLine, Tab, SpaceInString
-from codeprep.tokens.word import Underscore, Word, NonCodeChar
+from codeprep.tokentypes.containers import SplitContainer
+from codeprep.tokentypes.noneng import NonEng
+from codeprep.tokentypes.numeric import Number
+from codeprep.tokentypes.rootclasses import ParsedToken
+from codeprep.tokentypes.whitespace import NewLine, Tab, SpaceInString
+from codeprep.tokentypes.word import Underscore, Word, NonCodeChar
 
 
 def split_identifier(token: str) -> SplitContainer:

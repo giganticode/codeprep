@@ -8,8 +8,8 @@ from codeprep.noneng import replace_non_ascii_seqs
 from codeprep.preprocess.core import ReprConfig, torepr
 from codeprep.preprocess.result import PreprocessingResult
 from codeprep.preprocess.placeholders import placeholders
-from codeprep.tokens.containers import SplitContainer
-from codeprep.tokens.rootclasses import ParsedToken
+from codeprep.tokentypes.containers import SplitContainer
+from codeprep.tokentypes.rootclasses import ParsedToken
 
 
 class NonEng(ParsedToken):

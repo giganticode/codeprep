@@ -9,13 +9,13 @@ import pytest
 from codeprep.bpepkg.bpe_encode import BpeData
 from codeprep.bpepkg.merge import MergeList, Merge
 from codeprep.preprocess.result import PreprocessingResult, PreppedSubTokenSequence
-from codeprep.tokens.containers import SplitContainer, OneLineComment, MultilineComment, StringLiteral
+from codeprep.tokentypes.containers import SplitContainer, OneLineComment, MultilineComment, StringLiteral
 from codeprep.preprocess.metadata import PreppedTokenMetadata
-from codeprep.tokens.noneng import NonEng
-from codeprep.tokens.numeric import Number
+from codeprep.tokentypes.noneng import NonEng
+from codeprep.tokentypes.numeric import Number
 from codeprep.preprocess.placeholders import placeholders
-from codeprep.tokens.whitespace import Tab, NewLine, SpaceInString
-from codeprep.tokens.word import Word, Underscore, NonCodeChar, Operator
+from codeprep.tokentypes.whitespace import Tab, NewLine, SpaceInString
+from codeprep.tokentypes.word import Word, Underscore, NonCodeChar, Operator
 from codeprep.prepconfig import PrepParam, PrepConfig
 from codeprep.pipeline.to_repr import to_repr
 

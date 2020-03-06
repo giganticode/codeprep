@@ -14,11 +14,11 @@ import sys
 
 from codeprep.bpepkg.bpe_encode import BpeData, get_bpe_subwords
 from codeprep.preprocess.reprconfig import Splitter, ReprConfig
-from codeprep.tokens.containers import SplitContainer, StringLiteral, OneLineComment, MultilineComment
-from codeprep.tokens.noneng import NonEng
-from codeprep.tokens.numeric import Number
-from codeprep.tokens.whitespace import NewLine, Tab
-from codeprep.tokens.word import Word
+from codeprep.tokentypes.containers import SplitContainer, StringLiteral, OneLineComment, MultilineComment
+from codeprep.tokentypes.noneng import NonEng
+from codeprep.tokentypes.numeric import Number
+from codeprep.tokentypes.whitespace import NewLine, Tab
+from codeprep.tokentypes.word import Word
 
 logger = logging.getLogger(__name__)
 

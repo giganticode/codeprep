@@ -7,7 +7,7 @@ from typing import Optional
 from codeprep.preprocess.core import ReprConfig
 from codeprep.preprocess.result import PreprocessingResult
 from codeprep.preprocess.placeholders import placeholders
-from codeprep.tokens.rootclasses import ParsedToken
+from codeprep.tokentypes.rootclasses import ParsedToken
 
 NBSP = '\xa0'
 

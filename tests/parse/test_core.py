@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from codeprep.parse.core import convert_text
-from codeprep.tokens.containers import SplitContainer, StringLiteral, OneLineComment, MultilineComment
-from codeprep.tokens.numeric import Number
-from codeprep.tokens.whitespace import Tab, NewLine, SpaceInString
-from codeprep.tokens.word import Word, Underscore, KeyWord, Operator, NonCodeChar, OpeningCurlyBracket, \
+from codeprep.tokentypes.containers import SplitContainer, StringLiteral, OneLineComment, MultilineComment
+from codeprep.tokentypes.numeric import Number
+from codeprep.tokentypes.whitespace import Tab, NewLine, SpaceInString
+from codeprep.tokentypes.word import Word, Underscore, KeyWord, Operator, NonCodeChar, OpeningCurlyBracket, \
     ClosingCurlyBracket, Semicolon, OpeningBracket, ClosingBracket
 
 

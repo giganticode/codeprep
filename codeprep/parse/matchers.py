@@ -7,11 +7,11 @@ from typing import List
 from pygments.token import Token
 
 from codeprep.parse.subtokens import split_into_words, split_string
-from codeprep.tokens.containers import StringLiteral, OneLineComment, MultilineComment
-from codeprep.tokens.numeric import Number, Zero, One
-from codeprep.tokens.rootclasses import ParsedToken
-from codeprep.tokens.whitespace import NewLine, Tab
-from codeprep.tokens.word import KeyWord, Operator, Semicolon, OpeningCurlyBracket, ClosingCurlyBracket, OpeningBracket, \
+from codeprep.tokentypes.containers import StringLiteral, OneLineComment, MultilineComment
+from codeprep.tokentypes.numeric import Number, Zero, One
+from codeprep.tokentypes.rootclasses import ParsedToken
+from codeprep.tokentypes.whitespace import NewLine, Tab
+from codeprep.tokentypes.word import KeyWord, Operator, Semicolon, OpeningCurlyBracket, ClosingCurlyBracket, OpeningBracket, \
     ClosingBracket
 
 
