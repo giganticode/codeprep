@@ -41,4 +41,4 @@ script:
   - coverage report -m --include=./\*\* --omit=tests/\*\*,.venv/\*\* --fail-under=70
   - coverage xml -i --include=./\*\* --omit=tests/\*\*,.venv/\*\*
 after_script:
-  - if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then echo "Reporting coverage to Code Climate" && ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
+  - if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_PYTHON_VERSION" == "3.7" ]]; then echo "Reporting coverage to Code Climate" && ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
