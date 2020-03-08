@@ -177,6 +177,10 @@ class PreppedTokenSequence(object):
             word_end_token_added=self.word_end_token_added
         )
 
+    def update_(self, **kwargs) -> 'PreppedTokenSequence':
+        self.__dict__.update(kwargs)
+        return self
+
     def __str__(self):
         return repr([i for i in self])
 
@@ -184,7 +188,7 @@ class PreppedTokenSequence(object):
         if isinstance(other, PreppedTokenSequence):
             self.tokens.extend(other.tokens)
             self.metadata.update_(other.metadata)
-            return type(self)(self.tokens, self.metadata)
+            return self.update_(tokens=self.tokens, metadata=self.metadata)
         elif isinstance(other, SurrogatePreppedTokenSequence):
             return SurrogatePreppedTokenSequence(self.tokens + other.tokens)
         else:
@@ -249,7 +253,7 @@ class PreppedFullTokenSequence(PreppedTokenSequence):
         if not isinstance(value, PreppedFullTokenSequence):
             raise TypeError("Can assign only PreppedFullTokenSequence instance")
 
-        self.__dict__ = self[:key].add(value).add(self[key+1:]).__dict__
+        self.__dict__ = self[:key].add(value).add(self[key + 1:]).__dict__
 
     def __getitem__(self, item: Union[int, slice]):
         if not isinstance(item, slice):
