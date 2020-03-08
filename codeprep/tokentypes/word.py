@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2020 Hlib Babii <hlibbabii@gmail.com>
 #
 # SPDX-License-Identifier: Apache-2.0
-
+from abc import ABC
 from enum import Enum
 from typing import List, Optional
 
@@ -23,6 +23,9 @@ class Underscore(ParsedSubtoken):
 
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> PreprocessingResult:
         return PreprocessingResult.with_empty_metadata(["_"])
+
+    def preprocessed_repr(self, repr_config: ReprConfig) -> PreprocessingResult:
+        raise NotImplemented()
 
 
 class Word(ParsedSubtoken):
@@ -117,7 +120,7 @@ class Word(ParsedSubtoken):
             return cls(s, Word.Capitalization.UNDEFINED)
 
 
-class NonProcessibleToken(ParsedToken):
+class NonProcessibleToken(ParsedToken, ABC):
     def __init__(self, token: str):
         self.token = token
 
@@ -138,10 +141,16 @@ class KeyWord(NonProcessibleToken):
     def __init__(self, token: str):
         super().__init__(token)
 
+    def preprocessed_repr(self, repr_config: ReprConfig) -> PreprocessingResult:
+        raise NotImplemented()
+
 
 class Operator(NonProcessibleToken):
     def __init__(self, token: str):
         super().__init__(token)
+
+    def preprocessed_repr(self, repr_config: ReprConfig) -> PreprocessingResult:
+        raise NotImplemented()
 
 
 class Semicolon(Operator):
@@ -173,7 +182,13 @@ class NonCodeChar(NonProcessibleToken):
     def __init__(self, token: str):
         super().__init__(token)
 
+    def preprocessed_repr(self, repr_config: ReprConfig) -> PreprocessingResult:
+        pass
+
 
 class SpecialToken(NonProcessibleToken):
     def __init__(self, token: str):
         super().__init__(token)
+
+    def preprocessed_repr(self, repr_config: ReprConfig) -> PreprocessingResult:
+        raise NotImplemented()

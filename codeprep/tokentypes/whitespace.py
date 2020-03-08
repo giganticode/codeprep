@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2020 Hlib Babii <hlibbabii@gmail.com>
 #
 # SPDX-License-Identifier: Apache-2.0
-
+from abc import ABC
 from typing import Optional
 
 from codeprep.preprocess.core import ReprConfig
@@ -12,7 +12,7 @@ from codeprep.tokentypes.rootclasses import ParsedToken
 NBSP = '\xa0'
 
 
-class Whitespace(ParsedToken):
+class Whitespace(ParsedToken, ABC):
     def __eq__(self, other):
         return other.__class__ == self.__class__
 
@@ -40,10 +40,12 @@ class Tab(Whitespace):
 
 
 class SpaceInString(Whitespace):
-
     def __init__(self, n_chars: int = 1):
         super().__init__()
         self.n_chars = n_chars
+
+    def preprocessed_repr(self, repr_config: ReprConfig) -> PreprocessingResult:
+        raise NotImplemented()
 
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> PreprocessingResult:
         return self._wrap_in_metadata_for_full_word([placeholders['space_in_str'] * self.n_chars])

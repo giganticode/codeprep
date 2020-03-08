@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2020 Hlib Babii <hlibbabii@gmail.com>
 #
 # SPDX-License-Identifier: Apache-2.0
-
+from abc import ABC
 from typing import List, Union, Optional
 
 from codeprep.noneng import replace_non_ascii_seqs
@@ -15,7 +15,7 @@ from codeprep.tokentypes.whitespace import SpaceInString
 from codeprep.tokentypes.word import Word
 
 
-class ProcessableTokenContainer(ParsedToken):
+class ProcessableTokenContainer(ParsedToken, ABC):
     def __init__(self, subtokens: Union[List[ParsedSubtoken], List[ParsedToken]]):
         if isinstance(subtokens, list):
             self.subtokens = subtokens
@@ -76,7 +76,7 @@ class SplitContainer(ProcessableTokenContainer):
         return cls([Word.from_(token)])
 
 
-class TextContainer(ProcessableTokenContainer):
+class TextContainer(ProcessableTokenContainer, ABC):
 
     def __init__(self, tokens: List[ParsedToken]):
         super().__init__(tokens)
@@ -92,7 +92,7 @@ class TextContainer(ProcessableTokenContainer):
         return self.__class__ == other.__class__ and self.subtokens == other.subtokens
 
 
-class Comment(TextContainer):
+class Comment(TextContainer, ABC):
     def __init__(self, tokens: List[ParsedToken]):
         super().__init__(tokens)
 

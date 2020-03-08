@@ -1,15 +1,16 @@
 # SPDX-FileCopyrightText: 2020 Hlib Babii <hlibbabii@gmail.com>
 #
 # SPDX-License-Identifier: Apache-2.0
-
+from abc import ABC, abstractmethod
 from typing import List, Set, Optional
 
+from codeprep.preprocess.reprconfig import ReprConfig
 from codeprep.preprocess.result import PreprocessingResult
-from codeprep.tokens import PreppedTokenSequence, PreppedSubTokenSequence
+from codeprep.tokens import PreppedSubTokenSequence
 from codeprep.preprocess.metadata import PreppedTokenMetadata
 
 
-class ParsedToken(object):
+class ParsedToken(ABC):
     def _wrap_in_metadata_for_full_word(self, tokens: List[str], non_proc: Optional[Set[str]] = None) -> PreprocessingResult:
         prepped_sub_token_sequence = PreppedSubTokenSequence(
             tokens,
@@ -20,6 +21,20 @@ class ParsedToken(object):
         non_processable_tokens = non_proc or []
         return PreprocessingResult(prepped_sub_token_sequence, non_processable_tokens)
 
+    @abstractmethod
+    def preprocessed_repr(self, repr_config: ReprConfig) -> PreprocessingResult:
+        pass
 
-class ParsedSubtoken(object):
-    pass
+    @abstractmethod
+    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> PreprocessingResult:
+        pass
+
+
+class ParsedSubtoken(ABC):
+    @abstractmethod
+    def preprocessed_repr(self, repr_config: ReprConfig) -> PreprocessingResult:
+        pass
+
+    @abstractmethod
+    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> PreprocessingResult:
+        pass
