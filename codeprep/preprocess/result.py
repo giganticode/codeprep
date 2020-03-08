@@ -1,4 +1,4 @@
-from typing import List, Set, Iterator, Any, Callable, Union, Type, Optional, Iterable
+from typing import List, Set, Iterator, Any, Callable, Union, Type, Optional, Iterable, Sequence
 
 from dataclasses import dataclass, field
 
@@ -8,7 +8,7 @@ from codeprep.util import cum_sum
 
 
 class _SubOverFullTokenIterator(Iterator):
-    def __init__(self, over: Iterable[Any],
+    def __init__(self, over: Sequence[Any],
                  metadata: PreppedTokenMetadata):
         self.over = over
         self.metadata = metadata
@@ -31,9 +31,9 @@ class _SubOverFullTokenIterator(Iterator):
 
 
 class _FullOverSubTokenIterator(Iterator):
-    def __init__(self, over: Iterable[Any],
+    def __init__(self, over: Sequence[Any],
                  metadata: PreppedTokenMetadata,
-                 formatter: Callable[[List[Any]], Any] = lambda x: x):
+                 formatter: Callable[[Sequence[Any]], Any] = lambda x: x):
         self.over = over
         self.metadata = metadata
         self.formatter = formatter
@@ -65,6 +65,9 @@ class SurrogatePreppedTokenSequence(object):
         else:
             raise TypeError()
 
+    def __add__(self, other):
+        return self.add(other)
+
 
 @dataclass
 class PreppedTokenSequence(object):
@@ -75,7 +78,11 @@ class PreppedTokenSequence(object):
     ...
     ValueError: Tokens and metadata are out-of-sync.
     The subword list has 2 elements but the number of sub-tokens according to metadata is 1.
-    >>> prepped_tokens = PreppedSubTokenSequence(['hi</t>', 'the' ,'re</t>'], PreppedTokenMetadata([1, 2], [TypeA, TypeA]))
+    >>> prepped_tokens = PreppedSubTokenSequence(['hi', 'the' ,'re</t>'], PreppedTokenMetadata([1, 2], [TypeA, TypeA]), word_end_token_added=True)
+    Traceback (most recent call last):
+    ...
+    AssertionError: Token hi according to metadata is end-token, however it doesn't contain </t>.
+    >>> prepped_tokens = PreppedSubTokenSequence(['hi</t>', 'the' ,'re</t>'], PreppedTokenMetadata([1, 2], [TypeA, TypeA]), word_end_token_added=True)
     >>> prepped_tokens
     ['hi</t>', 'the', 're</t>']
     >>> len(prepped_tokens)
@@ -85,6 +92,19 @@ class PreppedTokenSequence(object):
     >>> full_prepped_tokens = prepped_tokens.full_tokens_view(formatter=lambda x: "".join(x))
     >>> full_prepped_tokens
     ['hi</t>', 'there</t>']
+    >>> sub_prepped_tokens = full_prepped_tokens.sub_token_view()
+    >>> sub_prepped_tokens
+    ['hi</t>', 'the', 're</t>']
+    >>> len(sub_prepped_tokens)
+    3
+    >>> sub_prepped_tokens[0]
+    ['hi</t>']
+    >>> sub_prepped_tokens[1]
+    SurrogatePreppedTokenSequence(tokens=['the'])
+    >>> (sub_prepped_tokens[0] + sub_prepped_tokens[1:]).full_tokens_view()
+    [['hi</t>'], ['the', 're</t>']]
+    >>> sub_prepped_tokens[0] + sub_prepped_tokens[1] + sub_prepped_tokens[2:]
+    SurrogatePreppedTokenSequence(tokens=['hi</t>', 'the', 're</t>'])
     >>> len(full_prepped_tokens)
     2
     >>> full_prepped_tokens[:]
@@ -93,8 +113,12 @@ class PreppedTokenSequence(object):
     ['hi</t>', 'there</t>']
     >>> full_prepped_tokens[-10:10]
     ['hi</t>', 'there</t>']
-    >>> full_prepped_tokens[:-1]
+    >>> elm = full_prepped_tokens[:-1]
+    >>> elm
     ['hi</t>']
+    >>> elm.tokens[0] = 'bye</t>'
+    >>> full_prepped_tokens
+    ['hi</t>', 'there</t>']
     >>> full_prepped_tokens[1:]
     ['there</t>']
     >>> full_prepped_tokens[1:1]
@@ -105,12 +129,27 @@ class PreppedTokenSequence(object):
     ['hi</t>', 'there</t>']
     >>> full_prepped_tokens[-1:]
     ['there</t>']
+    >>> full_prepped_tokens[1] = 'Bill'
+    Traceback (most recent call last):
+    ...
+    TypeError: Can assign only PreppedFullTokenSequence instance
     >>> full_prepped_tokens[1] = full_prepped_tokens[0]
     >>> full_prepped_tokens
     ['hi</t>', 'hi</t>']
     >>> full_prepped_tokens.tokens[0] = 'bye</t>'
     >>> full_prepped_tokens
     ['bye</t>', 'hi</t>']
+
+    Iteration over an external collection related to a `PreppedTokenSequence`
+    >>> [x for x in sub_prepped_tokens.get_iterator([1, 2], over_full_tokens=True)]
+    [1, 2, 2]
+    >>> [x for x in sub_prepped_tokens.get_iterator([1, 2, 3], over_full_tokens=False)]
+    [1, 2, 3]
+    >>> full_prepped_tokens = sub_prepped_tokens.full_tokens_view()
+    >>> [x for x in full_prepped_tokens.get_iterator([1, 2], over_full_tokens=True)]
+    [1, 2]
+    >>> [x for x in full_prepped_tokens.get_iterator([1, 2, 3], over_full_tokens=False)]
+    [[1], [2, 3]]
     """
     tokens: List[Any] = field(default_factory=list)
     metadata: PreppedTokenMetadata = field(default_factory=PreppedTokenMetadata)
@@ -127,8 +166,7 @@ class PreppedTokenSequence(object):
             full_tokens = _FullOverSubTokenIterator(self.tokens, self.metadata, formatter=lambda l: "".join(l))
             for ind, full_token in enumerate(full_tokens):
                 if not is_terminal_subtoken(full_token):
-                    raise AssertionError(f'Token {full_token} according to metadata is end-token, however it doesn\'t contain </t>. '
-                                         f'Showing context: {full_tokens[(ind-20) if ind > 20 else 0:ind]}')
+                    raise AssertionError(f'Token {full_token} according to metadata is end-token, however it doesn\'t contain </t>.')
 
         self._full_to_sub_token_indices = [0] + list(cum_sum(self.metadata.n_subtokens_per_token))
         self._sub_to_full_token_indices = {n: i for i, n in enumerate(self._full_to_sub_token_indices)}
@@ -194,13 +232,16 @@ class PreppedTokenSequence(object):
         else:
             raise TypeError()
 
+    def __add__(self, other):
+        return self.add(other)
+
 
 @dataclass
 class PreppedSubTokenSequence(PreppedTokenSequence):
     def __iter__(self) -> Iterator[str]:
         return iter(self.tokens)
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: Union[int, slice]):
         if not isinstance(item, slice):
             item = slice(item, item + 1, 1)
         elif item.step is not None:
