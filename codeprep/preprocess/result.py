@@ -105,6 +105,12 @@ class PreppedTokenSequence(object):
     ['hi</t>', 'there</t>']
     >>> full_prepped_tokens[-1:]
     ['there</t>']
+    >>> full_prepped_tokens[1] = full_prepped_tokens[0]
+    >>> full_prepped_tokens
+    ['hi</t>', 'hi</t>']
+    >>> full_prepped_tokens.tokens[0] = 'bye</t>'
+    >>> full_prepped_tokens
+    ['bye</t>', 'hi</t>']
     """
     tokens: List[Any] = field(default_factory=list)
     metadata: PreppedTokenMetadata = field(default_factory=PreppedTokenMetadata)
@@ -178,7 +184,7 @@ class PreppedTokenSequence(object):
         if isinstance(other, PreppedTokenSequence):
             self.tokens.extend(other.tokens)
             self.metadata.update_(other.metadata)
-            return self
+            return type(self)(self.tokens, self.metadata)
         elif isinstance(other, SurrogatePreppedTokenSequence):
             return SurrogatePreppedTokenSequence(self.tokens + other.tokens)
         else:
@@ -210,7 +216,6 @@ class PreppedSubTokenSequence(PreppedTokenSequence):
         except KeyError:
             return SurrogatePreppedTokenSequence(self.tokens[item])
 
-
     def __repr__(self):
         return repr([i for i in self])
 
@@ -239,6 +244,12 @@ class PreppedFullTokenSequence(PreppedTokenSequence):
 
     def get_iterator(self, over: Iterable[Any], over_full_tokens: bool, formatter: Callable = lambda x: x):
         return iter(over) if over_full_tokens else _FullOverSubTokenIterator(over, self.metadata, formatter)
+
+    def __setitem__(self, key, value):
+        if not isinstance(value, PreppedFullTokenSequence):
+            raise TypeError("Can assign only PreppedFullTokenSequence instance")
+
+        self.__dict__ = self[:key].add(value).add(self[key+1:]).__dict__
 
     def __getitem__(self, item: Union[int, slice]):
         if not isinstance(item, slice):
