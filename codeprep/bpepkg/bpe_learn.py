@@ -10,7 +10,7 @@ from tqdm import tqdm
 from typing import Dict, List, Tuple, Set
 
 from codeprep.bpepkg.merge import Merge, MergeList
-from codeprep.util import PriorityCounter
+from codeprep.util.misc import PriorityCounter
 
 logger = logging.getLogger(__name__)
 

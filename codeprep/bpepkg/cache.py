@@ -12,7 +12,7 @@ True
 """
 from typing import List, Dict
 
-from codeprep.util import to_literal_str, to_non_literal_str
+from codeprep.util.misc import to_literal_str, to_non_literal_str
 
 KEY_VALUE_DELIM = '\t'
 VALUE_PARTS_DELIM = ' '

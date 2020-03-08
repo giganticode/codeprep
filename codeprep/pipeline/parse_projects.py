@@ -12,7 +12,7 @@ from typing import Tuple
 from tqdm import tqdm
 
 from codeprep.config import REWRITE_PARSED_FILE, CHUNKSIZE, LIMIT_FILES_SCANNING
-from codeprep.fileutils import read_file_contents
+from codeprep.util.file import read_file_contents
 from codeprep.pipeline.dataset import Dataset, NOT_FINISHED_EXTENSION
 from codeprep.parse.core import convert_text
 

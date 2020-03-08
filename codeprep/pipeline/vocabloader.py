@@ -10,7 +10,7 @@ from typing import Set, Dict
 from codeprep.pipeline.bperegistry import get_bpe_dir, get_base_vocab_dir, RESULTING_VOCAB_FILE_NAME
 from codeprep.pipeline.dataset import Dataset, NONBPE_VOCAB_FILENAME
 from codeprep.preprocess.placeholders import placeholders
-from codeprep.util import to_literal_str
+from codeprep.util.misc import to_literal_str
 from codeprep.pipeline.vocab import _load_vocab_dict, _load_vocab_set, VOCAB_FILENAME
 
 logger = logging.getLogger(__name__)

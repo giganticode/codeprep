@@ -11,7 +11,7 @@ from enum import Enum, auto
 import time
 from typing import List, Dict, Tuple, Set, Generator, Optional
 
-from codeprep.util import PriorityCounter, getsize
+from codeprep.util.misc import PriorityCounter, getsize
 
 logger = logging.getLogger(__name__)
 

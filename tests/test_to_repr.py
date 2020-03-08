@@ -8,7 +8,8 @@ import pytest
 
 from codeprep.bpepkg.bpe_encode import BpeData
 from codeprep.bpepkg.merge import MergeList, Merge
-from codeprep.preprocess.result import PreprocessingResult, PreppedSubTokenSequence
+from codeprep.preprocess.result import PreprocessingResult
+from codeprep.tokens import PreppedSubTokenSequence
 from codeprep.tokentypes.containers import SplitContainer, OneLineComment, MultilineComment, StringLiteral
 from codeprep.preprocess.metadata import PreppedTokenMetadata
 from codeprep.tokentypes.noneng import NonEng

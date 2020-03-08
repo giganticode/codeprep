@@ -9,7 +9,7 @@ from datetime import datetime
 from typing import Optional, List, Generator
 
 from codeprep.config import LIMIT_FILES_ON_LAST_MODIFICATION_CHECK
-from codeprep.fileutils import has_one_of_extensions
+from codeprep.util.file import has_one_of_extensions
 
 logger = logging.getLogger(__name__)
 

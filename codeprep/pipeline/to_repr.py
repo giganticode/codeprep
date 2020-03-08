@@ -22,11 +22,12 @@ from codeprep.pipeline.bperegistry import CustomBpeConfig
 from codeprep.pipeline.dataset import Dataset, NOT_FINISHED_EXTENSION
 from codeprep.prepconfig import PrepParam, PrepConfig
 from codeprep.preprocess.core import to_repr_list
-from codeprep.preprocess.result import PreprocessingResult, insert_word_end_tokens_
+from codeprep.preprocess.result import PreprocessingResult
 from codeprep.preprocess.placeholders import placeholders
+from codeprep.tokens import PreppedSubTokenSequence
 from codeprep.tokentypes.rootclasses import ParsedToken
 from codeprep.tokentypes.word import SpecialToken
-from codeprep.util import to_literal_str
+from codeprep.util.misc import to_literal_str
 
 
 logger = logging.getLogger(__name__)
@@ -157,3 +158,11 @@ def save_non_processable_tokens(non_processable_tokens: Set[str], save_to: bytes
     with open(save_to, 'w') as f:
         for token in non_processable_tokens:
             f.write(f'{to_literal_str(token)}\n')
+
+
+def insert_word_end_tokens_(self) -> 'PreppedSubTokenSequence':
+    assert not self.word_end_token_added
+    new_tokens = []
+    for subtokens in self.full_tokens_view(formatter=lambda x: x[:-1] + [x[-1] + placeholders['compound_word_end']]):
+        new_tokens.extend(subtokens)
+    return PreppedSubTokenSequence(new_tokens, self.metadata, word_end_token_added=True)

@@ -6,7 +6,7 @@ import copy
 
 from typing import List, Tuple, Union, Optional, Iterator, Dict
 
-from codeprep.util import is_python_3_6_and_higher, to_literal_str, to_non_literal_str
+from codeprep.util.misc import is_python_3_6_and_higher, to_literal_str, to_non_literal_str
 
 
 # TODO this class should be frozen

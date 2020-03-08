@@ -6,7 +6,8 @@ from typing import List, Union, Optional
 
 from codeprep.noneng import replace_non_ascii_seqs
 from codeprep.preprocess.core import ReprConfig, torepr
-from codeprep.preprocess.result import PreprocessingResult, PreppedSubTokenSequence
+from codeprep.preprocess.result import PreprocessingResult
+from codeprep.tokens import PreppedSubTokenSequence
 from codeprep.preprocess.metadata import PreppedTokenMetadata
 from codeprep.preprocess.placeholders import placeholders
 from codeprep.tokentypes.rootclasses import ParsedToken, ParsedSubtoken

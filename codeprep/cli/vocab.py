@@ -5,7 +5,7 @@
 import argparse
 import logging
 
-from codeprep.dirutils import walk
+from codeprep.util.dir import walk
 from codeprep.pipeline.vocab import calc_vocab
 
 logger = logging.getLogger(__name__)

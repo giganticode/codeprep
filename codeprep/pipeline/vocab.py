@@ -18,9 +18,9 @@ import dill as pickle
 import time
 from tqdm import tqdm
 
-from codeprep.fileutils import read_file_contents
+from codeprep.util.file import read_file_contents
 from codeprep.preprocess.placeholders import placeholders
-from codeprep.util import to_literal_str, to_non_literal_str, AtomicInteger, merge_dicts_, groupify, \
+from codeprep.util.misc import to_literal_str, to_non_literal_str, AtomicInteger, merge_dicts_, groupify, \
     create_chunk_generator
 
 logger = logging.getLogger(__name__)

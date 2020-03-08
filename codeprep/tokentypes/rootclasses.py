@@ -4,7 +4,8 @@
 
 from typing import List, Set, Optional
 
-from codeprep.preprocess.result import PreprocessingResult, PreppedTokenSequence, PreppedSubTokenSequence
+from codeprep.preprocess.result import PreprocessingResult
+from codeprep.tokens import PreppedTokenSequence, PreppedSubTokenSequence
 from codeprep.preprocess.metadata import PreppedTokenMetadata
 
 

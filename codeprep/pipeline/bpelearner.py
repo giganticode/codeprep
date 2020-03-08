@@ -16,7 +16,7 @@ from codeprep.pipeline.bperegistry import get_max_merges, MERGES_FILE_NAME, MERG
     RESULTING_VOCAB_FILE_NAME, BPE_REASSEMBLED_VOCAB_FILE_NAME
 from codeprep.pipeline.dataset import Dataset
 from codeprep.pipeline.vocab import _dump_vocab_dict, _load_vocab_dict
-from codeprep.util import to_non_literal_str
+from codeprep.util.misc import to_non_literal_str
 
 
 def get_base_vocab(dataset: Dataset) -> Tuple[Dict[str, int], Dict[str, int]]:

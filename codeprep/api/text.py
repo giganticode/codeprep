@@ -12,7 +12,7 @@ from codeprep.pipeline.bperegistry import is_predefined_id, CustomBpeConfig
 from codeprep.pipeline.to_repr import init_bpe_data, to_repr
 from codeprep.prepconfig import PrepConfig
 from codeprep.preprocess.placeholders import placeholders
-from codeprep.preprocess.result import PreppedSubTokenSequence
+from codeprep.tokens import PreppedSubTokenSequence
 from codeprep.tokentypes.rootclasses import ParsedToken
 from codeprep.tokentypes.whitespace import NewLine
 from codeprep.tokentypes.word import SpecialToken
