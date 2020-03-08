@@ -45,7 +45,7 @@ def wrap_in_word_boundaries_if_necessary(res: List[str]) -> List[str]:
         return [placeholders['word_start']] + res + [placeholders['word_end']]
 
 
-class SplitContainer(ProcessableTokenContainer):
+class Identifier(ProcessableTokenContainer):
     def __init__(self, subtokens: List[ParsedSubtoken]):
         super().__init__(subtokens)
 

@@ -7,7 +7,7 @@ from typing import List
 import regex
 
 from codeprep.noneng import is_non_eng
-from codeprep.tokentypes.containers import SplitContainer
+from codeprep.tokentypes.containers import Identifier
 from codeprep.tokentypes.noneng import NonEng
 from codeprep.tokentypes.numeric import Number
 from codeprep.tokentypes.rootclasses import ParsedToken
@@ -15,12 +15,12 @@ from codeprep.tokentypes.whitespace import NewLine, Tab, SpaceInString
 from codeprep.tokentypes.word import Underscore, Word, NonCodeChar
 
 
-def split_identifier(token: str) -> SplitContainer:
+def split_identifier(token: str) -> Identifier:
     parts = [m[0] for m in
              regex.finditer('(_|[0-9]+|[[:upper:]]?[[:lower:]]+|[[:upper:]]+(?![[:lower:]])|[^ ])', token)]
 
     processable_tokens = [Word.from_(p) if p != '_' else Underscore() for p in parts]
-    split_container = SplitContainer(processable_tokens)
+    split_container = Identifier(processable_tokens)
     return NonEng(split_container) if is_non_eng(token) else split_container
 
 
@@ -128,7 +128,7 @@ def to_parsed_token(token: str) -> ParsedToken:
 def split_string(token: str) -> List[ParsedToken]:
     """
     >>> split_string("    var = 9.4\\t\\n")
-    [<SpaceInString> (n_chars=4), SplitContainer[Word(('var', none))], \
+    [<SpaceInString> (n_chars=4), Identifier[Word(('var', none))], \
 <SpaceInString> (n_chars=1), NonCodeChar(=), <SpaceInString> (n_chars=1), <Number>(9), \
 NonCodeChar(.), <Number>(4), <Tab>, <NewLine>]
     """
@@ -145,7 +145,7 @@ NonCodeChar(.), <Number>(4), <Tab>, <NewLine>]
 def split_into_words(token: str) -> List[ParsedToken]:
     """
     >>> split_into_words("    var = 9.4\\t\\n")
-    [<Tab>, SplitContainer[Word(('var', none))], NonCodeChar(=), <Number>(9), \
+    [<Tab>, Identifier[Word(('var', none))], NonCodeChar(=), <Number>(9), \
 NonCodeChar(.), <Number>(4), <Tab>, <NewLine>]
     """
     res = []

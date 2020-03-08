@@ -10,7 +10,7 @@ from codeprep.bpepkg.bpe_encode import BpeData
 from codeprep.bpepkg.merge import MergeList, Merge
 from codeprep.preprocess.result import PreprocessingResult
 from codeprep.tokens import PreppedSubTokenSequence
-from codeprep.tokentypes.containers import SplitContainer, OneLineComment, MultilineComment, StringLiteral
+from codeprep.tokentypes.containers import Identifier, OneLineComment, MultilineComment, StringLiteral
 from codeprep.preprocess.metadata import PreppedTokenMetadata
 from codeprep.tokentypes.noneng import NonEng
 from codeprep.tokentypes.numeric import Number
@@ -26,11 +26,11 @@ cwe = placeholders['compound_word_end']
 tokens = [
     Number('1.1'),
     Operator("*"),
-    NonEng(SplitContainer([Word.from_("übersetzen")])),
+    NonEng(Identifier([Word.from_("übersetzen")])),
     StringLiteral([
         NonCodeChar('"'),
         NonEng(
-            SplitContainer([
+            Identifier([
                 Word.from_("A"),
                 Word.from_("Wirklicä")
             ])
@@ -42,10 +42,10 @@ tokens = [
     MultilineComment([NonCodeChar('/'), NonCodeChar('*')]),
     MultilineComment([
         NonEng(
-            SplitContainer([Word.from_('ц')]),
+            Identifier([Word.from_('ц')]),
         ),
         NonEng(
-            SplitContainer([
+            Identifier([
                 Word.from_("blanco"),
                 Underscore(),
                 Word.from_("english")
@@ -56,7 +56,7 @@ tokens = [
     NewLine(), Tab(),
     OneLineComment([NonCodeChar('/'), NonCodeChar('/'),
         NonEng(
-            SplitContainer([
+            Identifier([
                 Word.from_("DIESELBE"),
                 Word.from_("8")
             ])
@@ -98,11 +98,11 @@ def test_to_repr_0():
         '/', '*', 'ц', 'blanco_english', '*', '/',
         '/', '/', "DIESELBE8", pl['olc_end']
     ], PreppedTokenMetadata(n_subtokens_per_token=[1] * 16,
-                            token_types=[Number, Operator, SplitContainer,
-                                                           StringLiteral, StringLiteral, StringLiteral,
-                                                           MultilineComment, MultilineComment, MultilineComment,
-                                                           MultilineComment, MultilineComment, MultilineComment,
-                                                           OneLineComment, OneLineComment, OneLineComment, OneLineComment])),
+                            token_types=[Number, Operator, Identifier,
+                                         StringLiteral, StringLiteral, StringLiteral,
+                                         MultilineComment, MultilineComment, MultilineComment,
+                                         MultilineComment, MultilineComment, MultilineComment,
+                                         OneLineComment, OneLineComment, OneLineComment, OneLineComment])),
         {'"', "*", "/"})
 
     assert result == expected_result
@@ -128,10 +128,10 @@ def test_to_repr_0_max_str_length_7():
         '/', '*', 'ц', 'blanco_english', '*', '/',
         '/', '/', "DIESELBE8", pl['olc_end']
     ], PreppedTokenMetadata(n_subtokens_per_token=[1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                            token_types=[Number, Operator, SplitContainer, StringLiteral,
-                                                           MultilineComment, MultilineComment, MultilineComment,
-                                                           MultilineComment, MultilineComment, MultilineComment,
-                                                           OneLineComment, OneLineComment, OneLineComment, OneLineComment])),
+                            token_types=[Number, Operator, Identifier, StringLiteral,
+                                         MultilineComment, MultilineComment, MultilineComment,
+                                         MultilineComment, MultilineComment, MultilineComment,
+                                         OneLineComment, OneLineComment, OneLineComment, OneLineComment])),
                        {'"', "*", "/"})
 
     assert result == expected_result
@@ -157,11 +157,11 @@ def test_to_repr_0_max_str_length_B():
         '/', '*', 'ц', 'blanco_english', '*', '/',
         '/', '/', "DIESELBE8", pl['olc_end']
     ], PreppedTokenMetadata(n_subtokens_per_token=[1] * 16,
-                            token_types=[Number, Operator, SplitContainer,
-                                                           StringLiteral, StringLiteral, StringLiteral,
-                                                           MultilineComment, MultilineComment, MultilineComment,
-                                                           MultilineComment, MultilineComment, MultilineComment,
-                                                           OneLineComment, OneLineComment, OneLineComment, OneLineComment])),
+                            token_types=[Number, Operator, Identifier,
+                                         StringLiteral, StringLiteral, StringLiteral,
+                                         MultilineComment, MultilineComment, MultilineComment,
+                                         MultilineComment, MultilineComment, MultilineComment,
+                                         OneLineComment, OneLineComment, OneLineComment, OneLineComment])),
         {'"', "*", "/"})
 
     assert result == expected_result
@@ -187,10 +187,10 @@ def test_to_repr_F():
         '/', '*', 'ц', 'blanco_english', '*', '/',
         '/', '/', "DIESELBE8", pl['olc_end']
     ], PreppedTokenMetadata(n_subtokens_per_token=[1] * 14,
-                            token_types=[Number, Operator, SplitContainer, StringLiteral,
-                                                           MultilineComment, MultilineComment, MultilineComment,
-                                                           MultilineComment, MultilineComment, MultilineComment,
-                                                           OneLineComment, OneLineComment, OneLineComment, OneLineComment])),
+                            token_types=[Number, Operator, Identifier, StringLiteral,
+                                         MultilineComment, MultilineComment, MultilineComment,
+                                         MultilineComment, MultilineComment, MultilineComment,
+                                         OneLineComment, OneLineComment, OneLineComment, OneLineComment])),
         {"*", "/"})
 
     assert result == expected_result
@@ -216,10 +216,10 @@ def test_to_repr_F_max_str_length_7():
         '/', '*', 'ц', 'blanco_english', '*', '/',
         '/', '/', "DIESELBE8", pl['olc_end']
     ], PreppedTokenMetadata(n_subtokens_per_token=[1] * 14,
-                            token_types=[Number, Operator, SplitContainer, StringLiteral,
-                                                           MultilineComment, MultilineComment, MultilineComment,
-                                                           MultilineComment, MultilineComment, MultilineComment,
-                                                           OneLineComment, OneLineComment, OneLineComment, OneLineComment])), {"*", "/"})
+                            token_types=[Number, Operator, Identifier, StringLiteral,
+                                         MultilineComment, MultilineComment, MultilineComment,
+                                         MultilineComment, MultilineComment, MultilineComment,
+                                         OneLineComment, OneLineComment, OneLineComment, OneLineComment])), {"*", "/"})
 
 
     assert result == expected_result
@@ -245,10 +245,10 @@ def test_to_repr_F_max_str_length_B():
         '/', '*', 'ц', 'blanco_english', '*', '/',
         '/', '/', "DIESELBE8", pl['olc_end']
     ], PreppedTokenMetadata(n_subtokens_per_token=[1] * 14,
-                            token_types=[Number, Operator, SplitContainer, StringLiteral,
-                                                           MultilineComment, MultilineComment, MultilineComment,
-                                                           MultilineComment, MultilineComment, MultilineComment,
-                                                           OneLineComment, OneLineComment, OneLineComment, OneLineComment])),
+                            token_types=[Number, Operator, Identifier, StringLiteral,
+                                         MultilineComment, MultilineComment, MultilineComment,
+                                         MultilineComment, MultilineComment, MultilineComment,
+                                         OneLineComment, OneLineComment, OneLineComment, OneLineComment])),
     {"*", "/"})
 
     assert result == expected_result
@@ -342,40 +342,40 @@ def test_to_repr_with_enonlycontents1():
     tokens = [
         Number("1.1"),
         Operator("*"),
-        NonEng(SplitContainer([Word.from_("dinero")])),
+        NonEng(Identifier([Word.from_("dinero")])),
         StringLiteral([
             NonCodeChar('"'),
-            NonEng(SplitContainer([Word.from_("ich")])),
+            NonEng(Identifier([Word.from_("ich")])),
             SpaceInString(),
-            NonEng(SplitContainer([Word.from_("weiss")])),
+            NonEng(Identifier([Word.from_("weiss")])),
             SpaceInString(),
-            NonEng(SplitContainer([Word.from_("nicht")])),
+            NonEng(Identifier([Word.from_("nicht")])),
             SpaceInString(),
-            NonEng(SplitContainer([Word.from_("was")])),
+            NonEng(Identifier([Word.from_("was")])),
             SpaceInString(),
-            NonEng(SplitContainer([Word.from_("soll")])),
+            NonEng(Identifier([Word.from_("soll")])),
             SpaceInString(),
-            NonEng(SplitContainer([Word.from_("es")])),
+            NonEng(Identifier([Word.from_("es")])),
             SpaceInString(),
-            NonEng(SplitContainer([Word.from_("bedeuten")])),
+            NonEng(Identifier([Word.from_("bedeuten")])),
             SpaceInString(),
-            NonEng(SplitContainer([Word.from_("dass")])),
+            NonEng(Identifier([Word.from_("dass")])),
             SpaceInString(),
-            NonEng(SplitContainer([Word.from_("ich")])),
+            NonEng(Identifier([Word.from_("ich")])),
             SpaceInString(),
-            NonEng(SplitContainer([Word.from_("so")])),
+            NonEng(Identifier([Word.from_("so")])),
             SpaceInString(),
-            NonEng(SplitContainer([Word.from_("traurig")])),
+            NonEng(Identifier([Word.from_("traurig")])),
             SpaceInString(),
-            NonEng(SplitContainer([Word.from_("bin")])),
+            NonEng(Identifier([Word.from_("bin")])),
             NonCodeChar('"'),
         ], 62),
         NewLine(),
         MultilineComment([NonCodeChar('/'), NonCodeChar('*')]),
         MultilineComment([
-            NonEng(SplitContainer([Word.from_('ц')])),
+            NonEng(Identifier([Word.from_('ц')])),
             NonEng(
-                SplitContainer([
+                Identifier([
                     Word.from_("blanco"),
                     Underscore(),
                     Word.from_("english")
@@ -386,7 +386,7 @@ def test_to_repr_with_enonlycontents1():
         NewLine(), Tab(),
         OneLineComment([NonCodeChar('/'), NonCodeChar('/'),
             NonEng(
-                SplitContainer([
+                Identifier([
                     Word.from_("DIESELBE"),
                     Word.from_("8")
                 ])
@@ -448,7 +448,7 @@ def test_to_repr_with_non_eng():
         '/', '/', pl['word_start'], pl['capitals'], 'dieselbe', "8", pl['word_end'], pl['olc_end']
     ], PreppedTokenMetadata(n_subtokens_per_token=[5, 1, 1, 1, 6, 1, 1, 1, 1,
                                                    5, 1, 1, 1, 1, 5, 1],
-                            token_types=[Number, Operator, SplitContainer]
+                            token_types=[Number, Operator, Identifier]
                                                           + [StringLiteral] * 3
                                                           + [MultilineComment] * 6
                                                           + [OneLineComment] * 4)),
@@ -649,12 +649,12 @@ def test_1():
         PrepParam.CASE: 'u'
     })
 
-    tokens = [SplitContainer.from_single_token("Whi@le")]
+    tokens = [Identifier.from_single_token("Whi@le")]
 
     result = to_repr(prep_config, tokens, BpeData(merges_cache={'Whi@@le@': ['Whi@@le@']}))
 
     expected_result = PreprocessingResult(PreppedSubTokenSequence(["Whi@le" + placeholders['compound_word_end']],
-                                          PreppedTokenMetadata(n_subtokens_per_token=[1], token_types=[SplitContainer]), word_end_token_added=True),
+                                                                  PreppedTokenMetadata(n_subtokens_per_token=[1], token_types=[Identifier]), word_end_token_added=True),
                                           set())
 
     assert result == expected_result
@@ -670,14 +670,14 @@ def test_merges_no_cache():
         PrepParam.CASE: 'u'
     })
 
-    tokens = [SplitContainer.from_single_token("Whi@l@@e@")]
+    tokens = [Identifier.from_single_token("Whi@l@@e@")]
 
     result = to_repr(prep_config, tokens, BpeData(merges=MergeList().append(Merge(('W', 'h'), 10)),
                                                                     merges_cache={} ))
 
     expected_result = PreprocessingResult(
         PreppedSubTokenSequence(["Wh", "i", '@', "l", '@', '@', "e", '@', pl["compound_word_end"]],
-        PreppedTokenMetadata(n_subtokens_per_token=[9], token_types=[SplitContainer]), word_end_token_added=True),
+                                PreppedTokenMetadata(n_subtokens_per_token=[9], token_types=[Identifier]), word_end_token_added=True),
         set())
 
     assert result == expected_result

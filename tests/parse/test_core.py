@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from codeprep.parse.core import convert_text
-from codeprep.tokentypes.containers import SplitContainer, StringLiteral, OneLineComment, MultilineComment
+from codeprep.tokentypes.containers import Identifier, StringLiteral, OneLineComment, MultilineComment
 from codeprep.tokentypes.numeric import Number
 from codeprep.tokentypes.whitespace import Tab, NewLine, SpaceInString
 from codeprep.tokentypes.word import Word, Underscore, KeyWord, Operator, NonCodeChar, OpeningCurlyBracket, \
@@ -15,9 +15,9 @@ def test_longs():
     expected_result = [KeyWord('long'),
                        Operator('['),
                        Operator(']'),
-                       SplitContainer([Word.from_('lovely'),
-                                       Underscore(),
-                                       Word.from_('longs')]),
+                       Identifier([Word.from_('lovely'),
+                                   Underscore(),
+                                   Word.from_('longs')]),
                        Operator('='),
                        OpeningCurlyBracket(),
                        Number("0x34a35EL"),
@@ -43,7 +43,7 @@ def test_ints():
     expected_result = [KeyWord('int'),
                        Operator('['),
                        Operator(']'),
-                       SplitContainer(
+                       Identifier(
                            [Underscore(),
                             Word.from_('my'),
                             Underscore(),
@@ -80,7 +80,7 @@ def test_floats():
     expected_result = [KeyWord('float'),
                        Operator('['),
                        Operator(']'),
-                       SplitContainer.from_single_token('floats'),
+                       Identifier.from_single_token('floats'),
                        Operator('='),
                        OpeningCurlyBracket(),
                        Operator('-'),
@@ -105,15 +105,15 @@ def test_floats():
 
 def test_complex_identifiers():
     text = '''BigAWESOMEString[] a2y = "abc".doSplit("\\"");'''
-    expected_result = [SplitContainer(
+    expected_result = [Identifier(
         [Word.from_('Big'), Word.from_('AWESOME'), Word.from_('String')], ),
         Operator('['),
         Operator(']'),
-        SplitContainer([Word.from_('a'), Word.from_('2'), Word.from_('y')]),
+        Identifier([Word.from_('a'), Word.from_('2'), Word.from_('y')]),
         Operator('='),
-        StringLiteral([NonCodeChar('"'), SplitContainer.from_single_token('abc'), NonCodeChar('"')], 5),
+        StringLiteral([NonCodeChar('"'), Identifier.from_single_token('abc'), NonCodeChar('"')], 5),
         Operator('.'),
-        SplitContainer([Word.from_('do'), Word.from_('Split')]),
+        Identifier([Word.from_('do'), Word.from_('Split')]),
         OpeningBracket(),
         StringLiteral([NonCodeChar('"'), NonCodeChar('\\'), NonCodeChar('"'), NonCodeChar('"')], 4),
         ClosingBracket(),
@@ -129,11 +129,11 @@ def test_string_with_spaces():
     text='''"hi   dear     world    !"'''
     expected = [StringLiteral([
         NonCodeChar('"'),
-        SplitContainer.from_single_token('hi'),
+        Identifier.from_single_token('hi'),
         SpaceInString(3),
-        SplitContainer.from_single_token('dear'),
+        Identifier.from_single_token('dear'),
         SpaceInString(5),
-        SplitContainer.from_single_token('world'),
+        Identifier.from_single_token('world'),
         SpaceInString(4),
         NonCodeChar('!'),
         NonCodeChar('"'),
@@ -146,20 +146,20 @@ def test_string_with_spaces():
 
 def test_spaces_in_strings():
     text = '''BigAWESOMEString[] a2y = "a    bc".doSplit("\\"");'''
-    expected_result = [SplitContainer(
+    expected_result = [Identifier(
         [Word.from_('Big'), Word.from_('AWESOME'), Word.from_('String')], ),
         Operator('['),
         Operator(']'),
-        SplitContainer([Word.from_('a'), Word.from_('2'), Word.from_('y')]),
+        Identifier([Word.from_('a'), Word.from_('2'), Word.from_('y')]),
         Operator('='),
         StringLiteral([NonCodeChar('"'),
-                       SplitContainer.from_single_token('a'),
+                       Identifier.from_single_token('a'),
                        SpaceInString(n_chars=4),
-                       SplitContainer.from_single_token('bc'),
+                       Identifier.from_single_token('bc'),
                        NonCodeChar('"')],
                       9),
         Operator('.'),
-        SplitContainer([Word.from_('do'), Word.from_('Split')]),
+        Identifier([Word.from_('do'), Word.from_('Split')]),
         OpeningBracket(),
         StringLiteral([NonCodeChar('"'), NonCodeChar('\\'), NonCodeChar('"'), NonCodeChar('"')], 4),
         ClosingBracket(),
@@ -175,20 +175,20 @@ def test_one_line_comment():
     text = '''// this code won't compile but the preprocessing still has to be done corrrectly'''
 
     expected_result = [OneLineComment([NonCodeChar('/'), NonCodeChar('/'),
-                                       SplitContainer.from_single_token('this'),
-                                       SplitContainer.from_single_token('code'),
-                                       SplitContainer.from_single_token('won'), NonCodeChar("'"),
-                                       SplitContainer.from_single_token('t'),
-                                       SplitContainer.from_single_token('compile'),
-                                       SplitContainer.from_single_token('but'),
-                                       SplitContainer.from_single_token('the'),
-                                       SplitContainer.from_single_token('preprocessing'),
-                                       SplitContainer.from_single_token('still'),
-                                       SplitContainer.from_single_token('has'),
-                                       SplitContainer.from_single_token('to'),
-                                       SplitContainer.from_single_token('be'),
-                                       SplitContainer.from_single_token('done'),
-                                       SplitContainer.from_single_token('corrrectly'),
+                                       Identifier.from_single_token('this'),
+                                       Identifier.from_single_token('code'),
+                                       Identifier.from_single_token('won'), NonCodeChar("'"),
+                                       Identifier.from_single_token('t'),
+                                       Identifier.from_single_token('compile'),
+                                       Identifier.from_single_token('but'),
+                                       Identifier.from_single_token('the'),
+                                       Identifier.from_single_token('preprocessing'),
+                                       Identifier.from_single_token('still'),
+                                       Identifier.from_single_token('has'),
+                                       Identifier.from_single_token('to'),
+                                       Identifier.from_single_token('be'),
+                                       Identifier.from_single_token('done'),
+                                       Identifier.from_single_token('corrrectly'),
                                        NewLine()
                                        ])]
 
@@ -229,7 +229,7 @@ $
 {}[],.-:();&|\\'~%^
 '''
 
-    expected_result = [SplitContainer([Word.from_('abc'), Word.from_('1')]),
+    expected_result = [Identifier([Word.from_('abc'), Word.from_('1')]),
                        NewLine(),
                        Operator('~'),
                        Operator('-'),
@@ -348,9 +348,9 @@ def test_multi_line_comment():
 _operations
 '''
 
-    expected_result = [MultilineComment([NonCodeChar('/'), NonCodeChar('*'), SplitContainer.from_single_token('multi'), NonCodeChar('-'),
-                                         SplitContainer.from_single_token('line'),
-                                         SplitContainer([
+    expected_result = [MultilineComment([NonCodeChar('/'), NonCodeChar('*'), Identifier.from_single_token('multi'), NonCodeChar('-'),
+                                         Identifier.from_single_token('line'),
+                                         Identifier([
                                              Word.from_('My'),
                                              Word.from_('Comment'),
                                              Underscore()
@@ -358,7 +358,7 @@ _operations
                                          NewLine(), NonCodeChar('*'), NonCodeChar('/')]),
                        Operator('/'),
                        NewLine(),
-                       SplitContainer([Underscore(), Word.from_('operations')]),
+                       Identifier([Underscore(), Word.from_('operations')]),
                        NewLine()]
 
     actual = [t for t in convert_text(text, 'java')]
@@ -371,14 +371,14 @@ def test_capitals():
 MyClass Class CONSTANT VAR_WITH_UNDERSCORES
 '''
 
-    expected_result = [SplitContainer([Word.from_("My"), Word.from_("Class")]),
-                       SplitContainer.from_single_token("Class"),
-                       SplitContainer.from_single_token("CONSTANT"),
-                       SplitContainer([Word.from_("VAR"),
-                                       Underscore(),
-                                       Word.from_("WITH"),
-                                       Underscore(),
-                                       Word.from_("UNDERSCORES")]),
+    expected_result = [Identifier([Word.from_("My"), Word.from_("Class")]),
+                       Identifier.from_single_token("Class"),
+                       Identifier.from_single_token("CONSTANT"),
+                       Identifier([Word.from_("VAR"),
+                                   Underscore(),
+                                   Word.from_("WITH"),
+                                   Underscore(),
+                                   Word.from_("UNDERSCORES")]),
                        NewLine()]
 
     actual = [t for t in convert_text(text, 'java')]
@@ -389,13 +389,13 @@ MyClass Class CONSTANT VAR_WITH_UNDERSCORES
 def test_string_literal_single():
     text = '''a = 'some_text'.split()'''
 
-    expected_result = [SplitContainer.from_single_token("a"),
+    expected_result = [Identifier.from_single_token("a"),
                        Operator('='),
                        StringLiteral([NonCodeChar("'")], 1),
-                       StringLiteral([SplitContainer([Word.from_("some"), Underscore(), Word.from_("text")])], 9),
+                       StringLiteral([Identifier([Word.from_("some"), Underscore(), Word.from_("text")])], 9),
                        StringLiteral([NonCodeChar("'")], 1),
                        Operator('.'),
-                       SplitContainer.from_single_token("split"),
+                       Identifier.from_single_token("split"),
                        OpeningBracket(),
                        ClosingBracket(),
                        NewLine()
@@ -409,13 +409,13 @@ def test_string_literal_single():
 def test_string_literal_double():
     text = '''a = "some_text".split()'''
 
-    expected_result = [SplitContainer.from_single_token("a"),
+    expected_result = [Identifier.from_single_token("a"),
                        Operator('='),
                        StringLiteral([NonCodeChar('"')], 1),
-                       StringLiteral([SplitContainer([Word.from_("some"), Underscore(), Word.from_("text")])], 9),
+                       StringLiteral([Identifier([Word.from_("some"), Underscore(), Word.from_("text")])], 9),
                        StringLiteral([NonCodeChar('"')], 1),
                        Operator('.'),
-                       SplitContainer.from_single_token("split"),
+                       Identifier.from_single_token("split"),
                        OpeningBracket(),
                        ClosingBracket(),
                        NewLine()

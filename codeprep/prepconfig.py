@@ -14,7 +14,7 @@ import sys
 
 from codeprep.bpepkg.bpe_encode import BpeData, get_bpe_subwords
 from codeprep.preprocess.reprconfig import Splitter, ReprConfig
-from codeprep.tokentypes.containers import SplitContainer, StringLiteral, OneLineComment, MultilineComment
+from codeprep.tokentypes.containers import Identifier, StringLiteral, OneLineComment, MultilineComment
 from codeprep.tokentypes.noneng import NonEng
 from codeprep.tokentypes.numeric import Number
 from codeprep.tokentypes.whitespace import NewLine, Tab
@@ -166,7 +166,7 @@ class PrepConfig(object):
     def get_types_to_be_repr(self) -> List[Type]:
         res = []
         if self.get_param_value(PrepParam.SPLIT) in ['1', '2', '3', '4', '5', '6', '7', '8', '9', 's']:
-            res.extend([SplitContainer, Word])
+            res.extend([Identifier, Word])
         if self.get_param_value(PrepParam.SPLIT) in ['2', '3', '4', '5', '6', '7', '8', '9', 's']:
             res.append(Number)
         if self.get_param_value(PrepParam.COM) == '0':

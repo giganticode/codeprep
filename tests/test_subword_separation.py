@@ -6,7 +6,7 @@
 #
 # from codeprep.bpepkg.bpe_encode import BpeData
 # from codeprep.parse.core import convert_text
-# from codeprep.parse.model.containers import SplitContainer
+# from codeprep.parse.model.containers import Identifier
 # from codeprep.parse.model.numeric import Number
 # from codeprep.parse.model.placeholders import placeholders
 # from codeprep.parse.model.word import Underscore, Word
@@ -15,15 +15,15 @@
 #
 # test_cases = {
 #     "create": (
-#         [SplitContainer.from_single_token("create")],
+#         [Identifier.from_single_token("create")],
 #         ["create"],
 #     ),
 #     "Vector": (
-#         [SplitContainer.from_single_token("Vector")],
+#         [Identifier.from_single_token("Vector")],
 #         [placeholders["capital"], "vector"],
 #     ),
 #     "players": (
-#         [SplitContainer.from_single_token("players")],
+#         [Identifier.from_single_token("players")],
 #         [placeholders["word_start"], 'play', 'er', 's', placeholders["word_end"]]
 #     ),
 #     "0.345e+4": (
@@ -31,16 +31,16 @@
 #         [placeholders["word_start"], "0.", "3", "4", "5", "e+", "4", placeholders["word_end"]]
 #     ),
 #     "bestPlayers": (
-#         [SplitContainer([Word.from_("best"), Word.from_("Players")])],
+#         [Identifier([Word.from_("best"), Word.from_("Players")])],
 #         [placeholders["word_start"], "best", placeholders["capital"], 'play', "er", "s", placeholders["word_end"]]
 #     ),
 #     "test_BestPlayers": (
-#         [SplitContainer([Word.from_("test"), Underscore(), Word.from_("Best"), Word.from_("Players")])],
+#         [Identifier([Word.from_("test"), Underscore(), Word.from_("Best"), Word.from_("Players")])],
 #         [placeholders["word_start"], "test", '_', placeholders["capital"],
 #          "best", placeholders["capital"], 'play', "er", "s", placeholders["word_end"]]
 #     ),
 #     "test_BestPlayers_modified": (
-#         [SplitContainer(
+#         [Identifier(
 #             [Word.from_("test"), Underscore(), Word.from_("Best"), Word.from_("Players"), Underscore(),
 #              Word.from_("modified")]
 #         )],
@@ -50,13 +50,13 @@
 #          placeholders["word_end"]]
 #     ),
 #     "N_PLAYERS_NUM": (
-#         [SplitContainer([Word.from_("N"), Underscore(), Word.from_("PLAYERS"), Underscore(), Word.from_("NUM")])],
+#         [Identifier([Word.from_("N"), Underscore(), Word.from_("PLAYERS"), Underscore(), Word.from_("NUM")])],
 #         [placeholders["word_start"], placeholders["capitals"], "n", '_',
 #          placeholders["capitals"], "play", "er", "s", '_', placeholders["capitals"],
 #          "num", placeholders["word_end"]]
 #     ),
 #     "_players": (
-#         [SplitContainer([Underscore(), (Word.from_("players"))])],
+#         [Identifier([Underscore(), (Word.from_("players"))])],
 #         [placeholders['word_start'], '_', "play", "er", "s", placeholders['word_end']]
 #     ),
 # }
