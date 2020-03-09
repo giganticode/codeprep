@@ -44,4 +44,19 @@ class PreppedTokenMetadata(object):
     def __repr__(self):
         return str((self.n_subtokens_per_token, list(map(lambda x: x.__name__, self.token_types))))
 
+    def __len__(self):
+        return len(self.n_subtokens_per_token)
+
+    def token_type(self) -> Type:
+        if len(self.token_types) != 1:
+            raise ValueError("This method can be only called if the sequence contains only one token.")
+
+        return self.token_types[0]
+
+    def n_subtokens(self) -> int:
+        if len(self.n_subtokens_per_token) != 1:
+            raise ValueError("This method can be only called if the sequence contains only one token.")
+
+        return self.n_subtokens_per_token[0]
+
 

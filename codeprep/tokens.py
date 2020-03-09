@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from typing import Iterator, Sequence, Any, Callable, List, Optional, Union, Type, Iterable
 
 from dataclasses import dataclass, field
@@ -58,8 +59,11 @@ class _FullOverSubTokenIterator(Iterator):
 @dataclass
 class SurrogatePreppedTokenSequence(object):
     tokens: List[str]
+    metadata: Optional[PreppedTokenMetadata] = None
 
     def add(self, other: 'PreppedTokenSequence') -> 'SurrogatePreppedTokenSequence':
+        if self.metadata is not None:
+            raise TypeError('Cannot add SurrogatePreppedTokenSequences when metadata is present.')
         if isinstance(other, SurrogatePreppedTokenSequence):
             return SurrogatePreppedTokenSequence(self.tokens + other.tokens)
         else:
@@ -70,7 +74,7 @@ class SurrogatePreppedTokenSequence(object):
 
 
 @dataclass
-class PreppedTokenSequence(object):
+class PreppedTokenSequence(ABC):
     """
     >>> class TypeA(object): pass
     >>> PreppedSubTokenSequence(['h', 'i</t>'], PreppedTokenMetadata([1], [TypeA]))
@@ -82,7 +86,7 @@ class PreppedTokenSequence(object):
     Traceback (most recent call last):
     ...
     AssertionError: Token hi according to metadata is end-token, however it doesn't contain </t>.
-    >>> prepped_tokens = PreppedSubTokenSequence(['hi</t>', 'the' ,'re</t>'], PreppedTokenMetadata([1, 2], [TypeA, TypeA]), word_end_token_added=True)
+    >>> prepped_tokens = PreppedSubTokenSequence(['hi</t>', 'the' ,'re</t>'], PreppedTokenMetadata([1, 2], [TypeA, TypeA]), word_end_token_added=True, formatter=lambda x:x)
     >>> prepped_tokens
     ['hi</t>', 'the', 're</t>']
     >>> len(prepped_tokens)
@@ -100,11 +104,13 @@ class PreppedTokenSequence(object):
     >>> sub_prepped_tokens[0]
     ['hi</t>']
     >>> sub_prepped_tokens[1]
-    SurrogatePreppedTokenSequence(tokens=['the'])
+    SurrogatePreppedTokenSequence(tokens=['the'], metadata=None)
     >>> (sub_prepped_tokens[0] + sub_prepped_tokens[1:]).full_tokens_view()
-    [['hi</t>'], ['the', 're</t>']]
+    ['hi</t>', 'there</t>']
     >>> sub_prepped_tokens[0] + sub_prepped_tokens[1] + sub_prepped_tokens[2:]
-    SurrogatePreppedTokenSequence(tokens=['hi</t>', 'the', 're</t>'])
+    SurrogatePreppedTokenSequence(tokens=['hi</t>', 'the', 're</t>'], metadata=None)
+    >>> [i for i in sub_prepped_tokens.with_metadata()]
+    [SurrogatePreppedTokenSequence(tokens='hi</t>', metadata=([1], ['TypeA'])), SurrogatePreppedTokenSequence(tokens='the', metadata=([2], ['TypeA'])), SurrogatePreppedTokenSequence(tokens='re</t>', metadata=([2], ['TypeA']))]
     >>> len(full_prepped_tokens)
     2
     >>> full_prepped_tokens[:]
@@ -116,6 +122,10 @@ class PreppedTokenSequence(object):
     >>> elm = full_prepped_tokens[:-1]
     >>> elm
     ['hi</t>']
+    >>> elm.token_str()
+    'hi</t>'
+    >>> elm.metadata.n_subtokens(), elm.metadata.token_type()
+    (1, <class 'codeprep.tokens.TypeA'>)
     >>> elm.tokens[0] = 'bye</t>'
     >>> full_prepped_tokens
     ['hi</t>', 'there</t>']
@@ -154,6 +164,8 @@ class PreppedTokenSequence(object):
     tokens: List[Any] = field(default_factory=list)
     metadata: PreppedTokenMetadata = field(default_factory=PreppedTokenMetadata)
     word_end_token_added: bool = False
+    return_metadata: bool = field(default=False, compare=False)
+    formatter: Callable[[List[Any]], Any] = field(default_factory=lambda: lambda x: x, compare=False)
 
     def __post_init__(self):
         assert isinstance(self.tokens, list)
@@ -199,34 +211,25 @@ class PreppedTokenSequence(object):
 
         return self._convert_index(index, conversion_func)
 
-    def full_tokens_view(self, formatter: Callable[[List[Any]], List[Any]] = lambda x: x, return_token_type: bool = False) -> 'PreppedFullTokenSequence':
-        return PreppedFullTokenSequence(
-            self.tokens,
-            self.metadata,
-            word_end_token_added=self.word_end_token_added,
-            formatter=formatter,
-            return_token_type=return_token_type
-        )
+    def full_tokens_view(self, **kwargs) -> 'PreppedFullTokenSequence':
+        return self.shallow_copy(PreppedFullTokenSequence, **kwargs)
 
-    def sub_token_view(self) -> 'PreppedSubTokenSequence':
-        return PreppedSubTokenSequence(
-            self.tokens,
-            self.metadata,
-            word_end_token_added=self.word_end_token_added
-        )
+    def sub_token_view(self, **kwargs) -> 'PreppedSubTokenSequence':
+        return self.shallow_copy(PreppedSubTokenSequence, **kwargs)
 
-    def update_(self, **kwargs) -> 'PreppedTokenSequence':
-        self.__dict__.update(kwargs)
-        return self
+    def shallow_copy(self, new_type, **kwargs) -> Union['PreppedSubTokenSequence', 'PreppedFullTokenSequence']:
+        dict_copy = {k:v for k, v in self.__dict__.items() if k in self.__dataclass_fields__}
+        dict_copy.update(kwargs)
+        return new_type(**dict_copy)
 
-    def __str__(self):
-        return repr([i for i in self])
+    def __repr__(self):
+        return repr([i for i in self.shallow_copy(type(self), return_metadata=False)])
 
     def add(self, other: 'PreppedTokenSequence') -> Union['PreppedTokenSequence', SurrogatePreppedTokenSequence]:
         if isinstance(other, PreppedTokenSequence):
             self.tokens.extend(other.tokens)
             self.metadata.update_(other.metadata)
-            return self.update_(tokens=self.tokens, metadata=self.metadata)
+            return self.shallow_copy(type(self), tokens=self.tokens, metadata=self.metadata)
         elif isinstance(other, SurrogatePreppedTokenSequence):
             return SurrogatePreppedTokenSequence(self.tokens + other.tokens)
         else:
@@ -235,11 +238,31 @@ class PreppedTokenSequence(object):
     def __add__(self, other):
         return self.add(other)
 
+    def token_str(self) -> str:
+        if len(self.tokens) != 1:
+            raise ValueError("This method can be only called if the sequence contains only one token.")
 
-@dataclass
+        return self.tokens[0]
+
+    @abstractmethod
+    def __iter__(self) -> Union[Iterator[SurrogatePreppedTokenSequence], Iterator['PreppedFullTokenSequence'], Iterator['PreppedSubTokenSequence']]:
+        pass
+
+    @abstractmethod
+    def get_iterator(self, over, over_full_tokens: bool) -> Iterator:
+        pass
+
+    def without_metadata(self):
+        return self.shallow_copy(type(self), return_metadata=False)
+
+    def with_metadata(self):
+        return self.shallow_copy(type(self), return_metadata=True)
+
+
+@dataclass(repr=False)
 class PreppedSubTokenSequence(PreppedTokenSequence):
-    def __iter__(self) -> Iterator[str]:
-        return iter(self.tokens)
+    def __iter__(self) -> Union[Iterator[str], Iterator[SurrogatePreppedTokenSequence]]:
+        return iter(SurrogatePreppedTokenSequence(t, PreppedTokenMetadata([s], [tt])) for t, (s, tt) in zip(iter(self.tokens), _SubOverFullTokenIterator([i for i in zip(self.metadata.n_subtokens_per_token, self.metadata.token_types)], self.metadata))) if self.return_metadata else iter(self.tokens)
 
     def __getitem__(self, item: Union[int, slice]):
         if not isinstance(item, slice):
@@ -253,21 +276,18 @@ class PreppedSubTokenSequence(PreppedTokenSequence):
                 self._sub_to_full_index(item.stop),
                 1,
             )
-            return PreppedSubTokenSequence(self.tokens[item],
-                                           PreppedTokenMetadata(
+            return self.shallow_copy(new_type=type(self), tokens=self.tokens[item],
+                                           metadata=PreppedTokenMetadata(
                                                self.metadata.n_subtokens_per_token[full_index],
                                                self.metadata.token_types[full_index]
-                                           ), word_end_token_added=self.word_end_token_added)
+                                           ))
         except KeyError:
             return SurrogatePreppedTokenSequence(self.tokens[item])
-
-    def __repr__(self):
-        return repr([i for i in self])
 
     def __len__(self):
         return len(self.tokens)
 
-    def get_iterator(self, over, over_full_tokens: bool):
+    def get_iterator(self, over, over_full_tokens: bool) -> Iterator:
         return _SubOverFullTokenIterator(over, self.metadata) if over_full_tokens else iter(over)
 
     @classmethod
@@ -278,17 +298,15 @@ class PreppedSubTokenSequence(PreppedTokenSequence):
         self.metadata.token_types = [t] * len(self.metadata.n_subtokens_per_token)
 
 
-@dataclass
+@dataclass(repr=False)
 class PreppedFullTokenSequence(PreppedTokenSequence):
-    formatter: Callable[[List[Any]], Any] = field(default_factory=lambda: lambda x: x)
-    return_token_type: bool = False
-
     def __iter__(self) -> Union[Iterator[str], Iterator['PreppedFullTokenSequence']]:
-        token_iterator = _FullOverSubTokenIterator(self.tokens, self.metadata, self.formatter)
-        return iter(zip(token_iterator, self.metadata.token_types)) if self.return_token_type else token_iterator
+        over = self.sub_token_view() if self.return_metadata else self.tokens
+        formatter = (lambda x: x) if self.return_metadata else self.formatter
+        return _FullOverSubTokenIterator(over, metadata=self.metadata, formatter=formatter)
 
-    def get_iterator(self, over: Iterable[Any], over_full_tokens: bool, formatter: Callable = lambda x: x):
-        return iter(over) if over_full_tokens else _FullOverSubTokenIterator(over, self.metadata, formatter)
+    def get_iterator(self, over: Sequence[Any], over_full_tokens: bool, formatter: Callable = lambda x: x) -> Iterator:
+        return iter(over) if over_full_tokens else _FullOverSubTokenIterator(over, metadata=self.metadata, formatter=formatter)
 
     def __setitem__(self, key, value):
         if not isinstance(value, PreppedFullTokenSequence):
@@ -307,17 +325,14 @@ class PreppedFullTokenSequence(PreppedTokenSequence):
             self._full_to_sub_index(item.stop),
             1,
         )
-        return PreppedFullTokenSequence(self.tokens[full_item],
-                                    PreppedTokenMetadata(
+        return self.shallow_copy(new_type=type(self), tokens=self.tokens[full_item],
+                                    metadata=PreppedTokenMetadata(
                                         self.metadata.n_subtokens_per_token[item],
                                         self.metadata.token_types[item]
-                                    ), word_end_token_added=self.word_end_token_added, formatter=self.formatter, return_token_type=self.return_token_type)
+                                    ))
 
     def __len__(self):
         return self._sub_to_full_token_indices[len(self.tokens)]
-
-    def __repr__(self):
-        return repr([i for i in self])
 
 
 def is_terminal_subtoken(subtoken: str, use_token_end_chars: bool = True) -> bool:
