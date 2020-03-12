@@ -235,6 +235,10 @@ class PreppedTokenSequence(ABC):
         else:
             raise TypeError()
 
+    @staticmethod
+    def empty(full_tokens: bool) -> Union['PreppedSubTokenSequence', 'PreppedFullTokenSequence']:
+        return PreppedFullTokenSequence() if full_tokens else PreppedSubTokenSequence()
+
     def __add__(self, other):
         return self.add(other)
 
@@ -250,6 +254,10 @@ class PreppedTokenSequence(ABC):
 
     @abstractmethod
     def get_iterator(self, over, over_full_tokens: bool) -> Iterator:
+        pass
+
+    @abstractmethod
+    def __getitem__(self, item: Union[int, slice]):
         pass
 
     def without_metadata(self):
