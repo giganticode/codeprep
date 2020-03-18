@@ -2,26 +2,27 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-#TODO use relative path
-TEST_FILE = b"C:\\Users\Home\dev\codeprep\\test-resources\AppXMark.java"
+import os
+import shutil
 
-#TODO make test file small and measure time of excution
+import codeprep.api.corpus as api
+from codeprep.config import root_package_dir
 
-# class BpePerformanceTest(unittest.TestCase):
-#     def test(self):
-#         prep_config = PrepConfig({
-#             PrepParam.EN_ONLY: 'u',
-#             PrepParam.COM: 'c',
-#             PrepParam.STR: '1',
-#             PrepParam.SPLIT: '9',
-#             PrepParam.TABS_NEWLINES: 's',
-#             PrepParam.CASE: 'u'
-#         })
-#
-#         bpe_data = BpeData(merges_cache=[],
-#                            merges = read_merges('C:\\Users\Home\dev\codeprep\codeprep\data\\bpe\\10k\merges.txt', 1000))
-#
-#         lines_from_file, path = read_file_contents(TEST_FILE)
-#         extension_bin = os.path.splitext(TEST_FILE)[1].decode()[1:]
-#         parsed = [p for p in convert_text("\n".join(lines_from_file), extension_bin)]
-#         repr, metadata = to_repr(prep_config, parsed, bpe_data)
+PATH_TO_TEST_CORPUS = os.path.join(root_package_dir, '..', 'test-data', 'test-corpus')
+TEST_OUTPUT = os.path.join(root_package_dir, '..', 'test-output')
+
+
+def test_preprocess_with_different_options():
+    calc_vocab = False
+    api.basic(path=PATH_TO_TEST_CORPUS, extensions="java", output_path=TEST_OUTPUT)
+    api.basic(path=PATH_TO_TEST_CORPUS, extensions="java", split_numbers=True, ronin=True, stem=True,
+              no_spaces=True, no_unicode=True, no_case=True, no_com=True, no_str=True, max_str_length=30,
+              calc_vocab=calc_vocab, output_path=TEST_OUTPUT)
+    api.chars(path=PATH_TO_TEST_CORPUS, extensions="java", output_path=TEST_OUTPUT)
+    api.nosplit(path=PATH_TO_TEST_CORPUS, extensions="java", output_path=TEST_OUTPUT)
+    api.bpe(path=PATH_TO_TEST_CORPUS, bpe_codes_id='10k', extensions="java", output_path=TEST_OUTPUT)
+
+
+def teardown_function(function):
+    print(f'Removing the outputs at: {TEST_OUTPUT}')
+    shutil.rmtree(TEST_OUTPUT)
