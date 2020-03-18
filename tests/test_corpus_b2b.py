@@ -27,10 +27,13 @@ def test_preprocess_with_different_options():
 
 
 def test_learn_bpe_codes():
-    parse_and_run(['learn-bpe', '100', '-p', PATH_TO_TEST_CORPUS, '-e', 'java'])
-    parse_and_run(['learn-bpe', '150', '-p', PATH_TO_TEST_CORPUS, '-e', 'java'])
+    if platform.system() != 'Darwin':
+        parse_and_run(['learn-bpe', '100', '-p', PATH_TO_TEST_CORPUS, '-e', 'java'])
+        parse_and_run(['learn-bpe', '150', '-p', PATH_TO_TEST_CORPUS, '-e', 'java'])
 
-    api.bpe(path=PATH_TO_TEST_CORPUS, bpe_codes_id='test-corpus-130', extensions="java", output_path=TEST_OUTPUT)
+        api.bpe(path=PATH_TO_TEST_CORPUS, bpe_codes_id='test-corpus-130', extensions="java", output_path=TEST_OUTPUT)
+    else:
+        print('Skipping the test on OSx.')
 
 
 def teardown_function(function):
