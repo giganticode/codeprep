@@ -57,7 +57,7 @@ class PartialVocab(object):
         self.id = self._generate_id()
 
     def _generate_id(self) -> str:
-        return str(os.getpid()) + ''.join(str(time.time()).split('.') + str(random.randint(sys.maxsize)))
+        return str(os.getpid()) + ''.join(str(time.time()).split('.') + str(random.randint(0, sys.maxsize)))
 
     def renew_id(self) -> None:
         self.id = self._generate_id()
