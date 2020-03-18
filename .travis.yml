@@ -37,7 +37,8 @@ before_script:
 script:
   - cd $TRAVIS_BUILD_DIR
   - echo "Current directory is $(pwd)"
-  - coverage run -m pytest --doctest-modules
+  - coverage run --concurrency=multiprocessing -m pytest --doctest-modules
+  - coverage combine
   - coverage report -m --include=./\*\* --omit=tests/\*\*,.venv/\*\* --fail-under=70
   - coverage xml -i --include=./\*\* --omit=tests/\*\*,.venv/\*\*
 after_script:
