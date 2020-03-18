@@ -76,6 +76,8 @@ class MergeList(object):
     >>> dct[merge2]
     3
 
+    >>> merges + MergeList().append(Merge(('d', 'e'), 84, 0))
+    [('a', 'b'): (34, 0), ('b', 'c'): (44, 1), ('d', 'e'): (84, 2)]
     >>> merges + [(('d', 'e'), 84, 1)]
     Traceback (most recent call last):
     ...
