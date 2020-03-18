@@ -6,6 +6,7 @@ import gzip
 import logging
 import os
 import pickle
+import platform
 from multiprocessing.pool import Pool
 from typing import List, Tuple
 from typing import Optional
@@ -119,6 +120,10 @@ def params_generator(dataset: Dataset, path_to_part_metadata: Optional[str]):
         yield (input_file_path, output_file_path, dataset.prep_config, path_to_part_metadata)
 
 
+def get_n_cpus_to_be_used():
+    return 1 if platform.system == 'Windows' else os.cpu_count() or 1
+
+
 def run(dataset: Dataset, custom_bpe_config: Optional[CustomBpeConfig]) -> None:
     path_to_parsed_dataset = dataset.parsed.path
 
@@ -150,7 +155,8 @@ def run(dataset: Dataset, custom_bpe_config: Optional[CustomBpeConfig]) -> None:
                 break
     else:
         files_total = len([f for f in dataset.get_all_files()])
-    with Pool() as pool:
+    n_cpus = get_n_cpus_to_be_used()
+    with Pool(processes=n_cpus) as pool:
         it = pool.imap_unordered(preprocess_and_write, params_generator(dataset, path_to_part_metadata), chunksize=CHUNKSIZE)
         for _ in tqdm(it, total=files_total):
             pass
