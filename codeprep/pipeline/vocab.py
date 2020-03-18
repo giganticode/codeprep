@@ -215,7 +215,9 @@ def create_and_dump_partial_vocab(param: Tuple[List[str], str, int]) -> PartialV
     path_to_file, path_to_dump, chunk = param
     vocab = get_vocab(path_to_file)
     partial_vocab = PartialVocab(vocab, chunk)
-    pickle.dump(partial_vocab, open(os.path.join(path_to_dump, f'{partial_vocab.id}.{PARTVOCAB_EXT}'), 'wb'))
+    path = os.path.join(path_to_dump, f'{partial_vocab.id}.{PARTVOCAB_EXT}')
+    logger.debug(f"Dumping part vocab to {path}")
+    pickle.dump(partial_vocab, open(path, 'wb'))
     return partial_vocab
 
 
