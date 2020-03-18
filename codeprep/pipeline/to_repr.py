@@ -122,7 +122,10 @@ def params_generator(dataset: Dataset, path_to_part_metadata: Optional[str]):
 
 
 def get_n_cpus_to_be_used():
-    return 1 if platform.system == 'Windows' else os.cpu_count() or 1
+    system_platform = platform.system()
+    n_cpus = 1 if system_platform == 'Windows' else os.cpu_count() or 1
+    logger.info(f"Platform: {system_platform}, n cores to be used: {n_cpus}")
+    return n_cpus
 
 
 def run(dataset: Dataset, custom_bpe_config: Optional[CustomBpeConfig]) -> None:
