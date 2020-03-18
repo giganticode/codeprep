@@ -127,7 +127,7 @@ class MergeList(object):
             merge.priority += first_list_len
             new_merge_list.append(merge)
 
-        return
+        return new_merge_list
 
     def append(self, merge: Merge) -> 'MergeList':
         # along with the pair we save its priority and the number of its occurrences
