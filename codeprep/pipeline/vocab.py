@@ -6,7 +6,9 @@ import logging.config
 import multiprocessing
 import os
 import platform
+import random
 import shutil
+import sys
 from collections import Counter, defaultdict
 from fnmatch import fnmatch
 from multiprocessing import Queue
@@ -55,7 +57,7 @@ class PartialVocab(object):
         self.id = self._generate_id()
 
     def _generate_id(self) -> str:
-        return str(os.getpid()) + ''.join(str(time.time()).split('.'))
+        return str(os.getpid()) + ''.join(str(time.time()).split('.') + str(random.randint(sys.maxsize)))
 
     def renew_id(self) -> None:
         self.id = self._generate_id()
