@@ -24,7 +24,7 @@ from codeprep.prepconfig import PrepParam, PrepConfig
 from codeprep.preprocess.core import to_repr_list
 from codeprep.preprocess.result import PreprocessingResult
 from codeprep.preprocess.placeholders import placeholders
-from codeprep.tokens import TokenSequence
+from codeprep.preprocess.tokens import TokenSequence
 from codeprep.tokentypes.rootclasses import ParsedToken
 from codeprep.tokentypes.word import SpecialToken
 from codeprep.util.misc import to_literal_str

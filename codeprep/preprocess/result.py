@@ -2,7 +2,7 @@ from typing import Set
 
 from dataclasses import dataclass, field
 
-from codeprep.tokens import TokenSequence
+from codeprep.preprocess.tokens import TokenSequence
 
 
 @dataclass

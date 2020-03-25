@@ -6,7 +6,7 @@ from typing import List, Set, Optional
 
 from codeprep.preprocess.reprconfig import ReprConfig
 from codeprep.preprocess.result import PreprocessingResult
-from codeprep.tokens import TokenSequence
+from codeprep.preprocess.tokens import TokenSequence
 from codeprep.preprocess.metadata import PreppedTokenMetadata
 
 

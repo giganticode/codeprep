@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Iterator, Sequence, Any, Callable, List, Optional, Union, Type, Tuple
+from typing import Iterator, Sequence, Any, Callable, List, Union, Optional, Tuple, Type
 
 from dataclasses import dataclass, field
 
@@ -129,7 +129,7 @@ class TokenSequence(ABC):
     >>> token_seq = TokenSequence.of(['hi</t>', 'the' ,'re</t>'], PreppedTokenMetadata([1, 2], [TypeA, TypeA]), formatter=lambda s: "".join(s))
     >>> token_seq_sub = token_seq.sub_token_view()
     >>> token_seq_full = token_seq.full_token_view()
-    
+
     >>> token_seq_copy = token_seq[:]
     >>> token_seq_copy.tokens[0] = 'bye</t>'
     >>> token_seq_copy
@@ -142,7 +142,7 @@ class TokenSequence(ABC):
     >>> single_sub_token.token_str()
     'hi</t>'
     >>> single_sub_token.metadata.n_subtokens(), single_sub_token.metadata.token_type()
-    (1, <class 'codeprep.tokens.TypeA'>)
+    (1, <class 'codeprep.preprocess.tokens.TypeA'>)
 
 
     Incomplete sequences
@@ -209,7 +209,7 @@ class TokenSequence(ABC):
     >>> token_seq = TokenSequence.of(['hi</t>', 'the' ,'re</t>'], PreppedTokenMetadata([1, 2], [TypeA, TypeA]))
     >>> token_seq_sub = token_seq.sub_token_view()
     >>> token_seq_full = token_seq_sub.full_token_view()
-    
+
     >>> iterator = token_seq_sub.get_iterator([1, 2], over_full_tokens=True)
     >>> [x for x in iterator]
     [1, 2, 2]
@@ -253,7 +253,7 @@ class TokenSequence(ABC):
                     full_token_without_end_token = full_token
                     if not self.ends_with_incomplete_token:
                         raise AssertionError(f'Token {full_token} according to metadata is end-token, however it doesn\'t contain </t>.')
-    
+
         self._full_to_sub_token_indices = [0] + list(cum_sum(self.metadata.n_subtokens_per_token))
         self._sub_to_full_token_indices = {n: i for i, n in enumerate(self._full_to_sub_token_indices)}
 

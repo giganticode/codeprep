@@ -6,7 +6,7 @@ from typing import Sequence
 
 from codeprep.preprocess.reprconfig import ReprConfig
 from codeprep.preprocess.result import PreprocessingResult
-from codeprep.tokens import TokenSequence
+from codeprep.preprocess.tokens import TokenSequence
 from codeprep.tokentypes.rootclasses import ParsedToken
 
 

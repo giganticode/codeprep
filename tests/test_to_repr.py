@@ -9,7 +9,7 @@ import pytest
 from codeprep.bpepkg.bpe_encode import BpeData
 from codeprep.bpepkg.merge import MergeList, Merge
 from codeprep.preprocess.result import PreprocessingResult
-from codeprep.tokens import TokenSequence
+from codeprep.preprocess.tokens import TokenSequence
 from codeprep.tokentypes.containers import Identifier, OneLineComment, MultilineComment, StringLiteral
 from codeprep.preprocess.metadata import PreppedTokenMetadata
 from codeprep.tokentypes.noneng import NonEng
