@@ -24,7 +24,7 @@ from codeprep.prepconfig import PrepParam, PrepConfig
 from codeprep.preprocess.core import to_repr_list
 from codeprep.preprocess.result import PreprocessingResult
 from codeprep.preprocess.placeholders import placeholders
-from codeprep.tokens import PreppedSubTokenSequence
+from codeprep.tokens import TokenSequence
 from codeprep.tokentypes.rootclasses import ParsedToken
 from codeprep.tokentypes.word import SpecialToken
 from codeprep.util.misc import to_literal_str
@@ -160,9 +160,9 @@ def save_non_processable_tokens(non_processable_tokens: Set[str], save_to: bytes
             f.write(f'{to_literal_str(token)}\n')
 
 
-def insert_word_end_tokens_(self) -> 'PreppedSubTokenSequence':
-    assert not self.word_end_token_added
+def insert_word_end_tokens_(token_seq: TokenSequence) -> TokenSequence:
+    assert not token_seq.word_end_token_added
     new_tokens = []
-    for subtokens in self.full_tokens_view(formatter=lambda x: x[:-1] + [x[-1] + placeholders['compound_word_end']]):
+    for subtokens in token_seq.full_token_view(formatter=lambda x: x[:-1] + [x[-1] + placeholders['compound_word_end']]):
         new_tokens.extend(subtokens)
-    return PreppedSubTokenSequence(new_tokens, self.metadata, word_end_token_added=True)
+    return TokenSequence.of(new_tokens, token_seq.metadata, word_end_token_added=True)

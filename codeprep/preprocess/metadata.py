@@ -28,8 +28,15 @@ class PreppedTokenMetadata(object):
         >>> PreppedTokenMetadata().update_(PreppedTokenMetadata())
         ([], [])
 
-        >>> PreppedTokenMetadata([2], [TypeA]).update_(PreppedTokenMetadata([1, 2, 3], [TypeA, TypeA, TypeB]))
+        >>> metadata = PreppedTokenMetadata([2], [TypeA]).update_(PreppedTokenMetadata([1, 2, 3], [TypeA, TypeA, TypeB]))
+        >>> metadata
         ([2, 1, 2, 3], ['TypeA', 'TypeA', 'TypeA', 'TypeB'])
+        >>> metadata[0]
+        ([2], ['TypeA'])
+        >>> metadata[-1]
+        ([3], ['TypeB'])
+        >>> metadata[-2:10]
+        ([2, 3], ['TypeA', 'TypeB'])
 
         >>> metadata = PreppedTokenMetadata([2], [TypeA]).update_(PreppedTokenMetadata([3], [TypeB]))
         >>> metadata
@@ -41,11 +48,23 @@ class PreppedTokenMetadata(object):
 
         return self
 
+    def __add__(self, other):
+        if not isinstance(other, PreppedTokenMetadata):
+            raise TypeError()
+
+        return PreppedTokenMetadata(self.n_subtokens_per_token + other.n_subtokens_per_token, self.token_types + other.token_types)
+
     def __repr__(self):
         return str((self.n_subtokens_per_token, list(map(lambda x: x.__name__, self.token_types))))
 
     def __len__(self):
         return len(self.n_subtokens_per_token)
+
+    def __getitem__(self, item) -> 'PreppedTokenMetadata':
+        subtokens = self.n_subtokens_per_token[item]
+        token_types = self.token_types[item]
+        return PreppedTokenMetadata([subtokens], [token_types]) \
+            if isinstance(item, int) else PreppedTokenMetadata(subtokens, token_types)
 
     def token_type(self) -> Type:
         if len(self.token_types) != 1:

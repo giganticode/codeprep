@@ -1,13 +1,13 @@
-from typing import List, Set, Union
+from typing import Set
 
 from dataclasses import dataclass, field
 
-from codeprep.tokens import SurrogatePreppedTokenSequence, PreppedSubTokenSequence
+from codeprep.tokens import TokenSequence
 
 
 @dataclass
 class PreprocessingResult(object):
-    prepped_tokens: Union[PreppedSubTokenSequence, SurrogatePreppedTokenSequence] = field(default_factory=PreppedSubTokenSequence)
+    prepped_tokens: TokenSequence = field(default_factory=TokenSequence.empty)
     non_processable_tokens: Set[str] = field(default_factory=set)
 
     def update_(self, preprocessing_result: 'PreprocessingResult') -> 'PreprocessingResult':
@@ -21,7 +21,3 @@ class PreprocessingResult(object):
             raise ValueError(f"This pre-processing result contains more than one token: {self.prepped_tokens}")
 
         return self.prepped_tokens.tokens[0]
-
-    @staticmethod
-    def with_empty_metadata(tokens: List[str]) -> 'PreprocessingResult':
-        return PreprocessingResult(SurrogatePreppedTokenSequence(tokens))

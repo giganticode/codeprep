@@ -12,7 +12,7 @@ from codeprep.pipeline.bperegistry import is_predefined_id, CustomBpeConfig
 from codeprep.pipeline.to_repr import init_bpe_data, to_repr
 from codeprep.prepconfig import PrepConfig
 from codeprep.preprocess.placeholders import placeholders
-from codeprep.tokens import PreppedSubTokenSequence
+from codeprep.tokens import TokenSequence
 from codeprep.tokentypes.rootclasses import ParsedToken
 from codeprep.tokentypes.whitespace import NewLine
 from codeprep.tokentypes.word import SpecialToken
@@ -23,8 +23,7 @@ def remove_trailing_newline(prep_tokens: List[ParsedToken]) -> List[ParsedToken]
 
 
 def preprocess(text: str, config: PrepConfig, bpe_codes_id: Optional[str] = None, extension: Optional[str] = None,
-               force_reinit_bpe_data: bool = True, append_eof: bool = False) \
-        -> PreppedSubTokenSequence:
+               force_reinit_bpe_data: bool = True, append_eof: bool = False) -> TokenSequence:
     parsed = [parsed_token for parsed_token in convert_text(text, extension)]
     parsed = remove_trailing_newline(parsed)
     if append_eof:
@@ -39,7 +38,7 @@ def preprocess(text: str, config: PrepConfig, bpe_codes_id: Optional[str] = None
 
 def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False, no_unicode: bool = False,
             no_com: bool = False, no_str: bool = False, full_strings: bool = False, max_str_length: int = sys.maxsize,
-            append_eof: bool = False) -> PreppedSubTokenSequence:
+            append_eof: bool = False) -> TokenSequence:
     """
     Split `text` into tokens leaving compound identifiers as they are.
 
@@ -58,7 +57,7 @@ def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False,
 
     :param append_eof: set to True for <EOF> token to be added to the end of the string
 
-    :return: `PreppedSubTokenSequence` representing a split input.
+    :return: `TokenSequence` representing a split input.
 
     >>> input_text='''void test_WordUeberraschungPrinter() {
     ...     if (eps >= 0.345e+4) { // FIXME 10L
@@ -67,7 +66,7 @@ def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False,
     ... }'''
 
     >>> prepped_tokens = nosplit(input_text, "java", append_eof=True)
-    >>> prepped_tokens
+    >>> prepped_tokens.sub_token_view()
     ['void', 'test_WordUeberraschungPrinter', '(', ')', '{', '\\n', \
 '\\t', 'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', 'FIXME', '10l', '\\n', '<EOL>', \
 '\\t', '\\t', 'printWord', '(', '"', '.', '.', '.', 'Überraschung', '0x12', '"', ')', ';', '\\n', \
@@ -85,50 +84,50 @@ def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False,
 'ClosingCurlyBracket', 'SpecialToken']
 
 
-    >>> nosplit('')
+    >>> nosplit('').sub_token_view()
     []
 
-    >>> nosplit(input_text, "java", no_spaces=True)
+    >>> nosplit(input_text, "java", no_spaces=True).sub_token_view()
     ['void', 'test_WordUeberraschungPrinter', '(', ')', '{', \
 'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', 'FIXME', '10l', \
 '<EOL>', 'printWord', '(', '"', '.', '.', '.', 'Überraschung', '0x12', '"', ')', ';', \
 '}', \
 '}']
 
-    >>> nosplit(input_text, "java", no_spaces=True, no_unicode=True)
+    >>> nosplit(input_text, "java", no_spaces=True, no_unicode=True).sub_token_view()
     ['void', 'test_WordUeberraschungPrinter', '(', ')', '{', \
 'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', 'FIXME', '10l', \
 '<EOL>', 'printWord', '(', '"', '.', '.', '.', '<non-en>', '0x12', '"', ')', ';', \
 '}', \
 '}']
 
-    >>> nosplit('"     ...     Überraschung 0x12"', "java", no_spaces=True, max_str_length=32)
+    >>> nosplit('"     ...     Überraschung 0x12"', "java", no_spaces=True, max_str_length=32).sub_token_view()
     ['"', '.', '.', '.', 'Überraschung', '0x12', '"']
 
     >>> prepped_tokens = nosplit('"     ...     Überraschung 0x12"', "java", no_spaces=True, max_str_length=26)
-    >>> prepped_tokens
+    >>> prepped_tokens.sub_token_view()
     ['"', '"']
     >>> prepped_tokens.metadata
     ([2], ['StringLiteral'])
 
     >>> prepped_tokens = nosplit('"     ...     Überraschung 0x12"', "java", no_spaces=True, full_strings=True, max_str_length=31)
-    >>> prepped_tokens
+    >>> prepped_tokens.sub_token_view()
     ['""']
     >>> prepped_tokens.metadata
     ([1], ['StringLiteral'])
 
     >>> prepped_tokens = nosplit('"     ...     Überraschung 0x12"', "java", full_strings=True)
-    >>> prepped_tokens
+    >>> prepped_tokens.sub_token_view()
     ['"\xa0\xa0\xa0\xa0\xa0...\xa0\xa0\xa0\xa0\xa0Überraschung\xa00x12"']
     >>> prepped_tokens.metadata
     ([1], ['StringLiteral'])
 
-    >>> nosplit('"     ...     Überraschung 0x12"', "java", no_spaces=True, full_strings=True, max_str_length=500)
+    >>> nosplit('"     ...     Überraschung 0x12"', "java", no_spaces=True, full_strings=True, max_str_length=500).sub_token_view()
     ['"\xa0\xa0\xa0\xa0\xa0...\xa0\xa0\xa0\xa0\xa0Überraschung\xa00x12"']
 
 
     >>> prepped_tokens = nosplit(input_text, "java", no_spaces=True, no_com=True, no_str=True)
-    >>> prepped_tokens
+    >>> prepped_tokens.sub_token_view()
     ['void', 'test_WordUeberraschungPrinter', '(', ')', '{', \
 'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '<comment>', \
 'printWord', '(', '<str-literal>', ')', ';', \
@@ -158,7 +157,7 @@ def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False,
 
 def chars(text: str, extension: Optional[str] = None, no_spaces: bool = False, no_unicode: bool = False,
           no_com: bool = False, no_str: bool = False, max_str_length=sys.maxsize,
-          append_eof: bool = False) -> PreppedSubTokenSequence:
+          append_eof: bool = False) -> TokenSequence:
     """
     Split `text` into characters (With the exception of operators that consist of 2 character:
     such operators will remain as a single token). So that the information about original word boundaries is not lost,
@@ -183,7 +182,7 @@ def chars(text: str, extension: Optional[str] = None, no_spaces: bool = False, n
 
     :param append_eof: set to True for <EOF> token to be added to the end of the string
 
-    :return: `PreppedSubTokenSequence` representing a split input.
+    :return: `TokenSequence` representing a split input.
 
     >>> input_text='''void test_WordUeberraschungPrinter() {
     ...     if (eps >= 0.345e+4) { // FIXME 10L
@@ -192,7 +191,7 @@ def chars(text: str, extension: Optional[str] = None, no_spaces: bool = False, n
     ... }'''
 
     >>> prepped_tokens = chars(input_text, "java", no_spaces=True, append_eof=True)
-    >>> prepped_tokens
+    >>> prepped_tokens.sub_token_view()
     ['void</t>', 't', 'e', 's', 't', '_', 'W', 'o', 'r', 'd', 'U', 'e', 'b', 'e', 'r', 'r', 'a', 's', 'c', 'h', \
 'u', 'n', 'g', 'P', 'r', 'i', 'n', 't', 'e', 'r', '</t>', '(</t>', ')</t>', '{</t>', \
 'if</t>', '(</t>', 'e', 'p', 's', '</t>', '></t>', '=</t>', '0', '.', '3', '4', '5', 'e', '+', '4', '</t>', ')</t>', \
@@ -224,7 +223,7 @@ def chars(text: str, extension: Optional[str] = None, no_spaces: bool = False, n
 def basic(text: str, extension: Optional[str] = None,
           split_numbers: bool = False, ronin: bool = False, stem: bool = False,
           no_spaces: bool = False, no_unicode: bool = False, no_case: bool = False, no_com: bool = False,
-          no_str: bool = False, max_str_length: int = sys.maxsize, append_eof: bool = False) -> PreppedSubTokenSequence:
+          no_str: bool = False, max_str_length: int = sys.maxsize, append_eof: bool = False) -> TokenSequence:
     """
     Split `text` into tokens converting identifiers that follow CamelCase or snake_case into multiple subwords.
     So that the information about original word boundaries is not lost, special tokens are inserted to denote original
@@ -250,7 +249,7 @@ def basic(text: str, extension: Optional[str] = None,
 
     :param append_eof: set to True for <EOF> token to be added to the end of the string
 
-    :return: `PreppedSubTokenSequence` representing a split input.
+    :return: `TokenSequence` representing a split input.
 
 
     >>> input_text='''void test_WordUeberraschungPrinter() {
@@ -260,7 +259,7 @@ def basic(text: str, extension: Optional[str] = None,
     ... }'''
 
     >>> prepped_tokens = basic(input_text, "java", no_spaces=True, append_eof=True)
-    >>> prepped_tokens
+    >>> prepped_tokens.sub_token_view()
     ['void', '<w>', 'test', '_', 'Word', 'Ueberraschung', 'Printer', '</w>', '(', ')', '{', \
 'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', 'FIXME', '10l', '<EOL>', \
 '<w>', 'print', 'Word', '</w>', '(', '"', '.', '.', '.', 'Überraschung', '0x12', '"', ')', ';', \
@@ -278,7 +277,7 @@ def basic(text: str, extension: Optional[str] = None,
 'ClosingCurlyBracket', 'SpecialToken']
 
     >>> prepped_tokens = basic(input_text, "java", no_spaces=True, no_case=True)
-    >>> prepped_tokens
+    >>> prepped_tokens.sub_token_view()
     ['void', '<w>', 'test', '_', '<Cap>', 'word', '<Cap>', 'ueberraschung', '<Cap>', 'printer', '</w>', '(', ')', '{', \
 'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '/', '/', '<CAPS>', 'fixme', '10l', '<EOL>', \
 '<w>', 'print', '<Cap>', 'word', '</w>', '(', '"', '.', '.', '.', '<Cap>', 'überraschung', '0x12', '"', ')', ';', \
@@ -295,7 +294,8 @@ def basic(text: str, extension: Optional[str] = None,
 'ClosingCurlyBracket', \
 'ClosingCurlyBracket']
 
-    >>> basic(input_text, "java", no_spaces=True, no_case=True, no_com=True, no_str=True)
+    >>> prepped_tokens = basic(input_text, "java", no_spaces=True, no_case=True, no_com=True, no_str=True)
+    >>> prepped_tokens.sub_token_view()
     ['void', '<w>', 'test', '_', '<Cap>', 'word', '<Cap>', 'ueberraschung', '<Cap>', 'printer', '</w>', '(', ')', '{', \
 'if', '(', 'eps', '>', '=', '0.345e+4', ')', '{', '<comment>', \
 '<w>', 'print', '<Cap>', 'word', '</w>', '(', '<str-literal>', ')', ';', \
@@ -303,7 +303,7 @@ def basic(text: str, extension: Optional[str] = None,
 '}']
 
     >>> prepped_tokens = basic('"     Überraschung 0x12"', "java", no_spaces=True, no_unicode=True, no_case=True)
-    >>> prepped_tokens
+    >>> prepped_tokens.sub_token_view()
     ['"', '<non-en>', '0x12', '"']
     >>> prepped_tokens.metadata
     ([1, 1, 1, 1], ['StringLiteral', 'StringLiteral', 'StringLiteral', 'StringLiteral'])
@@ -312,16 +312,18 @@ def basic(text: str, extension: Optional[str] = None,
     []
 
     >>> prepped_tokens = basic("movingVehiclesspeed = 0.345e+4", "java", split_numbers=True)
-    >>> prepped_tokens
+    >>> prepped_tokens.sub_token_view()
     ['<w>', 'moving', 'Vehiclesspeed', '</w>', '=', '<w>', '0', '.', '3', '4', '5', 'e', '+', '4', '</w>']
     >>> prepped_tokens.metadata
     ([4, 1, 10], ['Identifier', 'Operator', 'Number'])
 
 
-    >>> basic("movingVehiclesspeed = 0.345e+4", "java", ronin=True)
+    >>> prepped_tokens = basic("movingVehiclesspeed = 0.345e+4", "java", ronin=True)
+    >>> prepped_tokens.sub_token_view()
     ['<w>', 'moving', 'Vehicles', 'speed', '</w>', '=', '<w>', '0', '.', '3', '4', '5', 'e', '+', '4', '</w>']
 
-    >>> basic("movingVehiclesspeed = 0.345e+4", "java", stem=True)
+    >>> prepped_tokens = basic("movingVehiclesspeed = 0.345e+4", "java", stem=True)
+    >>> prepped_tokens.sub_token_view()
     ['<w>', 'move', 'Vehicl', 'speed', '</w>', '=', '<w>', '0', '.', '3', '4', '5', 'e', '+', '4', '</w>']
 
     """
@@ -334,7 +336,7 @@ def basic(text: str, extension: Optional[str] = None,
 def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces: bool = False,
         no_unicode: bool = False, no_com: bool = False, no_str: bool = False,
         max_str_length=sys.maxsize, force_reinit_bpe_data: bool = True,
-        append_eof: bool = False) -> PreppedSubTokenSequence:
+        append_eof: bool = False) -> TokenSequence:
     """
     Split `text` into tokens converting identifiers that follow CamelCase or snake_case into multiple subwords.
     On top of that Byte Pair Encoding (BPE) is applied with number of merges specified in `bpe_config`.
@@ -365,7 +367,7 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces
     so you must not set this param to False!
     :param append_eof: set to True for <EOF> token to be added to the end of the string
 
-    :return: `PreppedSubTokenSequence` representing a split input.
+    :return: `TokenSequence` representing a split input.
 
     >>> input_text='''void test_WordUeberraschungPrinter() {
     ...     if (eps >= 0.345e+4) { // FIXME 10L
@@ -374,7 +376,7 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces
     ... }'''
 
     >>> prepped_tokens = bpe(input_text, '10k', "java", no_spaces=True, append_eof=True)
-    >>> prepped_tokens
+    >>> prepped_tokens.sub_token_view()
     ['void</t>', 'test_', 'Word', 'U', 'eb', 'err', 'as', 'ch', 'un', 'g', 'Print', 'er</t>', \
 '(</t>', ')</t>', '{</t>', \
 'if</t>', '(</t>', 'e', 'ps</t>', '></t>', '=</t>', '0.', '34', '5', 'e+', '4</t>', ')</t>', \
@@ -395,7 +397,7 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces
 'ClosingCurlyBracket', 'SpecialToken']
 
     >>> prepped_tokens = bpe(input_text, '1k', "java", no_spaces=True, max_str_length=14)
-    >>> prepped_tokens
+    >>> prepped_tokens.sub_token_view()
     ['void</t>', 'test', '_', 'Wor', 'd', 'U', 'eb', 'err', 'as', 'ch', 'un', 'g', 'P', 'r', 'int', 'er</t>', \
 '(</t>', ')</t>', '{</t>', \
 'if</t>', '(</t>', 'e', 'p', 's</t>', '></t>', '=</t>', '0.', '3', '4', '5', 'e', '+', '4</t>', ')</t>', \
@@ -406,7 +408,8 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces
     >>> prepped_tokens.metadata.n_subtokens_per_token
     [1, 15, 1, 1, 1, 1, 1, 3, 1, 1, 7, 1, 1, 1, 1, 4, 3, 1, 3, 1, 2, 1, 1, 1, 1]
 
-    >>> bpe(input_text, '5k', "java", no_spaces=True)
+    >>> prepped_tokens = bpe(input_text, '5k', "java", no_spaces=True)
+    >>> prepped_tokens.sub_token_view()
     ['void</t>', 'test', '_', 'Wor', 'd', 'U', 'eb', 'err', 'as', 'ch', 'un', 'g', 'Print', 'er</t>', \
 '(</t>', ')</t>', '{</t>', \
 'if</t>', '(</t>', 'e', 'ps</t>', '></t>', '=</t>', '0.', '34', '5', 'e+', '4</t>', ')</t>', \

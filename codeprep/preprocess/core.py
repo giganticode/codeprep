@@ -6,11 +6,12 @@ from typing import Sequence
 
 from codeprep.preprocess.reprconfig import ReprConfig
 from codeprep.preprocess.result import PreprocessingResult
+from codeprep.tokens import TokenSequence
 from codeprep.tokentypes.rootclasses import ParsedToken
 
 
 def to_repr_list(token_list: Sequence[ParsedToken], repr_config: ReprConfig) -> PreprocessingResult:
-    total_preprocessing_result = PreprocessingResult()
+    total_preprocessing_result = PreprocessingResult(prepped_tokens=TokenSequence.of(word_end_token_added=False))
     for token in token_list:
         preprocessing_result = torepr(token, repr_config)
         total_preprocessing_result.update_(preprocessing_result)

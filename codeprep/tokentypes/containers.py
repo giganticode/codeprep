@@ -2,17 +2,23 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 from abc import ABC
-from typing import List, Union, Optional
+from typing import List, Union, Optional, Type
 
 from codeprep.noneng import replace_non_ascii_seqs
 from codeprep.preprocess.core import ReprConfig, torepr
 from codeprep.preprocess.result import PreprocessingResult
-from codeprep.tokens import PreppedSubTokenSequence
+from codeprep.tokens import TokenSequence
 from codeprep.preprocess.metadata import PreppedTokenMetadata
 from codeprep.preprocess.placeholders import placeholders
 from codeprep.tokentypes.rootclasses import ParsedToken, ParsedSubtoken
 from codeprep.tokentypes.whitespace import SpaceInString
 from codeprep.tokentypes.word import Word
+
+
+def set_all_tokens_type(token_seq: TokenSequence, t: Type) -> TokenSequence:
+    metadata = token_seq.metadata
+    metadata.token_types = [t] * len(metadata.n_subtokens_per_token)
+    return TokenSequence.as_sequence(token_seq, metadata=metadata)
 
 
 class ProcessableTokenContainer(ParsedToken, ABC):
@@ -56,19 +62,17 @@ class Identifier(ProcessableTokenContainer):
         return f'{self.__class__.__name__}{self.subtokens}'
 
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> PreprocessingResult:
-        nospl_str = ["".join(map(lambda s: torepr(s, repr_config).prepped_tokens.tokens[0], self.subtokens))]
+        nospl_str = ["".join(map(lambda s: torepr(s, repr_config), self.subtokens))]
         return self._wrap_in_metadata_for_full_word(nospl_str)
 
     def preprocessed_repr(self, repr_config) -> PreprocessingResult:
         if repr_config.bpe_data:
             return self._wrap_in_metadata_for_full_word(repr_config.word_splitter(str(self), repr_config.bpe_data))
-        total_preprocessing_result = PreprocessingResult()
+        total_preprocessing_result = []
         for subtoken in self.subtokens:
-            preprocessing_result = torepr(subtoken, repr_config)
-            total_preprocessing_result.update_(preprocessing_result)
+            total_preprocessing_result += torepr(subtoken, repr_config)
         return self._wrap_in_metadata_for_full_word(
-            wrap_in_word_boundaries_if_necessary(total_preprocessing_result.prepped_tokens.tokens),
-            total_preprocessing_result.non_processable_tokens
+            wrap_in_word_boundaries_if_necessary(total_preprocessing_result), {}
         )
 
     @classmethod
@@ -107,12 +111,13 @@ class OneLineComment(Comment):
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> PreprocessingResult:
         preprocessing_result = torepr(self.subtokens, repr_config)
         n_sub_tokens_per_token = preprocessing_result.prepped_tokens.metadata.n_subtokens_per_token + [1]
-        preprocessing_result.prepped_tokens = PreppedSubTokenSequence(
+        preprocessing_result.prepped_tokens = TokenSequence.of(
             preprocessing_result.prepped_tokens.tokens + [placeholders['olc_end']],
             PreppedTokenMetadata(
                 n_sub_tokens_per_token,
                 [OneLineComment] * len(n_sub_tokens_per_token)
-            )
+            ),
+            word_end_token_added=False
         )
         return preprocessing_result
 
@@ -123,7 +128,7 @@ class MultilineComment(Comment):
 
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> PreprocessingResult:
         preprocessing_result = torepr(self.subtokens, repr_config)
-        preprocessing_result.prepped_tokens.set_all_tokens_type(MultilineComment)
+        preprocessing_result.prepped_tokens = set_all_tokens_type(preprocessing_result.prepped_tokens, MultilineComment)
         return preprocessing_result
 
 
@@ -153,7 +158,7 @@ class StringLiteral(TextContainer):
             return self._wrap_in_metadata_for_full_word([s])
         else: # here we dont keep full strings
             preprocessing_result = torepr(list(filter(lambda t: type(t) != SpaceInString, self.subtokens)), repr_config)
-            preprocessing_result.prepped_tokens.set_all_tokens_type(StringLiteral)
+            preprocessing_result.prepped_tokens = set_all_tokens_type(preprocessing_result.prepped_tokens, StringLiteral)
             return preprocessing_result
 
     def preprocessed_repr(self, repr_config: ReprConfig) -> PreprocessingResult:

@@ -9,7 +9,7 @@ import pytest
 from codeprep.bpepkg.bpe_encode import BpeData
 from codeprep.bpepkg.merge import MergeList, Merge
 from codeprep.preprocess.result import PreprocessingResult
-from codeprep.tokens import PreppedSubTokenSequence
+from codeprep.tokens import TokenSequence
 from codeprep.tokentypes.containers import Identifier, OneLineComment, MultilineComment, StringLiteral
 from codeprep.preprocess.metadata import PreppedTokenMetadata
 from codeprep.tokentypes.noneng import NonEng
@@ -90,7 +90,7 @@ def test_to_repr_0():
 
     result = to_repr(prep_config, tokens)
 
-    expected_result = PreprocessingResult(PreppedSubTokenSequence([
+    expected_result = PreprocessingResult(TokenSequence.of([
         '1.1',
         "*",
         'übersetzen',
@@ -102,7 +102,8 @@ def test_to_repr_0():
                                          StringLiteral, StringLiteral, StringLiteral,
                                          MultilineComment, MultilineComment, MultilineComment,
                                          MultilineComment, MultilineComment, MultilineComment,
-                                         OneLineComment, OneLineComment, OneLineComment, OneLineComment])),
+                                         OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
+        word_end_token_added=False, full_token_view=True),
         {'"', "*", "/"})
 
     assert result == expected_result
@@ -120,7 +121,7 @@ def test_to_repr_0_max_str_length_7():
 
     result = to_repr(prep_config, tokens)
 
-    expected_result = PreprocessingResult(PreppedSubTokenSequence([
+    expected_result = PreprocessingResult(TokenSequence.of([
         '1.1',
         "*",
         'übersetzen',
@@ -131,7 +132,8 @@ def test_to_repr_0_max_str_length_7():
                             token_types=[Number, Operator, Identifier, StringLiteral,
                                          MultilineComment, MultilineComment, MultilineComment,
                                          MultilineComment, MultilineComment, MultilineComment,
-                                         OneLineComment, OneLineComment, OneLineComment, OneLineComment])),
+                                         OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
+    word_end_token_added=False, full_token_view=True),
                        {'"', "*", "/"})
 
     assert result == expected_result
@@ -149,7 +151,7 @@ def test_to_repr_0_max_str_length_B():
 
     result = to_repr(prep_config, tokens)
 
-    expected_result = PreprocessingResult(PreppedSubTokenSequence([
+    expected_result = PreprocessingResult(TokenSequence.of([
         '1.1',
         "*",
         'übersetzen',
@@ -161,7 +163,7 @@ def test_to_repr_0_max_str_length_B():
                                          StringLiteral, StringLiteral, StringLiteral,
                                          MultilineComment, MultilineComment, MultilineComment,
                                          MultilineComment, MultilineComment, MultilineComment,
-                                         OneLineComment, OneLineComment, OneLineComment, OneLineComment])),
+                                         OneLineComment, OneLineComment, OneLineComment, OneLineComment]), word_end_token_added=False, full_token_view=True),
         {'"', "*", "/"})
 
     assert result == expected_result
@@ -179,7 +181,7 @@ def test_to_repr_F():
 
     result = to_repr(prep_config, tokens)
 
-    expected_result = PreprocessingResult(PreppedSubTokenSequence([
+    expected_result = PreprocessingResult(TokenSequence.of([
         '1.1',
         "*",
         'übersetzen',
@@ -190,7 +192,8 @@ def test_to_repr_F():
                             token_types=[Number, Operator, Identifier, StringLiteral,
                                          MultilineComment, MultilineComment, MultilineComment,
                                          MultilineComment, MultilineComment, MultilineComment,
-                                         OneLineComment, OneLineComment, OneLineComment, OneLineComment])),
+                                         OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
+        word_end_token_added=False, full_token_view=True),
         {"*", "/"})
 
     assert result == expected_result
@@ -208,7 +211,7 @@ def test_to_repr_F_max_str_length_7():
 
     result = to_repr(prep_config, tokens)
 
-    expected_result = PreprocessingResult(PreppedSubTokenSequence([
+    expected_result = PreprocessingResult(TokenSequence.of([
         '1.1',
         "*",
         'übersetzen',
@@ -219,7 +222,8 @@ def test_to_repr_F_max_str_length_7():
                             token_types=[Number, Operator, Identifier, StringLiteral,
                                          MultilineComment, MultilineComment, MultilineComment,
                                          MultilineComment, MultilineComment, MultilineComment,
-                                         OneLineComment, OneLineComment, OneLineComment, OneLineComment])), {"*", "/"})
+                                         OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
+        word_end_token_added=False, full_token_view=True), {"*", "/"})
 
 
     assert result == expected_result
@@ -237,7 +241,7 @@ def test_to_repr_F_max_str_length_B():
 
     result = to_repr(prep_config, tokens)
 
-    expected_result = PreprocessingResult(PreppedSubTokenSequence([
+    expected_result = PreprocessingResult(TokenSequence.of([
         '1.1',
         "*",
         'übersetzen',
@@ -248,7 +252,8 @@ def test_to_repr_F_max_str_length_B():
                             token_types=[Number, Operator, Identifier, StringLiteral,
                                          MultilineComment, MultilineComment, MultilineComment,
                                          MultilineComment, MultilineComment, MultilineComment,
-                                         OneLineComment, OneLineComment, OneLineComment, OneLineComment])),
+                                         OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
+        word_end_token_added=False, full_token_view=True),
     {"*", "/"})
 
     assert result == expected_result
@@ -269,7 +274,7 @@ def test_to_repr_1_nosep():
 
     result = to_repr(prep_config, tokens)
 
-    expected_result = PreprocessingResult(PreppedSubTokenSequence([
+    expected_result = PreprocessingResult(TokenSequence.of([
         '1.1',
         "*",
         pl['non_eng'],
@@ -283,7 +288,8 @@ def test_to_repr_1_nosep():
                                                            StringLiteral, StringLiteral, StringLiteral,
                                                            MultilineComment, MultilineComment, MultilineComment,
                                                            MultilineComment, MultilineComment, MultilineComment,
-                                                           OneLineComment, OneLineComment, OneLineComment, OneLineComment])),
+                                                           OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
+    word_end_token_added=False, full_token_view=True),
         {'*', '"', "/", "*"})
 
     assert result == expected_result
@@ -304,7 +310,7 @@ def test_to_repr_2_nosep():
 
     result = to_repr(prep_config, tokens)
 
-    expected_result = PreprocessingResult(PreppedSubTokenSequence([
+    expected_result = PreprocessingResult(TokenSequence.of([
         pl["word_start"],
         '1',
         '.',
@@ -320,7 +326,8 @@ def test_to_repr_2_nosep():
                                                            StringLiteral, StringLiteral, StringLiteral,
                                                            MultilineComment, MultilineComment, MultilineComment,
                                                            MultilineComment, MultilineComment, MultilineComment,
-                                                           OneLineComment, OneLineComment, OneLineComment, OneLineComment])),
+                                                           OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
+        word_end_token_added=False, full_token_view=True),
         {'*', '"', "/", "*"})
 
     assert result == expected_result
@@ -396,7 +403,7 @@ def test_to_repr_with_enonlycontents1():
 
     result = to_repr(prep_config, tokens)
 
-    expected_result = PreprocessingResult(PreppedSubTokenSequence([
+    expected_result = PreprocessingResult(TokenSequence.of([
         pl['word_start'],
         '1',
         '.',
@@ -414,7 +421,7 @@ def test_to_repr_with_enonlycontents1():
                             token_types=[Number, Operator, NonEng]
                                                           + [StringLiteral] * 14
                                                           + [MultilineComment] * 6
-                                                          + [OneLineComment] * 4)),
+                                                          + [OneLineComment] * 4), word_end_token_added=False, full_token_view=True),
         {'*', '"', "/", "*"})
 
     assert result == expected_result
@@ -435,7 +442,7 @@ def test_to_repr_with_non_eng():
 
     result = to_repr(prep_config, tokens)
 
-    expected_result = PreprocessingResult(PreppedSubTokenSequence([
+    expected_result = PreprocessingResult(TokenSequence.of([
         pl['word_start'],
         '1',
         '.',
@@ -451,7 +458,7 @@ def test_to_repr_with_non_eng():
                             token_types=[Number, Operator, Identifier]
                                                           + [StringLiteral] * 3
                                                           + [MultilineComment] * 6
-                                                          + [OneLineComment] * 4)),
+                                                          + [OneLineComment] * 4), word_end_token_added=False, full_token_view=True),
     {'*', '"', "/"})
 
     assert result == expected_result
@@ -474,7 +481,7 @@ def test_to_repr_with_newlines_and_tabs():
 
     result = to_repr(prep_config, tokens)
 
-    expected_result = PreprocessingResult(PreppedSubTokenSequence([
+    expected_result = PreprocessingResult(TokenSequence.of([
         pl['word_start'],
         '1',
         '.',
@@ -492,7 +499,7 @@ def test_to_repr_with_newlines_and_tabs():
         token_types=[Number, Operator, NonEng]
                                                           + [StringLiteral] * 3 + [NewLine]
                                                           + [MultilineComment] * 6 + [NewLine, Tab]
-                                                          + [OneLineComment] * 4)),
+                                                          + [OneLineComment] * 4), word_end_token_added=False, full_token_view=True),
         {'*', '"', "/", '\n', '\t'})
 
     assert result == expected_result
@@ -514,7 +521,7 @@ def test_to_repr_no_str_no_com():
 
     result = to_repr(prep_config, tokens)
 
-    expected_result = PreprocessingResult(PreppedSubTokenSequence([
+    expected_result = PreprocessingResult(TokenSequence.of([
         pl['word_start'],
         '1',
         '.',
@@ -529,7 +536,7 @@ def test_to_repr_no_str_no_com():
         pl["comment"]
     ], PreppedTokenMetadata(n_subtokens_per_token=[5] + [1] * 7,
                             token_types=[Number, Operator, NonEng, StringLiteral,
-                                                           MultilineComment, MultilineComment, MultilineComment, OneLineComment])),
+                                                           MultilineComment, MultilineComment, MultilineComment, OneLineComment]), word_end_token_added=False, full_token_view=True),
 
         {'*'})
 
@@ -552,7 +559,7 @@ def test_to_repr_no_nosep():
 
     result = to_repr(prep_config, tokens)
 
-    expected_result = PreprocessingResult(PreppedSubTokenSequence([
+    expected_result = PreprocessingResult(TokenSequence.of([
         pl['word_start'],
         '1',
         '.',
@@ -568,7 +575,7 @@ def test_to_repr_no_nosep():
                             token_types=[Number, Operator, NonEng]
                                                           + [StringLiteral] * 3
                                                           + [MultilineComment] * 6
-                                                          + [OneLineComment] * 4)),
+                                                          + [OneLineComment] * 4), word_end_token_added=False, full_token_view=True),
         {'*', '"', "/"})
 
     assert result == expected_result
@@ -653,8 +660,10 @@ def test_1():
 
     result = to_repr(prep_config, tokens, BpeData(merges_cache={'Whi@@le@': ['Whi@@le@']}))
 
-    expected_result = PreprocessingResult(PreppedSubTokenSequence(["Whi@le" + placeholders['compound_word_end']],
-                                                                  PreppedTokenMetadata(n_subtokens_per_token=[1], token_types=[Identifier]), word_end_token_added=True),
+    expected_result = PreprocessingResult(TokenSequence.of(["Whi@le" + placeholders['compound_word_end']],
+                                                           PreppedTokenMetadata(n_subtokens_per_token=[1],
+                                                                                token_types=[Identifier]),
+                                                           word_end_token_added=True),
                                           set())
 
     assert result == expected_result
@@ -676,8 +685,8 @@ def test_merges_no_cache():
                                                                     merges_cache={} ))
 
     expected_result = PreprocessingResult(
-        PreppedSubTokenSequence(["Wh", "i", '@', "l", '@', '@', "e", '@', pl["compound_word_end"]],
-                                PreppedTokenMetadata(n_subtokens_per_token=[9], token_types=[Identifier]), word_end_token_added=True),
+        TokenSequence.of(["Wh", "i", '@', "l", '@', '@', "e", '@', pl["compound_word_end"]],
+                         PreppedTokenMetadata(n_subtokens_per_token=[9], token_types=[Identifier]), word_end_token_added=True),
         set())
 
     assert result == expected_result

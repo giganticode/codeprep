@@ -19,12 +19,12 @@ class Underscore(ParsedSubtoken):
         return f'<{self.__class__.__name__}>'
 
     def __str__(self):
-        return self.non_preprocessed_repr().get_single_token()
+        return self.non_preprocessed_repr()
 
-    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> PreprocessingResult:
-        return PreprocessingResult.with_empty_metadata(["_"])
+    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> str:
+        return "_"
 
-    def preprocessed_repr(self, repr_config: ReprConfig) -> PreprocessingResult:
+    def preprocessed_repr(self, repr_config: ReprConfig) -> List[str]:
         raise NotImplemented()
 
 
@@ -63,7 +63,7 @@ class Word(ParsedSubtoken):
             raise AssertionError(f"Bad canonic form: {canonic_form}")
 
     def __str__(self):
-        return self.non_preprocessed_repr().get_single_token()
+        return self.non_preprocessed_repr()
 
     def __with_capitalization_prefixes(self, subwords: List[str]) -> List[str]:
         if self.capitalization == Word.Capitalization.UNDEFINED or self.capitalization == Word.Capitalization.NONE:
@@ -76,14 +76,14 @@ class Word(ParsedSubtoken):
             raise AssertionError(f"Unknown value: {self.capitalization}")
         return res
 
-    def preprocessed_repr(self, repr_config: ReprConfig) -> PreprocessingResult:
+    def preprocessed_repr(self, repr_config: ReprConfig) -> List[str]:
         if repr_config.should_lowercase:
             subwords = repr_config.word_splitter(self.canonic_form, repr_config.bpe_data)
             subwords_with_prefix = self.__with_capitalization_prefixes(subwords)
-            return PreprocessingResult.with_empty_metadata(subwords_with_prefix)
+            return subwords_with_prefix
         else:
             subwords = repr_config.word_splitter(self.__with_preserved_case(), repr_config.bpe_data)
-            return PreprocessingResult.with_empty_metadata(subwords)
+            return subwords
 
     def __with_preserved_case(self) -> str:
         if self.capitalization == Word.Capitalization.UNDEFINED or self.capitalization == Word.Capitalization.NONE:
@@ -95,8 +95,8 @@ class Word(ParsedSubtoken):
         else:
             raise AssertionError(f"Unknown value: {self.capitalization}")
 
-    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> PreprocessingResult:
-        return PreprocessingResult.with_empty_metadata([self.__with_preserved_case()])
+    def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> str:
+        return self.__with_preserved_case()
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.canonic_form, self.capitalization})'
