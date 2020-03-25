@@ -34,7 +34,7 @@ class _SubOverFullTokenIterator(Iterator):
 class _FullOverSubTokenIterator(Iterator):
     def __init__(self, over: Sequence[Any],
                  metadata: PreppedTokenMetadata,
-                 formatter: Callable[[Sequence[Any]], Any] = lambda x: x):
+                 formatter: Callable[[List[Any]], Any] = lambda x: x):
         self.over = over
         self.metadata = metadata
         self.formatter = formatter
@@ -230,7 +230,7 @@ class TokenSequence(ABC):
 
     word_end_token_added: bool
     return_metadata: bool = field(compare=False)
-    formatter: Callable[[List[str]], str]
+    formatter: Callable[[List[str]], Any]
 
     starts_with_incomplete_token: bool
     ends_with_incomplete_token: bool
@@ -343,7 +343,7 @@ class TokenSequence(ABC):
         return self.shallow_copy(SubTokenSequence, **kwargs)
 
     @abstractmethod
-    def get_iterator(self, over, over_full_tokens: bool, formatter: Callable[[List[str]], str]) -> Iterator:
+    def get_iterator(self, over, over_full_tokens: bool, formatter: Callable[[List[str]], Any]) -> Iterator:
         pass
 
     def without_metadata(self) -> 'TokenSequence':
@@ -352,7 +352,7 @@ class TokenSequence(ABC):
     def with_metadata(self) -> 'TokenSequence':
         return self.shallow_copy(type(self), return_metadata=True)
 
-    def with_format(self, formatter: Callable[[List[str]], str]) -> 'TokenSequence':
+    def with_format(self, formatter: Callable[[List[str]], Any]) -> 'TokenSequence':
         return self.shallow_copy(type(self), formatter=formatter)
 
     @abstractmethod
@@ -462,7 +462,7 @@ class SubTokenSequence(TokenSequence):
     def __len__(self):
         return len(self.tokens)
 
-    def get_iterator(self, over, over_full_tokens: bool, formatter: Callable[List[str], str] = lambda x: x) -> Iterator:
+    def get_iterator(self, over, over_full_tokens: bool, formatter: Callable[[List[str]], Any] = lambda x: x) -> Iterator:
         return _SubOverFullTokenIterator(over, self.metadata) if over_full_tokens else iter(over)
 
     @classmethod
@@ -477,7 +477,7 @@ class FullTokenSequence(TokenSequence):
         formatter = (lambda x: x) if self.return_metadata else self.formatter
         return _FullOverSubTokenIterator(over, metadata=self.metadata, formatter=formatter)
 
-    def get_iterator(self, over: Sequence[Any], over_full_tokens: bool, formatter: Callable[List[str], str] = lambda x: x) -> Iterator:
+    def get_iterator(self, over: Sequence[Any], over_full_tokens: bool, formatter: Callable[[List[str]], Any] = lambda x: x) -> Iterator:
         return iter(over) if over_full_tokens else _FullOverSubTokenIterator(over, metadata=self.metadata, formatter=formatter)
 
     def __setitem__(self, key, value):
