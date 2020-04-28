@@ -67,6 +67,7 @@ codeprep <commmand> "Some code to be split"
 codeprep <commmand> --path /path/to/the/dataset
 ```
 
+
 Hereafter we will demonstrate the usage as a python library. The CLI is analogous to the python API. You can find the documentation about how to use it [here](codeprep/cli/spec.py). 
 
 ## Usage examples
@@ -217,6 +218,21 @@ To get help on commands and options:
 ```bash
 codeprep --help
 ```
+
+## Paper
+
+This library was build to run experiments for our paper accepted at ICSE 2020: [Big Code != Big Vocabulary: Open-Vocabulary Models for Source Code](https://arxiv.org/pdf/2003.07914.pdf)
+
+If you you the library or the results, please cite the paper:
+
+ ```
+ @article{karampatsis2020big,
+  title={Big Code!= Big Vocabulary: Open-Vocabulary Models for Source Code},
+  author={Karampatsis, Rafael-Michael and Babii, Hlib and Robbes, Romain and Sutton, Charles and Janes, Andrea},
+  journal={arXiv preprint arXiv:2003.07914},
+  year={2020}
+}
+ ```
 
 
 # Advanced
