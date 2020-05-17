@@ -1,4 +1,4 @@
 git+https://github.com/casics/spiral.git
-pytest==5.3.1
-pytest-mock==1.12.1
-coverage==4.5.4
+pytest>=5.3.1
+pytest-mock>=1.12.1
+coverage>=4.5.4
