@@ -252,9 +252,13 @@ Removing the cache will not change the final result, however, will result in slo
 
 # Releases
 
+## 1.0.2
+- Add more flixibility with versions of dependencies
+
 ## 1.0.1
 - Fix training custom bpe codes (Thanks to @mir-am)
 - Fix corpus pre-processing on Windows
+
 ## 1.0.0
 - DOI assigned
 
