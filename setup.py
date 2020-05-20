@@ -19,10 +19,6 @@ def version():
         return version_file.read().strip()
 
 
-with open('requirements.txt', 'r') as f:
-    requirements = f.read().splitlines()
-
-
 setup(name='codeprep',
       version=version(),
       description='A toolkit for pre-processing large source code corpora',
@@ -48,7 +44,18 @@ setup(name='codeprep',
       ],
       python_requires='>=3.6',
       keywords='big large data source code corpus machine learning pre-processing nlp',
-      install_requires=requirements,
+      install_requires=[
+        'appdirs>=1.4, <2',
+        'dill>=0.3.1.1, <0.4',
+        'docopt>=0.6.2, <0.7',
+        'docopt-subcommands>=3.0.0, <4',
+        'jsons>=1.0, <2',
+        'nltk>=3.4.5, <4',
+        'Pygments>=2.5.2, <3',
+        'PyYAML>=5.1, <6',
+        'regex>=2019.11.1, <=2020.5.14',
+        'tqdm>=4.39, <5'
+      ],
         entry_points={
           'console_scripts': [
               f'codeprep = {root_package_name}.__main__:main'
