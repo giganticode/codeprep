@@ -252,7 +252,7 @@ Removing the cache will not change the final result, however, will result in slo
 
 # Releases
 
-## 1.0.2
+## 1.0.3
 - Add more flixibility with versions of dependencies
 
 ## 1.0.1
