@@ -31,6 +31,53 @@ def merge_dicts_(dict1, dict2) -> Tuple[Dict, List]:
     return dict1, new_words
 
 
+class NonAtomicCounter(object):
+    """
+    >>> counter = NonAtomicCounter(10)
+    >>> counter.inc()
+    11
+    >>> counter.dec()
+    10
+    >>> counter.compare_and_dec(10)
+    True
+    >>> counter.value
+    9
+    >>> counter.value = 20
+    >>> counter.get_and_dec()
+    20
+    >>> counter.value
+    19
+    """
+    def __init__(self, v: int=0):
+        self.val = v
+
+    def inc(self) -> int:
+        self.val += 1
+        return self.val
+
+    def dec(self) -> int:
+        self.val -= 1
+        return self.val
+
+    def compare_and_dec(self, v: int) -> bool:
+        result = (self.val == v)
+        self.dec()
+        return result
+
+    def get_and_dec(self) -> int:
+        result = self.val
+        self.dec()
+        return result
+
+    @property
+    def value(self) -> int:
+        return self.val
+
+    @value.setter
+    def value(self, v: int) -> None:
+        self.val = v
+
+
 class AtomicInteger(object):
     def __init__(self, v=0):
         self._lock = multiprocessing.Lock()
