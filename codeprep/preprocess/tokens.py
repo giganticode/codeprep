@@ -148,6 +148,14 @@ class TokenSequence(ABC):
     Incomplete sequences
     >>> token_seq_sub[0:2]
     ['hi</t>', 'the']
+    >>> token_seq_sub[-100:-3]
+    []
+    >>> token_seq_sub[-100:-2]
+    ['hi</t>']
+    >>> token_seq_sub[-100]
+    Traceback (most recent call last):
+    ...
+    KeyError: -100
     >>> incomplete_seq = token_seq_sub[0:2]
     >>> incomplete_seq.is_complete()
     False
@@ -290,6 +298,12 @@ class TokenSequence(ABC):
         dict_copy.update(kwargs)
         return new_type(**dict_copy)
 
+    def sub_token_size(self) -> int:
+        return len(self.tokens)
+
+    def full_token_size(self) -> int:
+        return self._sub_to_full_token_indices[len(self.tokens)]
+
     def __add__(self, other):
         return self.add(other)
 
@@ -309,7 +323,7 @@ class TokenSequence(ABC):
 
         return TokenSequence.of(resulting_tokens, resulting_metadata,
                                 full_token_view=not isinstance(self, SubTokenSequence),
-                                word_end_token_added=self.word_end_token_added,
+                                word_end_token_added=self.word_end_token_added and other.word_end_token_added,
                                 return_metadata=self.return_metadata,
                                 formatter=self.formatter,
                                 starts_with_incomplete_token=self.starts_with_incomplete_token,
@@ -359,13 +373,16 @@ class TokenSequence(ABC):
     def __getitem__(self, item: Union[int, slice]) -> 'TokenSequence':
         pass
 
-    def _normilize_index(self, index: Optional[int]) -> Optional[int]:
+    def _normilize_index(self, index: Optional[int], is_slice: bool) -> Optional[int]:
         if index is None:
             return None
 
         n_full_tokens = len(self)
         if index < - n_full_tokens:
-            raise KeyError(index)
+            if is_slice:
+                return 0
+            else:
+                raise KeyError(index)
 
         if - n_full_tokens <= index < 0:
             return n_full_tokens + index
@@ -399,7 +416,7 @@ class TokenSequence(ABC):
                 index += 1
         return self._sub_to_full_token_indices[index]
 
-    def _normalized_passed_index(self, item: Union[int, slice]) -> Tuple[int, int]:
+    def _normalize_passed_index(self, item: Union[int, slice]) -> Tuple[int, int]:
         if isinstance(item, int):
             start = item
             stop = item + 1
@@ -411,8 +428,9 @@ class TokenSequence(ABC):
         else:
             raise TypeError()
 
-        start = self._normilize_index(start)
-        stop = self._normilize_index(stop)
+        is_slice = isinstance(item, slice)
+        start = self._normilize_index(start, is_slice)
+        stop = self._normilize_index(stop, is_slice)
 
         return start, stop
 
@@ -426,7 +444,7 @@ class SubTokenSequence(TokenSequence):
             return iter(self.tokens)
 
     def __getitem__(self, item: Union[int, slice]):
-        start, stop = self._normalized_passed_index(item)
+        start, stop = self._normalize_passed_index(item)
 
         adjusted_before = 0
         adjusted_after = 0
@@ -460,7 +478,7 @@ class SubTokenSequence(TokenSequence):
                                      ends_with_incomplete_token=ends_with_incomplete_token)
 
     def __len__(self):
-        return len(self.tokens)
+        return self.sub_token_size()
 
     def get_iterator(self, over, over_full_tokens: bool, formatter: Callable[[List[str]], Any] = lambda x: x) -> Iterator:
         return _SubOverFullTokenIterator(over, self.metadata) if over_full_tokens else iter(over)
@@ -487,7 +505,7 @@ class FullTokenSequence(TokenSequence):
         self.__dict__ = self[:key].add(value).add(self[key + 1:]).__dict__
 
     def __getitem__(self, item: Union[int, slice]):
-        start, stop = self._normalized_passed_index(item)
+        start, stop = self._normalize_passed_index(item)
 
         full_item = slice(
             self._full_to_sub_index(start),
@@ -504,7 +522,7 @@ class FullTokenSequence(TokenSequence):
                                  ends_with_incomplete_token=ends_with_incomplete_token)
 
     def __len__(self):
-        return self._sub_to_full_token_indices[len(self.tokens)]
+        return self.full_token_size()
 
 
 def is_terminal_subtoken(subtoken: str, use_token_end_chars: bool = True) -> bool:
