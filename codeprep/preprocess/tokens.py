@@ -8,9 +8,22 @@ from codeprep.preprocess.placeholders import placeholders
 from codeprep.util.misc import cum_sum
 
 
-class _SubOverFullTokenIterator(Iterator):
+class _FullToSubTokenIterator(Iterator):
+    """
+    >>> it = _FullToSubTokenIterator([1, 1], metadata=PreppedTokenMetadata([2], [None]))
+    Traceback (most recent call last):
+    ...
+    ValueError: The sequence to be iterated over must equal to the number of full tokens.
+
+    >>> it = _FullToSubTokenIterator([1, 2, 3], metadata=PreppedTokenMetadata([1, 2, 1], [None, None, None]))
+    >>> [t for t in it]
+    [1, 2, 2, 3]
+    """
     def __init__(self, over: Sequence[Any],
                  metadata: PreppedTokenMetadata):
+        if len(over) != len(metadata):
+            raise ValueError('The sequence to be iterated over must equal to the number of full tokens.')
+
         self.over = over
         self.metadata = metadata
 
@@ -31,10 +44,28 @@ class _SubOverFullTokenIterator(Iterator):
         return result
 
 
-class _FullOverSubTokenIterator(Iterator):
+class _SubToFullTokenIterator(Iterator):
+    """
+    >>> it = _SubToFullTokenIterator([1], metadata=PreppedTokenMetadata([2], [None]))
+    Traceback (most recent call last):
+    ...
+    ValueError: The sequence to be iterated over must equal to the number of sub-tokens.
+
+    >>> it = _SubToFullTokenIterator([1, 2, 2, 3], metadata=PreppedTokenMetadata([1, 2, 1], [None, None, None]))
+    >>> [t for t in it]
+    [[1], [2, 2], [3]]
+
+    >>> it = _SubToFullTokenIterator([1, 2, 2, 3],\
+metadata=PreppedTokenMetadata([1, 2, 1], [None, None, None]), formatter=sum)
+    >>> [t for t in it]
+    [1, 4, 3]
+    """
     def __init__(self, over: Sequence[Any],
                  metadata: PreppedTokenMetadata,
                  formatter: Callable[[List[Any]], Any] = lambda x: x):
+        if len(over) != sum(metadata.n_subtokens_per_token):
+            raise ValueError('The sequence to be iterated over must equal to the number of sub-tokens.')
+
         self.over = over
         self.metadata = metadata
         self.formatter = formatter
@@ -252,7 +283,7 @@ class TokenSequence(ABC):
                              f"The subword list has {len(self.tokens)} elements but "
                              f"the number of sub-tokens according to metadata is {sum(n_subtokens_per_token)}.")
         if self.word_end_token_added:
-            token_seq_full = _FullOverSubTokenIterator(self.tokens, self.metadata, formatter=lambda l: "".join(l))
+            token_seq_full = _SubToFullTokenIterator(self.tokens, self.metadata, formatter=lambda l: "".join(l))
             full_token_without_end_token = None
             for ind, full_token in enumerate(token_seq_full):
                 if full_token_without_end_token:
@@ -481,7 +512,7 @@ class SubTokenSequence(TokenSequence):
         return self.sub_token_size()
 
     def get_iterator(self, over, over_full_tokens: bool, formatter: Callable[[List[str]], Any] = lambda x: x) -> Iterator:
-        return _SubOverFullTokenIterator(over, self.metadata) if over_full_tokens else iter(over)
+        return _FullToSubTokenIterator(over, self.metadata) if over_full_tokens else iter(over)
 
     @classmethod
     def from_full_token(cls, prepped_token: List[str], token_type: Type):
@@ -493,10 +524,10 @@ class FullTokenSequence(TokenSequence):
     def __iter__(self) -> Union[Iterator[str], Iterator['TokenSequence']]:
         over = self.sub_token_view() if self.return_metadata else self.tokens
         formatter = (lambda x: x) if self.return_metadata else self.formatter
-        return _FullOverSubTokenIterator(over, metadata=self.metadata, formatter=formatter)
+        return _SubToFullTokenIterator(over, metadata=self.metadata, formatter=formatter)
 
     def get_iterator(self, over: Sequence[Any], over_full_tokens: bool, formatter: Callable[[List[str]], Any] = lambda x: x) -> Iterator:
-        return iter(over) if over_full_tokens else _FullOverSubTokenIterator(over, metadata=self.metadata, formatter=formatter)
+        return iter(over) if over_full_tokens else _SubToFullTokenIterator(over, metadata=self.metadata, formatter=formatter)
 
     def __setitem__(self, key, value):
         if not isinstance(value, FullTokenSequence):
