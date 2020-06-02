@@ -4,6 +4,7 @@
 from abc import ABC
 from typing import Optional
 
+from codeprep.preprocess.codestructure import PureSnippetStructure
 from codeprep.preprocess.core import ReprConfig
 from codeprep.preprocess.result import PreprocessingResult
 from codeprep.preprocess.placeholders import placeholders
@@ -25,15 +26,15 @@ class Whitespace(ParsedToken, ABC):
 
 class NewLine(Whitespace):
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> PreprocessingResult:
-        return self._wrap_in_metadata_for_full_word(["\n"], non_proc={"\n"})
+        return self._wrap_in_metadata_for_full_word(["\n"], 1, non_proc={"\n"})
 
     def preprocessed_repr(self, repr_config: ReprConfig) -> PreprocessingResult:
-        return PreprocessingResult()
+        return PreprocessingResult(code_snippet_structure=PureSnippetStructure.empty_line())
 
 
 class Tab(Whitespace):
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> PreprocessingResult:
-        return self._wrap_in_metadata_for_full_word(["\t"], non_proc={"\t"})
+        return self._wrap_in_metadata_for_full_word(["\t"], 0, non_proc={"\t"})
 
     def preprocessed_repr(self, repr_config: ReprConfig) -> PreprocessingResult:
         return PreprocessingResult()
@@ -48,7 +49,7 @@ class SpaceInString(Whitespace):
         raise NotImplemented()
 
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> PreprocessingResult:
-        return self._wrap_in_metadata_for_full_word([placeholders['space_in_str'] * self.n_chars])
+        return self._wrap_in_metadata_for_full_word([placeholders['space_in_str'] * self.n_chars], 0)
 
     def __repr__(self):
         return f'<{self.__class__.__name__}> (n_chars={self.n_chars})'

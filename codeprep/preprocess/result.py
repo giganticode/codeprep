@@ -1,7 +1,12 @@
+# SPDX-FileCopyrightText: 2020 2020 Hlib Babii <hlibbabii@gmail.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 from typing import Set
 
 from dataclasses import dataclass, field
 
+from codeprep.preprocess.codestructure import PureSnippetStructure
 from codeprep.preprocess.tokens import TokenSequence
 
 
@@ -9,10 +14,16 @@ from codeprep.preprocess.tokens import TokenSequence
 class PreprocessingResult(object):
     prepped_tokens: TokenSequence = field(default_factory=TokenSequence.empty)
     non_processable_tokens: Set[str] = field(default_factory=set)
+    code_snippet_structure: PureSnippetStructure = PureSnippetStructure.empty()
 
-    def update_(self, preprocessing_result: 'PreprocessingResult') -> 'PreprocessingResult':
-        self.prepped_tokens = self.prepped_tokens.add(preprocessing_result.prepped_tokens)
-        self.non_processable_tokens.update(preprocessing_result.non_processable_tokens)
+    def __post_init__(self):
+        if sum(self.prepped_tokens.metadata.n_subtokens_per_token) != len(self.code_snippet_structure):
+            raise AssertionError()
+
+    def update_(self, other: 'PreprocessingResult') -> 'PreprocessingResult':
+        self.prepped_tokens = self.prepped_tokens.add(other.prepped_tokens)
+        self.non_processable_tokens.update(other.non_processable_tokens)
+        self.code_snippet_structure = self.code_snippet_structure.merge(other.code_snippet_structure)
 
         return self
 

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2020 2020 Hlib Babii <hlibbabii@gmail.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 from abc import ABC, abstractmethod
 from typing import Iterator, Sequence, Any, Callable, List, Union, Optional, Tuple, Type
 
@@ -305,7 +309,7 @@ class TokenSequence(ABC):
            starts_with_incomplete_token: bool = False,
            ends_with_incomplete_token: bool = False) -> 'TokenSequence':
         tokens = tokens or []
-        metadata = metadata or PreppedTokenMetadata()
+        metadata = metadata if metadata is not None else PreppedTokenMetadata()
         sequence_type = FullTokenSequence if full_token_view else SubTokenSequence
         return sequence_type(tokens, metadata, word_end_token_added=word_end_token_added,
                                           return_metadata=return_metadata,
@@ -513,10 +517,6 @@ class SubTokenSequence(TokenSequence):
 
     def get_iterator(self, over, over_full_tokens: bool, formatter: Callable[[List[str]], Any] = lambda x: x) -> Iterator:
         return _FullToSubTokenIterator(over, self.metadata) if over_full_tokens else iter(over)
-
-    @classmethod
-    def from_full_token(cls, prepped_token: List[str], token_type: Type):
-        return cls(prepped_token, PreppedTokenMetadata([len(prepped_token)], [token_type]))
 
 
 @dataclass(repr=False)

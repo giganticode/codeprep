@@ -2,7 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import List, Optional, Union, Tuple
+from pathlib import Path
+from typing import List, Optional, Tuple, Union
 
 import sys
 
@@ -11,6 +12,7 @@ from codeprep.parse.core import convert_text
 from codeprep.pipeline.bperegistry import is_predefined_id, CustomBpeConfig
 from codeprep.pipeline.to_repr import init_bpe_data, to_repr
 from codeprep.prepconfig import PrepConfig
+from codeprep.preprocess.codestructure import SnippetStructure
 from codeprep.preprocess.placeholders import placeholders
 from codeprep.preprocess.tokens import TokenSequence
 from codeprep.tokentypes.rootclasses import ParsedToken
@@ -23,7 +25,8 @@ def remove_trailing_newline(prep_tokens: List[ParsedToken]) -> List[ParsedToken]
 
 
 def preprocess(text: str, config: PrepConfig, bpe_codes_id: Optional[str] = None, extension: Optional[str] = None,
-               force_reinit_bpe_data: bool = True, append_eof: bool = False) -> TokenSequence:
+               force_reinit_bpe_data: bool = True, append_eof: bool = False, path: Optional[Path] = None) \
+        -> Union[TokenSequence, Tuple[TokenSequence, SnippetStructure]]:
     parsed = [parsed_token for parsed_token in convert_text(text, extension)]
     parsed = remove_trailing_newline(parsed)
     if append_eof:
@@ -33,12 +36,16 @@ def preprocess(text: str, config: PrepConfig, bpe_codes_id: Optional[str] = None
         custom_bpe_config = None if is_predefined_id(bpe_codes_id) else CustomBpeConfig.from_id(bpe_codes_id)
         init_bpe_data(config, custom_bpe_config, force_reinit_bpe_data)
     preprocessing_results = to_repr(config, parsed)
-    return preprocessing_results.prepped_tokens
+    if path is None:
+        return preprocessing_results.prepped_tokens
+    else:
+        return  preprocessing_results.prepped_tokens, preprocessing_results.code_snippet_structure.tie_to_working_dir(path, 0)
 
 
 def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False, no_unicode: bool = False,
             no_com: bool = False, no_str: bool = False, full_strings: bool = False, max_str_length: int = sys.maxsize,
-            append_eof: bool = False) -> TokenSequence:
+            append_eof: bool = False, path: Optional[Path] = None) \
+        -> Union[TokenSequence, Tuple[TokenSequence, SnippetStructure]]:
     """
     Split `text` into tokens leaving compound identifiers as they are.
 
@@ -56,6 +63,8 @@ def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False,
     Does not have effect if `no_str` is set to `True`
 
     :param append_eof: set to True for <EOF> token to be added to the end of the string
+    :param path: associate the input text with a SnippetStructure and set its `path` attribute to the passed value.
+    If passed, Tuple[TokenSequence, SnippetStructure] is returned.
 
     :return: `TokenSequence` representing a split input.
 
@@ -148,16 +157,17 @@ def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False,
     ...
     TypeError: nosplit() got an unexpected keyword argument 'no_case'
 
-    >>>
+    >>> nosplit('', path="/path")
+    ([], /path: [0], first-line: 0)
     """
     prep_config = create_prep_config('nosplit', no_spaces=no_spaces, no_unicode=no_unicode, no_com=no_com, no_str=no_str,
                                     full_strings=full_strings, max_str_length=max_str_length)
-    return preprocess(text, prep_config, extension=extension, append_eof=append_eof)
+    return preprocess(text, prep_config, extension=extension, append_eof=append_eof, path=path)
 
 
 def chars(text: str, extension: Optional[str] = None, no_spaces: bool = False, no_unicode: bool = False,
-          no_com: bool = False, no_str: bool = False, max_str_length=sys.maxsize,
-          append_eof: bool = False) -> TokenSequence:
+          no_com: bool = False, no_str: bool = False, max_str_length=sys.maxsize, append_eof: bool = False,
+          path: Optional[Path] = None) -> Union[TokenSequence, Tuple[TokenSequence, SnippetStructure]]:
     """
     Split `text` into characters (With the exception of operators that consist of 2 character:
     such operators will remain as a single token). So that the information about original word boundaries is not lost,
@@ -181,6 +191,8 @@ def chars(text: str, extension: Optional[str] = None, no_spaces: bool = False, n
     Does not have effect if `no_str` is set to `True`
 
     :param append_eof: set to True for <EOF> token to be added to the end of the string
+    :param path: associate the input text with a SnippetStructure and set its `path` attribute to the passed value.
+    If passed, Tuple[TokenSequence, SnippetStructure] is returned.
 
     :return: `TokenSequence` representing a split input.
 
@@ -214,18 +226,22 @@ def chars(text: str, extension: Optional[str] = None, no_spaces: bool = False, n
 
     >>> chars('')
     []
+
+    >>> chars('', path="/path")
+    ([], /path: [0], first-line: 0)
     """
     prep_config = create_prep_config('chars', no_spaces=no_spaces, no_unicode=no_unicode,
                                      no_com=no_com, no_str=no_str, max_str_length=max_str_length)
-    return preprocess(text, prep_config, '0', extension=extension, append_eof=append_eof)
+    return preprocess(text, prep_config, '0', extension=extension, append_eof=append_eof, path=path)
 
 
 def basic(text: str, extension: Optional[str] = None,
           split_numbers: bool = False, ronin: bool = False, stem: bool = False,
           no_spaces: bool = False, no_unicode: bool = False, no_case: bool = False, no_com: bool = False,
-          no_str: bool = False, max_str_length: int = sys.maxsize, append_eof: bool = False) -> TokenSequence:
+          no_str: bool = False, max_str_length: int = sys.maxsize, append_eof: bool = False,
+          path: Optional[Path] = None) -> Union[TokenSequence, Tuple[TokenSequence, SnippetStructure]]:
     """
-    Split `text` into tokens converting identifiers that follow CamelCase or snake_case into multiple subwords.
+    Split `text` into tokens converting identifiers that follow CamelCase or snake_c, path: Optional[Path] = Nonease into multiple subwords.
     So that the information about original word boundaries is not lost, special tokens are inserted to denote original
     words beginnings and ends, e.g. myClass -> [<w>, my, Class, </w>]
 
@@ -248,6 +264,8 @@ def basic(text: str, extension: Optional[str] = None,
     Does not have effect if `no_str` is set to `True`
 
     :param append_eof: set to True for <EOF> token to be added to the end of the string
+    :param path: associate the input text with a SnippetStructure and set its `path` attribute to the passed value.
+    If passed, Tuple[TokenSequence, SnippetStructure] is returned.
 
     :return: `TokenSequence` representing a split input.
 
@@ -326,17 +344,20 @@ def basic(text: str, extension: Optional[str] = None,
     >>> prepped_tokens.sub_token_view()
     ['<w>', 'move', 'Vehicl', 'speed', '</w>', '=', '<w>', '0', '.', '3', '4', '5', 'e', '+', '4', '</w>']
 
+    >>> basic('', path="/path")
+    ([], /path: [0], first-line: 0)
+
     """
     prep_config = create_prep_config('basic', no_spaces=no_spaces, no_unicode=no_unicode, no_case=no_case,
                                      no_com=no_com, no_str=no_str, max_str_length=max_str_length,
                                      split_numbers=split_numbers or ronin or stem, ronin=ronin or stem, stem=stem)
-    return preprocess(text, prep_config, extension=extension, append_eof=append_eof)
+    return preprocess(text, prep_config, extension=extension, append_eof=append_eof, path=path)
 
 
 def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces: bool = False,
         no_unicode: bool = False, no_com: bool = False, no_str: bool = False,
-        max_str_length=sys.maxsize, force_reinit_bpe_data: bool = True,
-        append_eof: bool = False) -> TokenSequence:
+        max_str_length=sys.maxsize, force_reinit_bpe_data: bool = True, append_eof: bool = False,
+        path: Optional[Path] = None) -> Union[TokenSequence, Tuple[TokenSequence, SnippetStructure]]:
     """
     Split `text` into tokens converting identifiers that follow CamelCase or snake_case into multiple subwords.
     On top of that Byte Pair Encoding (BPE) is applied with number of merges specified in `bpe_config`.
@@ -366,6 +387,8 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces
     Note: if you want to call this method multiple times with different bpe code ids, bpe data has to be reloaded,
     so you must not set this param to False!
     :param append_eof: set to True for <EOF> token to be added to the end of the string
+    :param path: associate the input text with a SnippetStructure and set its `path` attribute to the passed value.
+    If passed, Tuple[TokenSequence, SnippetStructure] is returned.
 
     :return: `TokenSequence` representing a split input.
 
@@ -421,8 +444,10 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces
 
     >>> bpe('', '1k')
     []
+    >>> bpe('', '1k', path="/path")
+    ([], /path: [0], first-line: 0)
     """
     prep_config = create_prep_config('bpe', bpe_codes_id=bpe_codes_id, no_spaces=no_spaces, no_unicode=no_unicode,
                                      no_com=no_com, no_str=no_str, max_str_length=max_str_length)
     return preprocess(text, prep_config, bpe_codes_id, extension=extension,
-                      force_reinit_bpe_data=force_reinit_bpe_data, append_eof=append_eof)
+                      force_reinit_bpe_data=force_reinit_bpe_data, append_eof=append_eof, path=path)

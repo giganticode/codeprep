@@ -21,7 +21,7 @@ class Number(ParsedToken):
         return f'<{self.__class__.__name__}>({self.val})'
 
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> PreprocessingResult:
-        return self._wrap_in_metadata_for_full_word([self.val])
+        return self._wrap_in_metadata_for_full_word([self.val], 0)
 
     def preprocessed_repr(self, repr_config: ReprConfig) -> PreprocessingResult:
         subwords = repr_config.number_splitter(self.non_preprocessed_repr().get_single_token(), repr_config.bpe_data)
@@ -31,7 +31,7 @@ class Number(ParsedToken):
         else:
             prep_number = subwords
 
-        return self._wrap_in_metadata_for_full_word(prep_number)
+        return self._wrap_in_metadata_for_full_word(prep_number, 0)
 
     def __eq__(self, other):
         return self.__class__ == other.__class__ and self.val == other.val

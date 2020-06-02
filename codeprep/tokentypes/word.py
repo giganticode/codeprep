@@ -134,7 +134,7 @@ class NonProcessibleToken(ParsedToken, ABC):
         return self.token
 
     def non_preprocessed_repr(self, repr_config: Optional[ReprConfig] = None) -> PreprocessingResult:
-        return self._wrap_in_metadata_for_full_word([self.token], non_proc={self.token})
+        return self._wrap_in_metadata_for_full_word([self.token], 0, non_proc={self.token})
 
 
 class KeyWord(NonProcessibleToken):
