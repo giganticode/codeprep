@@ -39,15 +39,15 @@ class PureSnippetStructure:
         line_to_be_split = bisect.bisect_right(cumulative_lengths, second_part_start_index, 0, len(cumulative_lengths))
         total_lengths_of_previous_lines = cumulative_lengths[line_to_be_split-1] if line_to_be_split > 0 else 0
         position_to_split_in_line = second_part_start_index - total_lengths_of_previous_lines
-        if line_to_be_split < len(cumulative_lengths):
-            lines_in_first = self.subtokens_in_each_line[:line_to_be_split]
+
+        lines_in_first = self.subtokens_in_each_line[:line_to_be_split]
+        if line_to_be_split < len(self.subtokens_in_each_line):
             lines_in_first.append(position_to_split_in_line)
-            lines_in_second = [self.subtokens_in_each_line[line_to_be_split] - position_to_split_in_line] + self.subtokens_in_each_line[line_to_be_split+1:]
-            first = PureSnippetStructure(lines_in_first)
-            second = PureSnippetStructure(lines_in_second)
-            return first, second
+            first_line_in_second = [self.subtokens_in_each_line[line_to_be_split] - position_to_split_in_line]
         else:
-            raise IndexError(f"Token {second_part_start_index} is out of bounds of this snippet")
+            first_line_in_second = [0]
+        lines_in_second = first_line_in_second + self.subtokens_in_each_line[line_to_be_split+1:]
+        return PureSnippetStructure(lines_in_first), PureSnippetStructure(lines_in_second)
 
 
 @dataclass
@@ -55,27 +55,21 @@ class SnippetStructure:
     """
     >>> snippet_a = SnippetStructure(Path(''), [3], 2)
     >>> snippet_a.split(4)
-    Traceback (most recent call last):
-    ...
-    IndexError: Token 4 is out of bounds of this snippet
+    (.: [3], first-line: 2, .: [0], first-line: 2)
     >>> snippet_a.split(0)
     (.: [0], first-line: 2, .: [3], first-line: 2)
     >>> snippet_a.split(2)
     (.: [2], first-line: 2, .: [1], first-line: 2)
     >>> snippet_a.split(3)
-    Traceback (most recent call last):
-    ...
-    IndexError: Token 3 is out of bounds of this snippet
+    (.: [3], first-line: 2, .: [0], first-line: 2)
 
-    >>> snippet_b = SnippetStructure(Path(''), [3, 4], 2)
+    >>> snippet_b = SnippetStructure(Path(''), [3, 0, 0, 4], 2)
     >>> snippet_b.split(3)
-    (.: [3, 0], first-line: 2, .: [4], first-line: 3)
+    (.: [3, 0, 0, 0], first-line: 2, .: [4], first-line: 5)
     >>> snippet_b.split(4)
-    (.: [3, 1], first-line: 2, .: [3], first-line: 3)
+    (.: [3, 0, 0, 1], first-line: 2, .: [3], first-line: 5)
     >>> snippet_b.split(7)
-    Traceback (most recent call last):
-    ...
-    IndexError: Token 7 is out of bounds of this snippet
+    (.: [3, 0, 0, 4], first-line: 2, .: [0], first-line: 5)
 
     """
     path: Path
@@ -118,6 +112,10 @@ class CodeBaseStructure:
     >>> prepped_code = CodeBaseStructure([snippet_a, snippet_b])
     >>> prepped_code.split(2)
     (CodeBaseStructure(snippets=[.: [2], first-line: 2]), CodeBaseStructure(snippets=[.: [1, 2], first-line: 2, .: [2], first-line: 3]))
+    >>> prepped_code.split(7)
+    (CodeBaseStructure(snippets=[.: [3, 2], first-line: 2, .: [2], first-line: 3]), CodeBaseStructure(snippets=[]))
+    >>> prepped_code.split(99)
+    (CodeBaseStructure(snippets=[.: [3, 2], first-line: 2, .: [2], first-line: 3]), CodeBaseStructure(snippets=[]))
 
     """
     snippets: List[SnippetStructure] = field(default_factory=list)
@@ -150,7 +148,7 @@ class CodeBaseStructure:
             snippets_in_second = [second] + self.snippets[snippet_to_be_split+1:]
             return CodeBaseStructure(snippets_in_first), CodeBaseStructure(snippets_in_second)
         else:
-            raise IndexError(f"Token {second_part_start_index} is out of bounds")
+            return CodeBaseStructure(self.snippets), CodeBaseStructure()
 
     def pop(self) -> Optional[SnippetStructure]:
         if len(self.snippets)> 1:
