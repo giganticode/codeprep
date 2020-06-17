@@ -22,7 +22,7 @@ class ParsedToken(ABC):
         ), word_end_token_added=False)
         non_processable_tokens = non_proc or {}
         return PreprocessingResult(prepped_sub_token_sequence, non_processable_tokens,
-                                   PureSnippetStructure([len(tokens)] + [0] * n_additional_empty_line))
+                                   PureSnippetStructure.of([len(tokens)] + [0] * n_additional_empty_line))
 
     @abstractmethod
     def preprocessed_repr(self, repr_config: ReprConfig) -> PreprocessingResult:

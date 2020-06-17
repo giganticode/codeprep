@@ -131,7 +131,7 @@ class OneLineComment(Comment):
         )
         n_additional_empty_lines = self.get_n_additional_empty_lines()
         assert n_additional_empty_lines <= 1
-        preprocessing_result.code_snippet_structure = PureSnippetStructure([per_line_subtokens_numbers[0] + 1] + [0] * n_additional_empty_lines)
+        preprocessing_result.code_snippet_structure = PureSnippetStructure.of([per_line_subtokens_numbers[0] + 1] + [0] * n_additional_empty_lines)
         return preprocessing_result
 
 

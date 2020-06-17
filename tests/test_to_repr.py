@@ -105,7 +105,7 @@ def test_to_repr_0():
                                          MultilineComment, MultilineComment, MultilineComment,
                                          OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
         word_end_token_added=False, full_token_view=True),
-        {'"', "*", "/"}, PureSnippetStructure([6, 6, 4]))
+        {'"', "*", "/"}, PureSnippetStructure.of([6, 6, 4]))
 
     assert result == expected_result
 
@@ -135,7 +135,7 @@ def test_to_repr_0_max_str_length_7():
                                          MultilineComment, MultilineComment, MultilineComment,
                                          OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
     word_end_token_added=False, full_token_view=True),
-                       {'"', "*", "/"}, PureSnippetStructure([5, 6, 4]))
+                       {'"', "*", "/"}, PureSnippetStructure.of([5, 6, 4]))
 
     assert result == expected_result
 
@@ -165,7 +165,7 @@ def test_to_repr_0_max_str_length_B():
                                          MultilineComment, MultilineComment, MultilineComment,
                                          MultilineComment, MultilineComment, MultilineComment,
                                          OneLineComment, OneLineComment, OneLineComment, OneLineComment]), word_end_token_added=False, full_token_view=True),
-        {'"', "*", "/"}, PureSnippetStructure([6, 6, 4]))
+        {'"', "*", "/"}, PureSnippetStructure.of([6, 6, 4]))
 
     assert result == expected_result
 
@@ -195,7 +195,7 @@ def test_to_repr_F():
                                          MultilineComment, MultilineComment, MultilineComment,
                                          OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
         word_end_token_added=False, full_token_view=True),
-        {"*", "/"}, PureSnippetStructure([4, 6, 4]))
+        {"*", "/"}, PureSnippetStructure.of([4, 6, 4]))
 
     assert result == expected_result
 
@@ -224,7 +224,7 @@ def test_to_repr_F_max_str_length_7():
                                          MultilineComment, MultilineComment, MultilineComment,
                                          MultilineComment, MultilineComment, MultilineComment,
                                          OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
-        word_end_token_added=False, full_token_view=True), {"*", "/"}, PureSnippetStructure([4, 6, 4]))
+        word_end_token_added=False, full_token_view=True), {"*", "/"}, PureSnippetStructure.of([4, 6, 4]))
 
 
     assert result == expected_result
@@ -255,7 +255,7 @@ def test_to_repr_F_max_str_length_B():
                                          MultilineComment, MultilineComment, MultilineComment,
                                          OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
         word_end_token_added=False, full_token_view=True),
-    {"*", "/"}, PureSnippetStructure([4, 6, 4]))
+    {"*", "/"}, PureSnippetStructure.of([4, 6, 4]))
 
     assert result == expected_result
 
@@ -291,7 +291,7 @@ def test_to_repr_1_nosep():
                                                            MultilineComment, MultilineComment, MultilineComment,
                                                            OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
     word_end_token_added=False, full_token_view=True),
-        {'*', '"', "/", "*"}, PureSnippetStructure([6, 6, 4]))
+        {'*', '"', "/", "*"}, PureSnippetStructure.of([6, 6, 4]))
 
     assert result == expected_result
 
@@ -329,7 +329,7 @@ def test_to_repr_2_nosep():
                                                            MultilineComment, MultilineComment, MultilineComment,
                                                            OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
         word_end_token_added=False, full_token_view=True),
-        {'*', '"', "/", "*"}, PureSnippetStructure([10, 6, 4]))
+        {'*', '"', "/", "*"}, PureSnippetStructure.of([10, 6, 4]))
 
     assert result == expected_result
 
@@ -423,7 +423,7 @@ def test_to_repr_with_enonlycontents1():
                                                           + [StringLiteral] * 14
                                                           + [MultilineComment] * 6
                                                           + [OneLineComment] * 4), word_end_token_added=False, full_token_view=True),
-        {'*', '"', "/", "*"}, PureSnippetStructure([21, 6, 4]))
+        {'*', '"', "/", "*"}, PureSnippetStructure.of([21, 6, 4]))
 
     assert result == expected_result
 
@@ -460,7 +460,7 @@ def test_to_repr_with_non_eng():
                                                           + [StringLiteral] * 3
                                                           + [MultilineComment] * 6
                                                           + [OneLineComment] * 4), word_end_token_added=False, full_token_view=True),
-    {'*', '"', "/"}, PureSnippetStructure([15, 10, 8]))
+    {'*', '"', "/"}, PureSnippetStructure.of([15, 10, 8]))
 
     assert result == expected_result
 
@@ -501,7 +501,7 @@ def test_to_repr_with_newlines_and_tabs():
                                                           + [StringLiteral] * 3 + [NewLine]
                                                           + [MultilineComment] * 6 + [NewLine, Tab]
                                                           + [OneLineComment] * 4), word_end_token_added=False, full_token_view=True),
-        {'*', '"', "/", '\n', '\t'}, PureSnippetStructure([11, 7, 5]))
+        {'*', '"', "/", '\n', '\t'}, PureSnippetStructure.of([11, 7, 5]))
 
     assert result == expected_result
 
@@ -539,7 +539,7 @@ def test_to_repr_no_str_no_com():
                             token_types=[Number, Operator, NonEng, StringLiteral,
                                                            MultilineComment, MultilineComment, MultilineComment, OneLineComment]), word_end_token_added=False, full_token_view=True),
 
-        {'*'}, PureSnippetStructure([8, 3, 1]))
+        {'*'}, PureSnippetStructure.of([8, 3, 1]))
 
     assert result == expected_result
 
@@ -577,7 +577,7 @@ def test_to_repr_no_nosep():
                                                           + [StringLiteral] * 3
                                                           + [MultilineComment] * 6
                                                           + [OneLineComment] * 4), word_end_token_added=False, full_token_view=True),
-        {'*', '"', "/"}, PureSnippetStructure([10, 6, 4]))
+        {'*', '"', "/"}, PureSnippetStructure.of([10, 6, 4]))
 
     assert result == expected_result
 
@@ -665,7 +665,7 @@ def test_1():
                                                            PreppedTokenMetadata(n_subtokens_per_token=[1],
                                                                                 token_types=[Identifier]),
                                                            word_end_token_added=True),
-                                          set(), PureSnippetStructure([1]))
+                                          set(), PureSnippetStructure.of([1]))
 
     assert result == expected_result
 
@@ -688,7 +688,7 @@ def test_merges_no_cache():
     expected_result = PreprocessingResult(
         TokenSequence.of(["Wh", "i", '@', "l", '@', '@', "e", '@', pl["compound_word_end"]],
                          PreppedTokenMetadata(n_subtokens_per_token=[9], token_types=[Identifier]), word_end_token_added=True),
-        set(), PureSnippetStructure([9]))
+        set(), PureSnippetStructure.of([9]))
 
     assert result == expected_result
 
