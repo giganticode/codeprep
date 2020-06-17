@@ -279,6 +279,12 @@ class TokenSequence(ABC):
     ends_with_incomplete_token: bool
 
     def __post_init__(self):
+        self._do_token_creation_sanity_check()
+
+        self._full_to_sub_token_indices = [0] + list(cum_sum(self.metadata.n_subtokens_per_token))
+        self._sub_to_full_token_indices = {n: i for i, n in enumerate(self._full_to_sub_token_indices)}
+
+    def _do_token_creation_sanity_check(self):
         if not isinstance(self.tokens, list):
             raise AssertionError()
         n_subtokens_per_token = self.metadata.n_subtokens_per_token
@@ -297,8 +303,6 @@ class TokenSequence(ABC):
                     if not self.ends_with_incomplete_token:
                         raise AssertionError(f'Token {full_token} according to metadata is end-token, however it doesn\'t contain </t>.')
 
-        self._full_to_sub_token_indices = [0] + list(cum_sum(self.metadata.n_subtokens_per_token))
-        self._sub_to_full_token_indices = {n: i for i, n in enumerate(self._full_to_sub_token_indices)}
 
     @staticmethod
     def of(tokens: List[str] = None, metadata: PreppedTokenMetadata = None,
