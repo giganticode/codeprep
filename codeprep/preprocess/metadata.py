@@ -48,6 +48,10 @@ class PreppedTokenMetadata(object):
 
         return self
 
+    def pop(self):
+        self.n_subtokens_per_token.pop()
+        self.token_types.pop()
+
     def __add__(self, other):
         if not isinstance(other, PreppedTokenMetadata):
             raise TypeError()

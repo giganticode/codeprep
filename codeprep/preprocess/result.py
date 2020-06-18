@@ -21,7 +21,7 @@ class PreprocessingResult(object):
             raise AssertionError()
 
     def update_(self, other: 'PreprocessingResult') -> 'PreprocessingResult':
-        self.prepped_tokens = self.prepped_tokens.add(other.prepped_tokens)
+        self.prepped_tokens.extend(other.prepped_tokens)
         self.non_processable_tokens.update(other.non_processable_tokens)
         self.code_snippet_structure = self.code_snippet_structure.merge(other.code_snippet_structure)
 

@@ -219,6 +219,10 @@ class TokenSequence(ABC):
     ['hi</t>', 'there</t>']
     >>> token_seq_full + token_seq_sub
     ['hi</t>', 'there</t>', 'hi</t>', 'there</t>']
+    >>> token_seq_full.extend(TokenSequence.empty())
+    ['hi</t>', 'there</t>']
+    >>> token_seq_full.extend(token_seq_sub)
+    ['hi</t>', 'there</t>', 'hi</t>', 'there</t>']
 
     Incomplete sequences can be reassembled into complete sequences:
     >>> token_seq_sub[0:2].is_complete()
@@ -239,12 +243,24 @@ class TokenSequence(ABC):
     ['hi</t>', 'the', 're</t>']
     >>> (token_seq_sub[0:2] + token_seq_sub[2]).is_complete()
     True
+    >>> t = token_seq_sub[0:2]
+    >>> t.extend(token_seq_sub[2] + token_seq_sub[1] + token_seq_sub[2])
+    ['hi</t>', 'the', 're</t>', 'the', 're</t>']
+    >>> t[:4].full_token_view()[:-1]
+    ['hi</t>', 'there</t>']
+    >>> t[0:2].is_complete()
+    False
 
     Pay attention:
     >>> token_seq_sub[0] + token_seq_sub[2]
     Traceback (most recent call last):
     ...
-    ValueError: Cannot concat these token sequences
+    ValueError: Cannot concat these sequences: ...['hi</t>'] and []...
+
+    >>> token_seq_sub[0].extend(token_seq_sub[2])
+    Traceback (most recent call last):
+    ...
+    ValueError: Cannot concat these sequences: ...['hi</t>'] and []...
 
 
     Iteration over an external collection related to a `TokenSequence`
@@ -343,22 +359,62 @@ class TokenSequence(ABC):
     def full_token_size(self) -> int:
         return self._sub_to_full_token_indices[len(self.tokens)]
 
-    def __add__(self, other):
-        return self.add(other)
-
-    def add(self, other: 'TokenSequence') -> 'TokenSequence':
+    @staticmethod
+    def _check_concatenation_possible(current: 'TokenSequence', other: 'TokenSequence') -> None:
         if not isinstance(other, TokenSequence):
-            raise TypeError(f'Cannot add {type(other)} to a {type(self)}.')
+            raise TypeError(f'Cannot add {type(other)} to a {type(current)}.')
+        if current.ends_with_incomplete_token != other.starts_with_incomplete_token:
+            raise ValueError(f"Cannot concat these sequences: ...{current[-1:]} and {other[:0]}...")
+        elif current.ends_with_incomplete_token and current.metadata.token_types[-1] != other.metadata.token_types[0]:
+            raise ValueError(f"Cannot glue subtokens of different types: ...{current[-1:]} and {other[:0]}...")
+
+    def extend(self, other: 'TokenSequence') -> 'TokenSequence':
+        self._check_concatenation_possible(self, other)
+
+        first_sub_token_len = self.sub_token_size()
+        first_full_token_len = self.full_token_size()
+        second_full_token_len = other.full_token_size()
+
+        self.tokens.extend(other.tokens)
+        other_metadata = other.metadata
+        start_from = 0
+        if self.ends_with_incomplete_token:
+            n_subtokens_in_merged_tokens = self.metadata.n_subtokens_per_token[-1] + other_metadata.n_subtokens_per_token[0]
+            incomplete_chunk_between = PreppedTokenMetadata([n_subtokens_in_merged_tokens], [self.metadata.token_types[-1]])
+            self.metadata.pop()
+            self.metadata.update_(incomplete_chunk_between)
+            other_metadata = other_metadata[1:]
+            to_del = self._full_to_sub_token_indices[-1]
+            self._full_to_sub_token_indices[-1] += other.metadata.n_subtokens_per_token[0]
+            del(self._sub_to_full_token_indices[to_del])
+            self._sub_to_full_token_indices[self._full_to_sub_token_indices[-1]] = len(self._full_to_sub_token_indices) - 1
+            start_from += 1
+
+        self.metadata.update_(other_metadata)
+
+        for full_word_index_in_second in range(start_from, second_full_token_len):
+            end_of_i_full_word_in_second = other._full_to_sub_token_indices[full_word_index_in_second + 1] + first_sub_token_len
+            self._full_to_sub_token_indices.append(end_of_i_full_word_in_second)
+            self._sub_to_full_token_indices[end_of_i_full_word_in_second] = full_word_index_in_second + 1 + first_full_token_len - start_from
+
+        assert self.full_token_size() + 1 == len(self._sub_to_full_token_indices)
+        assert self.full_token_size() + 1 == len(self._full_to_sub_token_indices)
+
+        self.word_end_token_added = self.word_end_token_added and other.word_end_token_added
+        self.ends_with_incomplete_token = other.ends_with_incomplete_token
+
+        return self
+
+    def __add__(self, other: 'TokenSequence') -> 'TokenSequence':
+        self._check_concatenation_possible(self, other)
 
         resulting_tokens = self.tokens + other.tokens
-        if not self.ends_with_incomplete_token and not other.starts_with_incomplete_token:
+        if not self.ends_with_incomplete_token:
             resulting_metadata = self.metadata + other.metadata
-        elif self.ends_with_incomplete_token and other.starts_with_incomplete_token and self.metadata.token_types[-1] == other.metadata.token_types[0]:
+        elif self.ends_with_incomplete_token:
             n_subtokens_in_merged_tokens = self.metadata.n_subtokens_per_token[-1] + other.metadata.n_subtokens_per_token[0]
             incomplete_chunk_between = PreppedTokenMetadata([n_subtokens_in_merged_tokens], [self.metadata.token_types[-1]])
             resulting_metadata = self.metadata[:-1] + incomplete_chunk_between + other.metadata[1:]
-        else:
-            raise ValueError("Cannot concat these token sequences")
 
         return TokenSequence.of(resulting_tokens, resulting_metadata,
                                 full_token_view=not isinstance(self, SubTokenSequence),
@@ -537,7 +593,7 @@ class FullTokenSequence(TokenSequence):
         if not isinstance(value, FullTokenSequence):
             raise TypeError("Can assign only TokenSequence instance")
 
-        self.__dict__ = self[:key].add(value).add(self[key + 1:]).__dict__
+        self.__dict__ = self[:key].extend(value).extend(self[key + 1:]).__dict__
 
     def __getitem__(self, item: Union[int, slice]):
         start, stop = self._normalize_passed_index(item)
