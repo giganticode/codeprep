@@ -123,10 +123,6 @@ class TokenSequence(ABC):
     >>> token_seq.sub_token_view()
     ['hi</t>', 'the', 're</t>']
 
-    By default each full token is returned by a list of subtokens, to change this, pass a formatting function to `format` method:
-    >>> token_seq.with_format(lambda s: "".join(s))
-    ['hi</t>', 'there</t>']
-
     Full token and sub-token views will have different length:
     >>> len(token_seq.full_token_view())
     2
@@ -173,13 +169,6 @@ class TokenSequence(ABC):
     >>> token_seq
     ['hi</t>', 'there</t>']
 
-    Accessing single subtoken:
-    >>> single_sub_token = token_seq.sub_token_view()[0]
-    >>> single_sub_token.token_str()
-    'hi</t>'
-    >>> single_sub_token.metadata.n_subtokens(), single_sub_token.metadata.token_type()
-    (1, <class 'codeprep.preprocess.tokens.TypeA'>)
-
 
     Incomplete sequences
     >>> token_seq_sub[0:2]
@@ -200,7 +189,7 @@ class TokenSequence(ABC):
     >>> len(incomplete_seq.full_token_view())
     2
 
-    Assigning also works
+    Assignment also works
 
     >>> token_seq_full[1] = 'Bill'
     Traceback (most recent call last):
@@ -220,13 +209,7 @@ class TokenSequence(ABC):
     ['hi</t>', 'there</t>']
     >>> token_seq_full + token_seq_sub
     ['hi</t>', 'there</t>', 'hi</t>', 'there</t>']
-    >>> token_seq_full.extend(TokenSequence.empty())
-    ['hi</t>', 'there</t>']
-    >>> token_seq_full.extend(token_seq_sub)
-    ['hi</t>', 'there</t>', 'hi</t>', 'there</t>']
 
-    >>> token_seq_full.extend(token_seq_sub)
-    ['hi</t>', 'there</t>', 'hi</t>', 'there</t>', 'hi</t>', 'there</t>', 'hi</t>', 'there</t>']
 
     Incomplete sequences can be reassembled into complete sequences:
     >>> token_seq_sub[0:2].is_complete()
@@ -266,25 +249,6 @@ class TokenSequence(ABC):
     ...
     ValueError: Cannot concat these sequences: ...['hi</t>'] and []...
 
-
-    Iteration over an external collection related to a `TokenSequence`
-    ===========
-    >>> token_seq = TokenSequence.create(['hi</t>', 'the' ,'re</t>'], PreppedTokenMetadata([1, 2], [TypeA, TypeA]))
-    >>> token_seq_sub = token_seq.sub_token_view()
-    >>> token_seq_full = token_seq_sub.full_token_view()
-
-    >>> iterator = token_seq_sub.get_iterator([1, 2], over_full_tokens=True)
-    >>> [x for x in iterator]
-    [1, 2, 2]
-    >>> iterator = token_seq_sub.get_iterator([1, 2, 3], over_full_tokens=False)
-    >>> [x for x in iterator]
-    [1, 2, 3]
-    >>> iterator = token_seq_full.get_iterator([1, 2], over_full_tokens=True)
-    >>> [x for x in iterator]
-    [1, 2]
-    >>> iterator = token_seq_full.get_iterator([1, 2, 3], over_full_tokens=False)
-    >>> [x for x in iterator]
-    [[1], [2, 3]]
 
 
     """
@@ -383,6 +347,18 @@ class TokenSequence(ABC):
             raise ValueError(f"Cannot glue subtokens of different types: ...{current[-1:]} and {other[:0]}...")
 
     def extend(self, other: 'TokenSequence') -> 'TokenSequence':
+        """
+        >>> from codeprep.api.text import bpe
+        >>> token_seq = bpe('is locked', '10k').with_format(lambda s: "".join(s))
+
+        >>> token_seq.extend(TokenSequence.empty())
+        ['is</t>', 'locked</t>']
+        >>> sub_token_seq = token_seq.sub_token_view()
+        >>> token_seq.extend(token_seq)
+        ['is</t>', 'locked</t>', 'is</t>', 'locked</t>']
+        >>> token_seq.extend(sub_token_seq)
+        ['is</t>', 'locked</t>', 'is</t>', 'locked</t>', 'is</t>', 'locked</t>', 'is</t>', 'locked</t>']
+        """
         self._check_concatenation_possible(self, other)
 
         first_sub_token_len = self.sub_token_size()
@@ -439,6 +415,20 @@ class TokenSequence(ABC):
                                     ends_with_incomplete_token=other.ends_with_incomplete_token)
 
     def token_str(self) -> str:
+        """
+        >>> from codeprep.api.text import bpe
+        >>> token_seq = bpe('is locked', '10k')
+        >>> token_seq
+        [['is</t>'], ['loc', 'ked</t>']]
+        >>> token_seq[0].token_str()
+        'is</t>'
+        >>> token_seq.sub_token_view()[1].token_str()
+        'loc'
+        >>> token_seq.full_token_view()[1].token_str()
+        Traceback (most recent call last):
+        ...
+        ValueError: This method can be only called if the sequence contains only one token.
+        """
         if len(self.tokens) != 1:
             raise ValueError("This method can be only called if the sequence contains only one token.")
 
@@ -467,6 +457,27 @@ class TokenSequence(ABC):
 
     @abstractmethod
     def get_iterator(self, over, over_full_tokens: bool, formatter: Callable[[List[str]], Any]) -> Iterator:
+        """
+        >>> from codeprep.api.text import bpe
+        >>> token_seq = bpe('is locked', '10k')
+        >>> token_seq
+        [['is</t>'], ['loc', 'ked</t>']]
+        >>> token_seq_sub = token_seq.sub_token_view()
+        >>> token_seq_full = token_seq_sub.full_token_view()
+
+        >>> iterator = token_seq_sub.get_iterator([1, 2], over_full_tokens=True)
+        >>> [x for x in iterator]
+        [1, 2, 2]
+        >>> iterator = token_seq_sub.get_iterator([1, 2, 3], over_full_tokens=False)
+        >>> [x for x in iterator]
+        [1, 2, 3]
+        >>> iterator = token_seq_full.get_iterator([1, 2], over_full_tokens=True)
+        >>> [x for x in iterator]
+        [1, 2]
+        >>> iterator = token_seq_full.get_iterator([1, 2, 3], over_full_tokens=False)
+        >>> [x for x in iterator]
+        [[1], [2, 3]]
+        """
         pass
 
     def without_metadata(self) -> 'TokenSequence':
@@ -476,6 +487,15 @@ class TokenSequence(ABC):
         return self.shallow_copy(type(self), return_metadata=True)
 
     def with_format(self, formatter: Callable[[List[str]], Any]) -> 'TokenSequence':
+        """
+        >>> from codeprep.api.text import bpe
+        >>> token_seq = bpe('is locked', '10k')
+        >>> token_seq
+        [['is</t>'], ['loc', 'ked</t>']]
+
+        >>> token_seq.with_format(lambda s: "".join(s))
+        ['is</t>', 'locked</t>']
+        """
         return self.shallow_copy(type(self), formatter=formatter)
 
     @abstractmethod
