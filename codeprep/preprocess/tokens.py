@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from abc import ABC, abstractmethod
-from typing import Iterator, Sequence, Any, Callable, List, Union, Optional, Tuple, Type
+from typing import Iterator, Sequence, Any, Callable, List, Union, Optional, Tuple, Mapping
 
 from dataclasses import dataclass, field
 
@@ -100,7 +100,7 @@ class TokenSequence(ABC):
     `TokenSequence` creation
     =============
     >>> class TypeA(object): pass
-    >>> token_seq = TokenSequence.of(['hi</t>', 'the' ,'re</t>'], PreppedTokenMetadata([1, 2], [TypeA, TypeA]), full_token_view=True)
+    >>> token_seq = TokenSequence.create(['hi</t>', 'the' ,'re</t>'], PreppedTokenMetadata([1, 2], [TypeA, TypeA]), full_token_view=True)
     >>> token_seq
     [['hi</t>'], ['the', 're</t>']]
 
@@ -109,13 +109,13 @@ class TokenSequence(ABC):
     ([1, 2], ['TypeA', 'TypeA'])
 
     When manually creating TokenSequence, sub-tokens and metadata must be in sync:
-    >>> TokenSequence.of(['h', 'i</t>'], PreppedTokenMetadata([1], [TypeA]))
+    >>> TokenSequence.create(['h', 'i</t>'], PreppedTokenMetadata([1], [TypeA]))
     Traceback (most recent call last):
     ...
     ValueError: Tokens and metadata are out-of-sync.
     The subword list has 2 elements but the number of sub-tokens according to metadata is 1.
 
-    >>> TokenSequence.of(['hi', 'the' ,'re</t>'], PreppedTokenMetadata([1, 2], [TypeA, TypeA]), word_end_token_added=True)
+    >>> TokenSequence.create(['hi', 'the' ,'re</t>'], PreppedTokenMetadata([1, 2], [TypeA, TypeA]), word_end_token_added=True)
     Traceback (most recent call last):
     ...
     AssertionError: Token hi according to metadata is end-token, however it doesn't contain </t>.
@@ -136,7 +136,7 @@ class TokenSequence(ABC):
     Indexing
     ===========
     Full-token view indexing. The result is always a full-token-view.
-    >>> token_seq = TokenSequence.of(['hi</t>', 'the' ,'re</t>'], PreppedTokenMetadata([1, 2], [TypeA, TypeA]), formatter=lambda s: "".join(s))
+    >>> token_seq = TokenSequence.create(['hi</t>', 'the' ,'re</t>'], PreppedTokenMetadata([1, 2], [TypeA, TypeA]), formatter=lambda s: "".join(s))
     >>> token_seq_full = token_seq.full_token_view()
     >>> token_seq_full[0]
     ['hi</t>']
@@ -161,7 +161,8 @@ class TokenSequence(ABC):
     ['hi</t>', 'the', 're</t>']
 
     When indexing/slicing a copy of the sequence is created:
-    >>> token_seq = TokenSequence.of(['hi</t>', 'the' ,'re</t>'], PreppedTokenMetadata([1, 2], [TypeA, TypeA]), formatter=lambda s: "".join(s))
+    # TODO think if the 'view' functionality is needed for efficiency
+    >>> token_seq = TokenSequence.create(['hi</t>', 'the' ,'re</t>'], PreppedTokenMetadata([1, 2], [TypeA, TypeA]), formatter=lambda s: "".join(s))
     >>> token_seq_sub = token_seq.sub_token_view()
     >>> token_seq_full = token_seq.full_token_view()
 
@@ -211,7 +212,7 @@ class TokenSequence(ABC):
 
     Concatenation
     ===========
-    >>> token_seq = TokenSequence.of(['hi</t>', 'the' ,'re</t>'], PreppedTokenMetadata([1, 2], [TypeA, TypeA]), formatter=lambda s: "".join(s))
+    >>> token_seq = TokenSequence.create(['hi</t>', 'the' ,'re</t>'], PreppedTokenMetadata([1, 2], [TypeA, TypeA]), formatter=lambda s: "".join(s))
     >>> token_seq_sub = token_seq.sub_token_view()
     >>> token_seq_full = token_seq_sub.full_token_view()
 
@@ -224,6 +225,9 @@ class TokenSequence(ABC):
     >>> token_seq_full.extend(token_seq_sub)
     ['hi</t>', 'there</t>', 'hi</t>', 'there</t>']
 
+    >>> token_seq_full.extend(token_seq_sub)
+    ['hi</t>', 'there</t>', 'hi</t>', 'there</t>', 'hi</t>', 'there</t>', 'hi</t>', 'there</t>']
+
     Incomplete sequences can be reassembled into complete sequences:
     >>> token_seq_sub[0:2].is_complete()
     False
@@ -232,7 +236,7 @@ class TokenSequence(ABC):
     False
     >>> incomplete_single_elm_seq[0].is_complete()
     False
-    >>> inc_t = TokenSequence.of(['a', 'b', 'c', 'd</t>'], PreppedTokenMetadata([4], [TypeA]), full_token_view=False)[:-1]
+    >>> inc_t = TokenSequence.create(['a', 'b', 'c', 'd</t>'], PreppedTokenMetadata([4], [TypeA]), full_token_view=False)[:-1]
     >>> inc_t[:].is_complete()
     False
     >>> inc_t[:-1].is_complete()
@@ -265,7 +269,7 @@ class TokenSequence(ABC):
 
     Iteration over an external collection related to a `TokenSequence`
     ===========
-    >>> token_seq = TokenSequence.of(['hi</t>', 'the' ,'re</t>'], PreppedTokenMetadata([1, 2], [TypeA, TypeA]))
+    >>> token_seq = TokenSequence.create(['hi</t>', 'the' ,'re</t>'], PreppedTokenMetadata([1, 2], [TypeA, TypeA]))
     >>> token_seq_sub = token_seq.sub_token_view()
     >>> token_seq_full = token_seq_sub.full_token_view()
 
@@ -293,12 +297,11 @@ class TokenSequence(ABC):
 
     starts_with_incomplete_token: bool
     ends_with_incomplete_token: bool
+    full_to_sub_token_indices: List[int]
+    sub_to_full_token_indices: Mapping[int, int]
 
     def __post_init__(self):
         self._do_token_creation_sanity_check()
-
-        self._full_to_sub_token_indices = [0] + list(cum_sum(self.metadata.n_subtokens_per_token))
-        self._sub_to_full_token_indices = {n: i for i, n in enumerate(self._full_to_sub_token_indices)}
 
     def _do_token_creation_sanity_check(self):
         if not isinstance(self.tokens, list):
@@ -319,23 +322,34 @@ class TokenSequence(ABC):
                     if not self.ends_with_incomplete_token:
                         raise AssertionError(f'Token {full_token} according to metadata is end-token, however it doesn\'t contain </t>.')
 
+    @staticmethod
+    def _build_indexes(metadata: PreppedTokenMetadata) -> Tuple[List[int], Mapping[int, int]]:
+        full_to_sub_token_indices = [0] + list(cum_sum(metadata.n_subtokens_per_token))
+        sub_to_full_token_indices = {n: i for i, n in enumerate(full_to_sub_token_indices)}
+        return full_to_sub_token_indices, sub_to_full_token_indices
 
     @staticmethod
-    def of(tokens: List[str] = None, metadata: PreppedTokenMetadata = None,
-           full_token_view: bool = True,
-           word_end_token_added: bool = True,
-           return_metadata: bool = False,
-           formatter=lambda x:x,
-           starts_with_incomplete_token: bool = False,
-           ends_with_incomplete_token: bool = False) -> 'TokenSequence':
+    def create(tokens: List[str] = None, metadata: PreppedTokenMetadata = None,
+               full_token_view: bool = True,
+               word_end_token_added: bool = True,
+               return_metadata: bool = False,
+               formatter=lambda x:x,
+               starts_with_incomplete_token: bool = False,
+               ends_with_incomplete_token: bool = False) -> 'TokenSequence':
         tokens = tokens or []
         metadata = metadata if metadata is not None else PreppedTokenMetadata()
         sequence_type = FullTokenSequence if full_token_view else SubTokenSequence
+
+        # TODO add optimization for [:n] slicing (not rebuilding indices fully)
+        full_to_sub_token_indices, sub_to_full_token_indices = TokenSequence._build_indexes(metadata)
+
         return sequence_type(tokens, metadata, word_end_token_added=word_end_token_added,
                                           return_metadata=return_metadata,
                                           formatter=formatter,
                                           starts_with_incomplete_token=starts_with_incomplete_token,
-                                          ends_with_incomplete_token=ends_with_incomplete_token)
+                                          ends_with_incomplete_token=ends_with_incomplete_token,
+                             full_to_sub_token_indices=full_to_sub_token_indices,
+                             sub_to_full_token_indices=sub_to_full_token_indices)
 
     @staticmethod
     def as_sequence(token_seq: 'TokenSequence', **kwargs) -> 'TokenSequence':
@@ -343,7 +357,7 @@ class TokenSequence(ABC):
 
     @staticmethod
     def empty(full_token_view: bool = True) -> 'TokenSequence':
-        return TokenSequence.of(full_token_view=True) if full_token_view else TokenSequence.of(full_token_view=False)
+        return TokenSequence.create(full_token_view=True) if full_token_view else TokenSequence.create(full_token_view=False)
 
     def is_complete(self) -> bool:
         return not self.starts_with_incomplete_token and not self.ends_with_incomplete_token
@@ -357,7 +371,7 @@ class TokenSequence(ABC):
         return len(self.tokens)
 
     def full_token_size(self) -> int:
-        return self._sub_to_full_token_indices[len(self.tokens)]
+        return self.sub_to_full_token_indices[len(self.tokens)]
 
     @staticmethod
     def _check_concatenation_possible(current: 'TokenSequence', other: 'TokenSequence') -> None:
@@ -384,21 +398,21 @@ class TokenSequence(ABC):
             self.metadata.pop()
             self.metadata.update_(incomplete_chunk_between)
             other_metadata = other_metadata[1:]
-            to_del = self._full_to_sub_token_indices[-1]
-            self._full_to_sub_token_indices[-1] += other.metadata.n_subtokens_per_token[0]
-            del(self._sub_to_full_token_indices[to_del])
-            self._sub_to_full_token_indices[self._full_to_sub_token_indices[-1]] = len(self._full_to_sub_token_indices) - 1
+            to_del = self.full_to_sub_token_indices[-1]
+            self.full_to_sub_token_indices[-1] += other.metadata.n_subtokens_per_token[0]
+            del(self.sub_to_full_token_indices[to_del])
+            self.sub_to_full_token_indices[self.full_to_sub_token_indices[-1]] = len(self.full_to_sub_token_indices) - 1
             start_from += 1
 
         self.metadata.update_(other_metadata)
 
         for full_word_index_in_second in range(start_from, second_full_token_len):
-            end_of_i_full_word_in_second = other._full_to_sub_token_indices[full_word_index_in_second + 1] + first_sub_token_len
-            self._full_to_sub_token_indices.append(end_of_i_full_word_in_second)
-            self._sub_to_full_token_indices[end_of_i_full_word_in_second] = full_word_index_in_second + 1 + first_full_token_len - start_from
+            end_of_i_full_word_in_second = other.full_to_sub_token_indices[full_word_index_in_second + 1] + first_sub_token_len
+            self.full_to_sub_token_indices.append(end_of_i_full_word_in_second)
+            self.sub_to_full_token_indices[end_of_i_full_word_in_second] = full_word_index_in_second + 1 + first_full_token_len - start_from
 
-        assert self.full_token_size() + 1 == len(self._sub_to_full_token_indices)
-        assert self.full_token_size() + 1 == len(self._full_to_sub_token_indices)
+        assert self.full_token_size() + 1 == len(self.sub_to_full_token_indices)
+        assert self.full_token_size() + 1 == len(self.full_to_sub_token_indices)
 
         self.word_end_token_added = self.word_end_token_added and other.word_end_token_added
         self.ends_with_incomplete_token = other.ends_with_incomplete_token
@@ -416,13 +430,13 @@ class TokenSequence(ABC):
             incomplete_chunk_between = PreppedTokenMetadata([n_subtokens_in_merged_tokens], [self.metadata.token_types[-1]])
             resulting_metadata = self.metadata[:-1] + incomplete_chunk_between + other.metadata[1:]
 
-        return TokenSequence.of(resulting_tokens, resulting_metadata,
-                                full_token_view=not isinstance(self, SubTokenSequence),
-                                word_end_token_added=self.word_end_token_added and other.word_end_token_added,
-                                return_metadata=self.return_metadata,
-                                formatter=self.formatter,
-                                starts_with_incomplete_token=self.starts_with_incomplete_token,
-                                ends_with_incomplete_token=other.ends_with_incomplete_token)
+        return TokenSequence.create(resulting_tokens, resulting_metadata,
+                                    full_token_view=not isinstance(self, SubTokenSequence),
+                                    word_end_token_added=self.word_end_token_added and other.word_end_token_added,
+                                    return_metadata=self.return_metadata,
+                                    formatter=self.formatter,
+                                    starts_with_incomplete_token=self.starts_with_incomplete_token,
+                                    ends_with_incomplete_token=other.ends_with_incomplete_token)
 
     def token_str(self) -> str:
         if len(self.tokens) != 1:
@@ -490,13 +504,13 @@ class TokenSequence(ABC):
     def _full_to_sub_index(self, index: Optional[int]) -> Optional[int]:
         if index is None:
             return index
-        return self._full_to_sub_token_indices[index]
+        return self.full_to_sub_token_indices[index]
 
     def _sub_to_full_index(self, index: Optional[int]) -> Optional[int]:
         if index is None:
             return index
         try:
-            return self._sub_to_full_token_indices[index]
+            return self.sub_to_full_token_indices[index]
         except KeyError:
             raise KeyError(f"Sub-index {index} is in the middle of a full-tokens")
 
@@ -504,12 +518,12 @@ class TokenSequence(ABC):
         if index is None:
             return None
 
-        while index not in self._sub_to_full_token_indices:
+        while index not in self.sub_to_full_token_indices:
             if to_left:
                 index -= 1
             else:
                 index += 1
-        return self._sub_to_full_token_indices[index]
+        return self.sub_to_full_token_indices[index]
 
     def _normalize_passed_index(self, item: Union[int, slice]) -> Tuple[int, int]:
         if isinstance(item, int):
@@ -568,9 +582,13 @@ class SubTokenSequence(TokenSequence):
         starts_with_incomplete_token = (adjusted_before > 0) or ((start == 0 or start is None) and self.starts_with_incomplete_token)
         ends_with_incomplete_token = (adjusted_after > 0) or ((stop == len(self.tokens) or stop is None) and self.ends_with_incomplete_token)
 
+        full_to_sub_token_indices, sub_to_full_token_indices = self._build_indexes(metadata)
+
         return self.shallow_copy(new_type=type(self), tokens=self.tokens[start:stop], metadata=metadata,
                                      starts_with_incomplete_token=starts_with_incomplete_token,
-                                     ends_with_incomplete_token=ends_with_incomplete_token)
+                                     ends_with_incomplete_token=ends_with_incomplete_token,
+                                          full_to_sub_token_indices=full_to_sub_token_indices,
+                                          sub_to_full_token_indices=sub_to_full_token_indices)
 
     def __len__(self):
         return self.sub_token_size()
@@ -603,14 +621,22 @@ class FullTokenSequence(TokenSequence):
             self._full_to_sub_index(stop),
             1,
         )
+
+        metadata=PreppedTokenMetadata(
+            self.metadata.n_subtokens_per_token[start:stop],
+            self.metadata.token_types[start:stop]
+        )
+
         starts_with_incomplete_token = self.starts_with_incomplete_token and (start==0 or start is None)
         ends_with_incomplete_token = self.ends_with_incomplete_token and (stop==len(self) or stop is None)
+
+        full_to_sub_token_indices, sub_to_full_token_indices = self._build_indexes(metadata)
+
         return self.shallow_copy(new_type=type(self), tokens=self.tokens[full_item],
-                                    metadata=PreppedTokenMetadata(
-                                        self.metadata.n_subtokens_per_token[start:stop],
-                                        self.metadata.token_types[start:stop]
-                                    ), starts_with_incomplete_token=starts_with_incomplete_token,
-                                 ends_with_incomplete_token=ends_with_incomplete_token)
+                                    metadata=metadata, starts_with_incomplete_token=starts_with_incomplete_token,
+                                 ends_with_incomplete_token=ends_with_incomplete_token,
+                                 full_to_sub_token_indices=full_to_sub_token_indices,
+                                 sub_to_full_token_indices=sub_to_full_token_indices)
 
     def __len__(self):
         return self.full_token_size()

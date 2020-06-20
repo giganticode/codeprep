@@ -165,4 +165,4 @@ def insert_word_end_tokens_(token_seq: TokenSequence) -> TokenSequence:
     new_tokens = []
     for subtokens in token_seq.full_token_view(formatter=lambda x: x[:-1] + [x[-1] + placeholders['compound_word_end']]):
         new_tokens.extend(subtokens)
-    return TokenSequence.of(new_tokens, token_seq.metadata, word_end_token_added=True)
+    return TokenSequence.create(new_tokens, token_seq.metadata, word_end_token_added=True)

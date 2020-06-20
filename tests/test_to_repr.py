@@ -91,7 +91,7 @@ def test_to_repr_0():
 
     result = to_repr(prep_config, tokens)
 
-    expected_result = PreprocessingResult(TokenSequence.of([
+    expected_result = PreprocessingResult(TokenSequence.create([
         '1.1',
         "*",
         'übersetzen',
@@ -122,7 +122,7 @@ def test_to_repr_0_max_str_length_7():
 
     result = to_repr(prep_config, tokens)
 
-    expected_result = PreprocessingResult(TokenSequence.of([
+    expected_result = PreprocessingResult(TokenSequence.create([
         '1.1',
         "*",
         'übersetzen',
@@ -152,7 +152,7 @@ def test_to_repr_0_max_str_length_B():
 
     result = to_repr(prep_config, tokens)
 
-    expected_result = PreprocessingResult(TokenSequence.of([
+    expected_result = PreprocessingResult(TokenSequence.create([
         '1.1',
         "*",
         'übersetzen',
@@ -182,7 +182,7 @@ def test_to_repr_F():
 
     result = to_repr(prep_config, tokens)
 
-    expected_result = PreprocessingResult(TokenSequence.of([
+    expected_result = PreprocessingResult(TokenSequence.create([
         '1.1',
         "*",
         'übersetzen',
@@ -212,7 +212,7 @@ def test_to_repr_F_max_str_length_7():
 
     result = to_repr(prep_config, tokens)
 
-    expected_result = PreprocessingResult(TokenSequence.of([
+    expected_result = PreprocessingResult(TokenSequence.create([
         '1.1',
         "*",
         'übersetzen',
@@ -242,7 +242,7 @@ def test_to_repr_F_max_str_length_B():
 
     result = to_repr(prep_config, tokens)
 
-    expected_result = PreprocessingResult(TokenSequence.of([
+    expected_result = PreprocessingResult(TokenSequence.create([
         '1.1',
         "*",
         'übersetzen',
@@ -275,7 +275,7 @@ def test_to_repr_1_nosep():
 
     result = to_repr(prep_config, tokens)
 
-    expected_result = PreprocessingResult(TokenSequence.of([
+    expected_result = PreprocessingResult(TokenSequence.create([
         '1.1',
         "*",
         pl['non_eng'],
@@ -311,7 +311,7 @@ def test_to_repr_2_nosep():
 
     result = to_repr(prep_config, tokens)
 
-    expected_result = PreprocessingResult(TokenSequence.of([
+    expected_result = PreprocessingResult(TokenSequence.create([
         pl["word_start"],
         '1',
         '.',
@@ -404,7 +404,7 @@ def test_to_repr_with_enonlycontents1():
 
     result = to_repr(prep_config, tokens)
 
-    expected_result = PreprocessingResult(TokenSequence.of([
+    expected_result = PreprocessingResult(TokenSequence.create([
         pl['word_start'],
         '1',
         '.',
@@ -443,7 +443,7 @@ def test_to_repr_with_non_eng():
 
     result = to_repr(prep_config, tokens)
 
-    expected_result = PreprocessingResult(TokenSequence.of([
+    expected_result = PreprocessingResult(TokenSequence.create([
         pl['word_start'],
         '1',
         '.',
@@ -482,7 +482,7 @@ def test_to_repr_with_newlines_and_tabs():
 
     result = to_repr(prep_config, tokens)
 
-    expected_result = PreprocessingResult(TokenSequence.of([
+    expected_result = PreprocessingResult(TokenSequence.create([
         pl['word_start'],
         '1',
         '.',
@@ -522,7 +522,7 @@ def test_to_repr_no_str_no_com():
 
     result = to_repr(prep_config, tokens)
 
-    expected_result = PreprocessingResult(TokenSequence.of([
+    expected_result = PreprocessingResult(TokenSequence.create([
         pl['word_start'],
         '1',
         '.',
@@ -560,7 +560,7 @@ def test_to_repr_no_nosep():
 
     result = to_repr(prep_config, tokens)
 
-    expected_result = PreprocessingResult(TokenSequence.of([
+    expected_result = PreprocessingResult(TokenSequence.create([
         pl['word_start'],
         '1',
         '.',
@@ -661,10 +661,10 @@ def test_1():
 
     result = to_repr(prep_config, tokens, BpeData(merges_cache={'Whi@@le@': ['Whi@@le@']}))
 
-    expected_result = PreprocessingResult(TokenSequence.of(["Whi@le" + placeholders['compound_word_end']],
-                                                           PreppedTokenMetadata(n_subtokens_per_token=[1],
+    expected_result = PreprocessingResult(TokenSequence.create(["Whi@le" + placeholders['compound_word_end']],
+                                                               PreppedTokenMetadata(n_subtokens_per_token=[1],
                                                                                 token_types=[Identifier]),
-                                                           word_end_token_added=True),
+                                                               word_end_token_added=True),
                                           set(), PureSnippetStructure.of([1]))
 
     assert result == expected_result
@@ -686,8 +686,8 @@ def test_merges_no_cache():
                                                                     merges_cache={} ))
 
     expected_result = PreprocessingResult(
-        TokenSequence.of(["Wh", "i", '@', "l", '@', '@', "e", '@', pl["compound_word_end"]],
-                         PreppedTokenMetadata(n_subtokens_per_token=[9], token_types=[Identifier]), word_end_token_added=True),
+        TokenSequence.create(["Wh", "i", '@', "l", '@', '@', "e", '@', pl["compound_word_end"]],
+                             PreppedTokenMetadata(n_subtokens_per_token=[9], token_types=[Identifier]), word_end_token_added=True),
         set(), PureSnippetStructure.of([9]))
 
     assert result == expected_result

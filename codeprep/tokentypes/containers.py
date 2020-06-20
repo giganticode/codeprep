@@ -121,7 +121,7 @@ class OneLineComment(Comment):
         per_line_subtokens_numbers = preprocessing_result.code_snippet_structure.subtokens_in_each_line
         if not OneLineComment.is_possible_code_structure(per_line_subtokens_numbers):
             raise AssertionError()
-        preprocessing_result.prepped_tokens = TokenSequence.of(
+        preprocessing_result.prepped_tokens = TokenSequence.create(
             preprocessing_result.prepped_tokens.tokens + [placeholders['olc_end']],
             PreppedTokenMetadata(
                 n_sub_tokens_per_token,

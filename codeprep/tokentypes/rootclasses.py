@@ -14,7 +14,7 @@ from codeprep.preprocess.metadata import PreppedTokenMetadata
 class ParsedToken(ABC):
     def _wrap_in_metadata_for_full_word(self, tokens: List[str], n_additional_empty_line,
                                         non_proc: Optional[Set[str]] = None) -> PreprocessingResult:
-        prepped_sub_token_sequence = TokenSequence.of(
+        prepped_sub_token_sequence = TokenSequence.create(
             tokens,
             PreppedTokenMetadata(
                 n_subtokens_per_token=[len(tokens)],
