@@ -30,8 +30,8 @@ class PureSnippetStructure:
     def __len__(self) -> int:
         return self._cumulative_sizes[-1]
 
-    def tie_to_working_dir(self, path: Path, first_line: int) -> 'SnippetStructure':
-        return SnippetStructure(self.subtokens_in_each_line, self._cumulative_sizes, path, first_line)
+    def tie_to_working_dir(self, path: Path, first_line: int, firt_token_in_line) -> 'SnippetStructure':
+        return SnippetStructure(self.subtokens_in_each_line, self._cumulative_sizes, path, first_line, firt_token_in_line)
 
     def _merge_lines(self, other: 'PureSnippetStructure') -> Tuple[List[int], List[int]]:
         lines_combines = self.subtokens_in_each_line[:-1] + \
@@ -68,39 +68,44 @@ class PureSnippetStructure:
 @dataclass(frozen=True)
 class SnippetStructure(PureSnippetStructure):
     """
-    >>> snippet_a = SnippetStructure.from_path_and_lines(Path(''), [3], 2)
+    >>> snippet_a = SnippetStructure.from_path_and_lines(Path(''), [3], 2, 17)
     >>> snippet_a.split(4)
-    (.: [3], first-line: 2, .: [0], first-line: 2)
+    (.: [3], start: (2:17), .: [0], start: (2:20))
     >>> snippet_a.split(0)
-    (.: [0], first-line: 2, .: [3], first-line: 2)
+    (.: [0], start: (2:17), .: [3], start: (2:17))
     >>> snippet_a.split(2)
-    (.: [2], first-line: 2, .: [1], first-line: 2)
+    (.: [2], start: (2:17), .: [1], start: (2:19))
     >>> snippet_a.split(3)
-    (.: [3], first-line: 2, .: [0], first-line: 2)
+    (.: [3], start: (2:17), .: [0], start: (2:20))
 
-    >>> snippet_b = SnippetStructure.from_path_and_lines(Path(''), [3, 0, 0, 4], 2)
+    >>> snippet_b = SnippetStructure.from_path_and_lines(Path(''), [3, 0, 0, 4], 2, 17)
     >>> len(snippet_b)
     7
     >>> snippet_b.split(3)
-    (.: [3, 0, 0, 0], first-line: 2, .: [4], first-line: 5)
+    (.: [3, 0, 0, 0], start: (2:17), .: [4], start: (5:0))
     >>> snippet_b.split(7)
-    (.: [3, 0, 0, 4], first-line: 2, .: [0], first-line: 5)
+    (.: [3, 0, 0, 4], start: (2:17), .: [0], start: (5:4))
     >>> first, second = snippet_b.split(4)
     >>> first
-    .: [3, 0, 0, 1], first-line: 2
+    .: [3, 0, 0, 1], start: (2:17)
     >>> len(first)
     4
     >>> second
-    .: [3], first-line: 5
+    .: [3], start: (5:1)
     >>> len(second)
     3
     >>> second.merge(first)
     Traceback (most recent call last):
     ...
     ValueError: Snippets are not adjacent.
+    >>> second_partial = second.split(1)[1]
+    >>> first.merge(second_partial)
+    Traceback (most recent call last):
+    ...
+    ValueError: Snippets are not adjacent.
     >>> third = first.merge(second)
     >>> third
-    .: [3, 0, 0, 4], first-line: 2
+    .: [3, 0, 0, 4], start: (2:17)
     >>> third == snippet_b
     True
     >>> len(third)
@@ -109,10 +114,12 @@ class SnippetStructure(PureSnippetStructure):
     """
     path: Path
     first_line: int
+    first_token_in_line: int
 
     @classmethod
-    def from_path_and_lines(cls, path: Path, subtokens_in_each_line: List[int], first_line: int) -> 'SnippetStructure':
-        return SnippetStructure(subtokens_in_each_line, cum_sum(subtokens_in_each_line), path, first_line)
+    def from_path_and_lines(cls, path: Path, subtokens_in_each_line: List[int],
+                            first_line: int, first_token_in_line: int) -> 'SnippetStructure':
+        return SnippetStructure(subtokens_in_each_line, cum_sum(subtokens_in_each_line), path, first_line, first_token_in_line)
 
     def untie_from_file(self) -> PureSnippetStructure:
         return PureSnippetStructure(self.subtokens_in_each_line, self._cumulative_sizes)
@@ -124,44 +131,48 @@ class SnippetStructure(PureSnippetStructure):
         if self.first_line + len(self.subtokens_in_each_line) - 1 != other.first_line:
             raise ValueError("Snippets are not adjacent.")
 
+        if self.subtokens_in_each_line[-1] + (self.first_token_in_line if len(self.subtokens_in_each_line) == 1 else 0) != other.first_token_in_line:
+            raise ValueError("Snippets are not adjacent.")
+
         lines, cumul = self._merge_lines(other)
-        return SnippetStructure(lines, cumul, self.path, self.first_line)
+        return SnippetStructure(lines, cumul, self.path, self.first_line, self.first_token_in_line)
 
     def split(self, second_part_start_index: int) -> Tuple['SnippetStructure', 'SnippetStructure']:
         lines1, lines1_cumul, lines2 = self._split_lines(second_part_start_index)
 
-        return SnippetStructure(lines1, lines1_cumul, self.path, self.first_line), \
-               SnippetStructure.from_path_and_lines(self.path, lines2, self.first_line + len(lines1) - 1)
+        first_token_in_line = lines1[-1] + (self.first_token_in_line if len(lines1) == 1 else 0)
+        return SnippetStructure(lines1, lines1_cumul, self.path, self.first_line, self.first_token_in_line), \
+               SnippetStructure.from_path_and_lines(self.path, lines2, self.first_line + len(lines1) - 1, first_token_in_line)
 
     def __len__(self) -> int:
         return len(self.untie_from_file())
 
     def __repr__(self):
-        return f'{self.path}: {self.subtokens_in_each_line}, first-line: {self.first_line}'
+        return f'{self.path}: {self.subtokens_in_each_line}, start: ({self.first_line}:{self.first_token_in_line})'
 
 
 @dataclass
 class CodeBaseStructure:
     """
-    >>> snippet = SnippetStructure.from_path_and_lines(Path(''), [3, 4], 2)
+    >>> snippet = SnippetStructure.from_path_and_lines(Path(''), [3, 4], 2, 17)
     >>> snippet_a, snippet_b = snippet.split(5)
     >>> prepped_code = CodeBaseStructure.of([snippet_a, snippet_b])
     >>> prepped_code.split(7)
-    (CodeBaseStructure(snippets=[.: [3, 2], first-line: 2, .: [2], first-line: 3]), CodeBaseStructure(snippets=[]))
+    (CodeBaseStructure(snippets=[.: [3, 2], start: (2:17), .: [2], start: (3:2)]), CodeBaseStructure(snippets=[]))
     >>> prepped_code.split(99)
-    (CodeBaseStructure(snippets=[.: [3, 2], first-line: 2, .: [2], first-line: 3]), CodeBaseStructure(snippets=[]))
+    (CodeBaseStructure(snippets=[.: [3, 2], start: (2:17), .: [2], start: (3:2)]), CodeBaseStructure(snippets=[]))
     >>> first, second = prepped_code.split(2)
     >>> first
-    CodeBaseStructure(snippets=[.: [2], first-line: 2])
+    CodeBaseStructure(snippets=[.: [2], start: (2:17)])
     >>> len(first)
     2
     >>> second
-    CodeBaseStructure(snippets=[.: [1, 2], first-line: 2, .: [2], first-line: 3])
+    CodeBaseStructure(snippets=[.: [1, 2], start: (2:19), .: [2], start: (3:2)])
     >>> len(second)
     5
     >>> third = first.merge(second)
     >>> third
-    CodeBaseStructure(snippets=[.: [3, 4], first-line: 2])
+    CodeBaseStructure(snippets=[.: [3, 4], start: (2:17)])
     >>> third = prepped_code
     >>> len(third)
     7
