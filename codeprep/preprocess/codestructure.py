@@ -5,7 +5,7 @@
 import bisect
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Tuple, Optional
+from typing import List, Tuple
 
 from codeprep.util.misc import cum_sum
 
@@ -19,13 +19,13 @@ class PureSnippetStructure:
     def of(cls, subtokens_in_each_line: List[int]) -> 'PureSnippetStructure':
         return cls(subtokens_in_each_line, cum_sum(subtokens_in_each_line))
 
-    @classmethod
-    def empty(cls) -> 'PureSnippetStructure':
-        return cls.of([0])
+    @staticmethod
+    def empty() -> 'PureSnippetStructure':
+        return PureSnippetStructure.of([0])
 
-    @classmethod
-    def empty_line(cls) -> 'PureSnippetStructure':
-        return cls.of([0, 0])
+    @staticmethod
+    def empty_line() -> 'PureSnippetStructure':
+        return PureSnippetStructure.of([0, 0])
 
     def __len__(self) -> int:
         return self._cumulative_sizes[-1]
@@ -128,10 +128,10 @@ class SnippetStructure(PureSnippetStructure):
         if self.path != other.path:
             raise ValueError("Cannot merge two different files.")
 
-        if self.first_line + len(self.subtokens_in_each_line) - 1 != other.first_line:
+        if self.last_line() != other.first_line:
             raise ValueError("Snippets are not adjacent.")
 
-        if self.subtokens_in_each_line[-1] + (self.first_token_in_line if len(self.subtokens_in_each_line) == 1 else 0) != other.first_token_in_line:
+        if self.last_token_position_at_line(other.first_line) != other.first_token_in_line:
             raise ValueError("Snippets are not adjacent.")
 
         lines, cumul = self._merge_lines(other)
@@ -144,11 +144,64 @@ class SnippetStructure(PureSnippetStructure):
         return SnippetStructure(lines1, lines1_cumul, self.path, self.first_line, self.first_token_in_line), \
                SnippetStructure.from_path_and_lines(self.path, lines2, self.first_line + len(lines1) - 1, first_token_in_line)
 
+    def last_token_position_at_line(self, line: int) -> int:
+        """
+        >>> snippet = SnippetStructure.from_path_and_lines(Path(''), [3, 4, 0], 2, 17)
+        >>> snippet.last_token_position_at_line(2)
+        20
+        >>> snippet.last_token_position_at_line(3)
+        4
+        >>> snippet.last_token_position_at_line(4)
+        0
+        >>> snippet.last_token_position_at_line(5)
+        Traceback (most recent call last):
+        ...
+        IndexError: list index out of range
+        """
+        relative_line = line - self.first_line
+        last_token_position = self.subtokens_in_each_line[relative_line]
+        if relative_line == 0:
+            last_token_position += self.first_token_in_line
+        return last_token_position
+
+    def last_line(self) -> int:
+        """
+        >>> snippet = SnippetStructure.from_path_and_lines(Path(''), [3], 2, 17)
+        >>> snippet.last_line()
+        2
+        >>> snippet = SnippetStructure.from_path_and_lines(Path(''), [3, 0], 2, 17)
+        >>> snippet.last_line()
+        3
+        """
+        return self.first_line + len(self.subtokens_in_each_line) - 1
+
     def __len__(self) -> int:
         return len(self.untie_from_file())
 
+    def __iter__(self):
+        return SnippetIterator(self)
+
     def __repr__(self):
         return f'{self.path}: {self.subtokens_in_each_line}, start: ({self.first_line}:{self.first_token_in_line})'
+
+
+class SnippetIterator:
+    def __init__(self, snippet_structure: SnippetStructure):
+        self.snippet_structure = snippet_structure
+
+        self.current_line = snippet_structure.first_line
+        self.current_token = snippet_structure.first_token_in_line
+
+    def __next__(self) -> 'CodeLocation':
+        while self.current_token == self.snippet_structure.last_token_position_at_line(self.current_line):
+            self.current_line += 1
+            if self.current_line > self.snippet_structure.last_line():
+                raise StopIteration
+            self.current_token = 0
+
+        current_token = self.current_token
+        self.current_token += 1
+        return CodeLocation(self.snippet_structure.path, self.current_line, current_token)
 
 
 @dataclass
@@ -176,7 +229,26 @@ class CodeBaseStructure:
     >>> third = prepped_code
     >>> len(third)
     7
-
+    >>> another_code_structure = CodeBaseStructure.of([snippet_a, snippet_a.split(1000)[1], snippet_b])
+    >>> prepped_code_iterator = iter(another_code_structure)
+    >>> next(prepped_code_iterator)
+    CodeLocation(path=PosixPath('.'), line=2, token=17)
+    >>> next(prepped_code_iterator)
+    CodeLocation(path=PosixPath('.'), line=2, token=18)
+    >>> next(prepped_code_iterator)
+    CodeLocation(path=PosixPath('.'), line=2, token=19)
+    >>> next(prepped_code_iterator)
+    CodeLocation(path=PosixPath('.'), line=3, token=0)
+    >>> next(prepped_code_iterator)
+    CodeLocation(path=PosixPath('.'), line=3, token=1)
+    >>> next(prepped_code_iterator)
+    CodeLocation(path=PosixPath('.'), line=3, token=2)
+    >>> next(prepped_code_iterator)
+    CodeLocation(path=PosixPath('.'), line=3, token=3)
+    >>> next(prepped_code_iterator)
+    Traceback (most recent call last):
+    ...
+    StopIteration
     """
     snippets: List[SnippetStructure]
     _cumulative_sizes: List[int] = field(repr=False, hash=False, compare=False)
@@ -222,8 +294,34 @@ class CodeBaseStructure:
     def __len__(self) -> int:
         return self._cumulative_sizes[-1] if self._cumulative_sizes else 0
 
+    def __iter__(self):
+        return CodeBaseIterator(self)
+
+
+class CodeBaseIterator:
+    def __init__(self, code_base_structure: CodeBaseStructure):
+        self.code_base_structure = code_base_structure
+
+        self.current_snippet = 0
+        self.snippet_iterator = iter(self.code_base_structure.snippets[0])
+
+    def __next__(self) -> 'CodeLocation':
+        try:
+            return next(self.snippet_iterator)
+        except StopIteration:
+            self.current_snippet += 1
+            while self.current_snippet < len(self.code_base_structure.snippets):
+                # while because there might en empty snippets
+                self.snippet_iterator = iter(self.code_base_structure.snippets[self.current_snippet])
+                try:
+                    return next(self.snippet_iterator)
+                except StopIteration:
+                    self.current_snippet += 1
+            raise StopIteration
+
 
 @dataclass(frozen=True)
 class CodeLocation:
     path: Path
     line: int
+    token: int
