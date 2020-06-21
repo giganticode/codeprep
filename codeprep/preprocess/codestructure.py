@@ -232,19 +232,19 @@ class CodeBaseStructure:
     >>> another_code_structure = CodeBaseStructure.of([snippet_a, snippet_a.split(1000)[1], snippet_b])
     >>> prepped_code_iterator = iter(another_code_structure)
     >>> next(prepped_code_iterator)
-    CodeLocation(path=PosixPath('.'), line=2, token=17)
+    .: (2:17)
     >>> next(prepped_code_iterator)
-    CodeLocation(path=PosixPath('.'), line=2, token=18)
+    .: (2:18)
     >>> next(prepped_code_iterator)
-    CodeLocation(path=PosixPath('.'), line=2, token=19)
+    .: (2:19)
     >>> next(prepped_code_iterator)
-    CodeLocation(path=PosixPath('.'), line=3, token=0)
+    .: (3:0)
     >>> next(prepped_code_iterator)
-    CodeLocation(path=PosixPath('.'), line=3, token=1)
+    .: (3:1)
     >>> next(prepped_code_iterator)
-    CodeLocation(path=PosixPath('.'), line=3, token=2)
+    .: (3:2)
     >>> next(prepped_code_iterator)
-    CodeLocation(path=PosixPath('.'), line=3, token=3)
+    .: (3:3)
     >>> next(prepped_code_iterator)
     Traceback (most recent call last):
     ...
@@ -303,7 +303,7 @@ class CodeBaseIterator:
         self.code_base_structure = code_base_structure
 
         self.current_snippet = 0
-        self.snippet_iterator = iter(self.code_base_structure.snippets[0])
+        self.snippet_iterator = iter(self.code_base_structure.snippets[0]) if self.code_base_structure.snippets else iter([])
 
     def __next__(self) -> 'CodeLocation':
         try:
@@ -325,3 +325,6 @@ class CodeLocation:
     path: Path
     line: int
     token: int
+
+    def __repr__(self) -> str:
+        return f'{self.path}: ({self.line}:{self.token})'
