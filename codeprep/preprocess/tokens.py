@@ -144,6 +144,8 @@ class TokenSequence(ABC):
     ['hi</t>', 'there</t>']
     >>> token_seq_full[-1:]
     ['there</t>']
+    >>> token_seq_full[-1]
+    ['there</t>']
 
     Sub-token view indexing:
     >>> token_seq_sub = token_seq.sub_token_view()
@@ -588,22 +590,19 @@ class TokenSequence(ABC):
                 index += 1
         return self.sub_to_full_token_indices[index]
 
-    def _normalize_passed_index(self, item: Union[int, slice]) -> Tuple[int, int]:
+    @staticmethod
+    def _normalize_index_or_slice(item: Union[int, slice], total: int) -> Tuple[int, int]:
         if isinstance(item, int):
-            start = item
-            stop = item + 1
+            start = TokenSequence._normilize_index(item, is_slice=False, total=total)
+            stop = start + 1 if start < total else start
         elif isinstance(item, slice):
             if item.step is not None:
                 raise NotImplemented("It is not possible to specify step")
-            start = item.start
-            stop = item.stop
+
+            start = TokenSequence._normilize_index(item.start, is_slice=True, total=total)
+            stop = TokenSequence._normilize_index(item.stop, is_slice=True, total=total)
         else:
             raise TypeError()
-
-        is_slice = isinstance(item, slice)
-        total=len(self)
-        start = TokenSequence._normilize_index(start, is_slice, total=total)
-        stop = TokenSequence._normilize_index(stop, is_slice, total=total)
 
         return start, stop
 
@@ -617,7 +616,7 @@ class SubTokenSequence(TokenSequence):
             return iter(self.tokens)
 
     def __getitem__(self, item: Union[int, slice]):
-        start, stop = self._normalize_passed_index(item)
+        start, stop = TokenSequence._normalize_index_or_slice(item, total=len(self))
 
         adjusted_before = 0
         adjusted_after = 0
@@ -678,7 +677,7 @@ class FullTokenSequence(TokenSequence):
         self.__dict__ = self[:key].extend(value).extend(self[key + 1:]).__dict__
 
     def __getitem__(self, item: Union[int, slice]):
-        start, stop = self._normalize_passed_index(item)
+        start, stop = TokenSequence._normalize_index_or_slice(item, total=len(self))
 
         full_item = slice(
             self._full_to_sub_index(start),
