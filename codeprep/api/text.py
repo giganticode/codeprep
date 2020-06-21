@@ -39,7 +39,7 @@ def preprocess(text: str, config: PrepConfig, bpe_codes_id: Optional[str] = None
     if path is None:
         return preprocessing_results.prepped_tokens
     else:
-        return  preprocessing_results.prepped_tokens, preprocessing_results.code_snippet_structure.tie_to_working_dir(path, 0)
+        return  preprocessing_results.prepped_tokens, preprocessing_results.code_snippet_structure.tie_to_working_dir(path, 0, 0)
 
 
 def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False, no_unicode: bool = False,
@@ -158,7 +158,7 @@ def nosplit(text: str, extension: Optional[str] = None, no_spaces: bool = False,
     TypeError: nosplit() got an unexpected keyword argument 'no_case'
 
     >>> nosplit('', path="/path")
-    ([], /path: [0], first-line: 0)
+    ([], /path: [0], start: (0:0))
     """
     prep_config = create_prep_config('nosplit', no_spaces=no_spaces, no_unicode=no_unicode, no_com=no_com, no_str=no_str,
                                     full_strings=full_strings, max_str_length=max_str_length)
@@ -228,7 +228,7 @@ def chars(text: str, extension: Optional[str] = None, no_spaces: bool = False, n
     []
 
     >>> chars('', path="/path")
-    ([], /path: [0], first-line: 0)
+    ([], /path: [0], start: (0:0))
     """
     prep_config = create_prep_config('chars', no_spaces=no_spaces, no_unicode=no_unicode,
                                      no_com=no_com, no_str=no_str, max_str_length=max_str_length)
@@ -345,7 +345,7 @@ def basic(text: str, extension: Optional[str] = None,
     ['<w>', 'move', 'Vehicl', 'speed', '</w>', '=', '<w>', '0', '.', '3', '4', '5', 'e', '+', '4', '</w>']
 
     >>> basic('', path="/path")
-    ([], /path: [0], first-line: 0)
+    ([], /path: [0], start: (0:0))
 
     """
     prep_config = create_prep_config('basic', no_spaces=no_spaces, no_unicode=no_unicode, no_case=no_case,
@@ -445,7 +445,7 @@ def bpe(text: str, bpe_codes_id: str, extension: Optional[str] = None, no_spaces
     >>> bpe('', '1k')
     []
     >>> bpe('', '1k', path="/path")
-    ([], /path: [0], first-line: 0)
+    ([], /path: [0], start: (0:0))
     """
     prep_config = create_prep_config('bpe', bpe_codes_id=bpe_codes_id, no_spaces=no_spaces, no_unicode=no_unicode,
                                      no_com=no_com, no_str=no_str, max_str_length=max_str_length)
