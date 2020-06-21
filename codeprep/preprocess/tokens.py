@@ -500,6 +500,44 @@ class TokenSequence(ABC):
         """
         return self.shallow_copy(type(self), formatter=formatter)
 
+    def to_full_token_string(self, include_debug_tokens=False, keep_word_end_token: bool = True) -> str:
+        """
+        >>> from codeprep.api.text import bpe
+        >>> token = bpe('revolver', '10k')
+        >>> token
+        [['re', 'v', 'ol', 'ver</t>']]
+        >>> token.to_full_token_string()
+        'revolver</t>'
+        >>> token.to_full_token_string(include_debug_tokens=True)
+        're|v|ol|ver</t>'
+
+        >>> token.to_full_token_string(keep_word_end_token=False)
+        'revolver'
+
+        >>> multiple_tokens = bpe('// hj', '10k')
+        >>> multiple_tokens.to_full_token_string()
+        Traceback (most recent call last):
+        ...
+        ValueError: This method cannot be for multiple tokens
+
+        >>> special_token = multiple_tokens.full_token_view()[-1]
+        >>> special_token
+        [['<EOL></t>']]
+        >>> special_token.to_full_token_string()
+        '<EOL></t>'
+        """
+        if self.full_token_size() > 1:
+            raise ValueError("This method cannot be for multiple tokens")
+
+        separator = '|' if include_debug_tokens else ''
+        full_token = separator.join(self.tokens)
+
+        if not is_terminal_subtoken(full_token):
+            raise ValueError(f'{full_token} is not a full token')
+
+        full_token = full_token if keep_word_end_token else full_token[:-len(placeholders['compound_word_end'])]
+        return full_token
+
     @abstractmethod
     def __getitem__(self, item: Union[int, slice]) -> 'TokenSequence':
         pass
