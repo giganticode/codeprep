@@ -502,24 +502,67 @@ class TokenSequence(ABC):
     def __getitem__(self, item: Union[int, slice]) -> 'TokenSequence':
         pass
 
-    def _normilize_index(self, index: Optional[int], is_slice: bool) -> Optional[int]:
+    @staticmethod
+    def _normilize_index(index: Optional[int], is_slice: bool, total: int) -> Optional[int]:
+        """
+        >>> TokenSequence._normilize_index(None, is_slice=False, total=2) is None
+        True
+        >>> TokenSequence._normilize_index(-3, is_slice=False, total=2)
+        Traceback (most recent call last):
+        ...
+        KeyError: -3
+        >>> TokenSequence._normilize_index(-2, is_slice=False, total=2)
+        0
+        >>> TokenSequence._normilize_index(-1, is_slice=False, total=2)
+        1
+        >>> TokenSequence._normilize_index(0, is_slice=False, total=2)
+        0
+        >>> TokenSequence._normilize_index(1, is_slice=False, total=2)
+        1
+        >>> TokenSequence._normilize_index(2, is_slice=False, total=2)
+        2
+        >>> TokenSequence._normilize_index(3, is_slice=False, total=2)
+        2
+        >>> TokenSequence._normilize_index(1000, is_slice=False, total=2)
+        2
+
+        >>> TokenSequence._normilize_index(None, is_slice=True, total=2) is None
+        True
+        >>> TokenSequence._normilize_index(-3, is_slice=True, total=2)
+        0
+        >>> TokenSequence._normilize_index(-2, is_slice=True, total=2)
+        0
+        >>> TokenSequence._normilize_index(-1, is_slice=True, total=2)
+        1
+        >>> TokenSequence._normilize_index(0, is_slice=True, total=2)
+        0
+        >>> TokenSequence._normilize_index(1, is_slice=True, total=2)
+        1
+        >>> TokenSequence._normilize_index(2, is_slice=True, total=2)
+        2
+        >>> TokenSequence._normilize_index(3, is_slice=True, total=2)
+        2
+        >>> TokenSequence._normilize_index(1000, is_slice=True, total=2)
+        2
+        """
         if index is None:
             return None
 
-        n_full_tokens = len(self)
-        if index < - n_full_tokens:
-            if is_slice:
-                return 0
-            else:
-                raise KeyError(index)
+        if index > total:
+            return total
 
-        if - n_full_tokens <= index < 0:
-            return n_full_tokens + index
+        if index >= 0:
+            norm_index = index
+        else:
+            norm_index = total + index
 
-        if index > n_full_tokens:
-            return n_full_tokens
+            if norm_index < 0:
+                if is_slice:
+                    return 0
+                else:
+                    raise KeyError(index)
 
-        return index
+        return norm_index
 
     def _full_to_sub_index(self, index: Optional[int]) -> Optional[int]:
         if index is None:
@@ -558,8 +601,9 @@ class TokenSequence(ABC):
             raise TypeError()
 
         is_slice = isinstance(item, slice)
-        start = self._normilize_index(start, is_slice)
-        stop = self._normilize_index(stop, is_slice)
+        total=len(self)
+        start = TokenSequence._normilize_index(start, is_slice, total=total)
+        stop = TokenSequence._normilize_index(stop, is_slice, total=total)
 
         return start, stop
 
