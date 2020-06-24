@@ -267,7 +267,7 @@ class CodeBaseStructure:
             self._cumulative_sizes.append(len(self) + len(prepped_snippet))
         else:
             self.snippets[-1] = self.snippets[-1].merge(prepped_snippet)
-            self._cumulative_sizes[-1] + len(prepped_snippet)
+            self._cumulative_sizes[-1] += len(prepped_snippet)
         return self
 
     def merge(self, code_base_structure: 'CodeBaseStructure') -> 'CodeBaseStructure':
