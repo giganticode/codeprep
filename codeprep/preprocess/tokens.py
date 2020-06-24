@@ -267,7 +267,7 @@ class TokenSequence(ABC):
     sub_to_full_token_indices: Mapping[int, int]
 
     def __post_init__(self):
-        self._do_token_creation_sanity_check()
+        pass
 
     def _do_token_creation_sanity_check(self):
         if not isinstance(self.tokens, list):
