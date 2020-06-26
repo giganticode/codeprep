@@ -91,6 +91,17 @@ metadata=PreppedTokenMetadata([1, 2, 1], [None, None, None]), formatter=sum)
         return result
 
 
+def to_full_token_string(tokens: List[str], include_debug_tokens=False, keep_word_end_token: bool = True) -> str:
+    separator = '|' if include_debug_tokens else ''
+    full_token = separator.join(tokens)
+
+    if not is_terminal_subtoken(full_token):
+        raise ValueError(f'{full_token} is not a full token')
+
+    full_token = full_token if keep_word_end_token else full_token[:-len(placeholders['compound_word_end'])]
+    return full_token
+
+
 @dataclass
 class TokenSequence(ABC):
     """
@@ -529,14 +540,7 @@ class TokenSequence(ABC):
         if self.full_token_size() > 1:
             raise ValueError("This method cannot be for multiple tokens")
 
-        separator = '|' if include_debug_tokens else ''
-        full_token = separator.join(self.tokens)
-
-        if not is_terminal_subtoken(full_token):
-            raise ValueError(f'{full_token} is not a full token')
-
-        full_token = full_token if keep_word_end_token else full_token[:-len(placeholders['compound_word_end'])]
-        return full_token
+        return to_full_token_string(self.tokens, include_debug_tokens, keep_word_end_token)
 
     @abstractmethod
     def __getitem__(self, item: Union[int, slice]) -> 'TokenSequence':
