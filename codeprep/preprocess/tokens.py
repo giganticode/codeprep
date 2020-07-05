@@ -123,13 +123,7 @@ class TokenSequence(ABC):
     >>> TokenSequence.create(['h', 'i</t>'], PreppedTokenMetadata([1], [TypeA]))
     Traceback (most recent call last):
     ...
-    ValueError: Tokens and metadata are out-of-sync.
-    The subword list has 2 elements but the number of sub-tokens according to metadata is 1.
-
-    >>> TokenSequence.create(['hi', 'the' ,'re</t>'], PreppedTokenMetadata([1, 2], [TypeA, TypeA]), word_end_token_added=True)
-    Traceback (most recent call last):
-    ...
-    AssertionError: Token hi according to metadata is end-token, however it doesn't contain </t>.
+    ValueError: The sequence to be iterated over must equal to the number of sub-tokens.
 
     >>> token_seq.sub_token_view()
     ['hi</t>', 'the', 're</t>']
