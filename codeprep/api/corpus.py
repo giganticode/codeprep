@@ -4,14 +4,16 @@
 
 import logging
 import os
+import sys
+import tempfile
 from multiprocessing.pool import Pool
 from typing import Optional, Dict, Tuple
 
-import sys
 from tqdm import tqdm
 
 from codeprep.api.common import create_prep_config
 from codeprep.config import CHUNKSIZE
+from codeprep.config import test_data_dir
 from codeprep.pipeline import stages
 from codeprep.pipeline.bperegistry import CustomBpeConfig, is_predefined_id
 from codeprep.pipeline.dataset import Dataset, SubDataset
@@ -86,6 +88,12 @@ def nosplit(path: str, extensions: Optional[str] = None, no_spaces: bool = False
     Does not have effect if `no_str` is set to `True`
 
     :return: `PreprocessedDataset` object which holds metadata of the preprocessed dataset
+
+    Examples:
+    ---------
+    >>> prep_corpus = nosplit(os.path.join(test_data_dir, 'test-corpus'), 'js', output_path=tempfile.TemporaryDirectory().name)
+    >>> prep_corpus.get_corpus_size()
+    49294
     """
     prep_config= create_prep_config('nosplit', no_spaces=no_spaces, no_unicode=no_unicode, no_com=no_com, no_str=no_str,
                                     full_strings=full_strings, max_str_length=max_str_length)
@@ -113,6 +121,12 @@ def chars(path: str, extensions: Optional[str] = None, no_spaces: bool = False, 
     Does not have effect if `no_str` is set to `True`
 
     :return: `PreprocessedDataset` object which holds metadata of the preprocessed dataset
+
+    Examples:
+    ---------
+    >>> prep_corpus = chars(os.path.join(test_data_dir, 'test-corpus'), 'js', output_path=tempfile.TemporaryDirectory().name)
+    >>> prep_corpus.get_corpus_size()
+    97732
     """
     prep_config= create_prep_config('chars', no_spaces=no_spaces, no_unicode=no_unicode, no_com=no_com,
                                     no_str=no_str, max_str_length=max_str_length)
@@ -147,6 +161,12 @@ def basic(path: str, extensions: Optional[str] = None, split_numbers: bool = Fal
     Does not have effect if `no_str` is set to `True`
 
     :return: `PreprocessedDataset` object which holds metadata of the preprocessed dataset
+
+    Examples:
+    ---------
+    >>> prep_corpus = basic(os.path.join(test_data_dir, 'test-corpus'), 'js', output_path=tempfile.TemporaryDirectory().name)
+    >>> prep_corpus.get_corpus_size()
+    54766
     """
     prep_config = create_prep_config('basic', no_spaces=no_spaces, no_unicode=no_unicode, no_case=no_case,
                                      no_com=no_com, no_str=no_str, max_str_length=max_str_length,
@@ -180,6 +200,12 @@ def bpe(path: str, bpe_codes_id: str, extensions: Optional[str] = None, no_space
     Does not have effect if `no_str` is set to `True`
 
     :return: `PreprocessedDataset` object which holds metadata of the preprocessed dataset
+
+    Examples:
+    ---------
+    >>> prep_corpus = bpe(os.path.join(test_data_dir, 'test-corpus'), '10k', 'js', output_path=tempfile.TemporaryDirectory().name)
+    >>> prep_corpus.get_corpus_size()
+    52766
     """
     prep_config= create_prep_config('bpe', bpe_codes_id=bpe_codes_id, no_spaces=no_spaces, no_unicode=no_unicode,
                                     no_com=no_com, no_str=no_str, max_str_length=max_str_length)
