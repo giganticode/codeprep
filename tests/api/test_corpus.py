@@ -36,7 +36,7 @@ def test_simple(os_mock, stages_mock, dataset_mock):
 
     # then
     dataset_mock.create.assert_called_with(PATH_TO_DATASET_STUB, DEFAULT_PREP_CONFIG, None, None,
-                                           overriden_path_to_prep_dataset=PATH_TO_CUR_DIR_STUB)
+                                           overriden_path_to_prep_dataset=PATH_TO_CUR_DIR_STUB, suppress_caching=False)
     stages_mock.run_until_preprocessing.assert_called_with(dataset_mock, None)
 
 
@@ -48,11 +48,11 @@ def test_calc_vocab(os_mock, stages_mock, dataset_mock):
     dataset_mock.create = Mock(spec=dataset_mock, return_value=dataset_mock)
 
     # when
-    preprocess_corpus(PATH_TO_DATASET_STUB, DEFAULT_PREP_CONFIG, calc_vocab=True)
+    preprocess_corpus(PATH_TO_DATASET_STUB, DEFAULT_PREP_CONFIG, calc_vocab=True, suppress_caching=True)
 
     # then
     dataset_mock.create.assert_called_with(PATH_TO_DATASET_STUB, DEFAULT_PREP_CONFIG, None, None,
-                                           overriden_path_to_prep_dataset=PATH_TO_CUR_DIR_STUB)
+                                           overriden_path_to_prep_dataset=PATH_TO_CUR_DIR_STUB, suppress_caching=True)
     stages_mock.run_until_vocab.assert_called_with(dataset_mock, None)
 
 
@@ -67,5 +67,5 @@ def test_output(stages_mock, dataset_mock):
 
     # then
     dataset_mock.create.assert_called_with(PATH_TO_DATASET_STUB, DEFAULT_PREP_CONFIG, None, None,
-                                           overriden_path_to_prep_dataset=PATH_TO_OUTPUT_STUB)
+                                           overriden_path_to_prep_dataset=PATH_TO_OUTPUT_STUB, suppress_caching=False)
     stages_mock.run_until_preprocessing.assert_called_with(dataset_mock, None)
