@@ -59,7 +59,7 @@ def run(dataset: Dataset) -> None:
         files_total = 0
         for _ in dataset.get_all_files():
             files_total += 1
-            print(f"Files scanned: {files_total}", end='\r')
+            logger.info(f"Files scanned: {files_total}", end='\r')
             if files_total > LIMIT_FILES_SCANNING:
                 files_total = None
                 logger.info(f"Total files to be preprocessed: {LIMIT_FILES_SCANNING}+")
