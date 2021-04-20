@@ -3,6 +3,7 @@ env:
   global:
     - CC_TEST_REPORTER_ID=$CODE_CLIMATE_REPORTER_ID
 language: python
+if: 'type = pull_request OR branch = master'
 python:
   - "3.6"
   - "3.7"
