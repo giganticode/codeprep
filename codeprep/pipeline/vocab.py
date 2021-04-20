@@ -350,7 +350,12 @@ def _load_vocab_set(file: str) -> Set[str]:
 
 def calc_vocab(path: str, file_iterator: Iterator[bytes], output_dir: str):
     if platform.system() == 'Darwin':
-        raise OSError("Calculation of vocabulary is not supported on OSX.")
+        logger.info("Parallel calculation of vocabulary is not supported on OSX. Using single core")
+        n_processes = 1
+        counter_class = NonAtomicCounter
+    else:
+        n_processes = multiprocessing.cpu_count()
+        counter_class = AtomicInteger
     vocab_file_path = os.path.join(output_dir, VOCAB_FILENAME)
     vocab_size_file_path = os.path.join(output_dir, VOCABSIZE_FILENAME)
     if os.path.exists(vocab_size_file_path) and os.path.exists(vocab_file_path):
@@ -371,8 +376,8 @@ def calc_vocab(path: str, file_iterator: Iterator[bytes], output_dir: str):
     chunk_queue, merges_to_be_done = create_chunk_queue(chunk_sizes, n_processes)
     logger.debug(f'==================    Starting merging    =================')
     logger.debug(f'Merges need to be done: {merges_to_be_done}')
-    process_counter = AtomicInteger(n_processes)
-    merges_left_counter = AtomicInteger(merges_to_be_done)
+    process_counter = counter_class(n_processes)
+    merges_left_counter = counter_class(merges_to_be_done)
     mergers = [VocabMerger(i + 1, tasks_queues, path_to_dump, process_counter, chunk_queue,
                            merges_left_counter,
                            vocab_file_path=vocab_file_path,
