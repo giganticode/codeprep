@@ -10,13 +10,9 @@ python:
 jobs:
   include:
     - os: osx
-      language: sh
+      osx_image: xcode11.2 # Python 3.7.4 running on macOS 10.14.4
+      language: shell
       python: "3.7"
-      before_install:
-        - brew update
-        - python3 -m pip install virtualenv
-        - virtualenv .venv -p python3
-        - source .venv/bin/activate
       before_script: echo "Not sending code coverage to code climate on OSx"
       after_script: echo "Not sending code coverage to code climate on OSx"
     - os: windows
@@ -29,8 +25,8 @@ jobs:
       before_script: echo "Not sending code coverage to code climate on Windows"
       after_script: echo "Not sending code coverage to code climate on Windows"
 install:
-  - pip install -r requirements.txt
-  - pip install -r requirements-dev.txt
+  - pip3 install -r requirements.txt
+  - pip3 install -r requirements-dev.txt
 before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
