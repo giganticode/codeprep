@@ -16,7 +16,7 @@ TEST_OUTPUT = os.path.join(root_package_dir, '..', 'test-output')
 
 
 def test_preprocess_with_different_options():
-    calc_vocab = platform.system() != 'Darwin'
+    calc_vocab = True
     api.basic(path=PATH_TO_TEST_CORPUS, extensions="java", output_path=TEST_OUTPUT, calc_vocab=calc_vocab)
     api.basic(path=PATH_TO_TEST_CORPUS, extensions="java", split_numbers=True, ronin=True, stem=True,
               no_spaces=True, no_unicode=True, no_case=True, no_com=True, no_str=True, max_str_length=30,
