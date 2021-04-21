@@ -22,8 +22,8 @@ from tqdm import tqdm
 
 from codeprep.fileutils import read_file_contents
 from codeprep.preprocess.placeholders import placeholders
-from codeprep.util import to_literal_str, to_non_literal_str, AtomicInteger, merge_dicts_, groupify, \
-    create_chunk_generator
+from codeprep.util import to_literal_str, to_non_literal_str, AtomicInteger, NonAtomicCounter, \
+    merge_dicts_, groupify, create_chunk_generator
 
 logger = logging.getLogger(__name__)
 
@@ -370,7 +370,6 @@ def calc_vocab(path: str, file_iterator: Iterator[bytes], output_dir: str):
         logger.debug(f"Reading files from: {path}")
         task_list = create_partial_vocabs(file_iterator, path_to_dump)
 
-    n_processes = multiprocessing.cpu_count()
     logger.debug(f"Using {n_processes} mergers, number of partial vocabs: {len(task_list)}")
     tasks_queues, chunk_sizes = mapify_tasks(task_list)
     chunk_queue, merges_to_be_done = create_chunk_queue(chunk_sizes, n_processes)
