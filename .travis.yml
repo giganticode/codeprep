@@ -25,8 +25,8 @@ jobs:
       before_script: echo "Not sending code coverage to code climate on Windows"
       after_script: echo "Not sending code coverage to code climate on Windows"
 install:
-  - pip install -r requirements.txt
-  - pip install -r requirements-dev.txt
+  - pip3 install -r requirements.txt
+  - pip3 install -r requirements-dev.txt
 before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
