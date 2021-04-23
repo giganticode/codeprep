@@ -607,7 +607,7 @@ def test_to_repr_no_no_sep_with_bpe_no_merges():
         pl['olc_end'] + cwe
     ]
 
-    assert result.prepped_tokens.tokens == expected
+    assert result.prepped_tokens._tokens == expected
 
 
 # def test_to_repr_ronin():

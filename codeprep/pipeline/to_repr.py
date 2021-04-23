@@ -66,7 +66,7 @@ def preprocess_and_write(params: Tuple[bytes, bytes, PrepConfig, str], bpe_data:
         token_list = pickle.load(i)
         bpe_data = get_global_bpe_data_if_available() if bpe_data is None else bpe_data
         preprocessing_result = to_repr(prep_config, token_list + [SpecialToken(placeholders['ect'])], bpe_data)
-        o.write(to_literal_str(to_token_str(preprocessing_result.prepped_tokens.tokens)) + '\n')
+        o.write(to_literal_str(to_token_str(preprocessing_result.prepped_tokens._tokens)) + '\n')
 
     if part_nonbpe_vocab_folder:
         save_non_processable_tokens(preprocessing_result.non_processable_tokens, os.path.join(part_nonbpe_vocab_folder, f'{os.path.basename(dest_file_path)}_-_{time.time()}'))
@@ -177,6 +177,6 @@ def save_non_processable_tokens(non_processable_tokens: Set[str], save_to: bytes
 def insert_word_end_tokens_(token_seq: TokenSequence) -> TokenSequence:
     assert not token_seq.word_end_token_added
     new_tokens = []
-    for subtokens in token_seq.full_token_view(formatter=lambda x: x[:-1] + [x[-1] + placeholders['compound_word_end']]):
+    for subtokens in token_seq.fulltokens.with_format(formatter=lambda x: x[:-1] + [x[-1] + placeholders['compound_word_end']]):
         new_tokens.extend(subtokens)
     return TokenSequence.create(new_tokens, token_seq.metadata, word_end_token_added=True)

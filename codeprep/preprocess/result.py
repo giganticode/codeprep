@@ -31,4 +31,4 @@ class PreprocessingResult(object):
         if len(self.prepped_tokens) != 1:
             raise ValueError(f"This pre-processing result contains more than one token: {self.prepped_tokens}")
 
-        return self.prepped_tokens.tokens[0]
+        return self.prepped_tokens._tokens[0]

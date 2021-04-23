@@ -42,7 +42,7 @@ class ProcessableTokenContainer(ParsedToken, ABC):
         return f'{self.__class__.__name__}{self.subtokens}'
 
     def __str__(self):
-        return " ".join(self.non_preprocessed_repr().prepped_tokens.tokens)
+        return " ".join(self.non_preprocessed_repr().prepped_tokens._tokens)
 
     def get_n_additional_empty_lines(self) -> int:
         return sum([isinstance(subtoken, NewLine) for subtoken in self.subtokens])
@@ -122,7 +122,7 @@ class OneLineComment(Comment):
         if not OneLineComment.is_possible_code_structure(per_line_subtokens_numbers):
             raise AssertionError()
         preprocessing_result.prepped_tokens = TokenSequence.create(
-            preprocessing_result.prepped_tokens.tokens + [placeholders['olc_end']],
+            preprocessing_result.prepped_tokens._tokens + [placeholders['olc_end']],
             PreppedTokenMetadata(
                 n_sub_tokens_per_token,
                 [OneLineComment] * len(n_sub_tokens_per_token)

@@ -14,6 +14,7 @@ from codeprep.util.misc import cum_sum
 
 class _FullToSubTokenIterator(Iterator):
     """
+    Iterator that walks through values aligned with full tokens and returns values aligned with subtokens
     >>> it = _FullToSubTokenIterator([1, 1], metadata=PreppedTokenMetadata([2], [None]))
     Traceback (most recent call last):
     ...
@@ -50,6 +51,7 @@ class _FullToSubTokenIterator(Iterator):
 
 class _SubToFullTokenIterator(Iterator):
     """
+    Iterator that walks through values aligned with sub-tokens and returns values aligned with full tokens
     >>> it = _SubToFullTokenIterator([1], metadata=PreppedTokenMetadata([2], [None]))
     Traceback (most recent call last):
     ...
@@ -91,17 +93,6 @@ metadata=PreppedTokenMetadata([1, 2, 1], [None, None, None]), formatter=sum)
         return result
 
 
-def to_full_token_string(tokens: List[str], include_debug_tokens=False, keep_word_end_token: bool = True) -> str:
-    separator = '|' if include_debug_tokens else ''
-    full_token = separator.join(tokens)
-
-    if not is_terminal_subtoken(full_token):
-        raise ValueError(f'{full_token} is not a full token')
-
-    full_token = full_token if keep_word_end_token else full_token[:-len(placeholders['compound_word_end'])]
-    return full_token
-
-
 @dataclass
 class TokenSequence(ABC):
     """
@@ -125,52 +116,50 @@ class TokenSequence(ABC):
     ...
     ValueError: The sequence to be iterated over must equal to the number of sub-tokens.
 
-    >>> token_seq.sub_token_view()
+    >>> token_seq.subtokens
     ['hi</t>', 'the', 're</t>']
 
     Full token and sub-token views will have different length:
-    >>> len(token_seq.full_token_view())
+    >>> len(token_seq.fulltokens)
     2
-    >>> len(token_seq.sub_token_view())
+    >>> len(token_seq.subtokens)
     3
 
     Indexing
     ===========
     Full-token view indexing. The result is always a full-token-view.
     >>> token_seq = TokenSequence.create(['hi</t>', 'the' ,'re</t>'], PreppedTokenMetadata([1, 2], [TypeA, TypeA]), formatter=lambda s: "".join(s))
-    >>> token_seq_full = token_seq.full_token_view()
-    >>> token_seq_full[0]
+    >>> token_seq.fulltokens[0]
     ['hi</t>']
-    >>> token_seq_full[1]
+    >>> token_seq.fulltokens[1]
     ['there</t>']
-    >>> token_seq_full[2]
+    >>> token_seq.fulltokens[2]
     []
-    >>> token_seq_full[0:]
+    >>> token_seq.fulltokens[0:]
     ['hi</t>', 'there</t>']
-    >>> token_seq_full[-1:]
+    >>> token_seq.fulltokens[-1:]
     ['there</t>']
-    >>> token_seq_full[-1]
+    >>> token_seq.fulltokens[-1]
     ['there</t>']
 
     Sub-token view indexing:
-    >>> token_seq_sub = token_seq.sub_token_view()
-    >>> token_seq_sub[0]
+    >>> token_seq.subtokens[0]
     ['hi</t>']
-    >>> token_seq_sub[1:]
+    >>> token_seq.subtokens[1:]
     ['the', 're</t>']
-    >>> token_seq_sub[:]
+    >>> token_seq.subtokens[:]
     ['hi</t>', 'the', 're</t>']
-    >>> token_seq_sub[0:10]
+    >>> token_seq.subtokens[0:10]
     ['hi</t>', 'the', 're</t>']
 
     When indexing/slicing a copy of the sequence is created:
     # TODO think if the 'view' functionality is needed for efficiency
     >>> token_seq = TokenSequence.create(['hi</t>', 'the' ,'re</t>'], PreppedTokenMetadata([1, 2], [TypeA, TypeA]), formatter=lambda s: "".join(s))
-    >>> token_seq_sub = token_seq.sub_token_view()
-    >>> token_seq_full = token_seq.full_token_view()
+    >>> token_seq_sub = token_seq.subtokens
+    >>> token_seq_full = token_seq.fulltokens
 
     >>> token_seq_copy = token_seq[:]
-    >>> token_seq_copy.tokens[0] = 'bye</t>'
+    >>> token_seq_copy._tokens[0] = 'bye</t>'
     >>> token_seq_copy
     ['bye</t>', 'there</t>']
     >>> token_seq
@@ -193,7 +182,7 @@ class TokenSequence(ABC):
     False
     >>> len(incomplete_seq)
     2
-    >>> len(incomplete_seq.full_token_view())
+    >>> len(incomplete_seq.fulltokens)
     2
 
     Assignment also works
@@ -209,8 +198,8 @@ class TokenSequence(ABC):
     Concatenation
     ===========
     >>> token_seq = TokenSequence.create(['hi</t>', 'the' ,'re</t>'], PreppedTokenMetadata([1, 2], [TypeA, TypeA]), formatter=lambda s: "".join(s))
-    >>> token_seq_sub = token_seq.sub_token_view()
-    >>> token_seq_full = token_seq_sub.full_token_view()
+    >>> token_seq_sub = token_seq.subtokens
+    >>> token_seq_full = token_seq_sub.fulltokens
 
     >>> token_seq_full + TokenSequence.empty()
     ['hi</t>', 'there</t>']
@@ -240,7 +229,7 @@ class TokenSequence(ABC):
     >>> t = token_seq_sub[0:2]
     >>> t.extend(token_seq_sub[2] + token_seq_sub[1] + token_seq_sub[2])
     ['hi</t>', 'the', 're</t>', 'the', 're</t>']
-    >>> t[:4].full_token_view()[:-1]
+    >>> t[:4].fulltokens[:-1]
     ['hi</t>', 'there</t>']
     >>> t[0:2].is_complete()
     False
@@ -259,31 +248,30 @@ class TokenSequence(ABC):
 
 
     """
-    tokens: List[str]
+    _tokens: List[str]
     metadata: PreppedTokenMetadata
 
     word_end_token_added: bool
-    return_metadata: bool = field(compare=False)
     formatter: Callable[[List[str]], Any]
 
     starts_with_incomplete_token: bool
     ends_with_incomplete_token: bool
-    full_to_sub_token_indices: List[int]
-    sub_to_full_token_indices: Mapping[int, int]
+    full_to_sub_token_indices: List[int] = field(compare=False)
+    sub_to_full_token_indices: Mapping[int, int] = field(compare=False)
 
     def __post_init__(self):
         pass
 
     def _do_token_creation_sanity_check(self):
-        if not isinstance(self.tokens, list):
+        if not isinstance(self._tokens, list):
             raise AssertionError()
         n_subtokens_per_token = self.metadata.n_subtokens_per_token
-        if len(self.tokens) != sum(n_subtokens_per_token):
+        if len(self._tokens) != sum(n_subtokens_per_token):
             raise ValueError(f"Tokens and metadata are out-of-sync.\n"
-                             f"The subword list has {len(self.tokens)} elements but "
+                             f"The subword list has {len(self._tokens)} elements but "
                              f"the number of sub-tokens according to metadata is {sum(n_subtokens_per_token)}.")
         if self.word_end_token_added:
-            token_seq_full = _SubToFullTokenIterator(self.tokens, self.metadata, formatter=lambda l: "".join(l))
+            token_seq_full = _SubToFullTokenIterator(self._tokens, self.metadata, formatter=lambda l: "".join(l))
             full_token_without_end_token = None
             for ind, full_token in enumerate(token_seq_full):
                 if full_token_without_end_token:
@@ -303,7 +291,6 @@ class TokenSequence(ABC):
     def create(tokens: List[str] = None, metadata: PreppedTokenMetadata = None,
                full_token_view: bool = True,
                word_end_token_added: bool = True,
-               return_metadata: bool = False,
                formatter=lambda x:x,
                starts_with_incomplete_token: bool = False,
                ends_with_incomplete_token: bool = False) -> 'TokenSequence':
@@ -315,7 +302,6 @@ class TokenSequence(ABC):
         full_to_sub_token_indices, sub_to_full_token_indices = TokenSequence._build_indexes(metadata)
 
         return sequence_type(tokens, metadata, word_end_token_added=word_end_token_added,
-                                          return_metadata=return_metadata,
                                           formatter=formatter,
                                           starts_with_incomplete_token=starts_with_incomplete_token,
                                           ends_with_incomplete_token=ends_with_incomplete_token,
@@ -338,12 +324,6 @@ class TokenSequence(ABC):
         dict_copy.update(kwargs)
         return new_type(**dict_copy)
 
-    def sub_token_size(self) -> int:
-        return len(self.tokens)
-
-    def full_token_size(self) -> int:
-        return self.sub_to_full_token_indices[len(self.tokens)]
-
     @staticmethod
     def _check_concatenation_possible(current: 'TokenSequence', other: 'TokenSequence') -> None:
         if not isinstance(other, TokenSequence):
@@ -353,6 +333,7 @@ class TokenSequence(ABC):
         elif current.ends_with_incomplete_token and current.metadata.token_types[-1] != other.metadata.token_types[0]:
             raise ValueError(f"Cannot glue subtokens of different types: ...{current[-1:]} and {other[:0]}...")
 
+    #TODO TokenSequenceBuilder class? and when building do the sanity check
     def extend(self, other: 'TokenSequence') -> 'TokenSequence':
         """
         >>> from codeprep.api.text import bpe
@@ -360,19 +341,18 @@ class TokenSequence(ABC):
 
         >>> token_seq.extend(TokenSequence.empty())
         ['is</t>', 'locked</t>']
-        >>> sub_token_seq = token_seq.sub_token_view()
         >>> token_seq.extend(token_seq)
         ['is</t>', 'locked</t>', 'is</t>', 'locked</t>']
-        >>> token_seq.extend(sub_token_seq)
+        >>> token_seq.extend(token_seq.subtokens)
         ['is</t>', 'locked</t>', 'is</t>', 'locked</t>', 'is</t>', 'locked</t>', 'is</t>', 'locked</t>']
         """
         self._check_concatenation_possible(self, other)
 
-        first_sub_token_len = self.sub_token_size()
-        first_full_token_len = self.full_token_size()
-        second_full_token_len = other.full_token_size()
+        first_sub_token_len = len(self.subtokens)
+        first_full_token_len = len(self.fulltokens)
+        second_full_token_len = len(other.fulltokens)
 
-        self.tokens.extend(other.tokens)
+        self._tokens.extend(other._tokens)
         other_metadata = other.metadata
         start_from = 0
         if self.ends_with_incomplete_token:
@@ -394,8 +374,8 @@ class TokenSequence(ABC):
             self.full_to_sub_token_indices.append(end_of_i_full_word_in_second)
             self.sub_to_full_token_indices[end_of_i_full_word_in_second] = full_word_index_in_second + 1 + first_full_token_len - start_from
 
-        assert self.full_token_size() + 1 == len(self.sub_to_full_token_indices)
-        assert self.full_token_size() + 1 == len(self.full_to_sub_token_indices)
+        assert len(self.fulltokens) + 1 == len(self.sub_to_full_token_indices)
+        assert len(self.fulltokens) + 1 == len(self.full_to_sub_token_indices)
 
         self.word_end_token_added = self.word_end_token_added and other.word_end_token_added
         self.ends_with_incomplete_token = other.ends_with_incomplete_token
@@ -405,7 +385,7 @@ class TokenSequence(ABC):
     def __add__(self, other: 'TokenSequence') -> 'TokenSequence':
         self._check_concatenation_possible(self, other)
 
-        resulting_tokens = self.tokens + other.tokens
+        resulting_tokens = self._tokens + other._tokens
         if not self.ends_with_incomplete_token:
             resulting_metadata = self.metadata + other.metadata
         elif self.ends_with_incomplete_token:
@@ -413,33 +393,17 @@ class TokenSequence(ABC):
             incomplete_chunk_between = PreppedTokenMetadata([n_subtokens_in_merged_tokens], [self.metadata.token_types[-1]])
             resulting_metadata = self.metadata[:-1] + incomplete_chunk_between + other.metadata[1:]
 
+        # TODO do not use create! index doesn't need to be rebuilt from scratch! use extend method?
         return TokenSequence.create(resulting_tokens, resulting_metadata,
                                     full_token_view=not isinstance(self, SubTokenSequence),
                                     word_end_token_added=self.word_end_token_added and other.word_end_token_added,
-                                    return_metadata=self.return_metadata,
                                     formatter=self.formatter,
                                     starts_with_incomplete_token=self.starts_with_incomplete_token,
                                     ends_with_incomplete_token=other.ends_with_incomplete_token)
 
-    def token_str(self) -> str:
-        """
-        >>> from codeprep.api.text import bpe
-        >>> token_seq = bpe('is locked', '10k')
-        >>> token_seq
-        [['is</t>'], ['loc', 'ked</t>']]
-        >>> token_seq[0].token_str()
-        'is</t>'
-        >>> token_seq.sub_token_view()[1].token_str()
-        'loc'
-        >>> token_seq.full_token_view()[1].token_str()
-        Traceback (most recent call last):
-        ...
-        ValueError: This method can be only called if the sequence contains only one token.
-        """
-        if len(self.tokens) != 1:
-            raise ValueError("This method can be only called if the sequence contains only one token.")
-
-        return self.tokens[0]
+    @abstractmethod
+    def single_token(self, include_debug_tokens: bool = False, keep_word_end_token: bool = True) -> str:
+        pass
 
     @abstractmethod
     def __iter__(self) -> Union[Iterator[str], Iterator['TokenSequence']]:
@@ -450,48 +414,46 @@ class TokenSequence(ABC):
         pass
 
     def __repr__(self):
-        return repr([i for i in self.shallow_copy(type(self), return_metadata=False)])
+        #TODO return also object type name
+        return repr([i for i in iter(self)])
 
-    def full_token_view(self, **kwargs) -> 'TokenSequence':
-        if type(self) == FullTokenSequence and not kwargs:
-            return self
-        return self.shallow_copy(FullTokenSequence, **kwargs)
+    def __str__(self):
+        return repr([i for i in iter(self)])
 
-    def sub_token_view(self, **kwargs) -> 'TokenSequence':
-        if type(self) == SubTokenSequence and not kwargs:
+    @property
+    def fulltokens(self) -> 'TokenSequence':
+        if type(self) == FullTokenSequence:
             return self
-        return self.shallow_copy(SubTokenSequence, **kwargs)
+        return self.shallow_copy(FullTokenSequence)
+    
+    @property
+    def subtokens(self):
+        if type(self) == SubTokenSequence:
+            return self
+        return self.shallow_copy(SubTokenSequence)
 
     @abstractmethod
-    def get_iterator(self, over, over_full_tokens: bool, formatter: Callable[[List[str]], Any]) -> Iterator:
+    def aligned_iterator(self, over, over_full_tokens: bool, formatter: Callable[[List[str]], Any]) -> Iterator:
         """
         >>> from codeprep.api.text import bpe
         >>> token_seq = bpe('is locked', '10k')
         >>> token_seq
         [['is</t>'], ['loc', 'ked</t>']]
-        >>> token_seq_sub = token_seq.sub_token_view()
-        >>> token_seq_full = token_seq_sub.full_token_view()
 
-        >>> iterator = token_seq_sub.get_iterator([1, 2], over_full_tokens=True)
+        >>> iterator = token_seq.subtokens.aligned_iterator([1, 2], over_full_tokens=True)
         >>> [x for x in iterator]
         [1, 2, 2]
-        >>> iterator = token_seq_sub.get_iterator([1, 2, 3], over_full_tokens=False)
+        >>> iterator = token_seq.subtokens.aligned_iterator([1, 2, 3], over_full_tokens=False)
         >>> [x for x in iterator]
         [1, 2, 3]
-        >>> iterator = token_seq_full.get_iterator([1, 2], over_full_tokens=True)
+        >>> iterator = token_seq.fulltokens.aligned_iterator([1, 2], over_full_tokens=True)
         >>> [x for x in iterator]
         [1, 2]
-        >>> iterator = token_seq_full.get_iterator([1, 2, 3], over_full_tokens=False)
+        >>> iterator = token_seq.fulltokens.aligned_iterator([1, 2, 3], over_full_tokens=False)
         >>> [x for x in iterator]
         [[1], [2, 3]]
         """
         pass
-
-    def without_metadata(self) -> 'TokenSequence':
-        return self.shallow_copy(type(self), return_metadata=False)
-
-    def with_metadata(self) -> 'TokenSequence':
-        return self.shallow_copy(type(self), return_metadata=True)
 
     def with_format(self, formatter: Callable[[List[str]], Any]) -> 'TokenSequence':
         """
@@ -500,87 +462,56 @@ class TokenSequence(ABC):
         >>> token_seq
         [['is</t>'], ['loc', 'ked</t>']]
 
-        >>> token_seq.with_format(lambda s: "".join(s))
+        >>> token_seq.subtokens.with_format(lambda s: "".join(s))
         ['is</t>', 'locked</t>']
         """
-        return self.shallow_copy(type(self), formatter=formatter)
-
-    def to_full_token_string(self, include_debug_tokens=False, keep_word_end_token: bool = True) -> str:
-        """
-        >>> from codeprep.api.text import bpe
-        >>> token = bpe('revolver', '10k')
-        >>> token
-        [['re', 'v', 'ol', 'ver</t>']]
-        >>> token.to_full_token_string()
-        'revolver</t>'
-        >>> token.to_full_token_string(include_debug_tokens=True)
-        're|v|ol|ver</t>'
-
-        >>> token.to_full_token_string(keep_word_end_token=False)
-        'revolver'
-
-        >>> multiple_tokens = bpe('// hj', '10k')
-        >>> multiple_tokens.to_full_token_string()
-        Traceback (most recent call last):
-        ...
-        ValueError: This method cannot be for multiple tokens
-
-        >>> special_token = multiple_tokens.full_token_view()[-1]
-        >>> special_token
-        [['<EOL></t>']]
-        >>> special_token.to_full_token_string()
-        '<EOL></t>'
-        """
-        if self.full_token_size() > 1:
-            raise ValueError("This method cannot be for multiple tokens")
-
-        return to_full_token_string(self.tokens, include_debug_tokens, keep_word_end_token)
+        return self.shallow_copy(FullTokenSequence, formatter=formatter)
 
     @abstractmethod
     def __getitem__(self, item: Union[int, slice]) -> 'TokenSequence':
         pass
 
     @staticmethod
-    def _normilize_index(index: Optional[int], is_slice: bool, total: int) -> Optional[int]:
+    def _normalize_index(index: Optional[int], is_slice: bool, total: int) -> Optional[int]:
         """
-        >>> TokenSequence._normilize_index(None, is_slice=False, total=2) is None
+        >>> TokenSequence._normalize_index(None, is_slice=False, total=2) is None
         True
-        >>> TokenSequence._normilize_index(-3, is_slice=False, total=2)
+        >>> TokenSequence._normalize_index(-3, is_slice=False, total=2)
         Traceback (most recent call last):
         ...
         KeyError: -3
-        >>> TokenSequence._normilize_index(-2, is_slice=False, total=2)
+        >>> TokenSequence._normalize_index(-2, is_slice=False, total=2)
         0
-        >>> TokenSequence._normilize_index(-1, is_slice=False, total=2)
+        >>> TokenSequence._normalize_index(-1, is_slice=False, total=2)
         1
-        >>> TokenSequence._normilize_index(0, is_slice=False, total=2)
+        >>> TokenSequence._normalize_index(0, is_slice=False, total=2)
         0
-        >>> TokenSequence._normilize_index(1, is_slice=False, total=2)
+        >>> TokenSequence._normalize_index(1, is_slice=False, total=2)
         1
-        >>> TokenSequence._normilize_index(2, is_slice=False, total=2)
+        >>> TokenSequence._normalize_index(2, is_slice=False, total=2)
         2
-        >>> TokenSequence._normilize_index(3, is_slice=False, total=2)
+        >>> TokenSequence._normalize_index(3, is_slice=False, total=2)
         2
-        >>> TokenSequence._normilize_index(1000, is_slice=False, total=2)
+        >>> TokenSequence._normalize_index(1000, is_slice=False, total=2)
         2
 
-        >>> TokenSequence._normilize_index(None, is_slice=True, total=2) is None
+        >>> TokenSequence._normalize_index(None, is_slice=True, total=2) is None
         True
-        >>> TokenSequence._normilize_index(-3, is_slice=True, total=2)
+        >>> TokenSequence._normalize_index(-3, is_slice=True, total=2)
         0
-        >>> TokenSequence._normilize_index(-2, is_slice=True, total=2)
+        >>> TokenSequence._normalize_index(-2, is_slice=True, total=2)
         0
-        >>> TokenSequence._normilize_index(-1, is_slice=True, total=2)
+        >>> TokenSequence._normalize_index(-1, is_slice=True, total=2)
         1
-        >>> TokenSequence._normilize_index(0, is_slice=True, total=2)
+        >>> TokenSequence._normalize_index(0, is_slice=True, total=2)
         0
-        >>> TokenSequence._normilize_index(1, is_slice=True, total=2)
+        >>> TokenSequence._normalize_index(1, is_slice=True, total=2)
         1
-        >>> TokenSequence._normilize_index(2, is_slice=True, total=2)
+        >>> TokenSequence._normalize_index(2, is_slice=True, total=2)
         2
-        >>> TokenSequence._normilize_index(3, is_slice=True, total=2)
+        >>> TokenSequence._normalize_index(3, is_slice=True, total=2)
         2
-        >>> TokenSequence._normilize_index(1000, is_slice=True, total=2)
+        >>> TokenSequence._normalize_index(1000, is_slice=True, total=2)
         2
         """
         if index is None:
@@ -629,14 +560,14 @@ class TokenSequence(ABC):
     @staticmethod
     def _normalize_index_or_slice(item: Union[int, slice], total: int) -> Tuple[int, int]:
         if isinstance(item, int):
-            start = TokenSequence._normilize_index(item, is_slice=False, total=total)
+            start = TokenSequence._normalize_index(item, is_slice=False, total=total)
             stop = start + 1 if start < total else start
         elif isinstance(item, slice):
             if item.step is not None:
                 raise NotImplemented("It is not possible to specify step")
 
-            start = TokenSequence._normilize_index(item.start, is_slice=True, total=total)
-            stop = TokenSequence._normilize_index(item.stop, is_slice=True, total=total)
+            start = TokenSequence._normalize_index(item.start, is_slice=True, total=total)
+            stop = TokenSequence._normalize_index(item.stop, is_slice=True, total=total)
         else:
             raise TypeError()
 
@@ -646,10 +577,13 @@ class TokenSequence(ABC):
 @dataclass(repr=False)
 class SubTokenSequence(TokenSequence):
     def __iter__(self) -> Union[Iterator[str], Iterator[TokenSequence]]:
-        if self.return_metadata:
+        return self.iter()
+
+    def iter(self, metadata: bool = False) -> Union[Iterator[str], Iterator[TokenSequence]]:
+        if metadata:
             return iter([self[i] for i in range(len(self))])
         else:
-            return iter(self.tokens)
+            return iter(self._tokens)
 
     def __getitem__(self, item: Union[int, slice]):
         start, stop = TokenSequence._normalize_index_or_slice(item, total=len(self))
@@ -679,31 +613,53 @@ class SubTokenSequence(TokenSequence):
         )
 
         starts_with_incomplete_token = (adjusted_before > 0) or ((start == 0 or start is None) and self.starts_with_incomplete_token)
-        ends_with_incomplete_token = (adjusted_after > 0) or ((stop == len(self.tokens) or stop is None) and self.ends_with_incomplete_token)
+        ends_with_incomplete_token = (adjusted_after > 0) or ((stop == len(self._tokens) or stop is None) and self.ends_with_incomplete_token)
 
         full_to_sub_token_indices, sub_to_full_token_indices = self._build_indexes(metadata)
 
-        return self.shallow_copy(new_type=type(self), tokens=self.tokens[start:stop], metadata=metadata,
-                                     starts_with_incomplete_token=starts_with_incomplete_token,
-                                     ends_with_incomplete_token=ends_with_incomplete_token,
-                                          full_to_sub_token_indices=full_to_sub_token_indices,
-                                          sub_to_full_token_indices=sub_to_full_token_indices)
+        return self.shallow_copy(new_type=type(self), _tokens=self._tokens[start:stop], metadata=metadata,
+                                 starts_with_incomplete_token=starts_with_incomplete_token,
+                                 ends_with_incomplete_token=ends_with_incomplete_token,
+                                 full_to_sub_token_indices=full_to_sub_token_indices,
+                                 sub_to_full_token_indices=sub_to_full_token_indices)
 
-    def __len__(self):
-        return self.sub_token_size()
+    def __len__(self) -> int:
+        return len(self._tokens)
 
-    def get_iterator(self, over, over_full_tokens: bool, formatter: Callable[[List[str]], Any] = lambda x: x) -> Iterator:
+    def aligned_iterator(self, over, over_full_tokens: bool, formatter: Callable[[List[str]], Any] = lambda x: x) -> Iterator:
         return _FullToSubTokenIterator(over, self.metadata) if over_full_tokens else iter(over)
 
+    def single_token(self, include_debug_tokens: bool = False, keep_word_end_token: bool = True) -> str:
+        """
+        >>> from codeprep.api.text import bpe
+        >>> token_seq = bpe('is locked', '10k')
+        >>> token_seq
+        [['is</t>'], ['loc', 'ked</t>']]
+        >>> token_seq.subtokens[0].single_token()
+        'is</t>'
+        >>> token_seq.subtokens[1].single_token()
+        'loc'
+        >>> token_seq.subtokens[0:2].single_token()
+        Traceback (most recent call last):
+        ...
+        ValueError: This method can be only called if the sequence contains only one token.
+        """
+        if len(self) != 1:
+            raise ValueError("This method can be only called if the sequence contains only one token.")
+
+        return self._tokens[0]
 
 @dataclass(repr=False)
 class FullTokenSequence(TokenSequence):
     def __iter__(self) -> Union[Iterator[str], Iterator['TokenSequence']]:
-        over = self.sub_token_view() if self.return_metadata else self.tokens
-        formatter = (lambda x: x) if self.return_metadata else self.formatter
+        return self.iter()
+
+    def iter(self, metadata: bool = False) -> Union[Iterator[str], Iterator['TokenSequence']]:
+        over = self.subtokens if metadata else self._tokens
+        formatter = (lambda x: x) if metadata else self.formatter
         return _SubToFullTokenIterator(over, metadata=self.metadata, formatter=formatter)
 
-    def get_iterator(self, over: Sequence[Any], over_full_tokens: bool, formatter: Callable[[List[str]], Any] = lambda x: x) -> Iterator:
+    def aligned_iterator(self, over: Sequence[Any], over_full_tokens: bool, formatter: Callable[[List[str]], Any] = lambda x: x) -> Iterator:
         return iter(over) if over_full_tokens else _SubToFullTokenIterator(over, metadata=self.metadata, formatter=formatter)
 
     def __setitem__(self, key, value):
@@ -731,14 +687,52 @@ class FullTokenSequence(TokenSequence):
 
         full_to_sub_token_indices, sub_to_full_token_indices = self._build_indexes(metadata)
 
-        return self.shallow_copy(new_type=type(self), tokens=self.tokens[full_item],
-                                    metadata=metadata, starts_with_incomplete_token=starts_with_incomplete_token,
+        return self.shallow_copy(new_type=type(self), _tokens=self._tokens[full_item],
+                                 metadata=metadata, starts_with_incomplete_token=starts_with_incomplete_token,
                                  ends_with_incomplete_token=ends_with_incomplete_token,
                                  full_to_sub_token_indices=full_to_sub_token_indices,
                                  sub_to_full_token_indices=sub_to_full_token_indices)
 
     def __len__(self):
-        return self.full_token_size()
+        return self.sub_to_full_token_indices[len(self._tokens)]
+
+    def single_token(self, include_debug_tokens: bool = False, keep_word_end_token: bool = True) -> str:
+        """
+        >>> from codeprep.api.text import bpe
+        >>> token = bpe('revolver', '10k')
+        >>> token
+        [['re', 'v', 'ol', 'ver</t>']]
+        >>> token.single_token()
+        'revolver</t>'
+        >>> token.single_token(include_debug_tokens=True)
+        're|v|ol|ver</t>'
+
+        >>> token.single_token(keep_word_end_token=False)
+        'revolver'
+
+        >>> multiple_tokens = bpe('// hj', '10k')
+        >>> multiple_tokens.single_token()
+        Traceback (most recent call last):
+        ...
+        ValueError: This method can be only called if the sequence contains only one token.
+
+        >>> special_token = multiple_tokens.fulltokens[-1]
+        >>> special_token
+        [['<EOL></t>']]
+        >>> special_token.single_token()
+        '<EOL></t>'
+        """
+        if len(self) != 1:
+            raise ValueError("This method can be only called if the sequence contains only one token.")
+
+        separator = '|' if include_debug_tokens else ''
+        full_token = separator.join(self._tokens)
+
+        if not is_terminal_subtoken(full_token):
+            raise ValueError(f'{full_token} is not a full token')
+
+        full_token = full_token if keep_word_end_token else full_token[:-len(placeholders['compound_word_end'])]
+        return full_token
 
 
 def is_terminal_subtoken(subtoken: str, use_token_end_chars: bool = True) -> bool:
