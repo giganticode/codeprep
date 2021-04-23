@@ -21,6 +21,7 @@ VOCAB_DIR = 'vocab'
 current_script_location = os.path.realpath(__file__)
 root_package_dir = os.path.dirname(current_script_location)
 data_dir = os.path.join(root_package_dir, 'data')
+test_data_dir = os.path.join(os.path.dirname(root_package_dir), 'test-data')
 
 app_name='codeprep'
 

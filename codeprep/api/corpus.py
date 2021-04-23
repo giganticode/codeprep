@@ -4,14 +4,16 @@
 
 import logging
 import os
+import sys
+import tempfile
 from multiprocessing.pool import Pool
 from typing import Optional, Dict, Tuple
 
-import sys
 from tqdm import tqdm
 
 from codeprep.api.common import create_prep_config
 from codeprep.config import CHUNKSIZE
+from codeprep.config import test_data_dir
 from codeprep.pipeline import stages
 from codeprep.pipeline.bperegistry import CustomBpeConfig, is_predefined_id
 from codeprep.pipeline.dataset import Dataset, SubDataset
@@ -69,7 +71,7 @@ class PreprocessedCorpus(object):
 
 def nosplit(path: str, extensions: Optional[str] = None, no_spaces: bool = False, no_unicode: bool = False,
             no_com: bool = False, no_str: bool = False, full_strings: bool = False, max_str_length: int = sys.maxsize,
-            output_path: Optional[str] = None, calc_vocab=False) -> PreprocessedCorpus:
+            output_path: Optional[str] = None, calc_vocab=False, suppress_caching=False) -> PreprocessedCorpus:
     """
     Split corpus at `path` into tokens leaving compound identifiers as they are.
 
@@ -86,16 +88,23 @@ def nosplit(path: str, extensions: Optional[str] = None, no_spaces: bool = False
     Does not have effect if `no_str` is set to `True`
 
     :return: `PreprocessedDataset` object which holds metadata of the preprocessed dataset
+
+    Examples:
+    ---------
+    >>> prep_corpus = nosplit(os.path.join(test_data_dir, 'test-corpus'), 'js', output_path=tempfile.TemporaryDirectory().name, suppress_caching=True) # doctest: +ELLIPSIS
+    Files scanned: 1...
+    >>> prep_corpus.get_corpus_size()
+    49294
     """
     prep_config= create_prep_config('nosplit', no_spaces=no_spaces, no_unicode=no_unicode, no_com=no_com, no_str=no_str,
                                     full_strings=full_strings, max_str_length=max_str_length)
     return preprocess_corpus(path, prep_config, extensions=extensions,
-                             output_path=output_path, calc_vocab=calc_vocab)
+                             output_path=output_path, calc_vocab=calc_vocab, suppress_caching=suppress_caching)
 
 
 def chars(path: str, extensions: Optional[str] = None, no_spaces: bool = False, no_unicode: bool = False,
           no_com: bool = False, no_str: bool = False, max_str_length=sys.maxsize,
-          output_path: Optional[str] = None, calc_vocab=False) -> PreprocessedCorpus:
+          output_path: Optional[str] = None, calc_vocab=False, suppress_caching=False) -> PreprocessedCorpus:
     """
     Split corpus at `path` into characters (With the exception of operators that consist of 2 character: such operators will remain as a single token).
     So that the information about original word boundaries is not lost, special tokens are inserted to denote original words beginnings and ends,
@@ -113,15 +122,24 @@ def chars(path: str, extensions: Optional[str] = None, no_spaces: bool = False, 
     Does not have effect if `no_str` is set to `True`
 
     :return: `PreprocessedDataset` object which holds metadata of the preprocessed dataset
+
+    Examples:
+    ---------
+    >>> prep_corpus = chars(os.path.join(test_data_dir, 'test-corpus'), 'js', output_path=tempfile.TemporaryDirectory().name, suppress_caching=True) # doctest: +ELLIPSIS
+    Files scanned: 1...
+    >>> prep_corpus.get_corpus_size()
+    97732
     """
     prep_config= create_prep_config('chars', no_spaces=no_spaces, no_unicode=no_unicode, no_com=no_com,
                                     no_str=no_str, max_str_length=max_str_length)
-    return preprocess_corpus(path, prep_config, '0', extensions=extensions, output_path=output_path, calc_vocab=calc_vocab)
+    return preprocess_corpus(path, prep_config, '0', extensions=extensions, output_path=output_path,
+                             calc_vocab=calc_vocab, suppress_caching=suppress_caching)
 
 
 def basic(path: str, extensions: Optional[str] = None, split_numbers: bool = False, ronin = False, stem: bool = False,
           no_spaces: bool = False, no_unicode: bool = False, no_case: bool = False, no_com: bool = False,
-          no_str: bool = False, max_str_length=sys.maxsize, output_path: Optional[str] = None, calc_vocab=False) -> PreprocessedCorpus:
+          no_str: bool = False, max_str_length=sys.maxsize, output_path: Optional[str] = None,
+          calc_vocab=False, suppress_caching=False) -> PreprocessedCorpus:
     """
     Split corpus at `path` into tokens converting identifiers that follow CamelCase or snake_case into multiple subwords.
     So that the information about original word boundaries is not lost, special tokens are inserted to denote original words beginnings and ends,
@@ -147,16 +165,25 @@ def basic(path: str, extensions: Optional[str] = None, split_numbers: bool = Fal
     Does not have effect if `no_str` is set to `True`
 
     :return: `PreprocessedDataset` object which holds metadata of the preprocessed dataset
+
+    Examples:
+    ---------
+    >>> prep_corpus = basic(os.path.join(test_data_dir, 'test-corpus'), 'js', output_path=tempfile.TemporaryDirectory().name, suppress_caching=True) # doctest: +ELLIPSIS
+    Files scanned: 1...
+    >>> prep_corpus.get_corpus_size()
+    54766
     """
     prep_config = create_prep_config('basic', no_spaces=no_spaces, no_unicode=no_unicode, no_case=no_case,
                                      no_com=no_com, no_str=no_str, max_str_length=max_str_length,
                                      split_numbers=split_numbers or stem or ronin, ronin=ronin or stem, stem=stem)
-    return preprocess_corpus(path, prep_config, extensions=extensions, output_path=output_path, calc_vocab=calc_vocab)
+    return preprocess_corpus(path, prep_config, extensions=extensions, output_path=output_path,
+                             calc_vocab=calc_vocab, suppress_caching=suppress_caching)
 
 
 def bpe(path: str, bpe_codes_id: str, extensions: Optional[str] = None, no_spaces: bool = False,
         no_unicode: bool = False, no_com: bool = False, no_str: bool = False,
-        max_str_length=sys.maxsize, output_path: Optional[str] = None, calc_vocab=False) -> PreprocessedCorpus:
+        max_str_length=sys.maxsize, output_path: Optional[str] = None,
+        calc_vocab=False, suppress_caching=False) -> PreprocessedCorpus:
     """
     Split corpus at `path` into tokens converting identifiers that follow CamelCase or snake_case into multiple subwords.
     On top of that Byte Pair Encoding (BPE) is applied with number of merges specified in `bpe_config`.
@@ -180,15 +207,24 @@ def bpe(path: str, bpe_codes_id: str, extensions: Optional[str] = None, no_space
     Does not have effect if `no_str` is set to `True`
 
     :return: `PreprocessedDataset` object which holds metadata of the preprocessed dataset
+
+    Examples:
+    ---------
+    >>> prep_corpus = bpe(os.path.join(test_data_dir, 'test-corpus'), '10k', 'js', output_path=tempfile.TemporaryDirectory().name, suppress_caching=True) # doctest: +ELLIPSIS
+    Files scanned: 1...
+    >>> prep_corpus.get_corpus_size()
+    52766
     """
     prep_config= create_prep_config('bpe', bpe_codes_id=bpe_codes_id, no_spaces=no_spaces, no_unicode=no_unicode,
                                     no_com=no_com, no_str=no_str, max_str_length=max_str_length)
     return preprocess_corpus(path, prep_config, bpe_codes_id,
-                             extensions=extensions, output_path=output_path, calc_vocab=calc_vocab)
+                             extensions=extensions, output_path=output_path,
+                             calc_vocab=calc_vocab, suppress_caching=suppress_caching)
 
 
 def preprocess_corpus(path: str, prep_config: PrepConfig, bpe_codes_id: Optional[str]=None,
-                      extensions: Optional[str]=None, output_path: Optional[str]=None, calc_vocab: Optional[bool]=False) -> PreprocessedCorpus:
+                      extensions: Optional[str]=None, output_path: Optional[str]=None,
+                      calc_vocab: Optional[bool]=False, suppress_caching: bool=False) -> PreprocessedCorpus:
     output_path = output_path or os.getcwd()
     custom_bpe_config = None
     if prep_config.is_bpe():
@@ -197,7 +233,7 @@ def preprocess_corpus(path: str, prep_config: PrepConfig, bpe_codes_id: Optional
             custom_bpe_config = CustomBpeConfig.from_id(bpe_codes_id)
 
     dataset = Dataset.create(str(path), prep_config, extensions, custom_bpe_config,
-                             overriden_path_to_prep_dataset=output_path)
+                             overriden_path_to_prep_dataset=output_path, suppress_caching=suppress_caching)
     if calc_vocab:
         stages.run_until_vocab(dataset, custom_bpe_config)
         path_to_vocab = dataset.path_to_vocab_file

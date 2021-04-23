@@ -2,26 +2,41 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-#TODO use relative path
-TEST_FILE = b"C:\\Users\Home\dev\codeprep\\test-resources\AppXMark.java"
+import os
+import platform
+import shutil
 
-#TODO make test file small and measure time of excution
+from codeprep.cli.spec import parse_and_run
 
-# class BpePerformanceTest(unittest.TestCase):
-#     def test(self):
-#         prep_config = PrepConfig({
-#             PrepParam.EN_ONLY: 'u',
-#             PrepParam.COM: 'c',
-#             PrepParam.STR: '1',
-#             PrepParam.SPLIT: '9',
-#             PrepParam.TABS_NEWLINES: 's',
-#             PrepParam.CASE: 'u'
-#         })
-#
-#         bpe_data = BpeData(merges_cache=[],
-#                            merges = read_merges('C:\\Users\Home\dev\codeprep\codeprep\data\\bpe\\10k\merges.txt', 1000))
-#
-#         lines_from_file, path = read_file_contents(TEST_FILE)
-#         extension_bin = os.path.splitext(TEST_FILE)[1].decode()[1:]
-#         parsed = [p for p in convert_text("\n".join(lines_from_file), extension_bin)]
-#         repr, metadata = to_repr(prep_config, parsed, bpe_data)
+import codeprep.api.corpus as api
+from codeprep.config import root_package_dir
+
+PATH_TO_TEST_CORPUS = os.path.join(root_package_dir, '..', 'test-data', 'test-corpus')
+TEST_OUTPUT = os.path.join(root_package_dir, '..', 'test-output')
+
+
+def test_preprocess_with_different_options():
+    calc_vocab = True
+    api.basic(path=PATH_TO_TEST_CORPUS, extensions="java", output_path=TEST_OUTPUT, calc_vocab=calc_vocab)
+    api.basic(path=PATH_TO_TEST_CORPUS, extensions="java", split_numbers=True, ronin=True, stem=True,
+              no_spaces=True, no_unicode=True, no_case=True, no_com=True, no_str=True, max_str_length=30,
+              output_path=TEST_OUTPUT, calc_vocab=calc_vocab)
+    api.chars(path=PATH_TO_TEST_CORPUS, extensions="java", output_path=TEST_OUTPUT, calc_vocab=calc_vocab)
+    api.nosplit(path=PATH_TO_TEST_CORPUS, extensions="java", output_path=TEST_OUTPUT, calc_vocab=calc_vocab)
+    api.bpe(path=PATH_TO_TEST_CORPUS, bpe_codes_id='10k', extensions="java", output_path=TEST_OUTPUT, calc_vocab=calc_vocab)
+
+
+def test_learn_bpe_codes():
+    if platform.system() != 'Darwin':
+        parse_and_run(['learn-bpe', '100', '-p', PATH_TO_TEST_CORPUS, '-e', 'java'])
+        parse_and_run(['learn-bpe', '150', '-p', PATH_TO_TEST_CORPUS, '-e', 'java'])
+
+        api.bpe(path=PATH_TO_TEST_CORPUS, bpe_codes_id='test-corpus-130', extensions="java", output_path=TEST_OUTPUT)
+    else:
+        print('Skipping the test on OSx.')
+
+
+def teardown_function(function):
+    print(f'Removing the outputs at: {TEST_OUTPUT}')
+    if os.path.exists(TEST_OUTPUT):
+        shutil.rmtree(TEST_OUTPUT)

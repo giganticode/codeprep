@@ -3,19 +3,16 @@ env:
   global:
     - CC_TEST_REPORTER_ID=$CODE_CLIMATE_REPORTER_ID
 language: python
+if: 'type = pull_request OR branch = master'
 python:
   - "3.7"
   - "3.8"
 jobs:
   include:
     - os: osx
-      language: sh
+      osx_image: xcode11.2 # Python 3.7.4 running on macOS 10.14.4
+      language: shell
       python: "3.7"
-      before_install:
-        - brew update
-        - python3 -m pip install virtualenv
-        - virtualenv .venv -p python3
-        - source .venv/bin/activate
       before_script: echo "Not sending code coverage to code climate on OSx"
       after_script: echo "Not sending code coverage to code climate on OSx"
     - os: windows
@@ -28,8 +25,8 @@ jobs:
       before_script: echo "Not sending code coverage to code climate on Windows"
       after_script: echo "Not sending code coverage to code climate on Windows"
 install:
-  - pip install -r requirements.txt
-  - pip install -r requirements-dev.txt
+  - pip3 install -r requirements.txt
+  - pip3 install -r requirements-dev.txt
 before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
@@ -37,7 +34,8 @@ before_script:
 script:
   - cd $TRAVIS_BUILD_DIR
   - echo "Current directory is $(pwd)"
-  - coverage run -m pytest --doctest-modules
+  - coverage run --concurrency=multiprocessing -m pytest --doctest-modules
+  - coverage combine
   - coverage report -m --include=./\*\* --omit=tests/\*\*,.venv/\*\* --fail-under=70
   - coverage xml -i --include=./\*\* --omit=tests/\*\*,.venv/\*\*
 after_script:

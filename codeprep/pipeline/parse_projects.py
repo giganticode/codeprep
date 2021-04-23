@@ -70,4 +70,5 @@ def run(dataset: Dataset) -> None:
         it = pool.imap_unordered(preprocess_and_write, params_generator(dataset), chunksize=CHUNKSIZE)
         for _ in tqdm(it, total=files_total):
             pass
-    dataset.parsed.set_ready()
+    if not dataset.suppress_caching:
+        dataset.parsed.set_ready()

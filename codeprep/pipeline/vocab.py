@@ -6,7 +6,9 @@ import logging.config
 import multiprocessing
 import os
 import platform
+import random
 import shutil
+import sys
 from collections import Counter, defaultdict
 from fnmatch import fnmatch
 from multiprocessing import Queue
@@ -20,6 +22,7 @@ from tqdm import tqdm
 
 from codeprep.util.file import read_file_contents
 from codeprep.preprocess.placeholders import placeholders
+
 from codeprep.util.misc import to_literal_str, to_non_literal_str, AtomicInteger, merge_dicts_, groupify, \
     create_chunk_generator, NonAtomicCounter
 
@@ -55,7 +58,7 @@ class PartialVocab(object):
         self.id = self._generate_id()
 
     def _generate_id(self) -> str:
-        return str(os.getpid()) + ''.join(str(time.time()).split('.'))
+        return str(os.getpid()) + ''.join(str(time.time()).split('.')) + str(random.randint(0, sys.maxsize))
 
     def renew_id(self) -> None:
         self.id = self._generate_id()
@@ -215,7 +218,9 @@ def create_and_dump_partial_vocab(param: Tuple[List[str], str, int]) -> PartialV
     path_to_file, path_to_dump, chunk = param
     vocab = get_vocab(path_to_file)
     partial_vocab = PartialVocab(vocab, chunk)
-    pickle.dump(partial_vocab, open(os.path.join(path_to_dump, f'{partial_vocab.id}.{PARTVOCAB_EXT}'), 'wb'))
+    path = os.path.join(path_to_dump, f'{partial_vocab.id}.{PARTVOCAB_EXT}')
+    logger.debug(f"Dumping part vocab to {path}")
+    pickle.dump(partial_vocab, open(path, 'wb'))
     return partial_vocab
 
 

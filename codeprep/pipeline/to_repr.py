@@ -6,6 +6,7 @@ import gzip
 import logging
 import os
 import pickle
+import platform
 from multiprocessing.pool import Pool
 from typing import List, Tuple, Set
 from typing import Optional
@@ -49,7 +50,7 @@ def to_token_str(tokens: List) -> str:
     return " ".join(map(lambda t: str(t), tokens))
 
 
-def preprocess_and_write(params: Tuple[bytes, bytes, PrepConfig, str]):
+def preprocess_and_write(params: Tuple[bytes, bytes, PrepConfig, str], bpe_data: Optional[BpeData] = None):
     src_file_path, dest_file_path, prep_config, part_nonbpe_vocab_folder = params
 
     dest_dirname = os.path.dirname(dest_file_path)
@@ -63,7 +64,8 @@ def preprocess_and_write(params: Tuple[bytes, bytes, PrepConfig, str]):
     not_finished_dest_file_path = dest_file_path + NOT_FINISHED_EXTENSION.encode()
     with gzip.GzipFile(src_file_path, 'rb') as i, open(not_finished_dest_file_path, 'w') as o:
         token_list = pickle.load(i)
-        preprocessing_result = to_repr(prep_config, token_list + [SpecialToken(placeholders['ect'])], get_global_bpe_data_if_available())
+        bpe_data = get_global_bpe_data_if_available() if bpe_data is None else bpe_data
+        preprocessing_result = to_repr(prep_config, token_list + [SpecialToken(placeholders['ect'])], bpe_data)
         o.write(to_literal_str(to_token_str(preprocessing_result.prepped_tokens.tokens)) + '\n')
 
     if part_nonbpe_vocab_folder:
@@ -112,6 +114,13 @@ def params_generator(dataset: Dataset, path_to_part_metadata: Optional[str]):
         yield (input_file_path, output_file_path, dataset.prep_config, path_to_part_metadata)
 
 
+def get_n_cpus_to_be_used():
+    system_platform = platform.system()
+    n_cpus = 1 if system_platform in ['Windows', 'Darwin'] else os.cpu_count() or 1
+    logger.info(f"Platform: {system_platform}, n cores to be used: {n_cpus}")
+    return n_cpus
+
+
 def run(dataset: Dataset, custom_bpe_config: Optional[CustomBpeConfig]) -> None:
     path_to_parsed_dataset = dataset.parsed.path
 
@@ -143,10 +152,15 @@ def run(dataset: Dataset, custom_bpe_config: Optional[CustomBpeConfig]) -> None:
                 break
     else:
         files_total = len([f for f in dataset.get_all_files()])
-    with Pool() as pool:
-        it = pool.imap_unordered(preprocess_and_write, params_generator(dataset, path_to_part_metadata), chunksize=CHUNKSIZE)
-        for _ in tqdm(it, total=files_total):
-            pass
+    n_cpus = get_n_cpus_to_be_used()
+    if n_cpus > 1:
+        with Pool(processes=n_cpus) as pool:
+            it = pool.imap_unordered(preprocess_and_write, params_generator(dataset, path_to_part_metadata), chunksize=CHUNKSIZE)
+            for _ in tqdm(it, total=files_total):
+                pass
+    else:
+        for params in tqdm(params_generator(dataset, path_to_part_metadata), total=files_total):
+            preprocess_and_write(params, get_global_bpe_data_if_available())
 
     if path_to_part_metadata:
         vocabloader.gather_non_bpe_vocab(dataset)

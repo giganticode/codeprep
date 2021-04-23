@@ -76,6 +76,8 @@ class MergeList(object):
     >>> dct[merge2]
     3
 
+    >>> merges + MergeList().append(Merge(('d', 'e'), 84, 0))
+    [('a', 'b'): (34, 0), ('b', 'c'): (44, 1), ('d', 'e'): (84, 2)]
     >>> merges + [(('d', 'e'), 84, 1)]
     Traceback (most recent call last):
     ...
@@ -127,7 +129,7 @@ class MergeList(object):
             merge.priority += first_list_len
             new_merge_list.append(merge)
 
-        return
+        return new_merge_list
 
     def append(self, merge: Merge) -> 'MergeList':
         # along with the pair we save its priority and the number of its occurrences

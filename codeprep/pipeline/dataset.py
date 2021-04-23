@@ -94,7 +94,7 @@ class Dataset(object):
     def __init__(self, path: str, prep_config: PrepConfig, normalized_extension_list: Optional[List[str]],
                  custom_bpe_config: Optional[CustomBpeConfig],
                  bpe_config: Optional[BpeConfig],
-                 overridden_path_to_prep_dataset):
+                 overridden_path_to_prep_dataset, suppress_caching: bool):
         self._path = path
         self._prep_config = prep_config
         self._normalized_extension_list = normalized_extension_list
@@ -106,6 +106,8 @@ class Dataset(object):
         self._parsed = SubDataset(self, self._get_path_to_parsed_dataset(), suffix=PARSED_EXTENSION)
         self._preprocessed = SubDataset(self, self._get_path_to_prep_dataset(overridden_path_to_prep_dataset), suffix=PREPROCESSED_EXTENSION)
 
+        self._suppress_caching = suppress_caching
+
     def __eq__(self, o: object) -> bool:
         if isinstance(o, Dataset):
             return self._path == o._path and \
@@ -116,7 +118,8 @@ class Dataset(object):
                    self._dataset_last_modified == o._dataset_last_modified and \
                    self._original == o._original and \
                    self._parsed == o._parsed and \
-                   self._preprocessed == o._preprocessed
+                   self._preprocessed == o._preprocessed and \
+                   self._suppress_caching == o._suppress_caching
         return False
 
     #####################################################
@@ -125,12 +128,12 @@ class Dataset(object):
     def create(cls: Type['Dataset'], path_to_dataset: str, prep_config: PrepConfig, extensions: Optional[str],
                custom_bpe_config: Optional[CustomBpeConfig],
                bpe_config: Optional[BpeConfig] = None,
-               overriden_path_to_prep_dataset: Optional[str] = None) -> 'Dataset':
+               overriden_path_to_prep_dataset: Optional[str] = None, suppress_caching: bool = False) -> 'Dataset':
         if not os.path.exists(path_to_dataset):
             raise ValueError(f"Path {path_to_dataset} does not exist")
 
         normalized_extension_list = normalize_extension_string(extensions)
-        dataset = cls(path_to_dataset, prep_config, normalized_extension_list, custom_bpe_config, bpe_config, overriden_path_to_prep_dataset)
+        dataset = cls(path_to_dataset, prep_config, normalized_extension_list, custom_bpe_config, bpe_config, overriden_path_to_prep_dataset, suppress_caching=suppress_caching)
 
         if not os.path.exists(dataset.parsed.path):
             os.makedirs(dataset.parsed.path)
@@ -202,6 +205,10 @@ class Dataset(object):
         return os.path.join(prefix, basename)
 
     @property
+    def suppress_caching(self) -> bool:
+        return self._suppress_caching
+
+    @property
     def original(self) -> SubDataset:
         return self._original
 
@@ -260,7 +267,8 @@ class Dataset(object):
                                           os.path.join(self.path_to_file_list_folder, FILE_LIST_FILENAME),
                                           return_dirs_instead_of_regular_files, self._normalized_extension_list):
                 yield filepath
-            set_path_ready(self.path_to_file_list_folder)
+            if not self.suppress_caching:
+                set_path_ready(self.path_to_file_list_folder)
         else:
             file_to_save_to = DIR_LIST_FILENAME if return_dirs_instead_of_regular_files else FILE_LIST_FILENAME
             with open(os.path.join(self.path_to_file_list_folder, file_to_save_to)) as f:
