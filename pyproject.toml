@@ -25,7 +25,7 @@ homepage='http://github.com/giganticode/codeprep'
 repository='http://github.com/giganticode/codeprep'
 
 [tool.poetry.dependencies]
-python = ">=3.6, <4"
+python = ">=3.7, <4"
 dill = "^0.3.4"
 docopt = "^0.6.2"
 docopt-subcommands = "^3.0.0"
