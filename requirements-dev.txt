@@ -1,5 +1,0 @@
-git+https://github.com/casics/spiral.git@a10fcd3afbd4c28e917cc0056d6f646cc2e9bd44
-pytest==5.3.1
-pytest-mock==1.12.1
-coverage==4.5.4
-reuse==0.11.0

@@ -5,6 +5,7 @@
 import os
 
 import appdirs
+import pkg_resources
 
 TRAIN_DIR = 'train'
 TEST_DIR = 'test'
@@ -25,8 +26,7 @@ test_data_dir = os.path.join(os.path.dirname(root_package_dir), 'test-data')
 
 app_name='codeprep'
 
-with open(os.path.join(root_package_dir, 'VERSION')) as version_file:
-    version = version_file.read().strip()
+version = pkg_resources.get_distribution('codeprep').version
 
 USER_CONFIG_DIR = appdirs.user_config_dir(app_name, appauthor=False, version=version)
 USER_CACHE_DIR = appdirs.user_cache_dir(app_name, appauthor=False, version=version)

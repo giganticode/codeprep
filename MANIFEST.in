@@ -1,6 +1,0 @@
-graft codeprep/data
-include codeprep/VERSION
-include codeprep/*.yaml
-include *.md
-include *.txt
-include LICENSE
