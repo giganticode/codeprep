@@ -17,7 +17,7 @@ from codeprep.tokentypes.noneng import NonEng
 from codeprep.tokentypes.numeric import Number
 from codeprep.preprocess.placeholders import placeholders
 from codeprep.tokentypes.whitespace import Tab, NewLine, SpaceInString
-from codeprep.tokentypes.word import Word, Underscore, NonCodeChar, Operator
+from codeprep.tokentypes.word import Word, Underscore, NonCodeChar, Operator, StringLiteralQuote
 from codeprep.prepconfig import PrepParam, PrepConfig
 from codeprep.pipeline.to_repr import to_repr
 
@@ -28,17 +28,17 @@ tokens = [
     Number('1.1'),
     Operator("*"),
     NonEng(Identifier([Word.from_("übersetzen")])),
+    StringLiteralQuote('"'),
     StringLiteral([
-        NonCodeChar('"'),
         NonEng(
             Identifier([
                 Word.from_("A"),
                 Word.from_("Wirklicä")
             ])
         ),
-        SpaceInString(1),
-        NonCodeChar('"')
-    ], 11),
+        SpaceInString(1)
+    ], 9),
+    StringLiteralQuote('"'),
     NewLine(),
     MultilineComment([NonCodeChar('/'), NonCodeChar('*')]),
     MultilineComment([
@@ -100,7 +100,7 @@ def test_to_repr_0():
         '/', '/', "DIESELBE8", pl['olc_end']
     ], PreppedTokenMetadata(n_subtokens_per_token=[1] * 16,
                             token_types=[Number, Operator, Identifier,
-                                         StringLiteral, StringLiteral, StringLiteral,
+                                         StringLiteralQuote, StringLiteral, StringLiteralQuote,
                                          MultilineComment, MultilineComment, MultilineComment,
                                          MultilineComment, MultilineComment, MultilineComment,
                                          OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
@@ -129,8 +129,8 @@ def test_to_repr_0_max_str_length_7():
         '"', '"',
         '/', '*', 'ц', 'blanco_english', '*', '/',
         '/', '/', "DIESELBE8", pl['olc_end']
-    ], PreppedTokenMetadata(n_subtokens_per_token=[1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                            token_types=[Number, Operator, Identifier, StringLiteral,
+    ], PreppedTokenMetadata(n_subtokens_per_token=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                            token_types=[Number, Operator, Identifier, StringLiteralQuote, StringLiteralQuote,
                                          MultilineComment, MultilineComment, MultilineComment,
                                          MultilineComment, MultilineComment, MultilineComment,
                                          OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
@@ -161,7 +161,7 @@ def test_to_repr_0_max_str_length_B():
         '/', '/', "DIESELBE8", pl['olc_end']
     ], PreppedTokenMetadata(n_subtokens_per_token=[1] * 16,
                             token_types=[Number, Operator, Identifier,
-                                         StringLiteral, StringLiteral, StringLiteral,
+                                         StringLiteralQuote, StringLiteral, StringLiteralQuote,
                                          MultilineComment, MultilineComment, MultilineComment,
                                          MultilineComment, MultilineComment, MultilineComment,
                                          OneLineComment, OneLineComment, OneLineComment, OneLineComment]), word_end_token_added=False, full_token_view=True),
@@ -186,16 +186,16 @@ def test_to_repr_F():
         '1.1',
         "*",
         'übersetzen',
-        '"AWirklicä\xa0"',
+        '"', 'AWirklicä\xa0', '"',
         '/', '*', 'ц', 'blanco_english', '*', '/',
         '/', '/', "DIESELBE8", pl['olc_end']
-    ], PreppedTokenMetadata(n_subtokens_per_token=[1] * 14,
-                            token_types=[Number, Operator, Identifier, StringLiteral,
+    ], PreppedTokenMetadata(n_subtokens_per_token=[1] * 16,
+                            token_types=[Number, Operator, Identifier, StringLiteralQuote, StringLiteral, StringLiteralQuote,
                                          MultilineComment, MultilineComment, MultilineComment,
                                          MultilineComment, MultilineComment, MultilineComment,
                                          OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
         word_end_token_added=False, full_token_view=True),
-        {"*", "/"}, PureSnippetStructure.of([4, 6, 4]))
+        {'"', "*", "/"}, PureSnippetStructure.of([6, 6, 4]))
 
     assert result == expected_result
 
@@ -216,15 +216,15 @@ def test_to_repr_F_max_str_length_7():
         '1.1',
         "*",
         'übersetzen',
-        '""',
+        '"', '"',
         '/', '*', 'ц', 'blanco_english', '*', '/',
         '/', '/', "DIESELBE8", pl['olc_end']
-    ], PreppedTokenMetadata(n_subtokens_per_token=[1] * 14,
-                            token_types=[Number, Operator, Identifier, StringLiteral,
+    ], PreppedTokenMetadata(n_subtokens_per_token=[1] * 15,
+                            token_types=[Number, Operator, Identifier, StringLiteralQuote, StringLiteralQuote,
                                          MultilineComment, MultilineComment, MultilineComment,
                                          MultilineComment, MultilineComment, MultilineComment,
                                          OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
-        word_end_token_added=False, full_token_view=True), {"*", "/"}, PureSnippetStructure.of([4, 6, 4]))
+        word_end_token_added=False, full_token_view=True), {'"', "*", "/"}, PureSnippetStructure.of([5, 6, 4]))
 
 
     assert result == expected_result
@@ -246,16 +246,16 @@ def test_to_repr_F_max_str_length_B():
         '1.1',
         "*",
         'übersetzen',
-        '"AWirklicä\xa0"',
+        '"', 'AWirklicä\xa0', '"',
         '/', '*', 'ц', 'blanco_english', '*', '/',
         '/', '/', "DIESELBE8", pl['olc_end']
-    ], PreppedTokenMetadata(n_subtokens_per_token=[1] * 14,
-                            token_types=[Number, Operator, Identifier, StringLiteral,
+    ], PreppedTokenMetadata(n_subtokens_per_token=[1] * 16,
+                            token_types=[Number, Operator, Identifier, StringLiteralQuote, StringLiteral, StringLiteralQuote,
                                          MultilineComment, MultilineComment, MultilineComment,
                                          MultilineComment, MultilineComment, MultilineComment,
                                          OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
         word_end_token_added=False, full_token_view=True),
-    {"*", "/"}, PureSnippetStructure.of([4, 6, 4]))
+    {'"', "*", "/"}, PureSnippetStructure.of([6, 6, 4]))
 
     assert result == expected_result
 
@@ -286,7 +286,7 @@ def test_to_repr_1_nosep():
         pl['olc_end']
     ], PreppedTokenMetadata(n_subtokens_per_token=[1] * 16,
                             token_types=[Number, Operator, NonEng,
-                                                           StringLiteral, StringLiteral, StringLiteral,
+                                                           StringLiteralQuote, StringLiteral, StringLiteralQuote,
                                                            MultilineComment, MultilineComment, MultilineComment,
                                                            MultilineComment, MultilineComment, MultilineComment,
                                                            OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
@@ -324,7 +324,7 @@ def test_to_repr_2_nosep():
         '/', '/', pl['non_eng'], pl['olc_end']
     ], PreppedTokenMetadata(n_subtokens_per_token=[5] + [1] * 15,
                             token_types=[Number, Operator, NonEng,
-                                                           StringLiteral, StringLiteral, StringLiteral,
+                                                           StringLiteralQuote, StringLiteral, StringLiteralQuote,
                                                            MultilineComment, MultilineComment, MultilineComment,
                                                            MultilineComment, MultilineComment, MultilineComment,
                                                            OneLineComment, OneLineComment, OneLineComment, OneLineComment]),
@@ -457,10 +457,10 @@ def test_to_repr_with_non_eng():
     ], PreppedTokenMetadata(n_subtokens_per_token=[5, 1, 1, 1, 6, 1, 1, 1, 1,
                                                    5, 1, 1, 1, 1, 5, 1],
                             token_types=[Number, Operator, Identifier]
-                                                          + [StringLiteral] * 3
+                                                          + [StringLiteralQuote, StringLiteral, StringLiteralQuote]
                                                           + [MultilineComment] * 6
                                                           + [OneLineComment] * 4), word_end_token_added=False, full_token_view=True),
-    {'*', '"', "/"}, PureSnippetStructure.of([15, 10, 8]))
+    {'"', "/", '*'}, PureSnippetStructure.of([15, 10, 8]))
 
     assert result == expected_result
 
@@ -498,10 +498,10 @@ def test_to_repr_with_newlines_and_tabs():
     ], PreppedTokenMetadata(
         n_subtokens_per_token=[5] + [1] * 18,
         token_types=[Number, Operator, NonEng]
-                                                          + [StringLiteral] * 3 + [NewLine]
+                                                          + [StringLiteralQuote, StringLiteral, StringLiteralQuote] + [NewLine]
                                                           + [MultilineComment] * 6 + [NewLine, Tab]
                                                           + [OneLineComment] * 4), word_end_token_added=False, full_token_view=True),
-        {'*', '"', "/", '\n', '\t'}, PureSnippetStructure.of([11, 7, 5]))
+        {'*', "/", '\n', '\t', '"'}, PureSnippetStructure.of([11, 7, 5]))
 
     assert result == expected_result
 
@@ -530,16 +530,18 @@ def test_to_repr_no_str_no_com():
         pl['word_end'],
         "*",
         pl['non_eng'],
+        '"',
         pl["string_literal"],
+        '"',
         pl["comment"],
         pl["comment"],
         pl["comment"],
         pl["comment"]
-    ], PreppedTokenMetadata(n_subtokens_per_token=[5] + [1] * 7,
-                            token_types=[Number, Operator, NonEng, StringLiteral,
+    ], PreppedTokenMetadata(n_subtokens_per_token=[5] + [1] * 9,
+                            token_types=[Number, Operator, NonEng, StringLiteralQuote, StringLiteral, StringLiteralQuote,
                                                            MultilineComment, MultilineComment, MultilineComment, OneLineComment]), word_end_token_added=False, full_token_view=True),
 
-        {'*'}, PureSnippetStructure.of([8, 3, 1]))
+        {'*', '"'}, PureSnippetStructure.of([10, 3, 1]))
 
     assert result == expected_result
 
@@ -574,7 +576,7 @@ def test_to_repr_no_nosep():
         pl['olc_end']
     ], PreppedTokenMetadata(n_subtokens_per_token=[5] + [1] * 15,
                             token_types=[Number, Operator, NonEng]
-                                                          + [StringLiteral] * 3
+                                                          + [StringLiteralQuote, StringLiteral, StringLiteralQuote]
                                                           + [MultilineComment] * 6
                                                           + [OneLineComment] * 4), word_end_token_added=False, full_token_view=True),
         {'*', '"', "/"}, PureSnippetStructure.of([10, 6, 4]))
@@ -601,7 +603,7 @@ def test_to_repr_no_no_sep_with_bpe_no_merges():
         cwe,
         "*" + cwe,
         '÷', 'b', 'e', 'r', 's', 'e', 't', 'z', 'e', 'n', '</t>',
-        '"', 'A', 'W', 'i', 'r', 'k', 'l', 'i', 'c', '\xf7', '\xa0', '"', cwe,
+        '"' + cwe, 'A', 'W', 'i', 'r', 'k', 'l', 'i', 'c', '\xf7', '\xa0', cwe, '"' + cwe,
         '/' + cwe, '*' + cwe, '\xf7', cwe, 'b', 'l', 'a', 'n', 'c', 'o', '_', 'e', 'n', 'g', 'l', 'i', 's', 'h', cwe, '*' + cwe, '/' + cwe,
         '/' + cwe, '/' + cwe, 'D', 'I', 'E', 'S', 'E', 'L', 'B', 'E', '8', cwe,
         pl['olc_end'] + cwe

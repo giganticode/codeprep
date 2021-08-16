@@ -192,3 +192,11 @@ class SpecialToken(NonProcessibleToken):
 
     def preprocessed_repr(self, repr_config: ReprConfig) -> PreprocessingResult:
         raise NotImplemented()
+
+
+class StringLiteralQuote(NonProcessibleToken):
+    def __init__(self, token: str):
+        super().__init__(token)
+
+    def preprocessed_repr(self, repr_config: ReprConfig) -> PreprocessingResult:
+        raise NotImplemented()

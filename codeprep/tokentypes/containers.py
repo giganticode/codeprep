@@ -161,9 +161,7 @@ class StringLiteral(TextContainer):
         if not repr_config: #called by str()
             return self._wrap_in_metadata_for_full_word(["".join(map(lambda t: str(t), self.subtokens))], n_subtokens_in_each_line)
         elif self.length > repr_config.max_str_length:
-            s = ['""'] if repr_config.full_strings else ['"', '"']
-            non_processable_tokens = {} if repr_config.full_strings else {'"'}
-            return self._wrap_in_metadata_for_full_word(s, n_subtokens_in_each_line, non_processable_tokens)
+            return PreprocessingResult(TokenSequence.create([], PreppedTokenMetadata([], [])), {}, PureSnippetStructure.of([0]))
         elif repr_config.bpe_data:
             s = self._replace_non_ascii_seqs_if_necessary(repr_config)
             return self._wrap_in_metadata_for_full_word(repr_config.word_splitter(s, repr_config.bpe_data), n_subtokens_in_each_line)

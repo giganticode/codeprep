@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import List
+from typing import List, Union
 
 from pygments.token import Token
 
@@ -11,8 +11,11 @@ from codeprep.tokentypes.containers import StringLiteral, OneLineComment, Multil
 from codeprep.tokentypes.numeric import Number, Zero, One
 from codeprep.tokentypes.rootclasses import ParsedToken
 from codeprep.tokentypes.whitespace import NewLine, Tab
-from codeprep.tokentypes.word import KeyWord, Operator, Semicolon, OpeningCurlyBracket, ClosingCurlyBracket, OpeningBracket, \
-    ClosingBracket
+from codeprep.tokentypes.word import KeyWord, Operator, Semicolon, OpeningCurlyBracket, ClosingCurlyBracket, \
+    OpeningBracket, \
+    ClosingBracket, StringLiteralQuote
+
+# TODO these classes should return lists or not lists
 
 
 class DefaultMatcher(object):
@@ -35,8 +38,11 @@ class StringMatcher(object):
     def match(self, token, value: str) -> bool:
         return token in Token.Literal.String
 
-    def transform(self, value: str) -> List[StringLiteral]:
-        return [StringLiteral(split_string(value), len(value))]
+    def transform(self, value: str) -> Union[List[StringLiteral], StringLiteralQuote]:
+        if value in ["'", '"', '"""', "'''"]:
+            return [StringLiteralQuote(value)]
+        else:
+            return [StringLiteral(split_string(value), len(value))]
 
 
 class OneLineCommentMatcher(object):

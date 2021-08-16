@@ -128,7 +128,7 @@ def chars(path: str, extensions: Optional[str] = None, no_spaces: bool = False, 
     >>> prep_corpus = chars(os.path.join(test_data_dir, 'test-corpus'), 'js', output_path=tempfile.TemporaryDirectory().name, suppress_caching=True) # doctest: +ELLIPSIS
     Files scanned: 1...
     >>> prep_corpus.get_corpus_size()
-    97732
+    99003
     """
     prep_config= create_prep_config('chars', no_spaces=no_spaces, no_unicode=no_unicode, no_com=no_com,
                                     no_str=no_str, max_str_length=max_str_length)
@@ -213,7 +213,7 @@ def bpe(path: str, bpe_codes_id: str, extensions: Optional[str] = None, no_space
     >>> prep_corpus = bpe(os.path.join(test_data_dir, 'test-corpus'), '10k', 'js', output_path=tempfile.TemporaryDirectory().name, suppress_caching=True) # doctest: +ELLIPSIS
     Files scanned: 1...
     >>> prep_corpus.get_corpus_size()
-    52766
+    52998
     """
     prep_config= create_prep_config('bpe', bpe_codes_id=bpe_codes_id, no_spaces=no_spaces, no_unicode=no_unicode,
                                     no_com=no_com, no_str=no_str, max_str_length=max_str_length)

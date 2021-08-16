@@ -7,7 +7,7 @@ from codeprep.tokentypes.containers import Identifier, StringLiteral, OneLineCom
 from codeprep.tokentypes.numeric import Number
 from codeprep.tokentypes.whitespace import Tab, NewLine, SpaceInString
 from codeprep.tokentypes.word import Word, Underscore, KeyWord, Operator, NonCodeChar, OpeningCurlyBracket, \
-    ClosingCurlyBracket, Semicolon, OpeningBracket, ClosingBracket
+    ClosingCurlyBracket, Semicolon, OpeningBracket, ClosingBracket, StringLiteralQuote
 
 
 def test_longs():
@@ -101,7 +101,7 @@ def test_floats():
     actual = [t for t in convert_text(text, 'java')]
 
     assert expected_result == actual
-    
+
 
 def test_complex_identifiers():
     text = '''BigAWESOMEString[] a2y = "abc".doSplit("\\"");'''
@@ -111,11 +111,15 @@ def test_complex_identifiers():
         Operator(']'),
         Identifier([Word.from_('a'), Word.from_('2'), Word.from_('y')]),
         Operator('='),
-        StringLiteral([NonCodeChar('"'), Identifier.from_single_token('abc'), NonCodeChar('"')], 5),
+        StringLiteralQuote('"'),
+        StringLiteral([Identifier.from_single_token('abc')], 3),
+        StringLiteralQuote('"'),
         Operator('.'),
         Identifier([Word.from_('do'), Word.from_('Split')]),
         OpeningBracket(),
-        StringLiteral([NonCodeChar('"'), NonCodeChar('\\'), NonCodeChar('"'), NonCodeChar('"')], 4),
+        StringLiteralQuote('"'),
+        StringLiteral([NonCodeChar('\\'), NonCodeChar('"')], 2),
+        StringLiteralQuote('"'),
         ClosingBracket(),
         Semicolon(),
         NewLine()]
@@ -127,17 +131,18 @@ def test_complex_identifiers():
 
 def test_string_with_spaces():
     text='''"hi   dear     world    !"'''
-    expected = [StringLiteral([
-        NonCodeChar('"'),
-        Identifier.from_single_token('hi'),
-        SpaceInString(3),
-        Identifier.from_single_token('dear'),
-        SpaceInString(5),
-        Identifier.from_single_token('world'),
-        SpaceInString(4),
-        NonCodeChar('!'),
-        NonCodeChar('"'),
-    ], 26), NewLine()]
+    expected = [
+        StringLiteralQuote('"'),
+        StringLiteral([
+            Identifier.from_single_token('hi'),
+            SpaceInString(3),
+            Identifier.from_single_token('dear'),
+            SpaceInString(5),
+            Identifier.from_single_token('world'),
+            SpaceInString(4),
+            NonCodeChar('!')], 24),
+        StringLiteralQuote('"'),
+        NewLine()]
 
     actual = [t for t in convert_text(text, 'java')]
 
@@ -152,16 +157,18 @@ def test_spaces_in_strings():
         Operator(']'),
         Identifier([Word.from_('a'), Word.from_('2'), Word.from_('y')]),
         Operator('='),
-        StringLiteral([NonCodeChar('"'),
-                       Identifier.from_single_token('a'),
-                       SpaceInString(n_chars=4),
-                       Identifier.from_single_token('bc'),
-                       NonCodeChar('"')],
-                      9),
+        StringLiteralQuote('"'),
+        StringLiteral([
+            Identifier.from_single_token('a'),
+            SpaceInString(n_chars=4),
+            Identifier.from_single_token('bc')], 7),
+        StringLiteralQuote('"'),
         Operator('.'),
         Identifier([Word.from_('do'), Word.from_('Split')]),
         OpeningBracket(),
-        StringLiteral([NonCodeChar('"'), NonCodeChar('\\'), NonCodeChar('"'), NonCodeChar('"')], 4),
+        StringLiteralQuote('"'),
+        StringLiteral([NonCodeChar('\\'), NonCodeChar('"')], 2),
+        StringLiteralQuote('"'),
         ClosingBracket(),
         Semicolon(),
         NewLine()]
@@ -169,7 +176,7 @@ def test_spaces_in_strings():
     actual = [t for t in convert_text(text, 'java')]
 
     assert expected_result == actual
-    
+
 
 def test_one_line_comment():
     text = '''// this code won't compile but the preprocessing still has to be done corrrectly'''
@@ -364,7 +371,7 @@ _operations
     actual = [t for t in convert_text(text, 'java')]
 
     assert expected_result == actual
-    
+
 
 def test_capitals():
     text = '''
@@ -391,9 +398,9 @@ def test_string_literal_single():
 
     expected_result = [Identifier.from_single_token("a"),
                        Operator('='),
-                       StringLiteral([NonCodeChar("'")], 1),
+                       StringLiteralQuote("'"),
                        StringLiteral([Identifier([Word.from_("some"), Underscore(), Word.from_("text")])], 9),
-                       StringLiteral([NonCodeChar("'")], 1),
+                       StringLiteralQuote("'"),
                        Operator('.'),
                        Identifier.from_single_token("split"),
                        OpeningBracket(),
@@ -411,9 +418,9 @@ def test_string_literal_double():
 
     expected_result = [Identifier.from_single_token("a"),
                        Operator('='),
-                       StringLiteral([NonCodeChar('"')], 1),
+                       StringLiteralQuote('"'),
                        StringLiteral([Identifier([Word.from_("some"), Underscore(), Word.from_("text")])], 9),
-                       StringLiteral([NonCodeChar('"')], 1),
+                       StringLiteralQuote('"'),
                        Operator('.'),
                        Identifier.from_single_token("split"),
                        OpeningBracket(),
