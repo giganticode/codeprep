@@ -28,7 +28,7 @@ def test_read_merges(file_handle_mock):
     actual = merge.read_merges('file', 2)
     expected = MergeList().append(Merge(('a', 'b'), 67, 0)).append(Merge(('b', 'c'), 34, 1))
 
-    assert expected == actual
+    assert actual == expected
 
 
 def test_read_merges_with_wrong_delimiter(file_handle_mock):

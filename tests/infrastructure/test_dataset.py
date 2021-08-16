@@ -34,16 +34,16 @@ def test_non_bpe_split(get_timestamp_mock, os_exists_mock):
 
     actual = Dataset.create(PATH_TO_DATASET_STUB, prep_config, None, None)
 
-    assert PATH_TO_DATASET_STUB == actual._path
-    assert prep_config == actual._prep_config
+    assert actual._path == PATH_TO_DATASET_STUB
+    assert actual._prep_config == prep_config
     assert actual._normalized_extension_list is None
     assert actual._custom_bpe_config is None
     assert actual._bpe_config is None
-    assert '01_01_01', actual._dataset_last_modified
+    assert actual._dataset_last_modified == '01_01_01'
 
-    assert SubDataset(actual, PATH_TO_DATASET_STUB, '') == actual._original
-    assert SubDataset(actual, os.path.join(PARSED_DATASETS_DIR, 'dataset_01_01_01'), '.parsed') == actual._parsed
-    assert SubDataset(actual, os.path.join(PREP_DATASETS_DIR, 'dataset_01_01_01_-_uc10su'), '.prep') == actual._preprocessed
+    assert actual._original == SubDataset(actual, PATH_TO_DATASET_STUB, '')
+    assert actual._parsed == SubDataset(actual, os.path.join(PARSED_DATASETS_DIR, 'dataset_01_01_01'), '.parsed')
+    assert actual._preprocessed == SubDataset(actual, os.path.join(PREP_DATASETS_DIR, 'dataset_01_01_01_-_uc10su'), '.prep')
 
 
 @mock.patch('os.path.exists', autospec=True, return_value=True)
@@ -62,16 +62,16 @@ def test_non_bpe_split_with_one_extension(get_timestamp_mock, os_exists_mock):
 
     actual = Dataset.create(PATH_TO_DATASET_STUB, prep_config, "java", None)
 
-    assert PATH_TO_DATASET_STUB == actual._path
-    assert prep_config == actual._prep_config
-    assert ['java'] == actual._normalized_extension_list
+    assert actual._path == PATH_TO_DATASET_STUB
+    assert actual._prep_config == prep_config
+    assert actual._normalized_extension_list == ['java']
     assert actual._custom_bpe_config is None
     assert actual._bpe_config is None
-    assert '01_01_01' == actual._dataset_last_modified
+    assert actual._dataset_last_modified == '01_01_01'
 
-    assert SubDataset(actual, PATH_TO_DATASET_STUB, ''), actual._original
-    assert SubDataset(actual, os.path.join(PARSED_DATASETS_DIR, 'dataset_01_01_01_java'), '.parsed'), actual._parsed
-    assert SubDataset(actual, os.path.join(PREP_DATASETS_DIR, 'dataset_01_01_01_java_-_uc10su'), '.prep'), actual._preprocessed
+    assert actual._original == SubDataset(actual, PATH_TO_DATASET_STUB, '')
+    assert actual._parsed == SubDataset(actual, os.path.join(PARSED_DATASETS_DIR, 'dataset_01_01_01_java'), '.parsed')
+    assert actual._preprocessed == SubDataset(actual, os.path.join(PREP_DATASETS_DIR, 'dataset_01_01_01_java_-_uc10su'), '.prep')
 
 
 @mock.patch('os.path.exists', autospec=True, return_value=True)
@@ -98,17 +98,17 @@ def test_all_custom(get_timestamp_mock, os_exists_mock):
     actual = Dataset.create(PATH_TO_DATASET_STUB, prep_config, "c|java", custom_bpe_config,
                             bpe_config, overriden_path_to_prep_dataset=OVERRIDDEN_PATH)
 
-    assert PATH_TO_DATASET_STUB == actual._path
-    assert prep_config == actual._prep_config
-    assert ['c', 'java'] == actual._normalized_extension_list
-    assert custom_bpe_config == actual._custom_bpe_config
-    assert bpe_config == actual._bpe_config
-    assert '01_01_01' == actual._dataset_last_modified
+    assert actual._path == PATH_TO_DATASET_STUB
+    assert actual._prep_config == prep_config
+    assert actual._normalized_extension_list == ['c', 'java']
+    assert actual._custom_bpe_config == custom_bpe_config
+    assert actual._bpe_config == bpe_config
+    assert actual._dataset_last_modified == '01_01_01'
 
-    assert SubDataset(actual, PATH_TO_DATASET_STUB, '') == actual.original
-    assert SubDataset(actual, os.path.join(PARSED_DATASETS_DIR, 'dataset_01_01_01_c_java'), '.parsed') == actual.parsed
-    assert SubDataset(actual, os.path.join(OVERRIDDEN_PATH, 'dataset_01_01_01_c_java_-_uc10su_id-1000_-_prep'), '.prep') == actual.preprocessed
-    assert os.path.join(USER_CONFIG_DIR, VOCAB_DIR , 'dataset_01_01_01_c_java_-_U0EFsu') == actual.base_bpe_vocab_path
-    assert os.path.join(USER_CONFIG_DIR, BPE_DIR , 'dataset_01_01_01_c_java_-_nounicode') == actual.bpe_path
-    assert os.path.join(USER_CACHE_DIR, 'file_lists' , 'dataset_01_01_01_c_java') == actual.path_to_file_list_folder
-    assert os.path.join(USER_CONFIG_DIR, VOCAB_DIR , 'dataset_01_01_01_c_java_-_uc10su_id-1000') == actual.vocab_path
+    assert actual.original == SubDataset(actual, PATH_TO_DATASET_STUB, '')
+    assert actual.parsed == SubDataset(actual, os.path.join(PARSED_DATASETS_DIR, 'dataset_01_01_01_c_java'), '.parsed')
+    assert actual.preprocessed == SubDataset(actual, os.path.join(OVERRIDDEN_PATH, 'dataset_01_01_01_c_java_-_uc10su_id-1000_-_prep'), '.prep')
+    assert actual.base_bpe_vocab_path == os.path.join(USER_CONFIG_DIR, VOCAB_DIR , 'dataset_01_01_01_c_java_-_U0EFsu')
+    assert actual.bpe_path == os.path.join(USER_CONFIG_DIR, BPE_DIR , 'dataset_01_01_01_c_java_-_nounicode')
+    assert actual.path_to_file_list_folder == os.path.join(USER_CACHE_DIR, 'file_lists' , 'dataset_01_01_01_c_java')
+    assert actual.vocab_path == os.path.join(USER_CONFIG_DIR, VOCAB_DIR , 'dataset_01_01_01_c_java_-_uc10su_id-1000')

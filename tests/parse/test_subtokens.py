@@ -20,7 +20,7 @@ def test_split_into_tokens():
                             Word.from_('34'), Word.from_('Ef'), Word.from_('000'), Word.from_('GG')]),
                 Identifier([Word.from_('j'), Underscore(), Word.from_('89'), Underscore(), Word.from_('J')])]
 
-    assert expected == actual
+    assert actual == expected
 
 
 def test_split_string():
@@ -33,4 +33,4 @@ def test_split_string():
                 SpaceInString(5),
                 Identifier([Word.from_('j'), Underscore(), Word.from_('89'), Underscore(), Word.from_('J')])]
 
-    assert expected == actual
+    assert actual == expected

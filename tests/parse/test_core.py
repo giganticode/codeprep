@@ -34,7 +34,7 @@ def test_longs():
 
     actual = [t for t in convert_text(text, 'java')]
 
-    assert expected_result == actual
+    assert actual == expected_result
 
 
 def test_ints():
@@ -72,7 +72,7 @@ def test_ints():
 
     actual = [t for t in convert_text(text, 'java')]
 
-    assert expected_result == actual
+    assert actual == expected_result
 
 
 def test_floats():
@@ -100,7 +100,7 @@ def test_floats():
 
     actual = [t for t in convert_text(text, 'java')]
 
-    assert expected_result == actual
+    assert actual == expected_result
 
 
 def test_complex_identifiers():
@@ -126,7 +126,7 @@ def test_complex_identifiers():
 
     actual = [t for t in convert_text(text, 'java')]
 
-    assert expected_result == actual
+    assert actual == expected_result
 
 
 def test_string_with_spaces():
@@ -146,7 +146,7 @@ def test_string_with_spaces():
 
     actual = [t for t in convert_text(text, 'java')]
 
-    assert expected == actual
+    assert actual == expected
 
 
 def test_spaces_in_strings():
@@ -175,7 +175,7 @@ def test_spaces_in_strings():
 
     actual = [t for t in convert_text(text, 'java')]
 
-    assert expected_result == actual
+    assert actual == expected_result
 
 
 def test_one_line_comment():
@@ -201,7 +201,7 @@ def test_one_line_comment():
 
     actual = [t for t in convert_text(text, 'java')]
 
-    assert expected_result == actual
+    assert actual == expected_result
 
 
 def test_special_characters():
@@ -345,7 +345,7 @@ $
 
     actual = [t for t in convert_text(text, 'java')]
 
-    assert expected_result == actual
+    assert actual == expected_result
 
 
 def test_multi_line_comment():
@@ -370,7 +370,7 @@ _operations
 
     actual = [t for t in convert_text(text, 'java')]
 
-    assert expected_result == actual
+    assert actual == expected_result
 
 
 def test_capitals():
@@ -390,7 +390,7 @@ MyClass Class CONSTANT VAR_WITH_UNDERSCORES
 
     actual = [t for t in convert_text(text, 'java')]
 
-    assert expected_result == actual
+    assert actual == expected_result
 
 
 def test_string_literal_single():
@@ -410,7 +410,7 @@ def test_string_literal_single():
 
     actual = [t for t in convert_text(text, 'py')]
 
-    assert expected_result == actual
+    assert actual == expected_result
 
 
 def test_string_literal_double():
@@ -430,4 +430,4 @@ def test_string_literal_double():
 
     actual = [t for t in convert_text(text, 'py')]
 
-    assert expected_result == actual
+    assert actual == expected_result
