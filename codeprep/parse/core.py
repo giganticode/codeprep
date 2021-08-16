@@ -3,8 +3,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from typing import List
+from typing import List, Union
 
+from joblib.externals.cloudpickle import instance
 from pygments import lex
 from pygments.lexers import get_lexer_by_name, guess_lexer
 from pygments.util import ClassNotFound
@@ -31,7 +32,7 @@ matchers = [
 ]
 
 
-def _convert(token, value: str) -> List[ParsedToken]:
+def _convert(token, value: str) -> Union[ParsedToken, List[ParsedToken]]:
     for matcher in matchers:
         if matcher.match(token, value):
             return matcher.transform(value)
@@ -53,6 +54,9 @@ def convert_text(text: str, extension: str) -> List[ParsedToken]:
     else:
         lexer = guess_lexer(text)
     for token, value in lex(text, lexer):
-        model_tokens = _convert(token, value)
-        for mr in model_tokens:
-            yield mr
+        converted_tokens = _convert(token, value)
+        if isinstance(converted_tokens, list):
+            for mr in converted_tokens:
+                yield mr
+        else:
+            yield converted_tokens
